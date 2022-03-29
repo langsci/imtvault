@@ -4,12 +4,15 @@
 
 **CLDF Metadata**: [Generic-metadata.json](./Generic-metadata.json)
 
+**Sources**: [sources.bib](./sources.bib)
+
 property | value
  --- | ---
 [dc:conformsTo](http://purl.org/dc/terms/conformsTo) | [CLDF Generic](http://cldf.clld.org/v1.0/terms.rdf#Generic)
 [dc:identifier](http://purl.org/dc/terms/identifier) | https://imtvault.org
+[dc:license](http://purl.org/dc/terms/license) | https://creativecommons.org/licenses/by/4.0/
 [dcat:accessURL](http://www.w3.org/ns/dcat#accessURL) | https://github.com/xrotwang/imtvault
-[prov:wasDerivedFrom](http://www.w3.org/ns/prov#wasDerivedFrom) | <ol><li><a href="https://github.com/xrotwang/imtvault/tree/1856e9b">xrotwang/imtvault 1856e9b</a></li><li><a href="https://github.com/glottolog/glottolog/tree/45a5eb0844">Glottolog v4.5-17-g45a5eb0844</a></li></ol>
+[prov:wasDerivedFrom](http://www.w3.org/ns/prov#wasDerivedFrom) | <ol><li><a href="https://github.com/xrotwang/imtvault/tree/909c85f">xrotwang/imtvault 909c85f</a></li><li><a href="https://github.com/glottolog/glottolog/tree/v4.5">Glottolog v4.5</a></li></ol>
 [prov:wasGeneratedBy](http://www.w3.org/ns/prov#wasGeneratedBy) | <ol><li><strong>python</strong>: 3.8.10</li><li><strong>python-packages</strong>: <a href="./requirements.txt">requirements.txt</a></li></ol>
 [rdf:ID](http://www.w3.org/1999/02/22-rdf-syntax-ns#ID) | imtvault
 [rdf:type](http://www.w3.org/1999/02/22-rdf-syntax-ns#type) | http://www.w3.org/ns/dcat#Distribution
@@ -20,7 +23,7 @@ property | value
 property | value
  --- | ---
 [dc:conformsTo](http://purl.org/dc/terms/conformsTo) | [CLDF LanguageTable](http://cldf.clld.org/v1.0/terms.rdf#LanguageTable)
-[dc:extent](http://purl.org/dc/terms/extent) | 125
+[dc:extent](http://purl.org/dc/terms/extent) | 133
 
 
 ### Columns
@@ -35,13 +38,14 @@ Name/Property | Datatype | Description
 [Glottocode](http://cldf.clld.org/v1.0/terms.rdf#glottocode) | `string` | 
 [ISO639P3code](http://cldf.clld.org/v1.0/terms.rdf#iso639P3code) | `string` | 
 `Examples_Count` | `integer` | 
+`Examples_Count_Log` | `number` | 
 
 ## <a name="table-examplescsv"></a>Table [examples.csv](./examples.csv)
 
 property | value
  --- | ---
 [dc:conformsTo](http://purl.org/dc/terms/conformsTo) | [CLDF ExampleTable](http://cldf.clld.org/v1.0/terms.rdf#ExampleTable)
-[dc:extent](http://purl.org/dc/terms/extent) | 41130
+[dc:extent](http://purl.org/dc/terms/extent) | 38877
 
 
 ### Columns
@@ -58,4 +62,5 @@ Name/Property | Datatype | Description
 [Comment](http://cldf.clld.org/v1.0/terms.rdf#comment) | `string` | 
 `LGR_Conformance_Level` | `string` | 
 `Abbreviations` | `json` | 
+[Source](http://cldf.clld.org/v1.0/terms.rdf#source) | list of `string` (separated by `;`) | References [sources.bib::BibTeX-key](./sources.bib)
 
