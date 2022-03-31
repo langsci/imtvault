@@ -253,6 +253,9 @@ class Dataset(BaseDataset):
                         Longitude=glang.longitude,
                     ))
 
+                if ('language_glottocode' not in ex) or not ex['language_glottocode']:
+                    ex['language_glottocode'] = 'und'
+
                 if ex['language_glottocode'] not in lgs:
                     glang = None
                     if ex['language_glottocode'] != 'und':
@@ -285,7 +288,7 @@ class Dataset(BaseDataset):
                     ID=ID,
                     Language_ID=ex['language_glottocode'],
                     Meta_Language_ID=mlgs.get(ex['book_metalanguage']),
-                    Primary_Text=' '.join(obj),
+                    Primary_Text=igt.primary_text,
                     Analyzed_Word=obj if conformance > LGRConformance.UNALIGNED else [],
                     Gloss=gloss if conformance > LGRConformance.UNALIGNED else [],
                     Translated_Text=tr,
