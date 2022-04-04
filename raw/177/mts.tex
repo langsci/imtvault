@@ -1,0 +1,572 @@
+%% -*- coding:utf-8 -*-
+
+\chapter{生成{\normalfont -}枚举方法 {\normalfont vs.}\ 模型论方法}
+%\chapter{Generative-enumerative vs.\ model-theoretic approaches}
+\label{Abschnitt-Generativ-Modelltheoretisch}
+
+生成-枚举方法\isce[|(]{模型论语法}{model-theoretic grammar}假设语法生成一个符号序列的集合（词串）。这就是生成语法\isce{生成语法}{Generative Grammar}这一术语的由来。所以，可以利用第~\pageref{bsp-grammatik-psg}页的语法，在这里重写为（\mex{1}），得出词串er das Buch dem Mann gibt（他 \defart{} 书 \defart{} 男人 \, 给）。
+%Generative-enumerative\is{model-theoretic grammar|(} approaches assume that a grammar generates a set of sequences of symbols (strings of words).
+%This is where the term Generative Grammar\is{Generative Grammar} comes from. Thus, it is possible to use the grammar on
+%page~\pageref{bsp-grammatik-psg}, repeated here as (\mex{1}), to derive the string \emph{er das Buch dem Mann gibt}
+%`he the book the man gives'.
+\ea
+\label{bsp-grammatik-psg-zwei}
+\begin{tabular}[t]{@{}l@{ }l}
+{NP} & {$\to$ D, N}\\          
+{S}  & {$\to$ NP, NP, NP, V}
+\end{tabular}\hspace{2cm}%
+\begin{tabular}[t]{@{}l@{ }l}
+{NP} & {$\to$ er}\\
+{D}  & {$\to$ das}\\
+{D}  & {$\to$ dem}\\
+\end{tabular}\hspace{8mm}
+\begin{tabular}[t]{@{}l@{ }l}
+{N} & {$\to$ Buch}\\
+{N} & {$\to$ Mann}\\
+{V} & {$\to$ gibt}\\
+\end{tabular}
+\z
+从起始符（S）开始，符号不断被替换，直到变成一个只包含词的序列。以这种方式得出的所有字符串就是该语法所描述的语言。
+%Beginning with the start symbol (S), symbols are replaced until one reaches a sequence of symbols only containing words.
+%The set of all strings derived in this way is the language described by the grammar.
+
+下面的方法都是生成-枚举方法：
+%The following are classed as generative-enumerative approaches:
+\begin{itemize}
+\item 所有的短语结构语法\isce{短语结构语法}{phrase structure grammar}
+%\item all phrase structure grammars\is{phrase structure grammar}
+\item 转换语法的所有变体\isce{转换语法}{Transformational Grammar}
+%\item Transformational Grammars in almost all variants\is{Transformational Grammar}
+\item  \citet*{GKPS85a}提出的\gpsgc 
+%\item \gpsg in the formalism of  \citet*{GKPS85a}
+\item 范畴语法\indexcg（Categorial Grammar）的很多变体
+%\item many variants of Categorial Grammar\indexcg
+\item 树邻接语法\indextag（TAG）的很多变体
+%\item many variants of TAG\indextag
+\item Chomsky的最简语法
+%\item Chomsky's Minimalist Grammars
+\end{itemize}
+\lfg 最初的设计目的也是生成语法。
+%\lfg was also originally designed to be a generative grammar.
+
+与这些语法理论相对的是模型论或基于约束的方法（model-theoretic approaches，简称MTA）。MTA为所描述语法的表达式制定合乎语法的条件。在\ref{sec-modelle-theorien}中，我们已经讨论过一种运用特征结构来刻画现象的模型论方法。为了解释这一观点，我将讨论另外一个HPSG的例子：（\mex{1}）展示了kennst（知道）的词项。
+%The opposite of such theories of grammar are model-theoretic or constraint-based approaches (MTA).
+%MTAs formulate well-formedness conditions on the expressions that the grammar describes.
+%In Section~\ref{sec-modelle-theorien}, we already discussed a model-theoretic approach for theories that use
+%feature structures to model phenomena. To illustrate this point, I will discuss another HPSG example:
+%(\mex{1}) shows the lexical item for \emph{kennst} `know'. %in second person singular.
+\begin{figure}
+\eas
+kennst的词汇项：\\
+%Lexical item for \emph{kennst}:\\
+\label{le-kennst-mts}%
+\onems{
+phon \phonliste{ kennst }\\
+synsem \onems{ loc  \ms{ cat  & \ms{ head & \ms[verb]{ vform & fin\\
+                                                     dsl   & none\\
+                                              }\\
+                                   subcat & \sliste{ \npnom\ind{1}\sub{[\type{second},\type{sg}]}, \npacc\ind{2} }\\
+                     }\\
+                  cont & \ms{
+                         ind & \ibox{3}\\
+                         rels & \liste{ \ms[kennen]{
+                                         event       & \ibox{3}\\
+                                         experiencer & \ibox{1}\\
+                                         theme       & \ibox{2}\\
+                                         }\\
+                                      }\\
+                        }\\
+                }\\
+              nonloc  \ldots
+            }
+}
+\zs
+\vspace{-\baselineskip}
+\end{figure}
+（\mex{0}）的描述中，确保相关语言学符号的\phonvc 取值是\phonliste{ kennst } ，也就是说，\phonc 的取值是受到约束的。 （\mex{0}）中给定的特征有类似的限制：给出了\synsemvc。在\synsemc 中，\textsc{loc}和\nonlocvc 都有限制。在\textsc{cat}中，对于\headc 和\subcatc 都有各自的限制。\subcatc 的取值是对依存成分的描述列表。在这里特征描述采用了简写的方式，实际上代表了同样包含特征-值偶对的复杂特征描述。对于kenenst的第一个论元，类型\type{noun}需要一个\headvc，语义索引中的\textsc{per}取值必须是\type{second}，\textsc{num}的取值必须是\type{sg}。（\mex{0}）中的结构共享是一种特殊的限制。词项中没有说明的取值可以在类型系统给出的特征结构范围内取值。在（\mex{0}）中，主格NP和受格NP的\slashvc 取值都没给出。这意味着\slaschc 的取值可以是空列表也可以是非空列表。
+%In the description of (\mex{0}), it is ensured that the \phonv of the relevant linguistic sign is
+%\phonliste{ kennst }, that is, this value of \phon is constrained. There are parallel restrictions for the features given in (\mex{0}): the \synsemv
+%is given. In \synsem, there are restrictions on the \textsc{loc} and \nonlocv. In \textsc{cat}, there are
+%individual restrictions for \head and \subcat. The value of \subcat is a list with descriptions of dependent
+%elements. The descriptions are given as abbreviations here, which actually stand for complex feature descriptions that also
+%consist of feature-value pairs. For the first argument of \emph{kennst}, a \headv of type 
+%\type{noun} is required, the \textsc{per} value in the semantic index has to be \type{second} and the
+% \textsc{num} value has to be \type{sg}. The structure sharings in (\mex{0}) are a special kind of constraint. Values that
+% are not specified in the descriptions of lexical entries can vary in accordance with the feature geometry given by the type
+% system. In (\mex{0}), neither the \slashv of the nominative NP nor the one of the accusative NP is fixed. This means that \slasch can
+% either be an empty or non-empty list.
+
+（\mex{0}）中给出的对词项的约束与\type{phrase}类型进一步的约束发生互动。例如，在中心语-论元结构中，非中心语子节点必须对应于中心语子节点\subcatlc 中的一个元素。
+%The constraints in lexical items such as (\mex{0}) interact with further constraints that hold for the signs of type
+%\type{phrase}. For instance, in head-argument structures, the non-head daughter must correspond to an element from the \subcatl of
+%the head daughter.
+
+生成-枚举方法和模型论方法从不同侧面来观察同一个问题：生成方法只允许经由一套特定规则生成的语言现象，而模型论方法允许所有没有被约束条件所排除的语言现象。\dotfootnote{%
+可以将这一差异比作一个古老的笑话：在独裁国家，所有不被允许的都是被禁止的，在民主国家，所有不被禁止的都是允许的，而在法国，所有被禁止的都是被允许的。生成-枚举方法对应于独裁国家，模型论方法对应民主国家，而法国在语言学中没有对应。
+}
+%Generative-enumerative and model-theoretic approaches view the same problem from different sides: the generative side only
+%allows what can be generated by a given set of rules, whereas the model-theoretic approach allows everything that is not ruled out
+%by constraints.\footnote{%
+%Compare this to an old joke: in dictatorships, everything that is not allowed is banned, in democracies, everything
+%that is not banned is allowed and in France, everything that is banned is allowed. Generative-enumerative approaches correspond
+%to the dictatorships, model-theoretic approaches are the democracies and France is something that has no correlate in linguistics.
+%}
+
+\citet[\page 19--20]{PS2001a}和 \citet{Pullum2007a}列出了下面的模型论方法：\colonfootnote{%
+可以参见 \citew{Pullum2007a}对模型论句法（Model Theoretic Syntax，简称MTS）的历史发展的述评和更多的参考文献。  
+}
+% \citet[\page 19--20]{PS2001a} and  \citet{Pullum2007a} list the following model-theoretic approaches:\footnote{%
+%  See  \citew{Pullum2007a} for a historical overview of Model Theoretic Syntax (MTS) and for further references.
+%}
+\begin{itemize}
+\item Lakoff\ia{Lakoff, George}提出转换语法\isce{转换语法}{Transformational Grammar}的非程序性变体，该理论为潜在的树序列制定了约束条件，
+%\item the non-procedural variant of Transformational Grammar\is{Transformational Grammar} of Lakoff\ia{George Lakoff}, that formulates
+%constraints on potential tree sequences,
+\item Johnson和Postal针对关系语法的形式化研究\isce{关系语法}{Relational Grammar}\citeyearpar{JP80a-u}，
+%\item Johnson and Postal's formalization of Relational Grammar\is{Relational Grammar} \citeyearpar{JP80a-u}, 
+\item 由\citet{GPCKHL88a}、 \citet{BGM93a-u}和 \citet{Rogers97a}开发的GPSG变体\indexgpsg，
+%\item GPSG\indexgpsg in the variants developed by  \citet{GPCKHL88a},  \citet{BGM93a-u} and  \citet{Rogers97a},
+\item  对\citet{Kaplan95a}进行形式化分析的LFG\indexlfg\footnote{%
+ 根据\citet[第3.2节]{Pullum2013a}，所谓的约束性等式（constraining equations）的模型论形式化分析似乎是有问题的。
+}以及
+%\item LFG\indexlfg in the formalization of  \citet{Kaplan95a}\footnote{%
+%  According to  \citet[Section~3.2]{Pullum2013a}, there seems to be a problem for model-theoretic formalizations of so-called
+%  \emph{constraining equations}.
+%} and   
+\item  对\citet{King99a-u}进行形式化分析的HPSG\indexhpsg 。
+%\item HPSG\indexhpsg in the formalization of  \citet{King99a-u}.
+\end{itemize}
+范畴语法\indexcg\citep{BvN94a-u}、树邻接语法\indextag\citep{RVS94a-u}和最简方案\indexmp\citep{Veenstra98a}都可以用模型论术语进行形式化。
+%Categorial Grammars\indexcg \citep{BvN94a-u}, TAG\indextag \citep{RVS94a-u} and
+%Minimalist\indexmp approaches \citep{Veenstra98a} can be formulated in model-theoretic terms.
+
+\citet{PS2001a} 指出了这三种观点的多种差异。在下面的章节中，我会着重论述其中两种差异。\dotfootnote{%
+	在这里读者应该注意：关于生成-枚举和MTS模型应该怎样最好地被形式化有不同的意见，而且这里讨论的所有假设并非都兼容于每一种形式化体系。下面的章节只是宽泛地反映了重要的观点。%
+} \ref{Abschnitt-MTS-ten-Hacken}解决了Hacken对于模型论观点的反驳。
+% \citet{PS2001a} point out various differences between these points of view. In the following sections, I will focus on two of these differences.\footnote{%
+%	The reader should take note here: there are differing views with regard to how generative-enumerative and MTS models are best formalized and not
+%	all of the assumptions discussed here are compatible with every formalism. The following sections mirror the important points in the general discussion.%
+%} Section~\ref{Abschnitt-MTS-ten-Hacken} deals with ten Hacken's objection to the model-theoretic view.
+
+\section{分级的可接受性}
+%\section{Graded acceptability}
+
+生成-枚举方法\isce[|(]{分级性}{gradability}与模型论方法的差异在于它们怎么处理不同程度的话语可接受性。在生成-枚举方法中，一个特定的词串，要么是合乎形式的表达，要么不是。这就意味着无法直接描述偏离的程度：（\mex{1}）中的第一个句子是合乎语法的，而下面的三句都不合乎语法。
+%Generative-enumerative\is{gradability|(} approaches differ from model-theoretic approaches in how they deal with the varying degrees of acceptability
+%of utterances. In generative-enumerative approaches, a particular string is either included in the set of well-formed expressions or it is not.
+%This means that it is not straightforwardly possible to say something about the degree of deviance: the first sentence in (\mex{1}) is judged grammatical
+%and the following three are equally ungrammatical.
+\eal
+\ex[]{
+\gll Du kennst diesen Aufsatz.\\
+	 你 知道.\textsc{2sg} \defart.\acc{} 文章\\
+%\gll Du kennst diesen Aufsatz.\\
+%	 you know.\textsc{2sg} this.\acc{} essay\\
+\mytrans{你知道这篇文章。}
+}
+\ex[*]{
+\gll Du kennen diesen Aufsatz.\\
+	你 知道.\textsc{3pl} \defart.\acc{} 文章\\
+%\gll Du kennen diesen Aufsatz.\\
+%	you know.\textsc{3pl} this.\acc{} essay\\
+}
+\ex[*]{
+\gll Du kennen dieser Aufsatz.\\
+你 知道.\textsc{3pl} \defart.\nom{} 文章\\
+%\gll Du kennen dieser Aufsatz.\\
+%you know.\textsc{3pl} this.\nom{} essay\\
+}
+\ex[*]{
+\gll Du kennen Aufsatz dieser.\\
+你 知道.\textsc{3pl} 文章 \defart.\nom{}\\
+%\gll Du kennen Aufsatz dieser.\\
+%you know.\textsc{3pl} essay this.\nom{}\\
+}
+\zl
+对于这一点，批评者指出，事实上可以确定例（\mex{0}b--d）的可接受度：在（\mex{0}b）中，主语和动词之间没有一致关系，在（\mex{0}c）中，dieser Aufsatz（这 文章）除了主谓不一致之外，格关系也不对，在（\mex{0}d）中，Aufsatz（文章）和dieser（这）的语序也不对。另外，（\mex{1}）中的句子违反了德语的语法规则，但是仍然是可以理解的。
+%At this point, critics of this view raise the objection that it is in fact possible to determine degrees of acceptability
+%in (\mex{0}b--d): in (\mex{0}b), there is no agreement between the subject and the verb, in
+%(\mex{0}c),  \emph{dieser Aufsatz} `this essay'  has the wrong case in addition, and in (\mex{0}d),
+%\emph{Aufsatz} `essay' and \emph{dieser} `this' occur in the wrong order. Furthermore,
+% the sentence in (\mex{1}) violates grammatical rules of German, but is nevertheless still interpretable.
+\ea
+\gll Studenten stürmen mit Flugblättern und Megafon die Mensa und rufen alle auf zur Vollversammlung in der Glashalle \emph{zum} \emph{kommen}. \emph{Vielen} bleibt das Essen im Mund stecken und \emph{kommen} \emph{sofort} \emph{mit}.\footnotemark\\
+学生 风暴 \textsc{prep} 传单 和 扩音器 \defart{} 餐馆 并且 号召 所有的 \textsc{prep} \textsc{prep}.\defart{} 全体.会议 \textsc{prep} \defart{} 玻璃.大厅 \textsc{prep}.\defart{} 来 很多.\dat{} 停留 \defart{} 食物 \textsc{prep}.\defart{} 嘴巴 塞 并且 来 立即 \textsc{part}\\
+\footnotetext{%
+  《不莱梅罢工报》（\emph{Streikzeitung der Universität Brement}），\zhdate{2003/12/04}，第2页。强调部分是我加的。 
+}
+\mytrans{拿着传单与扩音器的学生们涌入学生餐厅，号召所有人加入他们在玻璃大厅召开的全体会议。很多学生嘴里塞满食物就立即加入了他们。}
+%\gll Studenten stürmen mit Flugblättern und Megafon die Mensa und rufen alle auf zur Vollversammlung in der Glashalle \emph{zum} \emph{kommen}. \emph{Vielen} bleibt das Essen im Mund stecken und \emph{kommen} \emph{sofort} \emph{mit}.\footnotemark\\
+%students storm with flyers and megaphone the canteen and call all up to plenary.meeting in the glass.hall to.the come many.\dat{} stays the food in.the mouth stick and come immediately with\\
+%\footnotetext{%
+%  Streikzeitung der Universität Bremen, 04.12.2003, p.\,2. The emphasis is mine.
+%}
+%\glt `Students stormed into the university canteen with flyers and a megaphone calling for everyone to come to a plenary meeting
+%in the glass hall. For many, the food stuck in their throats and they immediately joined them.'
+\z
+Chomsky（\citeyear[第5章]{Chomsky75a}；\citeyear{Chomsky64a}）尝试用词串距离函数（string distance function）来决定话段的相对可接受性。这个函数将不合语法的词串与合法表达相比较，并按照一定的标准给不合乎语法性打分，即1、2或3。但是，这一处理并不完备，因为在接受性上仍然存在很多细微的差异，而词串距离函数无法做出正确预测。这个问题以及计算这一函数的技术问题可以参见\citew[\page 29]{PS2001a}。
+%Chomsky (\citeyear[Chapter~5]{Chomsky75a}; \citeyear{Chomsky64a}) tried to use a string distance function to determine the relative
+%acceptability of utterances. This function compares the string of an ungrammatical expression with that of a grammatical expression
+%and assigns an ungrammaticality score of 1, 2 or 3 according to certain criteria. This treatment is not adequate, however, as there
+%are much more fine-grained differences in acceptability and the string distance function also makes incorrect predictions.
+%For examples of this and technical problems with calculating the function, see  \citew[\page 29]{PS2001a}.
+
+在模型论方法中，语法被理解为一个合法的条件系统。违反越多合法的条件，即产出越差的话语表达\citep[\page 26--27]{PS2001a}。在（\mex{-1}b）中，动词kennst词项的人称和数约束都被违反了。另外，在（\mex{-1}c）中，宾语的格要求也没有得到满足。在（\mex{-1}d）中，名词短语的线性化规则被违反了。
+%In model-theoretic approaches, grammar is understood as a system of well-formedness conditions. An expression becomes worse, the
+%more well-formedness conditions it violates \citep[\page 26--27]{PS2001a}. In (\mex{-1}b), the person and number requirements of
+%the lexical item for the verb \emph{kennst} are violated. In addition, the case requirements for the object have not been fulfilled in
+%(\mex{-1}c). There is a further violation of a linearization rule for the noun phrase in (\mex{-1}d).
+
+合乎语法的条件可以解释为什么有的违反会比其他违反导致更加严重的异常结果。另外，语言运用因素在判断一个句子是否合法的时候也起作用（关于语言运用和语言能力之间的差异可以参见第\ref{Abschnitt-Diskussion-Performanz}章）。第\ref{Abschnitt-Diskussion-Performanz}章也会指出，与语言运用兼容的语法模型，能较好地使用基于限制的方法。如果我们将相关语法理论与语言运用模型组合，我们就可以解释语言运用因素导致的可接受性差异。\isce[|)]{分级性}{gradability}
+%Well-formedness conditions can be weighted in such a way as to explain why certain violations lead to more severe deviations than
+%others. Furthermore, performance factors also play a role when judging sentences (for more on the distinction between performance
+%and competence, see Chapter~\ref{Abschnitt-Diskussion-Performanz}). As we will see in Chapter~\ref{Abschnitt-Diskussion-Performanz},
+%constraint-based approaches work very well as performance-compatible grammar models. If we combine the relevant grammatical theory
+%with performance models, we will arrive at explanations for graded acceptability differences owing to performance factors.
+%\is{gradability|)}
+
+\section{话语片段}
+%\section{Utterance fragments}
+
+\mbox{} \citet[第3.2节]{PS2001a}指出生成-枚举理论无法给句片分配结构。例如，词串and of the和词串the of and都没有结构，因为这两个序列作为语句来说都不合法，所以它们不是语法产生的序列集合中的成员。但是，and of the可以作为PPs的并列的一部分出现在类似于（\mex{1}）的句子中，并且这些例子有一定的结构，例如图\vref{fig-and-of-the}给出的例子。
+%\mbox{} \citet[Section~3.2]{PS2001a} point out that generative-enumerative theories do not assign structure to fragments.
+%For instance, neither the string \emph{and of the} nor the string \emph{the of and} would receive a
+%structure since none of these sequences is well-formed as an utterance and they are therefore not elements of the set of sequences generated by the grammar. However, \emph{and of the}
+%can occur as part of the coordination of PPs in sentences such as (\mex{1}) and would therefore have some structure in these cases,
+%for example the one given in Figure~\vref{fig-and-of-the}.%
+\ea
+\gll That cat is afraid of the dog and of the parrot.\\
+	 那 猫 \textsc{cop} 害怕 \textsc{prep} \defart{} 狗 和 \textsc{prep} \defart{} 鹦鹉\\
+\mytrans{那只猫害怕狗和鹦鹉。}
+%That cat is afraid of the dog and of the parrot.
+\z
+\begin{figure}
+\centering
+%%\begin{tikzpicture}
+%%\tikzset{level 1+/.style={level distance=3\baselineskip}}
+%%%\tikzset{frontier/.style={distance from root=23\baselineskip}}
+%%\Tree[.PP
+%%        PP
+%%        [.{PP[\textsc{coord} \emph{and} ]}
+%%          [.Conj and ]
+%%          [.{PP} 
+%%            [.P of ]
+ %%           [.NP 
+%%              [.Det the ]
+ %%             {\nbar}  ] ] ] 
+%%]
+%%\end{tikzpicture}
+\begin{forest}
+%sm edges
+[PP
+  [PP]
+  [{PP[\textsc{coord} \emph{and} ]}
+    [Conj [and\\和]]
+    [PP
+      [P [of\\\textsc{prep}]]
+      [NP
+        [Det [the\\\textsc{da}]]
+        [\nbar]]]]]
+\end{forest}
+\caption{\label{fig-and-of-the} \citew[\page 32]{PS2001a}给出的and of the的结构}
+%\caption{\label{fig-and-of-the}Structure of the fragment \emph{and of the} following
+%   \citew[\page 32]{PS2001a}}
+\end{figure}%
+在基于约束的语法中，多种约束条件的互动使得the是NP的一部分，并且这个NP是of的论元，进而and与相关的PP组合。在对称的并列中，第一个连词与第二个连词有相同的句法属性，这就是为什么and of the的部分结构可以使得我们就连词的范畴得出结论，虽然它不是词串的一部分。
+%As a result of the interaction of various constraints in a constraint-based grammar, it emerges that \emph{the}
+%is part of an NP and this NP is an argument of \emph{of} and furthermore \emph{and} is combined with the relevant
+%\emph{of}-PP. In symmetric coordination, the first conjunct has the same syntactic properties as the second, which
+%is why the partial structure of \emph{and of the} allows one to draw conclusions about the category of the conjunct
+%despite it not being part of the string.
+
+Ewan Klein\ia{Klein, Ewan}指出，可从简单推导出复杂表达的范畴语法\indexcg 和最简方案，它们可以生成这类句片\citep[\page 507]{Pullum2013a}。对于运用了组合规则的范畴语法来说，确实是这样，它允许将词任意组合来组成成分。如果将派生看作是逻辑证据（logical proofs），这一点在范畴语法的一些变体中很常见，那么真正的派生就不重要了。能否找到证据才是最重要的。但是，如果对于派生结构有兴趣，那么Pullum和Scholz提出的论据则仍然有效。对于一些基于韵律\isce{韵律}{prosody}和信息结构特征来推动原则组合的范畴语法变体\citep[第3节]{Steedman91a}，问题仍然存在，因为句片所具有的结构独立于整个句子的结构并且其信息结构独立于其整个结构的信息结构。这个句片的结构就这样无法运用类型上升规则和组合规则来分析了。
+%Ewan Klein\ia{Ewan Klein} noted that Categorial Grammar\indexcg and Minimalist Grammars, which build up more complex
+%expressions from simpler ones, can sometimes create this kind of fragments \citep[\page 507]{Pullum2013a}.
+%This is certainly the case for Categorial Grammars with composition rules, which allow one to
+%combine any sequence of words to form a constituent. If one views derivations as logical proofs, as
+%is common in some variants of Categorial Grammar, then the actual derivation is irrelevant. What matters is whether a
+%proof can be found or not. However, if one is interested in the derived structures, then the argument brought forward by Pullum and Scholz is still
+%valid. For some variants of Categorial Grammar that motivate the combination of constituents based on their prosodic\is{prosody}
+%and information-structural properties \citep[Section~3]{Steedman91a}, the problem persists since fragments have
+%a structure independent of the structure of the entire utterance and independent of their
+%information-structural properties within this complete structure. This structure of the fragment
+%can be such that it is not possible to analyze it with type-raising rules and composition
+%rules.
+
+无论如何，这个论据对于最简方案都是一种挑战，因为最简方案\isce{最简方案（MP）}{Minimalist Program (MP)}不可能允许the与这样的名词性成分相组合，即这一成分尚未通过合并从词语材料中构建而来。
+%In any case, this argument holds for Minimalist\is{Minimalist Program (MP)} theories since it is not possible to have a combination
+%of \emph{the} with a nominal constituent if this constituent was not already built up from lexical
+%material by Merge.
+
+\section{模型论方法的一个问题？}
+%\section{A problem for model-theoretic approaches?}
+\label{Abschnitt-MTS-ten-Hacken}
+
+\mbox{}\Citet[\page 237--238]{TenHacken2007a}讨论了HPSG\indexhpsg 的形式化设想。在HPSG中，特征描述用于描写特征结构。特征结构一定要包含某一个特定类型结构的所有特征。另外，特征必须有一个最大化-特指取值（见\ref{sec-modelle-theorien}）。Ten Hacken讨论了英语名词cousin的性别\isce[|(]{性}{gender}属性。在英语中，性别对于确定代词的正确约束是非常重要的（见第~\pageref{le-buch}页对于德语的论述）：
+%\mbox{}\Citet[\page 237--238]{TenHacken2007a} discusses the formal assumptions of HPSG\indexhpsg. In HPSG, feature descriptions are used to describe feature
+%structures. Feature structures must contain all the features belonging to a structure of a certain
+%type. Additionally, the features have to have a maximally-specific value (see
+%Section~\ref{sec-modelle-theorien}). Ten Hacken discusses gender properties\is{gender|(} of the
+%English noun \emph{cousin}. In English, gender is important in order to ensure the correct binding
+%of pronouns (see page~\pageref{le-buch} for German): 
+\eal
+\ex 
+\gll The man$_i$ sleeps. He$_i$ snores.\\
+	 \defart{} 男人 睡觉 他  打呼噜\\
+\mytrans{那个男人睡觉。他打呼噜。}
+%\ex The man$_i$ sleeps. He$_i$ snores.
+\ex 
+\gll The woman$_i$ sleeps. He$_{*i}$ snores.\\
+	 \defart{} 女人 睡觉 他  打呼噜\\
+\mytrans{那个女人睡觉。他打呼噜。}
+%\ex The woman$_i$ sleeps. He$_{*i}$ snores.
+\zl
+因为在（\mex{0}a）中he可以指称man，所以woman不可能是先行语。Ten Hacken提出的问题是cousin没有标注性别取值。因此，可能用其来指称男性或女性亲戚。正如我们在\ref{sec-modelle-theorien}中对于Frau（女人）的格取值的讨论，在描述中取值可以是未指定的。因此，在相关的特征结构中，任意合适和最大化特指的取值都是可以的。所以，在实际特征结构中，Frau的格可以是主格、属格、与格或受格。相似地，对应于（\mex{1}）中的用法，cousin有两个可能的性别取值。
+%While \emph{he} in (\mex{0}a) can refer to \emph{man}, \emph{woman} is not a possible antecedent. Ten Hacken's problem is that \emph{cousin}
+%is not marked with respect to gender. Thus, it is possible to use it to refer to both male and female relatives.
+%As was explained in the discussion of the case value of \emph{Frau} `woman' in Section~\ref{sec-modelle-theorien}, it is possible for a
+%value in a description to remain unspecified. Thus, in the relevant feature structures, any
+%appropriate and maximally specific value is possible. The case of \emph{Frau} can therefore be nominative, genitive, dative or accusative in an actual feature structure.
+%Similarly, there are two possible genders for \emph{cousin} corresponding to the usages in (\mex{1}).
+\eal
+\ex 
+\gll I have a cousin$_i$. He$_i$ is very smart.\\
+	 我 有 一 表兄 他 \textsc{cop} 非常 聪明\\
+\mytrans{我有一个表兄。他非常聪明。}
+%\ex I have a cousin$_i$. He$_i$ is very smart.
+\ex 
+\gll I have a cousin$_i$. She$_i$ is very smart.\\
+	 我 有 一 表兄 她 \textsc{cop} 非常 聪明\\
+\mytrans{我有一个表兄。她非常聪明。}
+%\ex I have a cousin$_i$. She$_i$ is very smart.
+\zl
+
+\noindent
+Ten Hacken认为类似于例（\mex{1}）的例子都是有问题的：
+%Ten Hacken refers to examples such as (\mex{1}) and claims that these are problematic:
+\eal
+\ex 
+\gll Niels has two cousins.\\
+	 Niels 有 两 表亲\\
+\mytrans{我有两个表亲。}
+%\ex Niels has two cousins.
+\ex 
+\gll How many cousins does Niels have?\\
+	\textsc{que} 很多 表亲 \textsc{aux} Niels 有\\
+\mytrans{Niels有多少个表亲？}
+%\ex How many cousins does Niels have?
+\zl
+在复数用法中，不可能假设cousins是阴性或阳性，因为关系集合可以包含女性或男性。值得注意的是，在英语中，（\mex{1}a）是合法的，但是在德语中要表达相似的意义需要强制使用（\mex{1}b）。
+%In plural usage, it is not possible to assume that \emph{cousins} is feminine or masculine since the set of relatives can contain
+%either women or men. It is interesting to note that (\mex{1}a) is possible in English, whereas German is forced to use (\mex{1}b)
+%to express the same meaning.
+\eal
+\ex 
+\gll Niels and Odette are cousins.\\
+	Niels 和 Odette \textsc{cop} 表亲\\
+\mytrans{Niels 和 Odette是表亲？}
+%\ex Niels and Odette are cousins.
+\ex 
+\gll Niels und Odette sind Cousin und Cousine.\\
+	 Niels 和 Odette \textsc{cop} 表亲.\mas{} 和 表亲.\fem\\
+%\gll Niels und Odette sind Cousin und Cousine.\\
+%	 Niels and Odette are cousin.\mas{} and cousin.\fem\\
+\mytrans{Niels 和 Odette是表亲。}
+\zl
+Ten Hacken得出结论，性别取值一定要保持是未指定的，按照他的观点，这显示模型论分析不适合描述语言。
+%Ten Hacken concludes that the gender value has to remain unspecified and this shows, in his opinion, that model-theoretic analyses
+%are unsuited to describing language.
+
+如果我们思考一下Ten Hacken所观察的现象，我们就知道如何用模型论方法来解释这一现象：Ten Hacken声称，为cousin的复数形式指定性别值是没有意义的。按照模型论方法，这一点可以用两种方式来解决。第一种方法是假设复数形式的指称标引没有性别特征，另一种是可以为复数名词增加一个性别值。
+%If we consider what exactly ten Hacken noticed, then it becomes apparent how one can account for this in a model-theoretic approach:
+%Ten Hacken claims that it does not make sense to specify a gender value for the plural form of \emph{cousin}. In a model-theoretic approach, this can be captured
+% in two ways. One can either assume that there are no gender features for referential indices in the
+%plural, or that one can add a gender value that plural nouns can have.
+
+第一种方法由以下事实支持，代词复数形式没有屈折变化来表示性别范畴。因此，没有理由区分复数形式的性别范畴。
+%The first approach is supported by the fact that there are no inflectional differences between the
+%plural forms of pronouns with regard to gender. There is therefore no reason to distinguish genders
+%in the plural.
+\eal
+\ex 
+\gll Niels and Odette are cousins. They are very smart.\\
+	Niels 和 Odette \textsc{cop} 表亲 他们 \textsc{cop} 非常 聪明\\
+\mytrans{Niels 和 Odette是表亲。他们非常聪明。}
+%\ex Niels and Odette are cousins. They are very smart.
+\ex 
+\gll The cousins / brothers / sisters are standing over there. They are very smart.\\
+	\defart{} 表亲 {} 兄弟 {} 姐妹 \textsc{cop} 站 \textsc{part} 那里 他们 \textsc{cop} 非常 聪明\\
+\mytrans{那些表亲/兄弟/姐妹正站在那边。他们非常聪明。}
+%\ex The cousins/brothers/sisters are standing over there. They are very smart.
+\zl
+当涉及到名词性屈折变化（brothers、sisters、books）时，复数形式没有差异。德语的情况却不是这样。当涉及到所指的性别时，名词性屈折变化和（某些）名词短语的指称存在差异。这一现象最常提到的例子就是Cousin（表兄弟）和Cousine（表姐妹）以及带有\suffix{in} 后缀的Kindergärtnerin（女护士）。但是，性通常是与性别无关的语法概念。例如，中性名词Mitglied（成员），可以指女人，也可以指男人。
+%No distinctions are found in plural when it comes to nominal inflection (\emph{brothers},
+%\emph{sisters}, \emph{books}). In German, this is different. There are differences with both nominal
+%inflection and the reference of (some) noun phrases 
+%with regard to the sexus of the referent.
+%Examples of this are the previously mentioned examples \emph{Cousin} `male cousin' and
+%\emph{Cousine} `female cousin' as well as forms with the suffix \suffix{in} as in \emph{Kindergärtnerin} `female nursery teacher'.
+%However, gender is normally a grammatical notion that has nothing to do with sexus\is{sexus}.
+%An example is the neuter noun \emph{Mitglied} `member', which can refer to both female and male persons.
+
+当讨论Ten Hacken的问题时需要问的一个问题是：性范畴对于德语的代词约束起作用吗？如果不是这样，那么性特征只是在形态成分中起作用，那么性取值就是在词库中由特定的名词所决定。对于人称代词的约束，德语中没有性差异。
+%The question that one has to ask when discussing Ten Hacken's problem is the following: does gender play a role for pronominal binding
+%in German? If this is not the case, then the gender feature is only relevant within the morphology
+%component, and here the gender value is determined for each noun in the lexicon. For the binding of personal pronouns, there is no gender difference in German. 
+\ea
+\gll Die Schwestern / Brüder / Vereinsmitglieder / Geschwister stehen dort.~~~~~~ Sie lächeln.\\
+     \defart{} 姐妹.\fem{} {} 兄弟.\mas{} {} 俱乐部.成员.\neu{} {} 兄弟姐妹 站 那里 他们 笑\\
+\mytrans{那些姐妹/兄弟/俱乐部成员/兄弟姐妹正站在那边。他们在笑。}
+%\gll Die Schwestern / Brüder / Vereinsmitglieder / Geschwister stehen dort.~~~~~~ Sie lächeln.\\
+%     the sisters.\fem{} {} brothers.\mas{} {} club.members.\neu{} {} siblings stand there they smile.\\
+%\mytrans{The sisters/brothers/club members/siblings are standing there. They are smiling.}
+\z
+但是，德语中有状语与其所指称名词的性保持一致关系\citep[第6章]{Hoehle83a}：
+%Nevertheless, there are adverbials in German that agree in gender with the noun to which they refer \citep[Chapter~6]{Hoehle83a}:
+\eal
+\label{Beispiel-einer-nach-dem-anderen}
+\ex
+\gll Die Fenster wurden eins nach dem anderen geschlossen.\\
+	 \defart{} 窗户.\neu{}  \passivepst{} 一.\neu{} \textsc{prep} \defart{} 其他 \textsc{ptcp}.关.\textsc{ptcp}\\
+\mytrans{窗户被一个接一个地关上了。}
+%\gll Die Fenster wurden eins nach dem anderen geschlossen.\\
+%	 the windows.\neu{} were one.\neu{} after the other closed\\
+%\mytrans{The windows were closed one after the other.}
+\ex 
+\gll Die Türen wurden eine nach der anderen geschlossen.\\
+	\defart{} 门.\fem{} \passivepst{} 一.\fem{} \textsc{prep} \defart{} 其他 \textsc{ptcp}.关.\textsc{ptcp}\\
+\mytrans{门被一个接一个地关上了。}
+%\gll Die Türen wurden eine nach der anderen geschlossen.\\
+%	the doors.\fem{} were one.\fem{} after the other closed\\
+%\mytrans{The doors were closed one after the other.}
+\ex 
+\gll Die Riegel wurden einer nach dem anderen zugeschoben.\\
+	 \defart{} 门闩.\mas{} \passivepst{} 一.\mas{} \textsc{prep} \defart{} 其他 \textsc{inf}.\textsc{ptcp}.关.\textsc{ptcp}\\
+\mytrans{门闩被一个接一个地关上了。}
+%\gll Die Riegel wurden einer nach dem anderen zugeschoben.\\
+%	 the bolts.\mas{} were one.\mas{} after the other closed\\
+%\mytrans{The bolts were closed one after the other.}
+\zl
+对于有生名词，可以不限于名词的性别范畴，而采用对应于生理性别的状语形式：
+%For animate nouns, it is possible to diverge from the gender of the noun in question and use a form of
+%the adverbial that corresponds to the biological sex:
+\eal
+\ex 
+\gll Die Mitglieder des Politbüros wurden eines / einer nach dem anderen aus dem Saal getragen.\\
+	 \defart{} 成员.\neu{} \defart{} 政治局 \passivepst{} 一.\neu{} {} 一.\mas{} \textsc{prep} \defart{} 其他 \textsc{prep} \defart{} 大厅 运送\\
+\mytrans{政治局的成员一个接一个地被排挤出去。}
+%\gll Die Mitglieder des Politbüros wurden eines / einer nach dem anderen aus dem Saal getragen.\\
+%	 the members.\neu{} of.the politburo were one.\neu{} {} one.\mas{} after the other out.of the hall carried\\
+%\mytrans{The members of the politburo were carried out of the hall one after the other.}
+\ex 
+\gll Die Mitglieder des Frauentanzklubs verließen eines / eine nach dem / der anderen im Schutze der Dunkelheit den
+Keller.\\
+\defart{} 成员.\neu{} \defart{} 女子.跳舞.俱乐部 离开 一.\neu{} {} 一.\fem{} \textsc{prep} \defart.\neu{} {} \defart.\fem{} 其他 \textsc{prep}.\defart{} 保护 \defart{} 黑暗的 \defart{}
+地下室\\
+\mytrans{女子舞蹈俱乐部的成员在黑暗的掩护下一个接一个地离开了地下室。}
+%\gll Die Mitglieder des Frauentanzklubs verließen eines / eine nach dem / der anderen im Schutze der Dunkelheit den
+%Keller.\\
+%the members.\neu{} of.the women's.dance.club left one.\neu{} {} one.\fem{} after the.\neu{} {} the.\fem{} other in.the protection of.the dark the
+%basement\\
+%\mytrans{The members of the women's dance club left the basement one after the other under cover of darkness.}
+\zl
+这种不采用性别范畴，而采用生理性别的情况也可见于人称代词和关系代词跟像Weib（女人，贬义词） 和Mädchen（女孩）这样的名词的约束关系：
+%This deviation from gender in favor of sexus can also be seen with binding of personal and relative pronouns with nouns such as
+%\emph{Weib} `woman' (pej.) and \emph{Mädchen} `girl':
+\eal
+\ex 
+\gll "`Farbe bringt die meiste Knete!"' verriet ein 14jähriges türkisches \emph{Mädchen}, \emph{die} die Mauerstückchen am      Nachmittag am Checkpoint Charlie an Japaner und US-Bürger verkauft.\footnotemark\\
+\hspaceThis{"`}颜色 带来 \defart{}~ 最多 钱 揭露 一~ 14-岁  土耳其 女孩.\neu{} \textsc{rel}.\fem{} \defart{} 墙.碎片
+\textsc{prep}.\defart{} 下午 \textsc{prep}.\defart{} 检查站 查理 \textsc{prep} 日本 和 美国-国民 卖\\  
+\footnotetext{%
+      《日报》（\emph{taz}）， \zhdate{1990/06/04}，第6页。
+      }
+\mytrans{\,“彩色的最贵”，一个在查理检查站向日本人和美国人出售墙碎片的14岁土耳其小女孩说。}
+%\gll "`Farbe bringt die meiste Knete!"' verriet ein 14jähriges türkisches {\em Mädchen\/}, {\em die\/} die Mauerstückchen am
+%      Nachmittag am Checkpoint Charlie an Japaner und US-Bürger verkauft.\footnotemark\\
+%\hspaceThis{"`}color brings the most money revealed a 14-year.old Turkish girl.\neu{} who.\fem{} the wall.pieces
+%in.the afternoon at Checkpoint Charlie at Japanese and US-citizens sells\\  
+%\footnotetext{%
+%        taz, 14.06.1990, p.\,6.
+%      }
+%\mytrans{\,``Color gets the most money'} said a 14-year old Turkish girl who sells pieces of the wall to Japanese and American citizens
+%at Checkpoint Charlie.'
+\ex 
+{\raggedright
+\gll Es ist ein junges {\em Mädchen\/}, {\em die\/} auf der Suche nach CDs bei Bolzes reinschaut.\footnotemark\\
+	 他 \textsc{cop} 一 年轻的 女孩.\neu{} \textsc{rel}.\fem{} \textsc{prep} \defart{} 寻找 \textsc{prep} CDs \textsc{prep} Bolzes 进入.看\\
+\footnotetext{%
+       《日报》（\emph{taz}），\zhdate{1996/03/13}，第11页。
+      }
+\par}
+\mytrans{有一个寻找CD的小女孩在Bolzes停下了。} 
+%\gll Es ist ein junges {\em Mädchen\/}, {\em die\/} auf der Suche nach CDs bei Bolzes reinschaut.\footnotemark\\
+%	 it is a young girl.\neu{} who.\fem{} on the search for CDs at Bolzes stops.by\\
+%\footnotetext{%
+%        taz, 13.03.1996, p.\,11.
+%      }
+%\par}
+%\mytrans{It is a young girl looking for CDs that stops by Bolzes.} 
+\zl
+Goethe、Kafka和Thomas Mann中的例子，请参见 \citew[\page 417--418]{Mueller99a}。
+%For examples from Goethe, Kafka and Thomas Mann, see  \citew[\page 417--418]{Mueller99a}. 
+
+对于（\mex{-2}）中的无生名词，一致性是必须的。所以就德语的分析来说，事实上复数形式是需要性别特征的。我们可以因此假设复数标引语没有性别特征或性别特征为空。在后一种情况下，特征可以有一个取值并且因此满足了形式上的要求。（\mex{1}）展示了第一种方法：复数标引语通过\type{pl-ind}类型的特征结构来刻画，而\textsc{gender}特征对于这样的对象来说是不合适的。
+%For inanimate nouns such as those in (\mex{-2}), agreement is obligatory. For the analysis of
+%German, one therefore does in fact require a gender feature in the plural. In English, this is not
+%the case since there are no parallel examples with pronouns inflecting for gender. One can therefore
+%either assume that plural indices do not have a gender feature or that the gender value is
+%\emph{none}. In the latter case, the feature would have a value and hence fulfill the formal requirements.
+%(\mex{1}) shows the first solution: plural indices are modeled by feature structures of
+%type \type{pl-ind} and the \textsc{gender} feature is just not appropriate for such objects.
+
+\ea
+\begin{tabular}[t]{@{}l@{~~}l@{\hspace{2cm}}l@{~~}l}
+a.& 单数标引语: &
+b.& 复数标引语:\\
+%a.& singular index: &
+%b.& plural index:\\
+  &\ms[sg-ind]{
+    per & per\\
+    num & sg\\
+    gen & gender\\
+    }
+&&\ms[pl-ind]{
+    per & per\\
+    num & pl\\
+    }\vspace{\baselineskip}~
+\end{tabular}
+\z
+第二种方法是采用图\vref{fig-typehierarchy-gender-ten-Hacken}所示的包含\type{gender}次类型的类型层级。按照这一类型层级，特征\textsc{gen}的取值有可能是\type{none}，而且不会出现任何问题。
+%The second solution requires the type hierarchy in Figure~\vref{fig-typehierarchy-gender-ten-Hacken} for the subtypes of \type{gender}.
+% moved above the figure
+%With such a type hierarchy \type{none} is a possible value of the \textsc{gen} feature and no
+%problem will arise. 
+%\is{gender|)}
+\begin{figure}
+\begin{forest}
+type hierarchy
+[ gender
+   [fem] [mas] [neu] [none] ]
+\end{forest}
+\caption{\label{fig-typehierarchy-gender-ten-Hacken}针对Ten Hacken问题的一种解决方案的类型层级}
+%\caption{\label{fig-typehierarchy-gender-ten-Hacken}Type hierarchy for one of the solutions of ten Hacken's problem}
+\end{figure}%
+\isce[|)]{性}{gender}
+
+总的来说，很明显Ten Hacken所提出的情况永远不会成为一个问题，因为要么取值是有意义的，要么取值在有的语境中是没有意义的，这种情况下就不需要这些特征了。
+%In general, it is clear that cases such as the one constructed by ten Hacken will never be a problem since there are either
+%values that make sense, or there are contexts for which there is no value that makes sense and one therefore does not require
+%the features.
+
+所以，虽然Ten Hacken所提的问题不是一个问题，但是仍有更偏向于技术本质的问题。我曾经在 \citew[第14.4节]{Mueller99a}中提出过这种技术问题。我指出了当消解了双特征的取值（\textsc{flip}）时，会造成德语中动词复合短语的伪歧义\iscesub{歧义}{ambiguity}{伪歧义}{spurious}。我也指出如何通过在特定语境中对值进行复杂化的规定来避免这一问题。
+\isce[|)]{模型论语法}{model-theoretic grammar}
+%So, while ten Hacken's problem is a non-issue, there are certain problems of a more technical
+%nature. I have pointed out one such technical problem in  \citew[Section~14.4]{Mueller99a}. I show
+%that spurious ambiguities\is{ambiguity!spurious} arise for a particular analysis of verbal complexes in German when one
+%resolves the values of a binary feature (\textsc{flip}).  I also show how this problem can be
+%avoided by the complicated stipulation of a value in certain contexts.%
+%\is{model-theoretic grammar|)}
+
+
+%      <!-- Local IspellDict: en_US-w_accents -->

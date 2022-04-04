@@ -1,0 +1,201 @@
+\documentclass[output=paper]{LSP/langsci} 
+\ChapterDOI{10.5281/zenodo.1291928}
+\author{Felix Sasaki \affiliation{\textsc{dfki} and \textsc{w\oldstylenums{3}c} Fellow} }
+\title{Metadata for the multilingual web} 
+\abstract{We describe the Internationalization Tag Set (ITS) 2.0, an upcoming standard to foster the development of the multilingual Web. \textsc{its \oldstylenums{2.0}} provides metadata to integrate workflows for content production, localization and language technology. The technical goal is to achieve better results in content creation and other language-related processes; the goal in terms of community building is to raise awareness of needs in multilingual workflows. This aim is also supported by providing re-usable software components for various use cases.\footnote{The work described in this paper was funded by the European Commission (project name MultilingualWeb-LT) through the Seventh Framework Programme (FP7) Grant Agreement No. 287815.}}
+\maketitle
+
+\begin{document}
+
+%felix.sasaki@dfki.de        
+
+\section{Introduction}\label{sec:sasaki:1} 
+
+
+Content in languages other than English is growing on the Web. But so far a lot of content resides in ``language silos''. A study by \citet{Ford11} reveals that Web pages rarely have links to other languages even of neighbouring countries. Also, the links to English web pages are rather few. This demonstrates that English has not developed into the ``lingua franca'' of the Web. This has a huge economic impact. A  \citet{FlashEurobarometer2011} study indicates for example that 51\% of European retailers sell via the Internet, but only 21\% support cross-border transactions.
+
+
+The situation of language silos is also given on the Semantic Web. \citet{EllEtAl2011} have analysed human-readable labels in the Semantic Web. Less than 5\% of Uniform Resource Identifiers (\textsc{URI}s) have a language tag, and less than 1\% contain labels in several languages. One might argue that in the Semantic Web human readable labels are not needed. But to query the Semantic Web across languages, query authors need to work with labels or inter-language links leading to resources in their own languages; otherwise non-Japanese speakers, for instance, cannot make use of \textsc{URI}s like 
+\href{http://ja.dbpedia.org/page/講談社}{http://ja.dbpedia.org/page/\jpn{講談社}} 
+% \url{http://ja.dbpedia.org/page/講談社}
+to formulate adequate queries across languages in the Semantic Web. 
+
+Translation and creation of cross-language links between (Semantic) Web resources can improve the situation. The challenge here is scalability and cost. Language technology like cross-lingual search and machine translation has gained widespread adoption (e.g. as part of search-engine interfaces). But the translation quality often is rather poor, especially if ``distant'' languages like German and Japanese are processed, or languages with smaller speaker communities are in scope. As \citet{Kornai2012} discusses, such languages rarely have a lobby on the Web: they lack basic language resources for creating multilingual applications and might even face a ``digital extinction''.
+
+This paper explores how standardization can help to address challenges faced by the multilingual Web. The upcoming standard ``Internationalization Tag Set (\textsc{its}) 2.0''\footnote{The latest draft of \textsc{its \oldstylenums{2.0}} is available at \url{http://www.w3.org/TR/its20/}  The predecessor \textsc{its \oldstylenums{1.0}} is available at \url{http://www.w3.org/TR/its/}} fills a gap that hinders better quality in translation on the Web: the availability of metadata to influence multilingual content authoring, translation and localization workflows, using humans and\slash or language technology.
+
+\section{Background}\label{sec:sasaki:2}
+
+\subsection{The MultilingualWeb community}\label{sec:sasaki:2.1}
+
+The standardization of \textsc{its \oldstylenums{2.0}} has emerged from the MultilingualWeb project\footnote{See \url{http://multilingualweb.eu/} for further information.}. Funded by the European commission and lead by the \textsc{w\oldstylenums{3}c} (World Wide Web Consortium), the project started in 2010 with two aims. First, MultilingualWeb brings together stakeholders who are interested in the multilingual Web: language technology researchers, localization service providers, Web technology developers and standardization experts, users from various communities and policy makers who support various regions and their linguistic diversity.
+
+Second, MultilingualWeb has the aim of detecting gaps that hinder the adoption of the multilingual Web. The focus here is gaps related to standardization. Since MultilingualWeb is lead by the \textsc{w\oldstylenums{3}c}, which is the main provider of Web technology standardization building blocks, MultilingualWeb is in a good position to discuss standardization related gaps and to help closing these.
+
+MultilingualWeb is running workshops as the main instrument to achieve its goals. Since the start of the first underlying \textsc{eu} project, the \textsc{eu} thematic network MultilingualWeb, four workshops have taken place. Due to the success of the workshops, the MultilingualWeb brand was continued: the successor project called MultilingualWeb-LT (\textsc{mlw-lt})\footnote{See \url{http://www.w3.org/International/multilingualweb/lt/} for further information.} is supporting the standardization of \textsc{its \oldstylenums{2.0}} within \textsc{w\oldstylenums{3}c} and the continuation of the MultilingualWeb workshop series and its community. The creation of the \textsc{mlw-lt} \textsc{eu} project and the related \textsc{w\oldstylenums{3}c} group working on \textsc{its \oldstylenums{2.0}} was a direct result of community building at MultilingualWeb workshops.
+
+\subsection{Metadata for the MultilingualWeb: A simple example}\label{sec:sasaki:2.2}
+
+At the MultilingualWeb workshops, the topic of metadata for supporting multilingual content creation and related processes came up frequently. Some metadata items like language or character encoding information have been in use for quite some time and are available in various parts of the Web architecture, e.g. \textsc{html} Web content or \textsc{http} server settings. One concrete metadata item has been lacking for a long time: a means to identify pieces of content as non-translatable.
+
+Such translation metadata is useful both for language technology, i.e. machine translation systems, and human translators. A standardized means to convey the metadata can ease the creation of high quality localization workflows. The metadata is created by content producers in one language, taken up by localization service providers, and brought to various (human) translators. Here the metadata helps to create a better translation result.
+
+The predecessor of \textsc{its \oldstylenums{2.0}}, that is \textsc{its \oldstylenums{1.0}}, provides a ``Translate'' metadata item. Metadata items in \textsc{its \oldstylenums{1.0}} and \textsc{its \oldstylenums{2.0}} are so-called ``data categories''. Discussion about adding a ``translate'' attribute implementing the ``Translate'' metadata category in \textsc{html\oldstylenums{5}} started in 2008; the attribute eventually was added to the \textsc{html\oldstylenums{5}} draft in 2012. The MultilingualWeb community helped significantly to raise awareness about the topic, see e.g. the presentation of \citet{Ishida2011}.
+
+\subsection{From ``Translate'' to enhanced metadata}\label{sec:sasaki:2.3}
+\largerpage
+Soon after adding the attribute to \textsc{html\oldstylenums{5}}, two online machine translation services provided support: Bing Translator and Google Translate. \footnote{Test results and example files demonstrating the functionality are available at \url{http://www.w3.org/International/tests/html-css/translate/results-online}} This demonstrated the usefulness of metadata for multilingual Web content processing.
+
+However, the ``Translate'' data category is only the tip of the iceberg: already \textsc{its \oldstylenums{1.0}} provides further data categories like ``Terminology'' markers for terms, ``Elements within Text'' indicators of nested text flows (e.g. embedded footnotes) and others. 
+
+The scope of \textsc{its \oldstylenums{1.0}} is \textsc{xml} content; for \textsc{its \oldstylenums{2.0}}, the aim is to provide the data categories also for \textsc{html\oldstylenums{5}} or other flavours of \textsc{html}. In addition, \textsc{its \oldstylenums{2.0}} provides further data categories that support workflows between Web content authoring environments, language technology applications and localization tools.
+
+\section{Introduction to ITS 2.0}\label{sec:sasaki:3}
+\subsection{Basic principles}\label{sec:sasaki:3.1}
+
+Both \textsc{its \oldstylenums{1.0}} and \textsc{its \oldstylenums{2.0}} share the same basic principles. Metadata items, that is the ``data categories'', are defined independently of their usage or ``implementation''. An example is the ``Translate'' data category. Its purpose is to convey two kinds of information: a piece of content is translatable or not. The implementation of ``Translate'' can happen via a ``translate'' attribute as in \textsc{html\oldstylenums{5}}. Adding \textsc{its} markup directly into a document is called the \textsc{its} ``local approach''.
+
+In many workflows, data categories are not set by content creators locally for each piece of information. The metadata is rather introduced by information architects working on a document format or project template basis. For this scenario, \textsc{its} provides an \textsc{xml} approach of ``global rules''. The following \textsc{its} file contains a rule demonstrating this functionality for the ``Translate'' data category.
+ 
+% \ea
+\begin{lstlisting}
+<its:rules ...>
+  <its:translateRule translate="no" selector="//code"/>
+</its:rules>
+\end{lstlisting}
+% \z
+
+The ``its:rules'' element serves as a wrapper. The ``its:translateRule'' element contains a ``selector'' attribute. Via an XPath expression, all ``code'' elements are selected. The ``translate'' attribute set to ``no'' expresses that these elements should not be translated.
+
+\textsc{its} global rules are independent of a given document, that is: what ``code'' elements are matched depends on the actual content being processed. 
+
+In addition to global rules and local markup, \textsc{its} provides further data category specific definitions, like inheritance behaviour of \textsc{its} information (e.g. inheriting ``Translate'' information to child elements of selected element nodes) or defaults. For example the default for ``Translate'' is that elements are translatable and attribute values are not translatable.
+
+\subsection{Types of content: from XML to HTML}\label{sec:sasaki:3.2}
+
+As described above, \textsc{its \oldstylenums{1.0}} was defined with a focus on \textsc{xml} content. This raises the question how \textsc{xml} specific technologies like XPath can be used to process other types of Web content. A few years ago the focus of web technology development was on \textsc{xhtml}, the \textsc{xml} version of \textsc{html}. Today \textsc{html\oldstylenums{5}} needs to be taken into account. It provides an \textsc{xml} form too, but also a widely used, non-\textsc{xml} serialization.
+
+The \textsc{its \oldstylenums{2.0}} approach to accommodate this development has four aspects. First, data categories that are available natively in \textsc{html} are mapped to \textsc{its \oldstylenums{2.0}} definitions, so that an \textsc{its \oldstylenums{2.0}} processor can take the \textsc{html} markup into account. This approach is taken e.g. for the ``Translate'' data category and the ``Language Information''data category, which conveys language information in the same way as the \textsc{html} ``lang'' or \textsc{xhtml} ``xml:lang'' attributes.
+
+Second, \textsc{its \oldstylenums{2.0}} provides counterparts of \textsc{its} local markup in a manner that easily can be integrated into Web content. The below example shows local \textsc{its} markup for ``Terminology'' information in an arbitrary \textsc{xml} format, using a ``term'' attribute in the \textsc{its} namespace.
+
+% \ea
+\begin{lstlisting}[escapechar=@]
+<p ...>
+ And he said: you need a new 
+ <quote its:term ="yes">motherboard</quote> 
+</p>
+\end{lstlisting}
+% \z
+
+
+
+The \textsc{html} counterpart replaces the \textsc{xml} namespace mechanism with a 
+hard-wired prefix \texttt{its-*}.
+
+
+
+% \ea
+\begin{lstlisting}[escapechar=@]
+<p ...>
+ And he said: you need a new
+ <quote its-term="yes">motherboard</quote>
+</p>
+\end{lstlisting}
+% \z
+
+The \textsc{html} validation service validator.nu,\footnote{See \url{http://validator.nu/} for more information.} which is the basis for the \textsc{html\oldstylenums{5}} part of the \textsc{w\oldstylenums{3}c} markup validator, already provides a preset (\textsc{html\oldstylenums{5}} + \textsc{svg\oldstylenums{1.1}} + MathML3.0 + \textsc{its\oldstylenums{2.0}}) for validating this kind local \textsc{its \oldstylenums{2.0}} in \textsc{html\oldstylenums{5}} markup.
+
+Third, to be able to re-use global rules with various serialization flavours of \textsc{html\oldstylenums{5}}, \textsc{its \oldstylenums{2.0}} foresees a processing chain that takes the serializations as input and creates one common \textsc{dom} (document object model) in memory representation. This representation can be processed with XPath. The output then can be serialized into different forms. The aforementioned validator.nu service provides an \textsc{html\oldstylenums{5}} parser to realize both the \textsc{dom} generation and the output serializations.
+
+Finally, in \textsc{its \oldstylenums{2.0}}, the selection mechanism of global rules, that is XPath, can be replaced by \textsc{css} selectors. Various libraries to convert \textsc{css} selectors into XPath expressions exist; in this manner, content authors and content managment system (\textsc{cms}) template editors can use the selectors technology of their preference and convert the \textsc{css} selectors into XPath before actual processing. This approach helps to make \textsc{its} data categories accessible for a wide range of users.
+
+\subsection{A birds eye view on ITS data categories}\label{sec:sasaki:3.3}
+
+\textsc{its \oldstylenums{1.0}} provides data categories with a focus on two areas. The first is translation and localization processes. ``Translate'' or ``Term'' are examples of relevant data categories. The second area is called ``internationalization''. In \textsc{its \oldstylenums{1.0}}, internationalization related data categories encompass metadata needed for content authoring in specific cultural or language regions. The main data categories here are: ``Ruby'', used to add among others pronunciation information to texts e.g. in the Japanese script; and ``Directionality'', used to specify the base writing direction for e.g. the Arabic or Hebrew script.
+
+In \textsc{its \oldstylenums{2.0}}, localization related data categories are being extended and language technology related metadata is provided.  An example for new localization related data categories is ``Locale Filter''. It identifies content that is relevant (or not relevant) for a given locale. ``Allowed characters'' defines characters that are permitted to appear in a piece of content, e.g. in certain parts of a user interface.
+
+Language-technology related data categories help to create workflows including e.g. machine translation process. An example here is ``Domain'', see the following \texttt{its:domainRule} element. 
+
+% \ea
+\begin{lstlisting}
+<its:rules ...>
+ <its:domainRule selector="/h:html/h:body" domain 
+  Pointer="/h:html/h:head/h:meta[@name='keywords']/ @content" />
+</its:rules>
+\end{lstlisting}
+% \z
+
+The ``selector'' attribute selects the body of the \textsc{html} content via an XPath expression, in the same manner as the selector described above for the ``translateRule'' element. The ``domainPointer'' attribute selects keywords available in the \textsc{html} content: a certain ``meta'' element. Such domain information then can be used e.g. by machine translation systems to choose the appropriate subsystem being trained for certain text domains.
+
+Another language-technology related data category is ``\textsc{mt} Confidence''. A machine translation system can use it to express confidence information about the translation. For other data categories like ``Terminology'', which may be created via automatic annotation processes, such confidence information is provided as well.
+
+\section{Metadata versus, for or in linguistic annotation?}\label{sec:sasaki:4}
+
+Annotating textual content as a resource for language related processing is not new. Linguistic corpora including annotations have been developed for decades. Efforts in a forum like \textsc{iso tc \oldstylenums{37 / sc4}} have led to standards for linguistic annotation. \textsc{its} both 1.0 and 2.0 are different with respect to their main focus. They do not focus on adding information about linguistic categories on various levels (e.g. morphology, syntax, semantics) to textual content, but non-linguistic, mostly process related metadata (e.g. start time, end time, CPU seconds used etc.). 
+
+However, some data categories for \textsc{its \oldstylenums{2.0}} have a close relation to linguistic annotations. An example is the aforementioned ``Terminology''. A data category that has been added to \textsc{its \oldstylenums{2.0}} is called ``Text Analysis''. It uses the prefix ``its-ta'' in \textsc{html}. The aim is to represent the output of an automatic annotation process. In the below example it is assumed that the string ``Dublin'' has been annotated as a result of such a process.
+
+
+% \ea
+\begin{lstlisting}
+<span
+  its-ta-confidence="0.7"
+  its-ta-class-ref="http://nerd.eurecom.fr/ontology#Place"
+  its-ta-ident-ref="http://dbpedia.org/resource/Frankfurt_(Oder)">Frankfurt
+</span>
+\end{lstlisting}
+% \z
+
+``ta-confidence'' provides tool-generated confidence information, similar to ``\textsc{mt} Confidence'' or confidence information for ``Terminology''. ``ta-class-ref'' contains a reference to the class of unit being annotated, here making use of the \textsc{nerd} ontology, see \citet{RizzoEtAl2012}. ``ta-ident-ref'' is a unique identifier of the unit, here taken from the \textsc{db}pedia  structured information source, see \citet{KobilarovEtAl2007}.
+
+Making this kind of metadata available beyond the realm of language technology has great promises. Localization workflows can convey information to translators and speed up translation. In the above example, the ``its-ta-ident-ref'' attribute helps to disambiguate the reference of \textit{Frankfurt} in the given text. 
+
+Before providing real value, however, challenges have to be addressed. Some tools may assign different ta-ident-ref attributes to the same unit. This leads to a need for annotating the same content with competing pieces information. Many approaches to realizing this requirement exist\footnote{The \textsc{tei} provides an overview of these approaches, see \url{http://www.tei-c.org/release/doc/tei-p5-doc/en/html/NH.html}} -- but should \textsc{its \oldstylenums{2.0}} try to adopt these?
+
+Such topics are currently under discussion. The direction seen on the horizon is along the lines of ``divide and conquer'': \textsc{its \oldstylenums{2.0}} will keep the focus on simple inline annotations, providing mostly container attributes for the output of text analysis tools. In case of conflicting information or decisions to be taken about how to categorize concurrent annotations, \textsc{its \oldstylenums{2.0}} is only a starting point for further linguistic processing.
+
+The decision about what formats are to be used here is out of scope for \textsc{its \oldstylenums{2.0}}. Nevertheless, the current \textsc{its \oldstylenums{2.0}} draft provides an algorithm to convert \textsc{its \oldstylenums{2.0}} annotated documents into the NIF format, see \citet{RizzoEtAl2012}. Using a NIF wrapper, more complex linguistic processing can take place, and the output can be integrated into \textsc{its \oldstylenums{2.0}} ``ta-*'' representations again.
+
+\section{Use cases and reference implementations}\label{sec:sasaki:5}
+
+\textsc{its \oldstylenums{2.0}} by no means tries to solve all issues of metadata for the multilingual Web. As the previous section has shown, areas like linguistic annotation are rather left to other technology areas and standardization efforts. \textsc{its \oldstylenums{2.0}} focuses on certain use cases. These also have driven the definition of the standard itself. Below is a short summary of major use cases. Additional information is provided by \citet{Lieske2013}.
+
+\subsection{Simple machine translation}\label{sec:sasaki:5.1}
+
+In this use case, \textsc{xml} or \textsc{html\oldstylenums{5}} documents are translated using a machine translation service. The textual content is extracted based on \textsc{its \oldstylenums{2.0}} data categories. The extracted content is then sent to the machine translation service. The translated content is finally merged back into the original format.
+
+For this use case, ``Translate'' and ``Locale Filter'' are useful data categories. ``Elements within Text'' helps to drive the extraction process as well, e.g. for separating footnotes from the overall text flow. Another data category is ``Preserve space'': it helps to assure proper handling of whitespace in the translated text. Depending on the capabilities of the machine translation system, ``Domain'' information can be taken into account as well. 
+
+\subsection{Translation package creation}\label{sec:sasaki:5.2}
+
+The aim here is to convert input text into a translation package format like \textsc{xliff}. Like in the machine translation use case, \textsc{its \oldstylenums{2.0}} metadata drives the extraction process. Compared to that use case, additional data categories are taken into account, like ``Allowed Characters'' or ``Terminology''. During the extraction process, the \textsc{its \oldstylenums{2.0}} metadata is transformed into an \textsc{xliff} representation. The actual role of the metadata then depends on the translation tool being used.
+
+\subsection{Integration of CMS and TMS systems}\label{sec:sasaki:5.3}
+
+Often Web content is created via a \textsc{cms}. Hence, the integration of a \textsc{cms} with translation managment systems \textsc{tms} is a major task for creating localization workflows. In this use case, \textsc{its \oldstylenums{2.0}} data categories help to streamline the localization workflow.
+
+The same data categories as in the translation package creation are relevant for this use case. The main difference is that no dedicated package format like \textsc{xliff} is being used.
+
+\subsection{Terminology and text analysis annotation}\label{sec:sasaki:5.4}
+
+These use cases encompass the automatic services to create \textsc{its \oldstylenums{2.0}} annotations described above. 
+
+\subsection{Reference implementations}\label{sec:sasaki:5.5}
+
+The use cases are demonstrated by various reference implementations. These are being developed within the \textsc{eu} project underlying the \textsc{mlw-lt} group. The output mostly will be open source implementations, to foster the widespread adoption of the metadata.
+
+\section{Conclusion and future work}\label{sec:sasaki:6}
+
+This paper described \textsc{its \oldstylenums{2.0}}, an upcoming standard that provides metadata to integrate workflows for content production, localization and language technology. We discussed the MultilingualWeb community whose efforts led to the creation of \textsc{its \oldstylenums{2.0}}. Then we introduced the basic principles of the upcoming standard and technical details.
+
+Various metadata items, so-called ``data categories'', are being provided by \textsc{its \oldstylenums{2.0}}. We discussed some of them; the area of text analysis annotation has challenges and promises and may help to apply language-technology based, linguistic annotations within localization tool chains. Finally, we discussed some use cases that demonstrate the application of \textsc{its \oldstylenums{2.0}} metadata, and reference implementations.
+
+The metadata definitions of \textsc{its \oldstylenums{2.0}} were finalized during 2013, and reference implementations helped to foster their adoption. The publication of the final \textsc{its \oldstylenums{2.0}} standard was issued on 29 October 2013.  
+
+The work undertaken for \textsc{its \oldstylenums{2.0}} has focused on basic infrastructure for the multilingual Web. Currently detailed topics of the next decade for research in the area of language technology are being defined. The \textsc{meta-net} Strategic Research Agenda (\textsc{sra}), described by Rehm in this volume, played a major role in shaping these topics. Among these are areas like multilingual Semantic Web, which has been discussed in the introduction of this paper. One future challenge will be how to use such data from or for the multilingual Semantic Web in localization or language technology applications, while also taking \textsc{its \oldstylenums{2.0}} metadata into account.
+
+\printbibliography[heading=subbibliography,notkeyword=this]
+
+\end{document}

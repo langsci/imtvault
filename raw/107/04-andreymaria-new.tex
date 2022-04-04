@@ -1,0 +1,342 @@
+\documentclass[output=paper]{langsci/langscibook.cls} 
+\usepackage{lingmacros}
+\author{Maria Kunilovskaya\affiliation{University of Tyumen}\lastand 
+Andrey Kutuzov\affiliation{University of Oslo} 
+}
+\title{Testing target text fluency: A machine learning approach to detecting syntactic translationese in English-Russian translation} 
+\shorttitlerunninghead{Testing target text fluency}
+% \lehead{Maria Kunilovskaya Andrey Kutuzov}
+%\epigram{Change epigram in chapters/01.tex or remove it there }
+\abstract{This research is aimed at the semi-automatic detection of divergences in sentence structures between Russian translated texts and non-translations. We focus our attention on atypical syntactic features of translations, because they have a greater negative impact on the overall textual quality than lexical translationese. Inadequate syntactic structures bring about various issues with target text fluency, which reduces readability and the reader's chances to get to the text message. From a procedural viewpoint, faulty syntax implies more post-editing effort. 
+	
+In the framework of this research, we reveal cases of syntactic translationese as dissimilarities between patterns of selected morphosyntactic and syntactic features (such as part of speech and sentence length) in the context of sentence boundaries observed in comparable monolingual corpora of learner translated and non-translated texts in Russian. 
+	
+To establish these syntactic differences we resort to a machine learning approach as opposed to the usual statistical significance analyses. To this end we employ models that predict unnatural sentence boundaries in translations and highlight factors that are responsible for their `foreignness'.
+	
+For the first stage of the experiment, we train a decision tree model to describe the contextual features of sentence boundaries in the reference corpus of Russian texts. At the second stage, we use the results of the first multifactorial analysis as indicators of learner translators' choices that run counter to the regularities of the standard language variety. The predictors and their combinations are evaluated as to their efficiency for this task. As a result we are able to extract translated sentences whose structure is atypical against Russian texts produced without the constraints of the translation process and which, therefore, can be tentatively considered less fluent. These sentences represent cases of translationese. }
+\ChapterDOI{10.5281/zenodo.814466}
+\begin{document}
+\maketitle
+\section{Introduction}\label{sec:andrey:intro}
+
+This research is an attempt to use machine learning algorithms to identify cases of less-than-typical syntactic structures in \isi{learner} translations (\isi{syntactic translationese}). We aim at developing a robust methodology, which could be used to look into differences between standard \isi{Russian} and its translated \isi{variety} and to select the linguistic features that are best in signalling these contrasts. It can be used to test researchers' intuitions as to the tendencies in translational behaviour and provide data for contrastive analysis. Solutions to both tasks (establishing typical deviations from the \isi{reference corpus} and describing them in terms of predictive linguistic features) are applicable in translator training (the purpose we are immediately after) and in designing \isi{machine translation} systems to improve fluency. 
+
+Linguistic peculiarities of translations distinguishing them from original texts in the same language are described within corpus-based translation studies. Typical research in this domain is usually designed to test linguistic indicators that reveal some tendencies in translations and to disentangle various factors that can be associated with certain translational behaviour, including extralinguistic ones. The aim is to arrive at a clearer understanding of the motivations behind translators' linguistic choices. While this is a possible and tempting extension for current research we refrain from making explicit claims as to why specific patterns are observed in our data. We proceed without a specific ``universal'' hypothesis in mind, beyond the assumption that the two corpora are significantly different (the argument that has been supported in our previous research on the same data in \citet{Kunilovskaya:2015}. That said, we do rely on previous work in this strand of corpus-based translation studies in selecting linguistic indicators of \isi{syntactic translationese}, making use of suggested ways to implement their \isi{detection} computationally and provide tentative descriptions of detected tendencies in line with some of the well-known concepts within this theory.  
+
+An important aspect of our task is its focus on syntactic properties of translations. On the one hand, it is due to the role of sentence structure in the overall textual efficiency, in how easily a text is processed by the reader, how effectively it gets its message across. It has been shown that both structural integrity, interpreted as \isi{cohesion}, and conceptual and pragmatic connectivity of corresponding discourse units (\isi{coherence}) can be affected if \isi{target language} specific (i.e. natural and conventional) sentence patterns are compromised in translation (e.g. with regard to failure to split sentences in translation, see \citealt{ramm2006dispensing}; \citealt{solfjeld2008sentence}; \citealt{fabricius1999information}; \citealt{gile2008local}; with regard to \isi{cohesion} means, see \citealt{kachroo1984textual}; \citealt{hatim1990discourse}). On the other hand, syntactic features of texts are less obvious to the naked eye, but are particularly informative in comparing corpora. There is ample evidence from corpus linguistics that functional and grammatical properties of words and surface characteristics of sentences (number and types of discourse markers, number of conjunctions and finite verbs, \isi{PoS}, \isi{sentence length}), which are typically used to operationalise syntactic or stylistic features of texts, are useful for the whole range of similar comparative tasks (for detecting \isi{translationese}, see \citealt{baroni2005new}; \citealt{pastor2008translation}; in \isi{learner} language studies \citealt{hinkel2001matters}; in authorship attribution and stylometry \citealt{Halteren:2007} and in text classification \citealt{Koppel:2002}).
+
+To achieve our goal, we use a traditional monolingual comparable corpora set-up: we exploit genre-comparable sub-corpora of the \isi{Russian} National Corpus (\textbf{RNC}) and the \isi{Russian} Learner Translator Corpus (\textbf{RusLTC}). The former is a \isi{reference corpus}, which contains arguably representative sample of \isi{Russian} language used to model dependencies that are then tested on translated data, the latter contains student translations that are viewed as particularly suitable for this task. They provide a strong case of human-produced \isi{translationese}, because novice translators are notorious for generating disfluent texts that stand out for carrying foreign-sounding unnatural wording and structures. The corpora are described in detail in Section \ref{sec:andrey:mda}. 
+
+Methodologically, we follow the ideas of \textbf{multifactorial comparative analysis} of corpus data implemented within a supervised machine-learning approach suggested by \citet{Gries:2014}. One of the important improvements on previously used methods discussed in this work consists in ensuring contextual comparability of the phenomena under study. We tried to identify syntactic differences between the same corpora in previous experiments \citep{Kunilovskaya:2015} using de-contextualised \isi{PoS} n-grams, but, against intuitive expectations and extensive theoretical evidence, failed to come up with meaningful results. Therefore, we introduce sentence boundaries (\textbf{SB}) as a structural `anchor' to avoid over-generalisations of de-contextualised lexical and \isi{PoS} frequencies and to ensure comparability of these features. Sentence boundaries are also an important linear syntactic event, which is traditionally used to gauge a number of textual properties such as \isi{sentence length} and structural complexity. 
+
+We treat sentence boundaries as a surface feature of text structure and define it as an orthographically marked position, at which a sentence ends. It is typically marked with one of the four punctuation marks (full stop, dots, exclamation, question mark) or their combinations, and followed by a space and a capital letter. Effectively, sentence boundaries mark-off more or less independent chunks of information to be processed successively, thus encoding procedural information that guides pragmatic inference as to whether two informational constituents should be interpreted as a whole or individually, and how each of them relates to the topic and the intentional structure of the discourse (\citealt{guzman2000maintaining}; \citealt{van1976philosophy};   \citealt{carston2007making}; \citealt{unger2011exploring}). 
+
+A meaningful study of semantic and pragmatic processes involved with speakers’ motivations to start a new sentence (i.e. the analysis of regularities behind text/discourse segmentation into sentences \textit{per se}) requires consideration of high-level linguistic phenomena (such as discourse and \isi{information structure}), which are well beyond the scope of the present study. Instead we offer an account of typical and unnatural combinations of surface linguistic features at sentence boundaries as indicative of \isi{syntactic translationese}. 
+
+At the same time, revealing unnatural sequences at sentence boundaries and sentences with atypical properties in \isi{Russian} translations (in the present study limited to translations out of English) is potentially predictive of problematic text \isi{cohesion}. Unlike English, non-emphatic \isi{Russian} relies on word order as a primary means of structuring information. It has a strong tendency to place rhematic, new or focused elements in the sentence-final position \citep{grenoble1998deixis}. This typological difference between the two language systems gives rise to the well-known structural deficiency of \isi{learner} translations attributed to \isi{interference}: they often contain prepositional phrases, which lack logical stress, at the end of the sentence (such as \textit{никогда не слышал о нем} `never heard of him'; \textit{покарает его за это} `will punish him for it'; \textit{не успел избавиться от них} `didn't have time to get rid of them' and adverbials (\textit{купить по дешевке в России} `to buy on the cheap in Russia'). 
+
+The importance of maintaining \isi{cohesion} in translation in ways licensed by the \isi{target language} can hardly be overestimated. It was repeatedly stressed in translation studies \citep{blum1986shifts,hatim2005translator,baker2011other} on the grounds that faulty \isi{information structure} and \isi{cohesion} inadequacies can give rise to extra processing efforts for the reader entailed by the necessity to handle inconsistencies in co-reference, they and also lead to inappropriate topicalisations and induce misleading interpretations of either content or the speaker's intentions. This claim is corroborated by psycholinguistic research, which finds that during text processing `due to limited attentional resources, precedence may be given to processes involved in building a locally coherent representation [...] there may not be sufficient resources left for more global processes, such as integrating the \isi{current sentence} with information from earlier in the passage' \citep[728]{guzman2000maintaining}. The recent trend in statistical \isi{machine translation} and natural language generation research seeks to enrich existing architectures with text-level linguistic data in attempt to overcome their \isi{cohesion} and \isi{coherence} limitations \citep{meyer2012using}. So, current research can yield useful comparative information to be applied in \isi{translation quality} assessment and \isi{machine translation} as well as provide insights on cross-linguistic contrasts and translator behaviour. Teaching translator trainees about typical translational choices that deviate from \isi{standard language} can be a useful consciousness-raising exercise, while linguistic indicators of possible \isi{translationese} can be used to develop tools to range translations by the degree of their `nativeness'.  
+
+The rest of the paper is structured as follows. Section \ref{sec:andrey:related} offers a brief overview of research on translation universals (it seems that this term is well-established in the field despite its limitations and will be used as such further on), especially at the level of syntax and in the area of methodology, while Section \ref{sec:andrey:mda} introduces multidimensional analysis as our primary approach, describes our corpus data and comments on the principles and process of \isi{feature selection}. It is followed by the empirical results in Section \ref{sec:andrey:experiment}, where we report, compare and interpret the performance scores of the first-step model on both corpora. This part of the paper also describes how these results are used to train the second model, which effectively predicts errors of the first model, i.e. strong cases of syntactic dissonance with the \isi{reference corpus} as well as informs of the linguistic features associated with them. In Section \ref{sec:andrey:discussion}, we interpret our findings trying to isolate patterns that can be explained from contrastive and translational perspectives and present some considerations on model-fitting for future work. Section \ref{sec:andrey:concl} concludes the work with some general considerations of its applicability and scalability in terms of accommodating more sophisticated features and their combinations to target higher-level linguistic phenomena.
+
+\section{Related work}\label{sec:andrey:related}
+
+As stated above, our research is set in the framework of the so called \textbf{translation universals theory}, which posits that translations differ from non-translations in the same language in a number of statistically measurable ways, while bearing some common features regardless of the \isi{source language}. It focuses on empirically assessable properties of translated language known as \textit{translationese} or \textit{third code}, which are allegedly manifestations of \textit{translation universals} or laws of translation. Without going into terminological details and the history of this paradigm of contemporary translation studies, now well-established, we merely outline main concepts of this approach and survey some studies that deal with the syntactic indicators of \isi{translationese} and ways of their computational implementations. 
+
+Over the last 20 years or so research in this area has thrown up about a dozen of hypotheses about translational behaviour and a number of linguistic indicators to validate them. The most widely discussed tendencies include \isi{explicitation}, \isi{interference} and transfer, standardization (or levelling-out), simplification, \isi{normalisation}, atypical patterning and over- and under-use of items. Most of these features can be revealed both at lexical and syntactic levels \citep{zanettin2013corpus}. 
+
+In terms of methodology the study of universals is closely related to the Contrastive Interlanguage Analysis described in seminal works by Sylviane Granger \citep{granger2010comparable,granger2015contrastive}. It can be built around either of three types of comparisons, surveyed in several papers, including \citet{chesterman2010study} and \citet{xiao2010pursuit}, or a combination thereof (i.e. on data from complex multi-corpora architectures, which enables the researcher to account for several factors simultaneously like in \citet{pastor2008translation}; \citet{hansen2011between}; \citet{dai2011sl}; \citet{bernardini2007collocations}); 
+\begin{enumerate}
+\item It can be based on monolingual comparable corpora and compare translations to non-translations in the same language (e.g. \citet{laviosa1998core}; \citet{olohan2001spelling}; \citet{xiao2010pursuit});
+\item  a less common approach is taken in \citet{rayson2008quantitative}, where lexical \isi{translationese} is revealed as difference between texts translated by Chinese translators into English and versions of the same texts hand-corrected by English native speakers;
+\item research into universals can require a \isi{parallel corpus} component to reveal similarities and differences between sources and their translations (see an almost unique research based on multiple \isi{parallel corpus} in \citealt{castagnoli2011exploring}); 
+\item finally, translations can be compared to translations into other languages or genres or by different translators (\citealt{baker2004corpus}, among others).  
+\end{enumerate}
+
+Our research draws upon the results obtained in the pioneering work by \citet{baroni2005new}, who apply machine learning based on text classification to detect \isi{translationese}. Their results are inspiring: they find that one can computationally learn the difference between high quality translations and very comparable non-translations by relying on distributions of some classes of function words. They also found out that humans are outperformed by machines in their ability to tell translations from non-translated language \citep{baroni2005new}. 
+
+These findings, on the one hand, stress the objective nature of \isi{translationese} and at the same time underline the unreliability of human assessment. Translationese is not a traditional error insofar as it is not located in a specific part of the text but is manifested cumulatively; it is distributed in the text and is not immediately obvious to the naked eye. The authors present convincing evidence that `machine learning is reaching a stage in which it is no longer to be considered simply as a cheaper, faster alternative to human labour, but also as a heuristic tool that can help to discover patterns that may not be captured by humans alone' \citep[38]{baroni2005new}. So, it makes sense to work towards employing computer technology in revealing and describing \isi{translationese} as well as in evaluating target \isi{text fluency}.  
+
+In corpus-based linguistics it is common practice to model language in studied corpora as \isi{PoS} n-grams. This approach is implemented as part of an \isi{experiment} to attest specific indicators of simplification and convergence in \citep{pastor2008translation}, where shallow-parsed multiple corpora are represented as frequency vectors of \isi{PoS} 3-grams. Other indicators of similarity in the same research include \isi{sentence length} in tokens and the type of sentence identified as the number of finite verbs (and their corresponding verbal constructions) in it.
+
+Our previous inquiry into \isi{translationese} on the same data in \citep{Kunilovskaya:2015}, which was set on lexical level and within a more conventional framework of statistical \isi{significance analysis}, revealed opposing trends in the frequency of discourse markers - almost the same number of items were significantly overused or underused in translations. These findings can be interpreted in line with the third code hypothesis supported in \citep{hansen2011between}. Han\-sen-Schir\-ra used carefully designed and annotated corpus resources and proved hybrid character of \isi{translationese}, which manifested opposite tendencies of \isi{normalisation} and \isi{interference} for individual \isi{register} features. 
+
+Finally, to the best of our knowledge translated \isi{Russian} is yet to be investigated in the corpus-based framework, though there has been extensive previous work in the pedagogical and prescriptive area. There is not much research on comparative analysis of \isi{Russian} corpora either (however, see \citealt{mikhailov2003parallel} where a Russian-Finnish \isi{parallel corpus} is described, and \citealt{kutuzov2015comparing}, where machine learning methods are used as well, together with distributional semantics). But we can rule out frequency distribution of \isi{PoS} n-grams, mentioned in many English-based studies, as a useful indicator of differences between copora due to the fact that word order in \isi{Russian} is relatively more flexible. It can hardly be used as a crude substitute for syntactic information either, because it does not signal syntactic relations. At the same time it is crucial for structuring information, i.e. for arranging theme and rheme progressions and providing text \isi{cohesion} \citep{alekseyenko2013corpus}. 
+
+Taking the previous work on corpus-based studies of translated text into consideration, in the next Section we describe our experimental set-up and define the set of linguistic indicators chosen to represent our corpora in the machine learning task. 
+
+\section{Applying multidimensional analysis to translations}\label{sec:andrey:mda}
+
+As shown above, our main research question can be formulated as follows: are there any regular differences between translated and non-translated corpora in the typical linguistic environment of sentence boundaries, and which linguistic features (from the set we employ) will the machine learning algorithm mostly draw upon to calculate this difference? In other words, we aim at achieving a twofold objective. First, we want to detect whether a machine is able to learn contrasts between translations and naturally produced texts on the basis of representations of the two corpora built around the lexical and grammatical properties of tokens to the right and to the left of \isi{sentence boundary}. Second, we want to reveal the indicators that are most informative for this task.
+
+To tackle this, we roughly follow the multidimensional analysis approach established by \citet{Gries:2014}. They explore differences between native speakers and learners or non-native speakers through studying statistical interactions in corpus data. They establish a two-step procedure: a model trained on native data is applied to non-standard texts in order to find cases where their authors made decisions, distinct from what a native speaker would probably do in the same linguistic situation. This approach was successfully applied to a comparison of differences in the \isi{usage} of \textit{may} and \textit{can} between native English speakers and \isi{French} and Chinese learners of English. 
+
+In the present research, texts translated from English into \isi{Russian} are considered a kind of a specific \isi{Russian} language \isi{variety} that can be compared to a standard or native language. We hypothesize that while translating, native Russians construct sentences differently, and their deviating choices can be revealed through the statistical \isi{evaluation} of the set of at-the-sentence-boundary-factors offered below. We argue that these features can be used to predict sentence boundaries as a formal structural event indicative of sentence structure. We use data from two corpora: 
+
+\begin{enumerate}
+\item the well-known monolingual \isi{Russian} National Corpus (further \textbf{RNC}) containing non-translated texts by native \isi{Russian} speakers and extensively described in the literature\footnote{See \url{http://ruscorpora.ru/corpora-biblio.html}};
+\item the parallel \isi{Russian} Learner Translator Corpus (further \textbf{RusLTC}) described in \citet{Kutuzov:2014}, containing translations from English into \isi{Russian} and backwards done by \isi{Russian} translation students from 8 different universities\footnote{Available at \url{http://rus-ltc.org}}. There are no reference translations in the corpus, but one source can be accompanied by multiple translations.
+\end{enumerate}
+The RNC represents `native' \isi{Russian} language, while the second corpus is arguably a strong case of a non-standard \isi{variety} (`\isi{translationese}' in the current research context). From each corpus, we extracted a sub-corpus containing texts belonging to mass-media expository genres, so that the material is as comparable as possible. Overall, our `standard' corpus consists of 7 679 documents and 8 289 884 word tokens, while translations corpus consists of 1 332 documents and 586 935 word tokens. 
+
+In order to evaluate differences between non-translated and translated texts, we employ a number of contextual features in sentence boundaries environments. They were used to train a machine learning model to predict these boundaries. We will now briefly describe the essential details of the process. Our training set (a mass-media sub-corpus of the RNC) lacks manual sentence mark-up. Thus, we first trained a \textit{Punkt} model on the whole RNC (about 150 million tokens). \textit{Punkt} \citep{Kiss:2006} is a well-known unsupervised algorithm to learn abbreviations, collocations and typical sentence-starters. After initial training, it can then be used on raw text to detect sentence boundaries with high accuracy. We applied the trained model to our sub-corpus to split it into sentences. This segmentation is accepted as ground-truth and used further.
+
+We are interested in how various linguistic features correlate with the event of a \isi{sentence boundary}. Thus, in our approach, word tokens in the text are observed as instances with various linguistic features (attributes). Each instance belongs to exactly one of two classes: either it is the last in the \isi{current sentence} or not. If it is, it means that its class is `boundary', otherwise it is a regular token.
+
+Then, the problem is to build a binary \isi{classifier} which predicts \isi{boundary class} depending on token features. It is important to note that tokens in our case include punctuation, but not end-of-sentence punctuation marks: those were ignored during training and testing. This is because we are after linguistic features, not trivial orthographic predictors like a full stop or a capitalized word (all tokens were lower-cased). Because of punctuation, the total number of instances in our data sets is slightly higher than stated above: 9,422,955 instances for the RNC corpus and 631,361 instances for the \isi{translation corpus}.
+
+Initially, we extracted a total of 82 features:
+\begin{enumerate}
+\item \isi{current token} (instance itself);
+\item lemma of the \isi{current token}\footnote{Lemmatisation and PoS-tagging was performed with the help of state-of-the-art \textit{Mystem} morphological analyser for \isi{Russian}, described in \citet{Segalovich:2003}};
+\item part of speech of the \isi{current token} (one of 19 categories, including punctuation);
+\item token length in characters;
+\item lemma length in characters (because of rich inflectional system in \isi{Russian}, it is often quite different from the token length; also, functional words are usually shorter than content ones);
+\item accumulated \isi{sentence length} in tokens (up to the \isi{current token});
+\item accumulated \isi{sentence length} in characters;
+\item accumulated number of finite verbs in the \isi{current sentence};
+\item accumulated number of Nominative nouns and pronouns;
+\item accumulated number of coordinate conjunctions (including multi-word entities, 26 conjunctions in the list);
+\item accumulated number of subordinate conjunctions (including multi-word entities, 56 conjunctions in the list)
+\item lemmas of five tokens to the left and five tokens to the right of the \isi{current token} (further `neighbours');
+\item lengths of lemmas and tokens of the neighbours;
+\item binary feature `is a coordinate conjunction' for all the neighbours;
+\item binary feature `is a \isi{subordinate conjunction}' for all the neighbours;
+\item binary feature `is a \isi{discourse marker}' for all the neighbours (discourse markers list comprises 86 elements and includes words like \textit{итак} `thus', and multi-word entities);
+\item part of speech for all the neighbours;
+\item binary class attribute (\isi{sentence boundary} or not), with about 6\% of all tokens being boundary.
+\end{enumerate}
+
+Not all features possess equal predictive power. First of all, we had to filter out string features (lemmas and tokens themselves). Using text strings as predictors is principally possible, but only with corpora much larger than ours, to overcome the sparsity problem (the majority of words are rare). Also, most classifiers do not work with string attributes: we managed to train Bayes multinomial and stochastic gradient descent models (essentially vectorizing text attributes and then treating them as numerical ones), but performance was much worse than with other features (numerical and categorical/nominal). Thus, we leave this possibility for a future work.
+
+After removing problematic string features, we performed basic \isi{feature selection} by measuring \textit{information gain} (mutual information, MI) with respect to sentence \isi{boundary class} for each feature independently in the RNC. Below is a list of the most promising features in descending order, with respective \isi{information gain} values and identifiers: 
+\begin{enumerate}
+\item 0.031049 \isi{PoS} of the \isi{current token} (\textbf{pos});
+\item 0.022271 \isi{PoS} of the \isi{first token} to the right (\textbf{pos1R});
+\item 0.010838 length of the \isi{current token} in characters (\textbf{token\_length});
+\item 0.010205 length of the current lemma in characters (\textbf{lemma\_length});
+\item 0.009188 \isi{PoS} of the \isi{first token} to the left (\textbf{pos1L});
+\item 0.008043 accumulated \isi{sentence length} in characters (\textbf{sent\_char\_length});
+\item 0.007313 accumulated \isi{sentence length} in tokens (\textbf{sent\_length});
+\item 0.005357 accumulated number of finite verbs in the \isi{current sentence}\\ (\textbf{finite\_verbs});
+\item 0.005047 \isi{PoS} of the second token to the right (\textbf{pos2R});
+\item 0.004097 is the \isi{first token} to the right a \isi{discourse marker}? (\textbf{dm1R});
+\item 0.003592 length of the \isi{first token} to the right (\textbf{token\_length1R});
+\item 0.002896 is the \isi{first token} to the right a coordinate conjunction? (\textbf{conj1R});
+\item 0.002832 length of the first lemma to the right (\textbf{lemma\_length1R});
+\item 0.002556 accumulated number of coordinate conjunctions in the \isi{current sentence} (\textbf{conjunctions});
+\item 0.001879 \isi{PoS} of the third token to the right (\textbf{pos3R}).
+\end{enumerate}
+
+\largerpage
+Additionally, \textit{CfsSubsetEval} the (Correlation-based Feature Subset Selection) algorithm, described in \citet{Hall:1998}, was used to discover the best subset of features. This information is important, because features may be (and certainly are) interdependent and improve or degrade performance of each other. Bidirectional \isi{evaluation} of 621 subsets (only globally predictive features\footnote{It means that we measured their performance over the whole dataset. This effectively eliminates features which are very predictive at some particular parts of the data (for example, in texts by one author), but useless in the majority of other parts.}) returned the following set of 4 features as the best one:
+
+\begin{enumerate}
+\item \isi{PoS} of the \isi{current token} (\textbf{pos});
+\item is the \isi{first token} to the right a \isi{discourse marker}? (\textbf{dm1R});
+\item is the \isi{first token} to the right a coordinate conjunction? (\textbf{conj1R});
+\item \isi{PoS} of the \isi{first token} to the right (\textbf{pos1R}).
+\end{enumerate}
+
+Based on this data, we conclude that the best-predicting features are parts of speech for both the \isi{current token} and its immediate right and left neighbours, length of the \isi{current token}, the accumulated \isi{sentence length} in characters and the number of finite verbs. It turns out to be important to look at the functional status of the neighbours: the property of being a \isi{discourse marker} or a conjunction for the \isi{first token} to the right ranks high as a predicting feature in our experiments. On the other hand, the features manifesting the length of neighbour tokens do not contribute much to the prediction, but slow down the training. Therefore, these features as well as accumulated number of Nominative nouns and pronouns were filtered out. 
+
+The last feature seemed promising initially, but did not provide enough predictive power. We believe the reason is grammatical homonymy: in \isi{Russian}, Nominative and Accusative forms often coincide for inanimate nouns, and this ambiguity is not resolved by \textit{Mystem}, not without syntactic parsing anyway. We considered a noun to be Nominative only when it was the only possible morphological interpretation, and this is only the case for animate nouns. Thus, in fact this feature reflected the accumulated number of Nominative \textit{animate} nouns. Note that most information potentially delivered by the number of Nominatives is probably already contained in the number of finite verbs (and this feature is closely correlated with \isi{boundary class}), so, the loss was not big.
+
+The remaining 48 features were used to train a REPTree model (Reduced Error-Pruning Tree, introduced by \citealt{Quinlan:1987})  to predict sentence boundaries in native non-translated mass media texts. Unlike regression used by \citet{Gries:2014}, this algorithm belongs to the family of decision tree learners; we use its implementation in the open-source Weka software package \citet{Hall:2009}. A decision tree approach was chosen because it allows training on various types of features (predictors): numeric, binary or nominal/categorical. Additionally, decision trees are more human-readable than the output of other machine learning classifiers, though, of course, with large amount of data the model becomes more complex, with tens of thousands branches or more, which makes it not feasible to try to `read' it directly. 
+
+In order to avoid over-fitting and improve accuracy, we used REPTree with the \textit{Bagging} meta-algorithm suggested in \citet{Breiman:1996}. It essentially multiplies training data through bootstrapping and then trains models on each of resulting sets (`bags'). The predictions from each model are averaged before final output. In our task, it substantially improved performance of the \isi{classifier}. Thus, we have a model that classifies tokens into boundary (final) and non-boundary ones based on the above mentioned set of features. For each classification (prediction) the model additionally outputs the degree of its confidence in the range \{0...1\}.  We will comment on the performance of this model in Section \ref{sec:andrey:experiment}.
+
+Example \ref{ex:diamond} below illustrates the model's predictions on a piece of \isi{Russian} text: \\
+
+\ea
+\label{ex:diamond}
+    \textit{...но} \&  \textit{и} \&  \textit{алмазодобывающим.} \& \textit{Сейчас...}
+\glt
+[non-boundary \& non-boundary \& boundary \& non-boundary]
+
+\textit{...but also diamond-producing region. Today...}
+\z
+
+The next step is to use this model to `predict' sentence boundaries in our \isi{translation corpus}. We expect the model to perform slightly worse, because translations (let alone learners' translations!) are well-known to be linguistically different from non-translations in the same language. The results of testing the previously trained model on translated texts may be used for two purposes: first, to manually inspect cases of the model failing to predict sentence boundaries and possibly gain insights on the reasons, and second, to train another model which predicts not sentence boundaries, but inconsistencies between the first model decisions and what a translator did in a particular context. 
+
+In other words, we try to find out which of the above mentioned linguistic features or their combinations are associated with `non-typical' (or outright erroneous) sentence boundaries in translations. This answers one of the important questions in translation studies (and in cross-linguistic research in general): what patterns of linguistic elements and their characteristics make translations or \isi{learner} speech in L2 sound non-fluent, foreign and unnatural? Experimental results are described in Section \ref{sec:andrey:experiment}.
+
+\section{Experimental results}\label{sec:andrey:experiment} 
+Table \ref{tab:1:performance} shows performance of the first trained model tested on the native corpus (RNC) and on the \isi{translation corpus} (RusLTC). Overall $F_{1}$ (harmonic mean of precision and recall) is a weighted value over both predicted classes, boundary and non-boundary; boundary $F_{1}$, precision and recall are the respective values for \isi{boundary class} only. Performance on \isi{detection} of the non-boundary tokens is much higher than on the boundary ones, because the first class is much more frequent: it is easier to detect an in-sentence token than a final one. This is the reason behind the difference between overall and boundary performance.
+ \begin{table}
+\caption{Performance of sentence boundary detection model}
+\label{tab:1:performance}
+\fittable{
+ \begin{tabular}{lrrrr} % add l for every additional column or remove as necessary
+ \lsptoprule
+            & Overall $F_{1}$ & Boundary $F_{1}$ & Boundary precision & Boundary recall\\ %table header
+  \midrule
+  \textbf{RNC} & 0.955 & \textbf{0.584} & \textbf{0.873} & \textbf{0.439}\\
+  \textbf{RusLTC} & 0.956 & 0.522 & 0.708 & 0.413 \\  
+  \lspbottomrule
+  \end{tabular}
+  }
+% \todo[inline]{0.4130?} 
+\end{table}
+
+We report precision and recall results, not only purely statistical values like coefficient of determination ($R^2$) or likelihood ratio. We believe it is more important to evaluate real predictions of the model on the data rather than abstract goodness or the regression fit: one is interested in how much \isi{noise} is present in the model's predictions for each class (precision), and what fraction of instances belonging to this or that class was correctly classified as such. Simply reporting the overall accuracy (percentage of correctly classified instances) is not enough. 
+
+Quite often we deal with binary classification tasks, where instances of class \textbf{A} are much rarer than instances of class \textbf{B}. For example, in our data, \isi{sentence boundary} tokens occur 15 times rarer than the non-boundary ones. The same is true for \isi{usage} of \textit{can} and \textit{may} in \citet{Gries:2014}: \textit{can} is 2 or 3 times more frequent. In this situation, a \isi{classifier} can be very reliable for the majority class, but though showing poor quality for the minority class. However, because of larger number of majority class instances, the overall number of correct predictions will be high and accuracy would seem to be quite satisfactory, notwithstanding the fact that the model actually almost never correctly predicts the minority class (and this `marked' class is often the aim of the whole research). Thus, it is very important to report precision and recall for each class separately, especially for the minority one.
+
+Getting back to our results, we see that despite high overall $F_{1}$, the model is not quite perfect in detecting sentence boundaries even in the native corpus it was trained on: more than half of the boundary tokens are not detected as such. However, precision is very high: there is almost no \isi{noise} in the detected boundary events (\citet{baroni2005new} faced the same situation). It means that not all sentence boundaries correlate well with the features we chose. This is expected and quite natural: \isi{Russian} sentence structures are highly variable due to relatively flexible word order. Also, sentence boundaries are often influenced by other higher-level linguistic phenomena, such as syntactic dependencies, or semantic and pragmatic structure of the discourse.
+
+However, quite a lot of boundaries are predicted by the formal and morphological characteristics of the elements we employed. As stated earlier, boundary tokens comprise no more than 6\% of all instances in the data set (both in native and translated corpora). Consequently, $F_{1}$ of the \isi{boundary class} \isi{detection} in our model is more than 4 times better than expected $F_{1} = 0.1$ of random baseline (choosing one of two classes with equal probability). Thus, our features do provide some signals which are meaningful for predicting sentence boundaries. It means that in non-translated \isi{Russian} texts there are relatively stable patterns marking such boundaries, which makes it feasible to compare these patterns to ones found in the \isi{translation corpus}.
+
+It is also encouraging that performance does not drop significantly when the model is applied to the translated corpus: the same regularities generally hold in translated texts as in native ones (they are still in the \isi{Russian} language, after all). However, both precision and recall are slightly lower, which means that the model makes wrong predictions more often than on the native texts, and thus, the aforementioned patterns of features behave slightly differently in the translated corpus. This also seems quite logical: as stated earlier, translated texts represent a special non-standard \isi{variety} of \isi{Russian}, and sequences of items in these texts deviate from the standard ones the model was trained on. 
+
+In order to learn which linguistic features from the general list above are associated with these deviations, once again we follow \citet{Gries:2014}'s approach and compile a dataset with all instances from our translated corpus, their respective features and a new class attribute. This time, instances are divided into two classes, depending on whether the model made a correct or incorrect prediction. 
+
+Then, we remove all instances where confidence of the model prediction was below 0.9 to filter out `weak' decisions\footnote{Studying weak predictions and correlating them with real translators' decisions also seems promising, but we leave it to future research.}. This step leaves us with 548 231 instances, out of 631 thousand total.
+
+For this dataset we perform \isi{feature selection} as well: from the linguistic point of view, we look for combinations of features that typically accompany non-native behaviour of the text producer. The following features are found to correlate best with the probability of error (the \isi{correlation} is again calculated as \textit{information gain}):
+
+\begin{enumerate}
+\item 0.0069041 \textbf{pos};
+\item 0.002582  \textbf{pos1R};
+\item 0.0025574 \textbf{sent\_char\_length};
+\item 0.0023149 \textbf{sent\_length};
+\item 0.0022355 \textbf{token\_length};
+\item 0.0018903 \textbf{lemma\_length};
+\item 0.0017348 \textbf{pos1L};
+\item 0.0014444 \textbf{finite\_verbs};
+\item 0.0011813 \textbf{conjunctions}.
+\end{enumerate}
+
+Additionally, the best set of features selected using \textit{CfsSubsetEval} includes \textbf{pos}, \textbf{token\_length}, \textbf{sent\_char\_length}, \textbf{finite\_verbs}, \textbf{conjunctions}, \textbf{subconj1L}, \textbf{pos1R}, and \textbf{subconj2R}. \textbf{dm4R} was selected as a locally predictive feature: it predicts an error only in some contexts, while other features do this globally.
+
+Thus, it is part of speech of the token itself and its immediate neighbour to the right that mostly mark non-native behaviour of \isi{learner} translators in our RusLTC corpus; accumulated \isi{sentence length} (it seems that one can safely use either token length or character length) is also among the best predictive features, as well as the length of the \isi{current token} and, to some extent, the number of conjunctions and finite verbs in the sentence.
+
+Note that if we look at the predictions that the model made in the native texts (RNC corpus) at test time and try to find features correlated with correctness of decisions made, the set of most effective predictors would be different and much weaker. Only one feature (\textbf{pos}) achieves the \isi{information gain} value of 0.002\footnote{Still 3.5 times lower than in the translations.}, while other features' correlations are an order of magnitude lower and can be considered non-existent. Thus, in native texts, correctness of our model's decisions is not directly dependent on particular features, and its errors are caused by external factors (preprocessing or lemmatising issues, higher linguistic constraints on sentence boundaries, etc). At the same time, in the \isi{translation corpus} the models' mistakes are often determined by the feature patterns found in the data, rather than by \isi{noise} or factors outside our reach. 
+
+The \isi{reference corpus} is 15 times larger than the translational one, so it is very unlikely that the model has not seen some patterns of the selected features. We suppose that the model's failure to predict sentence boundaries in translations can be safely attributed to \isi{sentence boundary} pattern deviations from the standard, found in translations.
+
+Thus, applying the model trained on the comparable \isi{reference corpus} to the translated texts reveals that they possess intrinsic characteristics different from those of non-translations. Lexical and grammatical features of tokens in the immediate context of sentence boundaries are found to be stably different in corpora of non-translations and translations. In Section \ref{sec:andrey:discussion} we discuss examples and implications of these findings.
+
+\section{Discussion and future work}\label{sec:andrey:discussion}
+The analysis of the algorithm's performance on the \isi{translation corpus} and error modelling led to several interesting insights and observations, described below.
+
+Manual inspection of \isi{correlation} between instances' parts of speech and the first model errors on the \isi{translation corpus} indicates that some of \isi{PoS} yield more errors on the same amount of instances than the others. It means that they are more often included in non-standard \isi{sentence boundary} patterns in translations. As shown in Figure \ref{fig:pos}, the parts of speech of the \isi{current token} that are apt to defy standard \isi{Russian} regularities include nouns and pronouns in non-nominative cases (\textbf{S} and \textbf{SPRO}) and tokens for which \textit{Mystem} was not sure about their \isi{PoS} (\textbf{UNKN}). Other parts of speech are more conforming and cause less mistakes, signalling that translators make more natural choices.
+
+Linguistically speaking, it means that there are \textbf{contextually identical} situations, in which standard \isi{Russian} texts usually feature \isi{sentence boundary}, while translated texts do not (or vice versa). This difference in sentence patterns is most frequently associated with non-nominative nouns and pronouns.
+
+\begin{figure}
+\caption{Error rates for PoS values of current token}
+\includegraphics[width=\textwidth]{figures/pos.eps}
+\label{fig:pos}
+\end{figure}
+
+It is quite logical that the model makes mistakes on `strange' tokens with unknown \isi{PoS} (mostly they are foreign words in Latin alphabet, digits or rare abbreviations).  
+
+Additionally, such atypical patterns are often caused by \isi{interference} from English word order. In Example \ref{ex:abovehim} translators routinely reproduce the structure with the final non-nominative pronoun, which is less frequent, but not unacceptable, in non-translated \isi{Russian} texts (see more detailed explanation below, in the description of \textbf{PR\_SPRO} pattern).
+
+\ea
+\label{ex:abovehim}
+\textit{Trees rustled above him}.\\
+\glt
+\textit{Деревья шумели над ним}. 
+\z
+
+Note that the mistakes are rarer on the native texts (see \textbf{RNC} bars in Figure \ref{fig:pos}) for almost all parts of speech where error ratio exceeds 1\%, and are on par with the translations in the other cases. Also, non-nominative nouns (S) and pronouns (SPRO) seem to be not so variable as to their positions within a sentence in the \isi{reference corpus} as in the \isi{translation corpus}: in the RNC corpus the error ratio for them is almost equal to their nominative counterparts.
+
+As it is clear from the precision/recall metrics and confusion matrix, most model errors occur when the model does not predict an actual \isi{sentence boundary} in the translated texts (false negatives). Sentence boundaries predicted in the middle of running sentences (false positives) are far less frequent errors: they account for only 5\% of all model failures. It means that the model does cover some real contextual patterns where sentence boundaries are typical for RNC, but it does not observe these patterns in translated data, given our feature set. For the purposes of this exploratory work we decided to prefer precision to recall and did not try to cover other (numerous) cases, when sentence boundaries are not described by our features.  
+
+Figure \ref{fig:pos1r} illustrates this with the \textbf{pos1R} feature (\isi{PoS} of the \isi{first token} to the right of the current one). Bottom parts of the chart bars represent cases where the actual SB was missed by the model, because the observed \isi{sequence} of linguistic features is problematic for the model trained on the \isi{standard language} \isi{variety} (false negatives), while the top ones represent cases where SB was predicted after tokens that actually were not final in translations (unlikely non-boundary tokens, false positives).
+
+\begin{figure}
+\caption{Error rates for PoS values of the first token to the right; evaluation on translational data}
+\includegraphics[scale=0.5,keepaspectratio]{figures/pos1r_rusltc.eps}
+\label{fig:pos1r}
+\end{figure}
+
+\newpage 
+Interestingly, the ratio of false positives for some \isi{PoS} of the nearest neighbour to the right is unusually high (higher than 5\% of all errors, which is the mean value over the whole corpus): precisely, for \textbf{S} and \textbf{NUM}, and to some extent for \textbf{SNOM}. Thus, translators comparatively more often continue sentences with numeral words (including lexical units like \textit{оба} `both' or \textit{полтора} `one and a half'), while in the same situation in the native texts we would expect the sentence to end, and a new sentence to start with this numeral. 
+
+Similar observation can be made concerning particular binary features, which also seem predictive of non-standard translators' behaviour. For example, the probability of an error is almost two times higher (2\% probability) when the next token to the right belongs to the set of discourse markers (like \textit{в сущности} `in fact', \textit{наверное} `perhaps'), manifested in the feature \textbf{dm1R}. These errors are distributed almost evenly between false negatives (69\%) and false positives (31\%), leading to a false positives ratio that is 6 times higher than the average over the corpus. This is because under the same circumstances in standard \isi{Russian} the sentence would end, and the new sentence would be started with a \isi{discourse marker}, but translators decide to continue the sentence, joining it with the next. Thus, the model yields a false positive in detecting a \isi{sentence boundary} token immediately to the left of the marker. Note that when the \textbf{dm1R} feature takes the `False' value (the first-to-the-right token is not a \isi{discourse marker}) the distribution of false negatives and false positives is quite standard: 95\% vs 5\%. 
+
+
+Despite the fact that RusLTC contains more sentences starting with one of the discourse markers from our list (7,28\% of all sentences) than RNC (5,66\%, the difference is statistically significant), it also contains sentences with atypical in-sentence position of typical sentence-initials. Thus, our strategy of revealing \isi{translationese} overcomes limitations of the traditional statistical \isi{significance analysis}. 
+
+Consider the translation in Example \ref{ex:jammed} to the English \isi{source text}: 
+
+\ea
+\label{ex:jammed}
+
+\textit{The findings have broken down some of the illusions commonly associated with burglaries\textbf{;} with four out of five revealing burglary was not opportunistic, \textbf{instead} returning to a property a number of times before breaking in (Daily Mail, Nov. 1, 2011)}.\\
+\glt
+\textit{Результаты исследования разрушили неко\-торые мифы, касающиеся краж со взломом, \textbf{так} например, четыре из пяти раскрытых преступлений не были незапланированными, \textbf{напротив}, граби\-те\-ли несколько раз возвращались на место потенциального взлома прежде, чем вторгнуться в чужой дом}.
+\z
+
+The information units after the English semi-colon and after `instead' are both rendered as well-formed separate discourse units, each with their own discourse markers, but these potential sentences are unreasonably jammed into one formal structure.   
+
+The difference is even more striking with the feature \textbf{subconj1R} (whether the next token is a \isi{subordinate conjunction} or its equivalent). When this feature takes the `True' value, the ratio of false positives is close to 50\%. It means that the model expects to observe more sentences that start with a \isi{subordinate conjunction} (e.g., \textit{затем} `then' or \textit{если} `if') than is the case with the \isi{learner} translations. It seems to speak in favour of the \isi{normalisation} hypothesis in translation. Traditional stylistics frowns upon starting a sentence with a \isi{subordinate conjunction} and translators are opposed to using these less standard opportunities of the language system, which leads to a flatter, less varied expression typical for translations and to lower frequencies of more peripheral elements in them. 
+
+Note that our specific interest to false positives is also rooted in the expectations from our previous research \citet{Kunilovskaya:2015}, which showed that \isi{sentence length} in translations is significantly higher than in non-translated texts (from the same sub-corpora). Our belief was that an algorithm like the one reported here should return more false positives for longer sentences, especially as \isi{sentence length} is among the best predictors in both models. The \isi{experiment} indeed shows that there is a strong (0.72) exponential \isi{correlation} between \isi{sentence length} in characters and the number of false positives; for false negatives this \isi{correlation} is even higher and reaches the value of 0.8. Thus, statistical modelling approach seems to support the observation that (\isi{learner}) translations tend to over-use long sentences and this leads to a `foreign' flavour of the produced texts. In the future, we plan to conduct a more thorough investigation into how and why error rate increases in \isi{correlation} with \isi{sentence length}.
+
+Such analysis can be easily made more granular and multi-factorial: we can test for \isi{correlation} between \textit{sets} of features and non-\isi{standard language} \isi{usage}. For example, after ranking patterns \textbf{pos}+\textbf{pos1R} by the probability of false negatives, the \isi{sequence} \textbf{SPRO}+\textbf{CONJ} (non-nominative pronoun followed by conjunction) is found on top of the list, with the model failing to predict \isi{sentence boundary} in almost 10\% of its occurrences. Examples of such contexts include sequences like `\textit{которые попадаются у него на пути или похожи на \textbf{них}. И такие поступки бросают...}'\footnote{...which are on his way or similar to \textbf{them}. And such actions make...} (boundary token is given in bold). It seems that when preceded by a non-nominative pronoun, such a sentence start is rather unnatural: if the first sentence instead ends in a nominative pronoun, the model makes mistakes in less than 2\% of such cases. As expected, there are no false positives for both of these patterns.
+
+Another interesting pattern is \textbf{pos1L+pos}. The top of the list is dominated by patterns like \textbf{V\_SPRONOM}, \textbf{VFIN\_SPRO}, \textbf{V\_SPRO} (pronouns preceded by verbs) and \textbf{PR\_SPRO} (pronouns preceded by prepositions). 5-6 \% of all their instances produce false negative results. This can be explained by English-based \isi{interference}: typical English sentences ending in non-rhematic (prepositional) phrases get diligently copied into \isi{Russian} translations. See the following examples \ref{ex:sent_end1} - \ref{ex:sent_end4} of sentence ends:
+
+\ea
+\label{ex:sent_end1}
+\textit{...until you can clearly define and understand what is being conveyed you cannot hope \textbf{to translate it}.} \\ 
+\textit{...пока вы не можете ясно определить и понять то, что имеется в виду, не надейтесь \textbf{перевести это}.} (\textbf{V\_SPRONOM})
+\z
+
+\ea
+\label{ex:sent_end2}
+\textit{...with which he \textbf{identified himself}.}\\ \textit{..с которыми он \textbf{ассоциировал себя}.} (\textbf{VFIN\_SPRO})
+\z
+
+\newpage 
+\ea
+\label{ex:sent_end3}
+\textit{...even sometimes obliging a Great Power to tail along \textbf{after him}.}\\ \textit{...иногда даже заставляющим великие державы \textbf{подчиняться ему}.} (\textbf{V\_SPRO})
+\z
+
+\ea
+\label{ex:sent_end4}
+\textit{It was the end of books \textbf{for me}.} \\ \textit{Книги перестали существовать \textbf{для меня}.} (\textbf{PR\_SPRO})
+\z
+
+In all these cases putting the rhematic verb in the end of the sentence, after the pronoun, would sound much more natural and close to a native text. Such cases of \isi{translationese} are detected by our approach: the model trained on the native corpus `stumbles' at these sequences and rejects to acknowledge that this is the end of the sentence. Thus, this is another example of morphosyntactic feature sets that are perceived by a native speaker as somewhat unnatural, and that are computationally detectable in our approach.
+
+There is one \textbf{pos}+\textbf{pos1R} pattern in which the ratio of false positives exceeds the average over the corpus, comprising more than 6\% of all errors. It is \textbf{S}+\textbf{ADVPRO} (non-nominative noun followed by an adverbial pronoun). False positives in this pattern are often due to translators' punctuation errors. For example, in the fragment `\textit{морского побережья, открытых земель, мест обитания и \textbf{мест} куда художники и обычные люди могли бы}'\footnote{...of seaside, open lands, habitats and \textbf{places} where artists and common people could...} it would be correct in \isi{Russian} to insert a comma after `\textit{мест}'. Without it the model supposes a \isi{sentence boundary} (perhaps, the lack of finite verbs in this sentence is another reason for the wrong prediction). 
+
+We have also detected the tendency for \isi{learner} translators to overuse pronouns, such as \textit{это} `this, it' and \textit{здесь} `here', \textit{так} `so' at the end of the sentence, which can be the English \isi{source text} `shining through'.
+
+Given above are only some examples of `\isi{translationese}' discovered by our approach; in fact, this list can be continued and expanded. It is, however, already clear that a researcher can draw numerous insights analysing the output of an algorithm modelling `native speaker' (in our case, an author of a non-translated text) applied to translations. For example, one can find translations which are most different from native text by simply calculating the density of model mistakes in the given documents. Interestingly, in our material, such procedure revealed several student translations which, upon manual inspection, were obviously produced by \isi{machine translation} (students cheated).
+
+We emphasize that these differences in the structure of native and translated texts are not always the sign of `lower quality' of the latter. Differences can be caused by one of translation universals (see example with normalization above) and do not necessarily negatively impact the language of translation. However, detecting `\isi{syntactic translationese}' can still be helpful in many settings.
+
+At the same time, manual error analysis brought to our attention several issues with the model design to be addressed in future work. First of all, the model does not distinguish between different punctuation signs, and fails to recognize sentence boundaries before inverted commas opening a sentence; a lot of mistakes come from inverted commas used to set off trademarks, titles and some proper names.
+
+Much \isi{noise} comes from the binary features that involved \isi{multiword} discourse markers, which were considered as one lexical unit. The latter proved to be sometimes homonymous to nominal phrases with preposition, and this led to unreasonable predictions. To be a truly reliable feature, these elements need to be disambiguated. Also, some normalization for numbers is needed: as of now, all numbers written in figures are referred to unknown category, which makes a good deal of instances less usable.
+
+We believe that the model would benefit from adding at least several lexical features as strings. As stated above, for now we excluded all string features because of computational complexity and their high \isi{dependency} on semantics of the utterance. However, a number of words typically accompanying sentence boundaries can be selected and employed.
+
+Thus, our future work in this area should include attempts to decrease the \isi{noise} in the output through more thoughtful formatting and add new and better-motivated features to the corpora representation, including syntactic ones.  
+
+\section{Conclusion}\label{sec:andrey:concl}
+
+The work described above is an attempt to apply multi-factorial statistical analysis to study a variant of the \isi{Russian} language instantiated in \isi{learner} translations. We trained machine learning models that detect cases of dissonance between translated and non-translated texts based on a set of formal and morphological features and sentence properties. The approach is tested on traditional for this task monolingual corpora (the \isi{reference corpus} of non-translated \isi{Russian} texts and a corpus of comparable \isi{learner} translations from English into \isi{Russian}). 
+
+Differences between translated and non-translated texts are detected with reference to sentence boundaries, an important structural event, which serves here as a comparability factor. We hypothesize that sentence boundaries in the two corpora are dissimilar in terms of their morphosyntactic environments, and support this claim with empirical evidence. 
+
+We analysed variation in sentence patterns between learner-translated and non-translated \isi{Russian} mass-media texts on the basis of surface and morpho-syntactic parameters of sentence boundaries context. We employed a sliding window of 10 tokens (5 to the left and 5 to the right of a possible \isi{sentence boundary}) and their associated features to train a \isi{classifier} which tries to predict whether the \isi{current token} is the end of the sentence or not. The trained model was then applied to translated texts to find out differences in typical sentence boundaries patterns. 
+
+In our experiments, the model trained on the native texts served as a `mechanical intelligence' representing an average native speaker of \isi{Russian} making decisions about whether the sentence is going to end in this particular position or not. Comparing this models' decisions with real sentence boundaries in the translated texts allowed to automatically reveal several repeating patterns of features, frequently pointing at cases of `\isi{translationese}' typical for \isi{learner} translators. Thus, this two-step methodology proved fruitful for our aims.
+
+In the future we plan to enrich it with higher-level indicators, such as syntactic dependencies, anaphoric and co-referential chains, semantic data or, maybe, discourse relations, to build up knowledge about \isi{sentence boundary} as a discourse structural event. Meanwhile, our approach makes it possible to detect sentence boundaries atypical for native texts. This is another step towards an automatic \isi{translationese} spotter, widely sought in the field of computational translation studies.
+
+\section{Acknowledgements}
+This work has been partly supported by the Russian Foundation for Basic Research within Project No. 17-06-00107. The authors thank the anonymous reviewers for their helpful comments, which were crucial in guiding our work into the right direction. However, all mistakes and inconsistencies remain the responsibility of the authors alone.
+ {\sloppy
+ \printbibliography[heading=subbibliography,notkeyword=this] 
+ }
+
+\end{document}

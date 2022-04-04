@@ -1,0 +1,884 @@
+\documentclass[output=paper,modfonts]{langscibook}
+\ChapterDOI{10.5281/zenodo.1469567}
+\title{Sequence models and lexical resources for MWE identification in French}
+\author{Manon Scholivet\affiliation{Aix Marseille Univ, Université de Toulon, CNRS, LIS, Marseille, France}\and  Carlos Ramisch\affiliation{Aix Marseille Univ, Université de Toulon, CNRS, LIS, Marseille, France}\lastand  Silvio Cordeiro\affiliation{Institute of Informatics, Federal University of Rio Grande do Sul, Brazil \texorpdfstring{\\}{and} Aix Marseille Univ, Université de Toulon, CNRS, LIS, Marseille, France}}
+
+\abstract{We present a simple and efficient sequence tagger capable of identifying continuous multiword expressions (MWEs) of several categories in French texts. It is based on conditional random fields (CRF), using as features local context information such as previous and next word lemmas and parts of speech. We show that this approach can obtain results that, in some cases, approach more sophisticated parser-based MWE identification methods without requiring syntactic trees from a treebank. Moreover, we study how well the CRF can take into account external information coming from both high-quality hand-crafted lexicons and MWE lists automatically obtained from large monolingual corpora. Results indicate that external information systematically helps improving the tagger's performance, compensating for the limited amount of training data.}
+
+\begin{document}
+
+
+\maketitle
+\label{SCHOLIVET-CHAPTER}
+
+
+\section{Introduction}
+\label{schol:sec:intro}
+
+Identifying multiword expressions (MWEs)\is{multiword expression!identification} in running texts with the help of lexicons could be considered as a trivial search-and-replace operation. 
+In theory, one could simply scan the text once and mark (e.g.\ join with an underscore) all sequences of tokens that appear as headwords in the MWE lexicons.
+Direct matching and projection of lexical entries onto the corpus can be employed as a simple yet effective preprocessing step prior to dependency parsing \citep{nivre2004} and machine translation \citep{carpuat2010}. 
+Upon recognition, the identified member words of an MWE can be concatenated and treated as single token, that is, a ``word with spaces'', as suggested by \citet{Sag2002a}. 
+
+However, this simple pipeline will fail when dealing with frequent categories of MWEs that present some challenging characteristics such as \main{variability} and \main{ambiguity}.\is{ambiguity}
+For many MWE categories, \main{variability} due to morphological inflection may pose problems.\is{idiomatic variation} 
+For instance, if a lexicon contains the idiom \ile{to make a face}, string matching will fail to identify it in \ile{children are always \lex{making faces}} because the verb and the noun are inflected.\footnote{In addition, the determiner \ile{a} is not mandatory. 
+However, discontinuous expressions containing optional intervening words are out of the scope of this work because our method is based on sequence models and our corpora only contain continuous MWEs. 
+An adaptation of sequence models to discontinuous expressions has been proposed by \citet{Schneider14b}.} 
+Since lexicons usually contain canonical (lemmatised) forms, matching must take inflection into account.
+This can be carried out by (a) pre-analysing the text and matching lemmas instead of surface-level word forms \citep{finlayson-kulkarni:2011:MWE}, or by (b) looking up lexicons containing inflected MWEs \citep{silberztein-varadi-tadi:2012:DEMOS}.
+
+Things get more complicated when the target MWEs are ambiguous, though. An MWE is \main{ambiguous} when its member words can co-occur without forming an expression. 
+For instance, \ile{to make a face} is an idiom meaning `to show a funny facial expression', but it can also be used literally when someone is making a snowman \citep{fazly-cook-stevenson:2009:CL}. 
+Additionally, the words in this expression can co-occur by chance, not forming a phrase \citep{BoukobzaR09,shigeto-EtAl:2013:MWE}. This is particularly common for multiword function words such as prepositions (e.g.\ \ile{up to}), conjunctions (e.g.\ \ile{now that}) and adverbials (e.g.\ \ile{at all}). 
+For example, \ile{up to} is an MWE in \ile{they accepted \lex{up to} 100 candidates} but not in \ile{you should look it up to avoid making a typo}. 
+Similarly, \ile{at all} is an adverbial in \ile{they accepted no candidates \lex{at all}}, but not in \ile{this train does not stop at all stations}.
+Context-dependent statistical methods \citep{fazly-cook-stevenson:2009:CL,BoukobzaR09} and syntax-based methods \citep{candito-constant:acl:2014,nasr:acl:2015} are usually employed to deal with semantic ambiguity and accidental co-occurrence, respectively.
+
+In addition to variability\is{idiomatic variation} and ambiguity, an additional challenge stems from the absence or limited coverage of high-quality hand-crafted lexical resources containing MWEs for many languages.
+Therefore, it is not always possible to employ purely symbolic look-up methods for MWE identification\is{multiword expression!identification}.
+Statistical methods are an interesting alternative, since one can learn generic models for MWE identification based on corpora where MWEs have been manually annotated.
+If enough evidence is provided and represented at the appropriate level of granularity, the model can make generalizations based on commonly observed patterns. It may then be able to identify MWE instances that have never occurred in annotated training data.
+However, annotated corpora often do not contain enough training material for robust MWE identification. 
+Complementary evidence can be obtained with the help of unsupervised MWE discovery methods that create MWE lists from raw corpora, which are then considered as if they were hand-crafted lexicons.
+In short, the heterogeneous landscape in terms of available resources (annotated corpora, hand-crafted lexicons) motivates the development of statistical MWE identification models that can exploit external hand-crafted and automatically constructed lexicons as a complementary information source \citep{constant-sigogne:2011:MWE,Schneider14b,riedl-biemann:2016:MWE}.
+
+% This paper focuses on a specific category of highly frequent and ambiguous MWEs in \ili{French}. Indeed, in \ili{French} some of the most recurrent function words are ambiguous MWEs. For instance, some conjunctions are formed by combining adverbs like \emph{ainsi} (\emph{likewise}) and \emph{maintenant} (\emph{now}) with subordinate conjunctions like \emph{que} (\emph{that}). However, they may also cooccur by chance when the adverb modifies a verb followed by a subordinate clause, as in the example taken from \citet{nasr-etAl:2015:ACL} : %like in \emph{il pense \underline{maintenant que} je suis malade} (\emph{he thinks \underline{now that} I am ill}). 
+% 
+% 
+% \vspace{.3em}
+% \expl{
+% \begin{tabular}{@{}l@{~~}l@{~}l@{~}l@{~}l@{~}l@{}}
+% \expl{1.} &Je &mange &\multicolumn{2}{l}{\textbf{bien que}} & je n'aie pas faim\\ 
+%         &I  &eat   &\multicolumn{2}{l}{\textbf{although}} & I am not hungry\\  [.3em]
+% \expl{2.} &Je &pense &{\textbf{bien}} & {\textbf{que}}           & je n'ai pas faim\\
+%         &I  &think &{\textbf{indeed}} & {\textbf{that}}        & I am not hungry\\ [.3em]
+% \end{tabular}}
+% 
+% The same happens for determiners like \expl{de la} (partitive \expl{some}), which coincides with preposition \expl{de} (\expl{of}) and determiner \expl{la} (\expl{the}).
+% 
+% \vspace{.3em}
+% \expl{
+% \begin{tabular}{@{}l@{~~}l@{~}l@{~}l@{~}l@{}}
+% \expl{3.} &Il boit &\multicolumn{2}{l}{\textbf{de la}} & bi\`ere\\ 
+%         &He drinks   &\multicolumn{2}{l}{\textbf{some}} & beer\\  [.3em]
+% \expl{4.} &Il parle &{\textbf{de}} & {\textbf{la}} & bi\`ere\\
+%         &He  talks&{\textbf{about}} & {\textbf{the}}        & beer\\ [.3em]
+% \end{tabular}}
+% 
+% As showed by \citet{nasr-etAl:2015:ACL}, recognizing these MWEs automatically requires quite high-level syntactic information such as access to a verbal subcategorization lexicon. Our hypothesis is that this information can be modeled without the use of a parser by choosing an appropriate data encoding and representative features.
+% 
+% The main reason why we are interested in these particular constructions is that they are frequent: in the frWaC corpus, containing 1.6 billion words,  2.1\% of the sentences contain at least one occurrence of adverb+\emph{que} construction, and 48.6\% contain at least one occurrence of \emph{de}+determiner construction. For example, the word {\textit des} is the 7$^{th}$ most frequent word in this corpus. Even if some of these constructions (\emph{bien que, ainsi que}) are more frequent in formal registers, all the others are really pervasive and register-independent.
+
+We propose a simple, fast and generic sequence model\is{sequence model} for tagging continuous MWEs based on conditional random fields (CRF).\is{conditional random fields} 
+It cannot deal with discontinuous expressions, but is capable of modelling variable and highly ambiguous expressions. 
+Moreover, we propose a simple adaptation to integrate information coming from external lexicons. 
+Another advantage of our CRF is that we do not need syntactic trees to train our model, unlike methods based on parsers \citep{leroux:hal-01074298,nasr:acl:2015,constant-nivre:acl:2016}. 
+Moreover, for expressions that are syntactically fixed, it is natural to ask ourself if we really need a parser for this task. 
+Parsers are good for non-continuous MWEs, but we hypothesise that continuous expressions can be modelled by sequence models that take ambiguity into account, such as CRFs. 
+Regardless of the syntactic nature of these ambiguities, we expect that the highly lexicalised model of the CRF compensates for its lack of structure.
+
+The present chapter contains three significant extensions with respect to our previous publication at the MWE 2017 workshop \citep{scholivet-ramisch:2017:MWE2017}. 
+First, we train and test our models on two complementary datasets containing nominal expressions and general MWEs in \ili{French}. 
+Second, we study the integration of automatically constructed MWE lexicons obtained with the help of MWE discovery techniques.
+Third, we study the performance of our system on particularly hard MWE instances such as those including variants and those that do not occur in the training corpora.
+
+In short, we demonstrate that, in addition to being well suited to identifying highly ambiguous MWEs in \ili{French} \citep{scholivet-ramisch:2017:MWE2017}, the proposed model and its corresponding free implementation\footnote{The CRF-MWE tagger described in this chapter is included in the mwetoolkit in the form of 2 scripts: \texttt{train\_crf.py} and \texttt{annotate\_crf.py}, freely available at \url{http://mwetoolkit.sf.net/} } can also be applied to identify other MWE categories and use other types of external lexicons.
+% Our CRF-based approach pre-identifies grammatical MWEs in \ili{French} without resorting to syntactic trees, and results are close to those obtained by state-of-the-art parsers \citep{Green:2013:PMI:2464100.2464109,nasr:acl:2015}. 
+% Moreover, we also obtain results that are significantly better than a memory-based baseline and close to more sophisticated methods on other MWE categories such as nominal expressions.
+% Additionally, we show that features derived from external lexicons can improve the \isi{identification} performance, even for automatically constructed lexicons derived from large monolingual corpora. 
+We believe that this approach can be useful (a) when no treebank is available to perform parsing-based MWE identification, (b) when large monolingual corpora are available instead of hand-crafted lexical resources, and (c) as a preprocessing step to parsing, which can improve parsing quality by reducing attachment ambiguities \citep{candito-constant:acl:2014,nivre2004}.
+
+
+
+\section{Related work}
+\label{schol:sec:relwork}
+
+Token identification of MWEs\is{multiword expression!identification} in running text can be modelled as a machine learning problem, building an identification model from MWE-annotated corpora and treebanks.
+To date, it has been carried out using mainly two types of models: sequence taggers and parsers. Sequence taggers such as CRFs, structured support vector machines and structured perceptron allow disambiguating MWEs using local feature sets such as word affixes and surrounding word and POS $n$-grams. Parsers, on the other hand, can take into account longer-distance relations and features when building a parse tree, at the expense of using more complex models. 
+
+Sequence taggers have been proven useful in identifying MWEs. MWE identification is sometimes integrated with POS tagging\is{part-of-speech tagging} in the form of special tags. Experiments have shown the feasibility of sequence tagging for general expressions and named entities\is{named entity} in \ili{English} \citep{vincze-nagyt-berend:2011:MWE}, verb-noun\is{verbal multiword expression!verb-noun} idioms in \ili{English} \citep{diab-bhutada:2009:MWE09} and general expressions in \ili{French} \citep{constant-sigogne:2011:MWE}
+and in \ili{English} \citep{Schneider14b,riedl-biemann:2016:MWE}. \citet{shigeto-EtAl:2013:MWE}  tackle specifically \ili{English} function words and build a CRF from the Penn Treebank, additionally correcting incoherent annotations. We develop a similar system for \ili{French}, using the MWE annotation of the \ili{French} Treebank as training data and evaluating the model on a dedicated dataset.
+
+Parsing-based MWE identification requires a treebank annotated with MWEs. Lexicalised constituency parsers model MWEs as special non-terminal nodes included in regular rules \citep{Green:2013:PMI:2464100.2464109}. In dependency parsers\is{parsing!dependency}, it is possible to employ a similar approach, using special dependency labels\is{dependency!relation} to identify relations between words that make up an expression \citep{candito-constant:acl:2014}. 
+
+The work of \citet{nasr:acl:2015} is a parsing-based approach evaluated on highly ambiguous grammatical MWEs in \ili{French} (\sectref{schol:sec:results-ambig}). In their work, they link word sequences belonging to complex conjunctions such as \exlitidio{bien que}{well that}{al\-though} and partitive determiner such as \exlitidio{de la}{of the}{some}, using a special dependency link\is{dependency!relation} called \texttt{morph}, similar to \isi{Universal Dependencies}' \texttt{compound} relation \citep{univdep}. On the other hand, these word sequences can occur by chance, such as in \exlitidio{Je pense bien que je suis malade.}{I think well that I am sick.}{I really think that I am sick}. Then, the adverb \ile{well} modifies the verb \ile{think}, which in turn has a complement introduced by \ile{that}. \citet{nasr:acl:2015} train a second-order graph-based dependency\is{dependency!graph-based} parser to distinguish \texttt{morph} from other syntactic relations, implicitly identifying MWEs. In addition to standard features, they extract features from a valence dictionary specifying whether a given verb licences complements introduced by \exidio{que}{that} or \exidio{de}{of}.
+
+Our hypothesis is that parsing-based techniques like this are not required to obtain good performances on continuous expressions. Our paper adapts a standard CRF model inspired on the ones proposed by \citet{constant-sigogne:2011:MWE}, \citet{riedl-biemann:2016:MWE} and \citet{shigeto-EtAl:2013:MWE} to deal with continuous MWEs. 
+
+Concerning external lexical resources, \citet{nasr:acl:2015} have shown that their features extracted from a valence dictionary can significantly improve identification. Moreover, most systems based on sequence taggers also integrate additional hand-crafted lexicons to obtain good results \citep{constant-sigogne:2011:MWE,Schneider14b}. Nonetheless, the integration of automatically discovered lexicons of MWEs has not been explored by many authors, with the notable exception of  \citet{riedl-biemann:2016:MWE}. We show that our CRF can naturally handle automatically and manually constructed lexicons and that, in both cases, the system benefits from the extra information present in the lexicons.
+
+\section{A CRF-based MWE tagger}
+\label{schol:sec:crf}
+
+
+Linear-chain \isi{conditional random fields} (CRFs) are an instance of stochastic models that can be employed for sequence tagging \citep{Lafferty2001}. 
+Each input sequence $T$ is composed of $t_1 \ldots t_n$ tokens considered as an observation.
+Each observation is tagged with a sequence $Y=y_1\ldots y_n$ of tags corresponding to the values of the hidden states that generated them.
+CRFs can be seen as a discriminant version of hidden Markov models, since they model the conditional probability $P(Y|T)$.
+This makes them particularly appealing since it is straightforward to add customised features to the model.
+In first-order linear-chain CRFs, the probability of a given output tag $y_i$ for an input word $x_i$ depends on the tag of the neighbour token $y_{i-1}$, and on a rich set of features\is{feature} of the input $\phi(T)$, that can range over any position of the input sequence, including but not limited to the current token $t_i$. CRF training consists in estimating individual parameters proportional to $p(y_i,y_{i-1},\phi(T))$.
+
+The identification of continuous MWEs\is{multiword expression!continuity} is a segmentation problem. We use a tagger to perform this segmentation, employing the well-known Begin-Inside-Outside (BIO) encoding \citep{W95-0107}\is{BIO encoding}. In BIO, every token $t_i$ in the training corpus is annotated with a corresponding tag $y_i$ with values \texttt{B}, \texttt{I} or \texttt{O}. If the tag is \texttt{B}, it means the token is the beginning of an MWE. If it is \texttt{I}, this means the token is inside an MWE. \texttt{I} tags can only be preceded by another \texttt{I} tag or by a \texttt{B}. Finally, if the token's tag is \texttt{O}, this means the token is outside the expression, and does not belong to any MWE. An example of such encoding for the 2-word expression \exidio{de la}{some} in \ili{French} is shown in \figref{fig:ex}.
+
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\begin{figure*}[htb]
+\centering
+\begin{tabular}{C{12mm}cccccc}
+\lsptoprule
+$i$ & -2 & -1 & 0 & 1 & 2 & 3 \\
+\midrule
+\swfeat{w}{\ensuremath{i}} & \ile{Il} & \ile{jette} & \ile{de} & \ile{la} & \ile{nourriture} & \ile{périmée} \\
+$y_i$ & O & O & B & I & O & O \\
+& \ile{He} & \ile{discards} & \multicolumn{2}{c}{\ile{some}} & \ile{food} & \ile{expired} \\
+\bottomrule
+\end{tabular}
+\caption{Example of BIO tagging of a French sentence containing a \ile{De}+determiner expression, assuming that the current word (\swfeat{w}{\ensuremath{0}}) is \ile{de}.}
+\label{fig:ex}
+\end{figure*}
+
+
+For our experiments, we have trained a CRF tagger with the CRFSuite toolkit\footnote{\url{http://www.chokkan.org/software/crfsuite/}} \citep{CRFsuite}. We used a modified version of the \ili{French} treebank \citep{abeille:2003:ftb} as training, development, and test data, and the MORPH dataset\footnote{\url{http://pageperso.lif.univ-mrs.fr/~carlos.ramisch/?page=downloads/morph}} \citep{nasr:acl:2015} as development and test data. We additionally include features from an external \isi{valence lexicon}, DicoValence\footnote{\url{http://bach.arts.kuleuven.be/dicovalence/}} \citep{dicovalence}, and from an automatically constructed lexicon of nominal MWEs obtained automatically from the frWaC corpus \citep{wacky:2006} with the help of the mwetoolkit \citep{ramisch2014multiword}. 
+%Since our focus is on function words, our evaluation covers adverb+\emph{que} and \emph{de}+determiner constructions present in the MORPH dataset. 
+
+
+\subsection{CRF features}
+\label{subsec:crf-feat}
+
+Our set of features $\phi(T)$ contains 37 different combinations of values  (henceforth referred to as the {\textsc ALL} feature set). Our features are inspired on those proposed by \citet{constant-sigogne:2011:MWE}, and are similar to those used by \citet{Schneider14b} and \citet{riedl-biemann:2016:MWE}. The feature templates\is{feature!template} described below consider that the current token \swfeat{t}{0} has surface form \swfeat{w}{0}, lemma \swfeat{l}{0} and POS \swfeat{p}{0}. In addition to output tag bigrams (CRF's first-order assumption), we consider the following feature templates in our model, to be regarded in conjunction with the current tag to predict:
+\begin{itemize}
+%\compresslist
+\item Single-token features (\swfeat{t}{i}):\footnote{\swfeat{t}{i} is a shortcut denoting the group of features \swfeat{w}{i}, \swfeat{l}{i} and \swfeat{p}{i} for a token \swfeat{t}{i}. In other words, each token \swfeat{t}{i} is a tuple (\swfeat{w}{i},\swfeat{l}{i},\swfeat{p}{i}). The same applies to $n$-grams.}
+\begin{itemize}
+%\compresslist
+\item \swfeat{w}{0} : wordform of the current token
+\item \swfeat{l}{0} : lemma of the current token
+\item \swfeat{p}{0} : POS tag of the current token
+\item \swfeat{w}{i}, \swfeat{l}{i} and \swfeat{p}{i}: wordform, lemma or POS of previous ($i \in \{-1, -2\}$) or next ($i \in \{+1, +2\}$) tokens
+\end{itemize}
+\item $N$-gram features (bigrams \bgfeat{t}{i-1}{i} and trigrams \tgfeat{t}{i-1}{i}{i+1}):
+\begin{itemize}
+%\compresslist
+\item \bgfeat{w}{i-1}{i}, \bgfeat{l}{i-1}{i}, \bgfeat{p}{i-1}{i}: wordform, lemma and POS bigrams of previous-current ($i=0$) and current-next ($i=1$) tokens
+\item \tgfeat{w}{i-1}{i}{i+1},\tgfeat{l}{i-1}{i}{i+1}, \tgfeat{p}{i-1}{i}{i+1}: wordform, lemma and POS trigrams of previous-previous-current ($i=-1$), previous-current-next ($i=0$) and current-next-next ($i=+1$) tokens
+\end{itemize}
+\item Orthographic features (\textsc{orth}):
+\begin{itemize}
+%\compresslist
+\item \feat{hyphen} and \feat{digits}: the current wordform \swfeat{w}{i} contains a hyphen or digits
+\item \feat{f-capital}: the first letter of the current wordform \swfeat{w}{i} is uppercase
+\item \feat{a-capital}: all letters of the current wordform \swfeat{w}{i} are uppercase
+\item \feat{b-capital}: the first letter of the current word \swfeat{w}{i} is uppercase, and it is at the beginning of a sentence.
+\end{itemize}
+\item Lexicon features %/Subcat features 
+({\textsc LF}), described in more detail in \sectref{subsec:external-lex}:
+% BigramNext : a POS, lemma or word bigram, composed as current, next.
+% BigramPrec : a POS, lemma or word bigram, composed as previous, current.
+% TrigramPP : a POS, lemma or word trigram, composed as previous previous, previous, current.
+% TrigramPN : a POS, lemma or word trigram, composed as previous, current, next.
+% TrigramNN : a POS, lemma or word trigram, composed as current, next, next next.
+% prec2 : the word, lemma or POS located two places before the current word.
+% prec : the word, lemma or POS located just before the current word.
+% next : the word, lemma or POS located just after the current word.
+% next2 : the word, lemma or POS located two places after the current word.
+\begin{itemize}
+%\compresslist
+\item \feat{queV}: the current wordform \swfeat{w}{i} is \ile{que}, and the closest verb to the left licences a complement introduced by \ile{que} according to the valence dictionary DicoValence.\footnote{\feat{queV} and \feat{deV} are sequential versions of the \emph{subcat features} proposed by \citet{nasr:acl:2015}.}
+\item \feat{deV}: the current wordform \swfeat{w}{i} is \ile{de}, and the closest verb to the left licences a complement introduced by \ile{de} according to the valence dictionary DicoValence.
+\item Association measures (\textsc{AM}) between the current token's lemma \swfeat{l}{i} and the previous tokens' lemmas:
+\begin{itemize}
+\item \textsc{mle}: probability of the lemma sequence estimated using maximum likelihood estimation
+\item \textsc{pmi}: pointwise mutual information of the lemma sequence.
+\item \textsc{dice}: Dice's coefficient of the lemma sequence
+\item \textsc{t-meas}: Student's t-score of the lemma sequence
+\item \textsc{ll}: log-likelihood ratio between the current lemma and the previous lemma
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+Our proposed feature set is similar to previous work, with only minor differences \citep{constant-sigogne:2011:MWE,schneider2014,riedl-biemann:2016:MWE}. Like all previous models, we encode output tags with BIO\is{BIO encoding}, and we consider as features the surface form of the current token, of surrounding tokens, and bigrams of those. Our orthographic features are practically identical to related work, but all previously proposed models include 4- to 5-character prefixes and suffixes, which we do not. The features proposed by \citet{constant-sigogne:2011:MWE} are only based on surface forms of words, given that their task is to jointly predict POS and MWE tags. On the other hand, the features of \citet{schneider2014} and \citet{riedl-biemann:2016:MWE} are based on current and surrounding lemmas and POS tags, and so are ours. Differently from these two articles, we rely on token trigram features and we do not use mixed lemma+POS features. The lemma-based features of \citet{schneider2014} are quite different from ours, because they are conditioned on particular POS tags. The main differences between previous models and ours are in the lexicon features: \citet{constant-sigogne:2011:MWE} and \citet{schneider2014} employ hand-crafted lexicons and extract more detailed information from them than we do. \citet{riedl-biemann:2016:MWE} cover both hand-crafted and automatically built lexicons. Their feature set has one feature in common with ours: Student's t-score. In short, the features are similar in nature, but present some arbitrary variation in their implementations, in addition to some variation due to the nature of the available lexicons and corpora.
+
+Our training corpora contain syntactic dependency information. However, we decided not to include it as CRF features for two main reasons. First, we wanted to evaluate the hypothesis that sequence-based methods can perform MWE identification without resorting to treebanks, as opposed to parser-based identification. Second, representing syntactic structure in a CRF is tricky as the linear-chain model in our experiments is not adequate for representing general graphs. Nonetheless, adding features based on simplified syntactic information (e.g.\ the dependency label of each word with respect to its parent) is feasible and represents an interesting idea for future work.
+
+
+
+\section{Experimental setup}
+\label{schol:sec:setup}
+
+In order to evaluate our systems, we test them on four MWE categories in \ili{French}:
+
+\begin{itemize}
+\item Adverb+\ile{que} expressions (AQ): in \ili{French}, adverbs (such as \exidio{bien}{well}) and the subordinating conjunction \exidio{que}{that} are frequently combined to build complex conjunctions such as \exlitidio{bien que}{well that}{although}. This category was chosen because (a) these expressions present little variability,\footnote{The only variability that must be taken into account is that \ile{que} is sometimes written as \ile{qu'} when the next word starts with a vowel.} and (b) they are highly ambiguous, since their components can co-occur by chance, as in \exlitidio{il sait bien que tu mens.}{he knows well that you lie.}{he really knows that you are lying}. Thus, we can focus on ambiguity as a challenging problem to model.
+\item \ile{De}+determiner expressions (DD): in \ili{French}, partitive and plural determiners are formed by the word \exidio{de}{of} followed by a definite article, for instance, \exlitidio{il mange de la salade, du pain et des fruits.}{he eats of the.SG.FEM salad, of-the.SG.MASC bread and of-the.PL fruit.}{he is eating some salad, bread and fruit}. Similarly to AQ, these constructions present little variation\footnote{Except for contractions \ile{de+le=du} and \ile{de+les=des}} and are ambiguous with preposition+article combinations such as \mwegloss{il parle de la salade}{he talks of the salad}{he talks about the salad}. Their disambiguation is challenging because it relies on the argumental structure of the verb governing the noun. Moreover, these are among the most frequent tokens in a corpus of \ili{French} \citep{nasr:acl:2015}.
+\item Nominal expressions:\is{multiword expression!nominal} at a first moment, we focus on the identification of nominal expressions for two reasons. First, they present morphological variability\is{idiomatic variation!morphological} but are syntactically fixed, making CRFs particularly suitable to model them. Second, we test the inclusion of automatically calculated association measures as features in the identification model, and our lexicon of pre-calculated association measures contains only nominal MWEs.
+\item General MWEs: finally, we evaluate our model on a corpus containing several categories of continuous MWEs. These include nominal expressions, complex conjunctions and determiners such as AQ and DD combinations, fixed prepositional phrases, multiword named entities\is{named entity}, some limited continuous verbal expressions such as \mwegloss{avoir lieu}{have place}{take place}, and so on. Our training and test corpora do not contain any labels distinguishing these MWE categories. Therefore the only category-based analysis we perform relies on the POS tags of the component words (for nominal MWEs).
+\end{itemize}
+
+In our experiments, we used two annotated corpora\is{multiword expression!annotated corpus}: the \ili{French} treebank and the MORPH dataset. Other corpora annotated with MWEs in \ili{French} do exist \citep{Laporteetal08a,MWEWorkshop}. However, we chose to evaluate our model on a dataset for which, at the time of writing this chapter, many studies on MWE identification methods have been reported (the \ili{French} treebank) and on an in-house dataset focusing on ambiguous MWEs (MORPH). Hence, we can compare our sequence model with state-of-the art results and verify whether they are adequate to recognise ambiguous MWEs. Evaluation on other corpora is left for future work.
+ 
+\subsection{The French treebank} 
+\label{subsec:ftb}
+
+We train and test our models on the MWE-annotated \ili{French} treebank (FTB)\is{French Treebank}, available in CONLL format and automatically transformed into the CRFsuite format. The FTB is traditionally split into three parts: train, dev and test. We train our systems systematically on the training part of the FTB, that we adapted to keep only the MWEs we are interested in. For the experiments where we considered general MWEs and nominal MWEs, we used the FTB version of the SPMRL shared task \citep{seddah-EtAl:2013:SPMRL}. The FTB dev and test corpora were employed respectively for feature engineering and evaluation.  For each word, the corpus contains its wordform, lemma, POS (15 different coarse POS tags), and syntactic dependencies (that were ignored).
+
+In the original corpus, MWE information is represented as words with spaces. 
+For instance, \ile{bien\_que} appears as a single token with underscores when it is a complex conjunction, whereas accidental co-occurrence is represented as two separate tokens \ile{bien} and \ile{que}.
+We argue that using such gold tokenisation is unrealistic, especially in the case of ambiguous MWEs.
+We thus systematically split single-token MWEs and added an extra column containing MWE tags using \isi{BIO encoding} (\sectref{schol:sec:crf}).
+Even though this preprocessing might sound artificial, we believe that it provides a more uniform treatment to ambiguous constructions, closer to their raw-text form.
+This assumption is in line with the latest developments in the dependency parsing\is{parsing!dependency} community, which has evolved from parser evaluation on gold tokenisation \citep{Buchholz:2006:CST:1596276.1596305} to evaluation on raw text \citep{zeman-EtAl:2017:K17-3}.
+
+The MWE-BIO tags were generated using the following transformation heuristics in the case of ambiguous AQ and DD MWEs: 
+\begin{itemize}
+%\compresslist
+  \item For AQ expressions:
+  \begin{enumerate}
+  \item We scan the corpus looking for the lemmas \ile{ainsi\_que}, \ile{alors\_que}, \ile{autant\_que}, \ile{bien\_que}, \ile{encore\_que}, \ile{maintenant\_que} and \ile{tant\_que}.% \carlos{of the MORPH dataset.}
+  \item We split them into two tokens and tag the adverb as {\textsc B} and \ile{que} as {\textsc I}.
+  \end{enumerate}
+  \item For DD expressions:
+  \begin{enumerate}
+  %\compresslist
+  \item We scan the corpus looking for the wordforms \ile{des}, \ile{du}, \ile{de\_la} and \ile{de\_l'}. Due to \ili{French} morphology, \ile{de} is sometimes contracted with the articles \ile{les} (determinate plural) and \ile{le} (determinate singular masculine). Contractions are mandatory for both partitive and preposition+determiner uses. Therefore, we systematically separate these pairs into two tokens.\footnote{An alternative to this preprocessing would be to keep contractions untokenised, and to assign a single \textsc{B} tag to those representing determiners. However, this would actually move the task of MWE identification to the POS tagger, which would need to choose whether the token is a determiner or a contracted preposition before MWE identification.}
+  \item If a sequence was tagged as a determiner ({\textsc D}), we split the tokens and tag \ile{de} as {\textsc B} and the determiner as {\textsc I}. 
+  \item Contractions (\ile{des}, \ile{du}) tagged as {\textsc P+D} (preposition+determiner) were split in two tokens, both tagged as {\textsc O}.
+  \end{enumerate}
+  \item All other tokens are tagged as {\textsc O}, including all other categories of MWEs.
+\end{itemize}
+
+For the newly created tokens, we assign individual lemmas and POS tags. The word \ile{de} is systematically tagged as \textsc{P} (preposition), not distinguishing partitives from prepositions at the POS level. The input to the CRF is a file containing one word per line, BIO tags as targets, and \textsc{FeatureName=value} pairs including $n$-grams of wordforms, lemmas and POS tags, as described in \sectref{subsec:crf-feat}. % (see below). 
+
+
+
+In the case of nominal MWEs, we applied the same procedure as for AQ pairs to the MWEs matching certain sequences of POS tags\footnote{The exact regular-expression pattern is: \texttt{(A.N) | (N.(PONCT.)?(A |(P+D.(PONCT.)?N) | (P.(PONCT.)?(D.)?(PONCT.)?N) | N)+)}.}. We accept that tokens can be separated by punctuation marks, as in the proper noun \ile{Bouches-du-Rhône}. When the MWE starts with a noun (N), it can be followed by one or more adjectives (A), nouns (N), or nouns preceded by prepositions (P) optionally including determiners (D) between the preposition and the noun.
+The matched nominal MWEs include combinations composed of: 
+\begin{itemize}
+\item adjective noun: \exidio{premier ministre}{prime minister};
+\item noun adjective: \exidio{corps médical}{medical community};
+\item noun-noun: \exidio{maison mère}{parent company};
+\item noun preposition noun: \exidio{motion de censure}{motion of censure};
+\item noun preposition determiner noun: \exidio{impôt sur le revenu}{income tax};
+\item noun preposition+determiner noun: \exidio{ironie du sort}{twist of fate}.
+\end{itemize}
+
+%The expressions under study in this paper are strictly contiguous. In unreported experiments, we successfully employ the method described in \citep{Schneider14b} to treat non-contiguous MWEs (more informations in \sectref{schol:sec:concl}).
+
+%To transform in CRFsuite format, we chose features which interested us, and we transform to have : BIO mark, features, with a feature is like : featureName=value. %Each sequence separating with an empty line. 
+
+\subsection{MORPH dataset} % MORPH dataset, divide into dev/test (how?)
+\label{subsec:morph}
+
+We used the MORPH dataset introduced by \citet{nasr:acl:2015} as test and development corpora for ambiguous AQ and DD expressions. It contains a set of 1,269 example sentences, each containing one of %\todo{SC: pouvez-vous vérifier ? Le texte avant disait juste "containing"} 
+7 ambiguous AQ constructions and 4 ambiguous DD constructions. To build this corpus, around 100 sentences for each of the 11 target constructions were extracted from the frWaC corpus and manually annotated as to whether they contain a multiword function word (MORPH) or accidental cooccurrence (OTHER). We have preprocessed the raw sentences as follows:
+\begin{enumerate}
+ %\compresslist
+ \item We have automatically POS tagged and lemmatized all sentences using an off-the-shelf POS tagger and lemmatizer independently trained on the FTB.\footnote{\url{http://macaon.lif.univ-mrs.fr/}} This information is given to the CRF as part of its features.
+ \item We have located the target construction in the sentence and added BIO tags according to the annotation provided: target pairs annotated as MORPH were tagged {\textsc B} + {\textsc I}, target pairs annotated as OTHER were tagged {\textsc O}.
+ \item For each target construction, we have taken the first 25 sentences as development corpus (dev, 275 sentences) and the remaining sentences for testing (test, 994 sentences).
+ \item We created four targeted datasets: \devAQ{}, \devDD{}, \fullAQ{} and \fullDD{}, where the different construction classes are separated, in order to perform feature selection.
+\end{enumerate}
+
+\tabref{tab:corpora:stats} summarises the corpora covered by our experiments in terms of number of tokens and MWEs. We trained all systems on the training portion of the FTB with different tokenisation choices, depending on the target MWE.\footnote{FTB-train for AQ/DD and for nominal/general MWEs is the same corpus, but the number of tokens differs because all MWEs other than AQ and DD were represented using words-with-spaces in FTB-train for AQ/DD.} The density of AQ and DD being too low in FTB-dev and FTB-test, we tune and evaluate our model for AQ and DD constructions on the MORPH dataset. For nominal and general MWEs, however, we use the FTB-dev and FTB-test portions.
+
+\begin{table}
+\begin{tabular}{lllrr}
+\lsptoprule
+\hd{Corpus} & \hd{Portion} & \hd{Target MWEs} & \hd{\#tokens} & \hd{\#MWEs} \\ \midrule
+FTB    & train   & AQ          & 285,909  & 216    \\
+FTB    & train   & DD          & 285,909  & 1,356  \\
+FTB    & train   & Nominal     & 443,115  & 6,413  \\
+FTB    & train   & General     & 443,115  & 23,522 \\
+FTB    & dev     & Nominal     & 38,820   & 686    \\
+FTB    & dev     & General     & 38,820   & 2,117  \\
+FTB    & test    & Nominal     & 75,217   & 1,019  \\
+FTB    & test    & General     & 75,217   & 4,041  \\
+MORPH  & \fullAQ{}& AQ          & 11,839   & 730    \\
+MORPH  & \fullDD{}& DD          & 8,319    & 539    \\
+\lspbottomrule
+\end{tabular}
+\caption{Number of tokens and MWEs in each corpus of our experiments.}\label{tab:corpora:stats}
+\end{table}
+
+\subsection{External lexicons}
+\label{subsec:external-lex}
+
+The verbal valence dictionary\is{valence lexicon} DicoValence specifies the allowed types of complements per verb sense in \ili{French}. For each verb, we extract two binary flags:
+\begin{itemize}
+%\compresslist
+\item \feat{queV}: one of the senses of the verb has one object that can be introduced by \ile{que}.\footnote{In DicoValence, an object \textsc{P1, P2} or \textsc{P3} licenses a complementizer \textsc{qpind}}
+\item \feat{deV}: one of the senses of the verb has a locative, temporal or prepositional paradigm that can be introduced by \ile{de}.\footnote{In DicoValence, the paradigm is \textsc{PDL}, \textsc{PT} or \textsc{PP}. }
+\end{itemize}
+
+We also use a lexicon containing nominal MWEs that were automatically extracted from the frWaC. They were obtained with the help of the mwetoolkit by first extracting all lemma sequences that match the nominal MWE pattern described above. Then, for each sequence, we calculate its number of occurrences as well as the number of occurrences of its member words, which are then used to calculate the association measures\is{association measure} listed in \sectref{subsec:crf-feat}. 
+
+When integrating this lexicon in the CRF as features, special treatment was required for overlapping expressions\is{multiword expression!overlapping}. If a given token belonged to more than one overlapping MWE, we considered the maximum value of the association measures. Moreover, since CRFs cannot deal with real-valued features, we have quantized each association score through a uniform distribution that assigned an equal number of expressions to each bin.
+
+
+\subsection{Evaluation measures}
+\label{subsec:evalmeas}
+
+For general and nominal MWEs, we analyse the performance on the FTB reported by the evaluation script of PARSEME shared task\is{PARSEME!shared task} (see \citealtv{Savarytv}).\footnote{\url{http://multiword.sf.net/sharedtask2017}} The script provides us with two different scores: one based on MWEs, and one based on MWE tokens. The MWE-based measure requires that all tokens in the MWE be predicted by the system, whereas the token-based measure is calculated based on each token individually, so that partially correct predictions are taken into account. Each variant (MWE-based and token-based) is reported in terms of precision, recall and F-measure. In this work, we will particularly focus on the F-measure. 
+
+For AQ and DD combinations, we evaluated on the MORPH dataset. We report precision ($P$), recall ($R$) and F-measure (F$_1$) of MWE tags. In other words, instead of calculating micro-averaged scores over all BIO tags, we only look at the proportion of correctly guessed \texttt{B} tags.
+%(corresponding to a TOKEN-based measure).  XXX SC: not true, really... It's like TOKEN-based but only for the first token... It's hard to classify, but my intuition says that it's probably half-way between MWE and TOKEN-based in terms of F-measure... Actually, the next paragraph makes me think this is much  closer to MWE-based, given that every B is followed by an I
+Since all of our target expressions are composed of exactly 2 contiguous words, we can use this simplified score because all \texttt{B} tags are necessarily followed by exactly one \texttt{I} tag. As a consequence, the measured precision, recall and F-measure scores on \texttt{B} and \texttt{I} tags are identical.
+
+\section{Results}
+\label{schol:sec:results}
+
+We present our results for different categories of MWEs, performing  feature selection on the \emph{dev} datasets. 
+\sectref{schol:sec:results-ambig} presents an evaluation of our approach on ambiguous AQ and DD expressions. 
+\sectref{schol:sec:results-nominal} evaluates the broader category of nominal MWEs. 
+\sectref{schol:sec:results-general} then extends the latter results to an evaluation of all MWEs. 
+\sectref{subsec:compare} compares the best results we obtained against the state of the art.
+Finally, \sectref{schol:sec:analysis} presents the results of a detailed analysis focusing on variable and unseen MWEs.
+
+
+%-----------------------------------------
+\subsection{Experiments on AQ and DD expressions}
+\label{schol:sec:results-ambig}
+
+Our first evaluation was performed on the \emph{dev} part of the MORPH dataset. We consider a subset of around 1/4 sentences containing AQ constructions (\devAQ{}, 175 sentences) and DD constructions (\devDD{}, 100 sentences).
+We evaluate the results under different levels of feature selection, regarding both coarse groups and individual features.
+
+In these experiments, the CRF is trained to predict BIO labels on the training part of the FTB, where only the target AQ and DD constructions have been annotated as MWEs, as described in \sectref{subsec:ftb}. Feature selection is performed on development set of the MORPH dataset, in which each sentence contains exactly one occurrence to disambiguate (MWE or accidental co-occurrence).
+%We then apply the best configuration to the whole MORPH dataset in order to compare our results with the state of the art (\ref{subsec:compare}).
+%\todo[inline]{@manon: Le texte d'avant disait ``We then apply the best configuration to the whole MORPH dataset [... to compare with \ref{subsec:compare}]'' --- does this mean train+dev? Maybe this should be said in Sec \ref{subsec:compare}, when the results are presented... ----> pas sûre d'avoir compris..? On applique sur le FullAQ et FullDD ( dev+test, détaillés dans la section \ref{subsec:morph}) pour comparer avec l'état de l'art} 
+
+
+\subsubsection{First feature selection: coarse}
+\label{subsec:results-ambig-feat-coarse}
+
+As shown in the first row of \tabref{TestFeatures1}, when we include all features\is{feature!selection} described in \sectref{schol:sec:crf} ({\textsc{ALL}}), we obtain an F$_1$ score of 75.47 for AQ and 69.70 for DD constructions. The following rows of the table show the results of a first ablation study, conducted to identify coarse groups of features that are not discriminant and may hurt performance.
+
+\begin{table*}%[htb]
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} & \multicolumn{3}{c@{~~~~~~~~}}{\hd{\devAQ}} & \multicolumn{3}{c}{\hd{\devDD}} \\ %\cline{2-7} 
+  &  \hd{P} & \hd{R} & \hd{F$_1$} & \hd{P} & \hd{R} & \hd{F$_1$} \\ 
+  \midrule
+\textsc{ALL} & 89.55 & 65.22 & 75.47 & 92.00 & 56.10 & 69.70\\ %\hline
+\textsc{ALL} - \textsc{orth} & 90.28 & 70.65 & 79.27 & 95.83 & 56.10 & 70.77 \\ %\hline
+\textsc{ALL} - \textsc{W} & 90.79 & 75.00 & 82.14 & 87.10 & 65.85 & 75.00 \\ %\hline
+\textsc{ALL} - \textsc{LF} & 91.18 & 67.39 & 77.50 & 88.89 & 58.54 & 70.59 \\ %\hline
+\textsc{ALL} - t$_{\pm 2}$ & 87.67 & 69.57 & 77.58 & 88.00 & 53.66 & 66.67\\ %\hline
+\textsc{ALL} - \tgfeat{t}{i-1}{i}{i+1} & 87.84 & 70.65 & 78.31 & 91.67 & 53.66 & 67.69\\ %\hline
+\textsc{ALL} - \bgfeat{t}{i-1}{i} & {\textbf{93.55}} & 63.04 & 75.32 & 95.83 & 56.10 & 70.77\\ %\hline%\hline
+\textsc{ALL} - \bgfeat{t}{i-1}{i} - \tgfeat{t}{i-1}{i}{i+1} & 88.57 & 67.39 & 76.54 & {\textbf{96.00}} & 58.54 & 72.73 \\ %\hline
+\textsc{ALL} - \textsc{orth} - \textsc{W} & 90.24 & {\textbf{80.43}} & {\textbf{85.06}} & 87.10 & 65.85 & 75.00 \\ %\hline
+\textsc{ALL} - \textsc{orth} - \textsc{W} - t$_{\pm 2}$  (\textsc{REF$_1$}) & 89.74 & 76.09 & 82.35 & 85.29 & {\textbf{70.73}} & {\textbf{77.33}} \\
+\lspbottomrule
+\end{tabular}
+\caption{Ablation study results on the dev portion of the MORPH dataset focusing on AQ and DD expressions - impact of the removal of coarse-grained feature sets.}
+\label{TestFeatures1}
+\end{table*}
+
+% To begin, we try to test our system with all the features. This result will be our first reference.
+%we don't make this expe again, and we talk about the old results...
+
+%The first step was to try to remove one feature at a time, and check if the performance increase or decrease. We noted that no matter which feature we remove, every time the result increase (but never more that 2\%). Except for the three features precWord, nextPOS and next2Lem, so we decide to test with this features only, and we see after all that it doesn't increase the performance. Indeed, we can suppose that at the first step, if the performance increase when we remove one feature, it was because when we have too many features, .... %don't know how to say that there is more "same/identical couple/set" So, when we remove one, the information may be found in an other feature (some features are very similar), and given that there are more ...%same problem , the results increase. \\ 
+% We tried to remove some groups of features (see \tabref{TestFeatures1}). 
+
+When we ignore orthographic features ({\textsc ALL} - \feat{orth}), all scores increase for \devAQ{} and \devDD{}, suggesting that  MWE occurrences are not correlated with orthographic characteristics. F$_1$ also increases when we remove all surface-level wordform features, including single words and $n$-grams (represented by \feat{W}). We hypothesize that  lemmas and POS are more adequate, as they can reduce sparsity\is{multiword expression!sparsity} by conflating variations of the same lexeme, while wordforms only seem to introduce noise.
+%Then, we chose to try to remove all the wordform features represented with the character {\textsc W} (including Bigrams and Trigrams), because these features are redundant with the lemma form of the token, which bring more useful information.
+
+We then evaluate the removal of lexicon features ({\textsc ALL} - \feat{LF}).
+At a first intuition, one would say that this information is important to our system, as it allows assigning O tags to conjunctions and prepositions that introduce verbal complements. Surprisingly, though, the system performs better without them. 
+% because we don't have other features that give us this information, the performance increase when we delete these features.
+We presume that this is a consequence of the sparsity of these features\is{feature!sparsity}: since there are many features overall in the system, the CRF will naturally forgo \feat{LF} features when they are present, rendering them superfluous to the system. These features will be analyzed individually later (see \tabref{table3}).
+
+One might expect that single tokens located 2 words apart from the target token do not provide much useful information, so we evaluate the removal of the corresponding features ({\textsc ALL} - {t}$_{\pm 2}$). While this intuition may be true for \devAQ{}, it does not hold for \devDD{}. 
+%The second remove group is composed with all the features which depends on a token far from 2 tokens of the current token. Performance should be better, because token which are too fare don't bring interesting information. But we notice that, in the case of de+DET, these features seems to be important. %I don't know why...
+Next, we try to remove all trigrams, and then all trigam \& bigram features at once. When we remove trigrams, F$_1$ decreases by 2.01 absolute points in \devDD{} and increases by 2.84 absolute points in \devAQ{}.
+Bigrams are somehow included in trigrams, and their removal has little impact on the tagger's performance. When we remove bigram and trigram features altogether, scores are slightly better, even though a large amount of information is ignored. Since these results are inconclusive, we perform a more fine-grained selection considering specific $n$-grams in \sectref{subsec:results-ambig-feat-fine}. % in \tabref{TestFeatures2}.
+ 
+Finally, we try to remove several groups of features at the same time. When we remove both orthographic and wordform features, F$_1$ increases to 85.06 for \devAQ{} and 75.00 for \devDD{}. When we also remove tokens located far away from the current one, performance increases for \devDD{}, but not for \devAQ{}. Unreported experiments have shown, however, that further feature selection % (\tabref{TestFeatures2})
+also yields better results for \devAQ{} when we ignore t$_{\pm 2}$ features. Therefore, our reference ({\textsc REF$_1$}) for the fine-grained feature selections experiments will be this set of features, corresponding to the last row of \tabref{TestFeatures1}.
+
+%We can see that performance increase a lot when we remove groups together. So we will try new kind of removing features, in the \tabref{TestFeatures2}. The new reference will be shared between ADV+que and de+DET because %Magic! An explanation appears! :p
+
+\subsubsection{Second feature selection: fine}
+\label{subsec:results-ambig-feat-fine}
+
+\tabref{TestFeatures2} presents the results from fine-grained feature selection.\is{feature!selection}
+In the first row of the table, we replicate the reference (\textsc{REF$_1$}) feature set defined above.
+In the second row, we try to remove the lexicon features (\textsc{LF}) once again. When they were removed in previous experiments, shown in \tabref{TestFeatures1}, we had a gain in performance, suggesting that these features were superfluous. When we remove them from \textsc{REF$_1$}, however, the precision and recall observed for \textsc{DEV}$_{DD}$ decrease by about 10 points. That is, the removal of \textsc{LF} yields a performance drop with respect to a relatively good model (\textsc{REF$_1$}), suggesting that these features are valuable after all. We hypothesise that \textsc{LF} can be better taken into account now that there are less noisy features overall in the whole system.
+%lexicon features don't appear often, and it was lost in other features, but now we have less, these features begin to be useful. 
+
+
+\begin{table*}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+%\cline{3-5} \cline{7-9}
+% & \multicolumn{3}{c|}{\devAQ} & \multicolumn{3}{c|}{\devDD} \\ \hline
+%Feature set & P & R & F$_1$ & &  P & R & F$_1$  \\ \cline{1-1} \cline{3-5} \cline{7-9}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} & \multicolumn{3}{c@{~~~~~~~~}}{\hd{\devAQ}} & \multicolumn{3}{c}{\hd{\devDD}} \\% \cline{2-7} 
+  & \hd{P} & \hd{R} & \hd{F$_1$} &  \hd{P} & \hd{R} & \hd{F$_1$} \\ 
+  \midrule
+{\textsc REF$_1$} & 89.74 & 76.09 & 82.35 & \textbf{85.29} & 70.73 & 77.33 \\ %\hline
+{\textsc REF$_1$} - {\textsc LF} & 90.00 & 78.26 & 83.72 & 75.76 & 60.98 & 67.57 \\ %\hline
+{\textsc REF$_1$} - \bgfeat{t}{-1}{0} & \textbf{90.54} & 72.83 & 80.72 & \textbf{85.29} & 70.73 & 77.33 \\ %\hline
+{\textsc REF$_1$} - \bgfeat{t}{0}{+1} & 89.87 & 77.17 & 83.04 & 84.85 & 68.29 & 75.68 \\ %\hline
+{\textsc REF$_1$} - \tgfeat{t}{0}{+1}{+2} ({\textsc BEST$_1$}) & 87.36 & \textbf{82.61} & \textbf{84.92} & 83.78 & \textbf{75.61} & \textbf{79.49} \\ \lspbottomrule
+%&  &  &  &  \\ \hline
+%FTB-test & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+%\begin{tabular[c]{@{}c@{}}Ref less Trigrams\\ i, $i_{+1}$, $i_{+2}$\\ and Bigrams i, $i_{+1}$\end{tabular}} & 91.25 & 79.35 & 84.88 & 83.78 & 75.61 & 79.49 \\ \hline%(0.9200, 0.7500, 0.8263)
+%\begin{tabular[c]{@{}c@{}}Ref less Trigrams\\ i, $i_{+1}$, $i_{+2}$\\ and Bigrams\end{tabular}} & 92.00 & 75.00 & 82.63 & 83.78 & 75.61 & 79.49 \\ \hline
+\end{tabular}
+\caption{Ablation study results on the dev portion of the MORPH dataset focusing on AQ and DD expressions - impact of the removal of fine-grained feature sets.}
+\label{TestFeatures2}
+\end{table*}
+
+The last three rows of the table presents the results from attempts at removing individual $n$-gram features that we expected to be redundant or not highly informative.
+%Now we're going to try to remove features that seem not being interesting. 
+First, we consider the removal of two types of bigram features independently (towards the left and towards the right of the target word). We remove their wordforms, POS and lemmas. The results suggest that bigrams can be mildly useful, as their removal causes the most scores to drop.
+%The only exception are the results on \devAQ{} for the bigram \bgfeat{t}{0}{+1}.
+
+In the last row of the table, we present the results from removing all trigram features of the form \tgfeat{t}{0}{+1}{+2}. As a result, we can see that performance increases for both datasets. While trigram features could be potentially useful to recognise longer expressions, we assume that the number of all possible trigrams is actually too large, making the feature values too sparse. In other words, a much larger annotated corpus would be required for trigram features to be effective. %This makes sense, as MWE \isi{identification} generally does not depend on the next tokens, but on the previous ones. 
+This is the best configuration obtained on the development datasets, and we will refer to it as \textsc{BEST$_1$} in the next experiments.
+%\todo[inline]{Silvio: Can we avoid ambiguity by referring to them as REF$_1$ and REF$_2$ instead?}
+
+% Finally, we decide to chose for ADV+que this list of features : $p_{i-2}$, $p_{i-1}$, $p_{i}$, $p_{i+1}$, $p_{i+2}$, $l_{i-2}$, $l_{i-1}$, $l_{i}$, $l_{i+1}$, $l_{i+2}$, Trigram $p_{i-2}$, $p_{i-1}$ $p_{i}$, Trigram $p_{i-1}$, $p_{i}$ $p_{i+1}$, Bigram $p_{i-1}$ $p_{i}$, Bigram $p_{i}$ $p_{i+1}$, Trigram $l_{i-2}$, $l_{i-1}$ $l_{i}$, Trigram $l_{i-1}$, $l_{i}$ $l_{i+1}$, Bigram $l_{i-1}$ $l_{i}$, Bigram $l_{i}$ $l_{i+1}$ and queV\\
+% And for de+DET : $p_{i-1}$, $p_{i}$, $p_{i+1}$, $l_{i-1}$, $l_{i}$, $l_{i+1}$, Trigram $p_{i-2}$, $p_{i-1}$ $p_{i}$, Trigram $p_{i-1}$, $p_{i}$ $p_{i+1}$, Bigram $p_{i-1}$ $p_{i}$, Bigram $p_{i}$ $p_{i+1}$, Trigram $l_{i-2}$, $l_{i-1}$ $l_{i}$, Trigram $l_{i-1}$, $l_{i}$ $l_{i+1}$, Bigram $l_{i-1}$ $l_{i}$, Bigram $l_{i}$ $l_{i+1}$ and deV
+% \todo{I removed the full list of features because both REF systems, for devAQ and devDD are identical now, can you confirm that?}
+
+Our last feature selection experiments consider the influence of lexicon features (\textsc{LF}) individually, as shown in \tabref{table3}. We observe that \feat{deV} is an important feature, because when we remove it, F$_1$ decreases by almost 7 absolute points on the \devDD{} set. The feature \feat{queV}, however, seems less important, and its absence only slightly decreases the F$_1$ score on the \devAQ{} set. This is in line with what was observed by \citet{nasr:acl:2015} for the whole dataset. In sum, these features seem to help, but we would expect the system to benefit more from them with a more sophisticated representation.
+
+% Silvio: j'ai inversé l'ordre des colonnes:
+% d'abord le dataset, puis les traits groupés par dataset
+\begin{table}
+\centering
+\begin{tabular}{ll@{~~~~~}ccc}
+\lsptoprule
+\hd{Dataset}                 & \hd{Feature set}    & \hd{P} & \hd{R} & \hd{F$_1$}  \\ \midrule
+\multirow{2}{*}{\devAQ} & \textsc{BEST$_1$} & 87.36 & 82.61 & 84.92 \\ %\cline{2-5} 
+                        & \textsc{BEST$_1$}-\feat{queV}  & 91.25 & 79.35 & 84.88 \\ [.7em]
+\multirow{2}{*}{\devDD} & \textsc{BEST$_1$} & 83.78 & 75.61 & 79.49 \\ %\cline{2-5}
+                        & \textsc{BEST$_1$}-\feat{deV}   & 77.78 & 68.29 & 72.73 \\ \lspbottomrule
+\end{tabular}
+\caption{Ablation study results on the dev portion of the MORPH dataset focusing on AQ and DD expressions - impact of the removal of lexicon features (LF).}  % per construction.}
+\label{table3}
+\end{table}
+
+% \begin{table}
+% \centering
+% \begin{tabular}{|c|c|c|c|c|}
+% \hline
+% Features               & {\small Dataset} & P & R & F$_1$  \\ \hline
+% \multirow{2}{*}{\textsc REF} & \devAQ  & 87.36 & 82.61 & 84.92 \\ \cline{2-5} 
+%                           & \devDD  & 83.78 & 75.61 & 79.49 \\ \hline
+% {\textsc REF}-\feat{queV}  & \devAQ  & 91.25 & 79.35 & 84.88 \\ \hline
+% {\textsc REF}-\feat{deV}   & \devDD  & 77.78 & 68.29 & 72.73 \\ \hline
+% \end{tabular}
+% \caption{Impact of lexical features (\feat{LF}) on separate dev sets per construction.}
+% \label{table3}
+% \end{table}
+
+The results obtained in this section focus on a limited number of very frequent expressions. Since our evaluation focuses on a small sample of 11 such MWEs only, it would be tempting to train one CRF model per target expression. However, there are a few more expressions with the same characteristics in \ili{French}, and many of them share similar syntactic behaviour (e.g.\ conjunctions formed by an adverb and a relative conjunction). An approach with a dedicated model per expression would miss such regular syntactic behaviour (e.g.\ the fact that the surrounding POS are similar).
+
+The experiments reported up to here show how it is possible to identify highly ambiguous (and frequent) expressions with a CRF, but they are hard to generalise to other MWE categories. Therefore, in the next sections, we evaluate our model on broader MWE categories such as nominal MWEs and general continuous MWEs (as defined in the FTB).
+
+
+%-----------------------------------------
+\subsection{Experiments on nominal MWEs}
+\label{schol:sec:results-nominal}
+
+We now focus on the identification of nominal MWEs\is{multiword expression!nominal} in the FTB. As above, we separate our experiments in coarse-grained and fine-grained feature selection\is{feature!selection}. In these experiments, the CRF was trained on the training part of the FTB where only nominal MWEs were tagged as B-I and all other words and MWEs were tagged as O. The feature selection experiments are performed on the development set of the FTB, also transformed in the same way. % The comparison with state-of-the-art results reports results on the FTB's test portion.}
+For the comparison with the state of the art, we report results for the test portion of FTB.
+% (\tabref{tab:ftbNMWEsCoarse}), followed by fine-grained feature selection (\tabref{tab:ftbNMWEsFine}).
+
+% (A.N)\\
+% 	|(N.(PONCT.)?(A\\
+% 					|(P+D.(PONCT.)?N)\\
+%                     |(P.(PONCT.)?(D.)?(PONCT.)?N)\\
+%                     |N)+)
+
+
+\subsubsection{First feature selection: coarse}
+\label{schol:sec:results-nominal-feat-coarse}
+\tabref{tab:ftbNMWEsCoarse} presents the results obtained on FTB for different levels of feature selection. In the first row (ALL), we present the evaluation of all the features\is{feature!selection} described in \sectref{schol:sec:crf}, except \feat{deV} and \feat{queV} (only relevant to the previous experiments). We obtain a baseline with MWE-based F$_1$ score of 71.57\%, and token-based score F$_1$ score of 73.85\%. 
+
+
+\begin{table*}
+\centering
+\fittable{
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} & \multicolumn{3}{c@{~~~~~~~~}}{\hd{MWE-based}} & \multicolumn{3}{c}{\hd{Token-based}} \\ %\cline{2-7}
+ &  \hd{P} & \hd{R} & \hd{F$_1$} & \hd{P} & \hd{R} & \hd{F$_1$} \\ \midrule
+ \textsc{ALL} & 80.86 & 64.19 & 71.57 & 81.23 & 67.70 & 73.85 \\ %\hline
+ \textsc{ALL} - \textsc{orth} & 81.85 & 64.78 & 72.32 & 82.16 & 68.02 & 74.43 \\ %\hline
+ \textsc{ALL} - W & 80.41 & 64.78 & 71.75 & 80.95 & 68.44 & 74.17 \\ %\hline
+ \textsc{ALL} - AM & 81.37 & 61.72 & 70.19 & 81.48 & 65.16 & 72.41 \\ %\hline
+ \textsc{ALL} - t$_{\pm 2}$ & 81.49 & \textbf{65.84} & 72.83 & 81.80 & \textbf{69.50} & 75.15 \\ %\hline
+ \textsc{ALL} - \swfeat{t}{+2} & 80.96 & 65.51 & 72.48 & 81.18 & 69.08 & 74.64 \\ %\hline
+ \textsc{ALL} - \bgfeat{t}{i-1}{i} & 80.41 & 64.31 & 71.47 & 80.99 & 67.84 & 73.83 \\ %\hline
+ \textsc{ALL} - \tgfeat{t}{i-1}{i}{i+1}  (\textsc{REF$_2$}) & 81.61 & \textbf{65.84} & \textbf{72.88} & 82.05 & 69.40 & \textbf{75.20} \\ %\hline\hline
+ \textsc{ALL} - \tgfeat{t}{i-1}{i}{i+1} - \textsc{AM}& 81.69 & 63.60 & 71.52 & 82.09 & 67.28 & 73.95 \\ %\hline
+%\textsc{ALL} - \bgfeat{t{i-1}{i} - \tgfeat{t}{i-1}{i}{i+1}} & 78.65 & 63.37 & 70.19 & 80.03 & 67.33 & 73.13 \\ \hline
+%\textsc{ALL} - orth - W & 80.30 & 63.84 & 71.13 & 81.01 & 67.51 & 73.65 \\ \hline
+ \textsc{ALL} - \textsc{orth} - \textsc{W} - t$_{\pm 2}$ - \tgfeat{t}{i-1}{i}{i+1} & 79.59 & 63.37 & 70.56 & 81.00 & 67.88 & 73.86 \\ %\hline
+ \textsc{ALL} - \textsc{orth} - \tgfeat{t}{i-1}{i}{i+1} & \textbf{82.51} & 65.05 & 72.73 & \textbf{82.74} & 67.93 & 74.61 \\ 
+ \lspbottomrule
+\end{tabular}
+}
+\caption{Ablation study results on FTB-dev focusing on nominal MWEs - impact of the removal of coarse-grained feature sets.}
+\label{tab:ftbNMWEsCoarse}
+\end{table*}
+
+We consider the removal of the same groups of features that we removed on the AQ and DD experiments. We evaluate the independent removal of orthographic features, wordforms, association measures, t$_{\pm 2}$, t$_{i+2}$, bigrams and trigrams. We notice that all of these columns have better results than ALL, except for the column where we removed the bigrams and the one in which we removed association measures. In particular, we notice that the absence of the AMs significantly hurts recall, which in turn has an impact on the F$_1$ score ($-1.38\%$ for the MWE-based measure and $-1.41\%$ for the token-based measure). This is the first clue that indicates the importance of these features. 
+
+We then evaluate the removal of different groups of features at the same time. We begin by deleting all of the previous groups, except for AMs and bigrams, which seemed to provide useful information above. Nevertheless, we did not obtain better results.
+We then tried to remove only the trigrams and the orthographic features. Results were slightly higher than ALL, but still remain worse than the results with only the trigrams removed. Finally, we decided to verify if the AM features are still relevant to obtain this performance. This was confirmed, as without the AM, the MWE-based F$_1$ score decreased by 1.36\%, and the token-based F$_1$ score decreased by 1.25\%. 
+Overall, the highest results were obtained by removing only trigrams from ALL, and so we take this feature set as our new reference (REF$_2$).  %\todo{REF$_3$?}
+%Next, we will test a fine-grained selection on the different association measures.
+
+
+
+\subsubsection{Second feature selection: fine}
+\label{schol:sec:results-nominal-feat-fine}
+Experiments above have shown that association measures (AM)\is{association measure} are a vital component of our system.
+We proceed now to evaluate the importance of individual association measures towards the identification of nominal MWEs. The results are shown in \tabref{tab:ftbNMWEsFine}.
+%
+We consider the impact of the different AMs in two baseline configurations: all features (ALL)\is{feature!selection}, and the features of the reference only (REF$_2$). We then remove individual measures and evaluate the new feature set on FTB-dev.
+
+
+%\todo{I wonder if it is useful to test with ALL and REF? Maybe REF could be enough? }
+
+\begin{table*}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} & \multicolumn{3}{c@{~~~~~~~~}}{\hd{MWE-based}} & \multicolumn{3}{c}{\hd{Token-based}} \\ %\cline{2-7} 
+ & \hd{P} & \hd{R} & \hd{F$_1$} & \hd{P} & \hd{R} & \hd{F$_1$} \\ 
+ \midrule
+\textsc{ALL} & 80.86 & 64.19 & 71.57 & 81.23 & 67.70 & 73.85 \\ %\hline
+\textsc{ALL} - \textsc{dice} & 81.07 & 64.55 & 71.87 & 81.39 & 68.02 & 74.11 \\ %\hline
+\textsc{ALL} - \textsc{t-meas} & 81.07 & 64.55 & 71.87 & 81.40 & 68.07 & 74.14 \\ %\hline
+\textsc{ALL} - \textsc{pmi} & 81.26 & 63.84 & 71.50 & 81.51 & 67.33 & 73.74 \\ %\hline
+\textsc{ALL} - \textsc{mle} - \textsc{ll} & 81.13 & 64.31 & 71.75 & 81.40 & 67.65 & 73.89 \\ %\hline
+\textsc{ALL} - \textsc{t-meas} - \textsc{dice} & 80.76 & 64.78 & 71.90 & 81.23 & 68.30 & 74.20 \\ %\hline
+%ALL - \textsc{mle - \textsc{ll} - \textsc{dice}} & 81.71 & 64.19 & 71.90 & 81.95 & 67.65 & 74.12 \\ \hline
+\textsc{ALL} - \textsc{mle} - \textsc{ll} - \textsc{t-meas} - \textsc{dice} & 81.72 & 63.72 & 71.61 & 81.58 & 67.05 & 73.61 \\ %\hline\hline
+\textsc{REF$_2$} & 81.61 & 65.84 & 72.88 & 82.05 & 69.40 & 75.20 \\ %\hline
+\textsc{REF$_2$} - \textsc{dice} (\textsc{BEST$_2$}) & \textbf{81.84} & 65.84 & 72.98 & 82.33 & \textbf{69.45} & \textbf{75.34} \\ %\hline
+\textsc{REF$_2$} - \textsc{t-meas} & 81.61 & 65.84 & 72.88 & 82.01 & 69.22 & 75.08 \\ %\hline
+\textsc{REF$_2$} - \textsc{pmi} & 81.80 & 65.14 & 72.52 & \textbf{82.36} & 68.71 & 74.92 \\ %\hline
+\textsc{REF$_2$} - \textsc{mle} - \textsc{ll} & 81.67 & 65.61 & 72.76 & 82.03 & 69.08 & 75.00 \\ %\hline
+\textsc{REF$_2$} - \textsc{t-meas} - \textsc{dice} & 81.75 & \textbf{65.96} & \textbf{73.01} & 82.18 & 69.36 & 75.23 \\ %\hline
+%REF - \textsc{mle - \textsc{ll} - \textsc{dice}} & \textbf{81.84} & 65.84 & 72.98 & 82.26 & 68.31 & 75.23 \\ \hline
+\textsc{REF$_2$} - \textsc{mle} - \textsc{ll} - \textsc{t-meas} - \textsc{dice} & 81.41 & 65.49 & 72.58 & 81.51 & 68.94 & 74.70 \\ %\hline\hline
+\lspbottomrule
+\textsc{ALL} (on FTB-test) & 77.06 & 65.66 & 70.90 & 79.10 & 68.23 & 73.27 \\ 
+\textsc{ALL - \textsc{AM}} (on FTB-test) & 76.96 & 61.81 & 68.56 & 78.94 & 64.91 & 71.24 \\ 
+\textsc{BEST$_2$} (on FTB-test) & 76.00 & 67.28 & 71.38 & 77.74 & 69.58 & 73.43 \\ 
+\lspbottomrule
+\end{tabular}
+\caption{Ablation study results on FTB-dev focusing on nominal MWEs - impact of the removal of fine-grained feature sets.}
+\label{tab:ftbNMWEsFine}
+\end{table*}
+
+We consider the removal of multiple combinations of features. In most cases, we notice a slight improvement in the results against ALL, but not when compared to the reference group . %This results must not be really significant. 
+The removal of the \textsc{dice} measure did improve the results in both cases, ALL and REF$_2$. Therefore, this configuration was chosen as the BEST$_2$ set of features.
+%We also tried to keep only pmi, but the results are not as good that removing dice only with the reference group. 
+We then evaluated these BEST$_2$ features on the FTB-test dataset, obtaining a MWE-based F$_1$ score of 71.38\%, and a token-based score of 73.43\%. As a sanity check, we have also evaluated the system without AMs on FTB-test (\textsc{ALL - \textsc{AM}}). The \textsc{BEST$_2$} system is significantly different from both \textsc{ALL} and \textsc{ALL - \textsc{AM}} on the test set. Moreover, the large margin between \textsc{ALL - \textsc{AM}} and the two other systems indicates that association measures do provide useful features for this task.
+
+
+
+%-----------------------------------------
+\subsection{Experiments on general MWEs}
+\label{schol:sec:results-general}
+
+We extend the experiments above to evaluate the feature sets against the whole FTB corpus\is{French Treebank}, keeping all annotated MWEs in the training, development and test parts of the FTB. We would like to verify if our system is able to take into account the different MWE categories at the same time. This time, we only present coarse-grained feature selection (\tabref{tab:ftbAllMWEsCoarse}), since unreported fine-grained feature selection resulted in similar findings as in experiments focusing on nominal MWEs.
+
+
+% Silvio: removing this sub-sub-section title, it's kind of lonely here...
+%\subsubsection{Feature Selection: Coarse}
+%\label{schol:sec:results-general-feat-coarse}
+
+
+\begin{table*}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} &  \multicolumn{3}{c@{~~~~~~~~}}{\hd{MWE-based}}  &  \multicolumn{3}{c}{\hd{Token-based}}  \\ %\cline{2-7} 
+  &  \hd{P}  & \hd{R}  & \hd{F$_1$}  &  \hd{P}  & \hd{R}  & \hd{F$_1$}  \\ 
+  \midrule
+\textsc{ALL}  &  \textbf{85.60} & 73.16  & 78.89   & \textbf{87.32} & 76.60  & 81.61  \\ %\hline
+\textsc{ALL} - \textsc{orth}    & 85.09  & 72.97  & 78.57   & 86.97  & 76.56  & 81.44  \\ %\hline
+\textsc{ALL} - \textsc{W}  &  83.96  & 72.59  & 77.86  & 86.13  & 76.37  & 80.96  \\ %\hline
+\textsc{ALL} - \textsc{AM}  &   85.11  & 72.78  & 78.46  &  86.89  & 76.33  & 81.27  \\ %\hline
+\textsc{ALL} - t$_{\pm 2}$    & 84.03  & 72.45  & 77.81   & 86.57  & 76.94  & 81.47  \\ %\hline
+\textsc{ALL} - t$_{+2}$  &   85.50  & 73.68  & 79.15  &  87.19  & 77.21  & 81.90  \\ %\hline
+\textsc{ALL} - \bgfeat{t}{i-1}{i}    & 84.36  & 71.75  & 77.54   & 86.61  & 75.47  & 80.66  \\ %\hline
+\textsc{ALL} - \tgfeat{t}{i-1}{i}{i+1}    & 84.78  & 73.07  & 78.49  & 86.39  & 76.31  & 81.04  \\ %\hline
+%ALL - \bgfeat{t{i-1}{i} - \tgfeat{t}{i-1}{i}{i+1}}  & 81.01  & 67.83  & 73.84  & 84.02  & 71.44  & 77.22  \\ \hline
+%ALL - orth - W  & 84.27  & 73.02  & 78.24  & 86.38  & 76.73  & 81.27  \\ \hline
+%ALL - orth - W - t$_ {\pm 2$ - \tgfeat{t}{i-1}{i}{i+1}}  & 82.64  & 69.81  & 75.68  & 85.74  & 74.57  & 79.77  \\ \cline{1-1} \cline{3-5} \cline{7-9}
+\textsc{ALL} - \swfeat{t}{+2} - \textsc{orth}  (\textsc{REF$_3$})  & 85.52  & \textbf{73.82} & \textbf{79.24} & 87.30  & \textbf{77.35} & \textbf{82.03} \\ %\hline\hline
+\textsc{REF$_3$} - \textsc{AM}  & 85.37  & 72.69  & 78.52  & 87.08  & 76.33  & 81.35  \\ %\hline
+\textsc{REF$_3$} - \textsc{t-meas} (\textsc{BEST$_3$}) & 85.62 & \textbf{73.87} & \textbf{79.31} & 87.40 & \textbf{77.43} & \textbf{82.11} \\ %\hline\hline
+\lspbottomrule
+\textsc{ALL} (on FTB-test) & 83.80 & 74.51 & 78.88 & 86.58 & 78.23 & 82.19 \\ 
+\textsc{ALL - \textsc{AM}} (on FTB-test) & 84.19 & 73.52 & 78.49 & 86.90 & 77.30 & 81.82 \\ 
+\textsc{BEST$_3$} (on FTB-test) & 84.03 & 74.71 & 79.10 & 86.72 & 78.47 & 82.39 \\ 
+\lspbottomrule
+\end{tabular}
+\caption{Ablation study results on FTB-dev focusing on general MWEs - impact of the removal of feature sets.}
+\label{tab:ftbAllMWEsCoarse}
+\end{table*}
+
+The first row in the table (ALL) presents the evaluation of all features described in \sectref{schol:sec:crf}. The prediction of general MWEs with ALL features yields a MWE-based F$_1$ score of 78.89\% and a token-based F$_1$ score of 81.61\%.
+We then consider what happens when one removes the same groups of features as in the previous sections. This time the results are quite different: all of these tests have worse results than ALL, except when we remove t$_{+2}$ features. In some unreported experiments, we have tried to remove other groups of features along with t$_{+2}$. We found that removing orthographic features along with t$_{+2}$ increased the results more than only removing t$_{+2}$ features. This group of features will be our new reference from now on (REF$_3$)%\todo{REF$_4$?}
+. Once again, we tried to remove AMs from the reference to verify their impact. Here again, we notice that the removal of these features decreases the overall performance scores, even if their impact is weaker than it was in the case of nominal MWEs. 
+Unreported experiments have shown that we obtain better results when we ignore the \textsc{t-meas} feature (BEST$_3$). 
+
+Then, we applied the feature group BEST$_3$ on the FTB-test dataset, and we obtained a MWE-based F$_1$ score of 79.10\%, and a token-based score of 82.39\%. 
+For the feature selection experiments on the test part of the FTB (both nominal and general MWEs), we calculated the p-value of the difference between the configuration called BEST and the one called ALL, using approximate randomisation with stratified shuffling. None of the observed differences was considered statistically significant with $\alpha=0.05$.
+
+\begin{comment}
+%CR20170824 I believe this is too much detail
+
+\subsubsection{Feature Selection: Fine}
+
+Like in the tests on nominal MWEs, we will verify the influence of the different association measures.
+
+\begin{table*}
+\centering
+\begin{tabular}{clccclccc}
+\cline{1-1} \cline{3-5} \cline{7-9}
+\multirow{2{*}{Measures}} & \multicolumn{3}{c|}{MWE-based} & \multicolumn{3}{c|}{Token-based} \\ \cline{3-5} \cline{7-9} 
+ & P & R & F & P & R & F \\ \hline
+ &  &  \\ \hline
+All Features & 85.60 & 73.16 & 78.89 & 87.32 & 76.60 & 81.61 \\ \hline
+All - dice & 85.47 & 72.97 & 78.73 & 87.19 & 76.44 & 81.46 \\ \hline
+All - t & 85.56 & 73.21 & 78.90 & 87.24 & 76.65 & 81.60 \\ \hline
+All - pmi & 85.15 & 72.78 & 78.48 & 87.06 & 76.42 & 81.39 \\ \hline
+All - mle - ll & 85.60 & 73.21 & 78.92 & 87.32 & 76.58 & 81.60 \\ \hline
+%%%%%
+ALL - t - dice & 85.54 & 73.11 & 78.84 & 87.23 & 76.60 & 81.57 \\ \hline
+
+%ALL - mle - ll - dice & 85.45 & 73.16 & 78.83 & 87.31 & 76.69 & 81.66 \\ \hline
+%%%%%
+ALL - mle - ll - t - dice & 85.62 & 73.02 & 78.82 & 87.24 & 76.46 & 81.49 \\ \hline
+
+
+
+REF         & 85.52          & 73.82 & 79.24 & 87.30          & 77.35 & 82.03 \\ \hline
+REF - dice & 85.48 & \textbf{73.87} & 79.25 & 87.27 & 77.37 & 82.02 \\ \hline
+REF - t (BEST) & 85.62 & \textbf{73.87} & \textbf{79.31} & 87.40 & \textbf{77.43} & \textbf{82.11} \\ \hline
+REF - pmi & \textbf{85.64} & 73.73 & 79.24 & \textbf{87.41} & 77.21 & 81.99 \\ \hline
+REF - mle - ll & 85.47 & 73.82 & 79.22 & 87.25 & 77.35 & 82.00 \\ \hline
+%%%%
+REF - t - dice & 85.46 & 73.77 & 79.19 & 87.24 & 77.32 & 81.98 \\ \hline
+%REF - mle - ll - dice & \textbf{85.74} & 73.73 & 79.28 & \textbf{87.43} & 77.14 & 81.96 \\ \hline
+%%%%%
+REF - mle - ll - t - dice & 85.57 & 73.58 & 79.13 & 87.20 & 76.99 & 81.78 \\ \hline
+ &  &  &  &  \\ \hline
+ 
+FTB-test & 84.03 & 74.71 & 79.10 & 86.72 & 78.47 & 82.39 \\ \hline
+\end{tabular}
+\caption{Second features selection on FTB-dev with all MWEs}
+\label{tab:ftbAllMWEsFine}
+\end{table*}
+
+The first important remark is that the results do not vary as much as the case of nominal MWEs, which is logical since the AMs are measures applied on nominal MWEs only. But we remark a similar behaviour that in tests on nominal MWEs. Moreover, the only tests that increase the results are when we remove the dice measure, and when we remove the t measure. Our BEST configuration will be the configuration without the t measure, since when we tried to remove dice and t in the same time, the results decrease. 
+
+Then, we applied the features group BEST to FTB-test, and we obtain a MWE-based F$_1$ score of 79.10\%, and a Token-based score of 82.39\%. 
+\end{comment}
+
+
+
+%-------------------------------------------------
+\subsection{Comparison with state of the art}
+\label{subsec:compare}
+
+We now compare the highest-scoring reference results with the state of the art. We begin by evaluating the identification of $DD$ and $AQ$ constructions, and then proceed to evaluate more generally the quality of our reference system for general MWE identification\is{multiword expression!identification}. The comparisons presented here focus on MWE identification only, and our model takes gold POS and lemma information as input (except on the MORPH dataset). On the other hand, some of the works mentioned in our comparisons also predict POS and/or syntactic structure, which makes the task considerably harder. Therefore, results presented here should be taken as an indication of our position within the current landscape of MWE identification, rather than as a demonstration of our model's superiority.
+
+
+\subsubsection{AQ and DD constructions}
+
+We report the performance of MWE identification on the full MORPH dataset, split in two parts: sentences containing AQ constructions (\fullAQ) and sentences containing DD constructions (\fullDD). The use of the full datasets is not ideal, given that we performed feature selection on part of these sentences, but it allows a direct comparison with related work. 
+
+% \paragraph{Baseline} Memorize + threshold + project
+\tabref{table4} presents a comparison between the best system score obtained after feature selection (BEST$_1$) %\todo{REF$_2$?} 
+and the results reported by \citet{nasr:acl:2015}. We include two versions of the latter system, since they also distinguish their results based on the presence of lexicon features (LF) coming from DicoValence.
+
+
+\begin{table*}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{System}} & \multicolumn{3}{c@{~~~~~~~~}}{\hd{\fullAQ}} & \multicolumn{3}{c}{\hd{\fullDD}} \\ %\cline{2-7}
+                            & \hd{P}   & \hd{R}   & \hd{F$_1$} & \hd{P} & \hd{R}   & \hd{F$_1$} \\ 
+\midrule
+
+Baseline                               & 56.08 & 100.00& 71.86 & 34.55 & 100.00& 51.35  \\ %\hline
+\citet{nasr:acl:2015}-\feat{LF} & 88.71 & 82.03 & 85.24 & 77.00 & 73.09 & 75.00 \\ %\hline
+\citet{nasr:acl:2015}$+$\feat{LF} & 91.57 & 81.79 & 86.41 & 86.70 & 82.74 & 84.67 \\ %\hline
+{\textsc BEST$_1$}                          & 91.08 & 78.31 & 84.21 & 79.14 & 74.37 & 76.68 \\ 
+\lspbottomrule
+\end{tabular}
+\caption{Comparison with baseline and state of the art of AQ and DD identification on the full MORPH dataset.}
+\label{table4}
+\end{table*}
+
+\newpage 
+We additionally report results for a simple baseline:
+\begin{enumerate}
+\compresslist
+ \item We extract a list of all pairs of contiguous AQ and DD from the FTB-train. %\todo{FTB-train?}
+ \item We calculate the proportion of cases in which they were annotated as MWEs (B-I tags) with respect to all of their occurrences.
+ \item We keep in the list only those constructions which were annotated as MWE at least 50\% of the time.
+ \item We systematically annotate these constructions as MWEs (B-I) in all sentences of the MORPH dataset, regardless of their context.
+\end{enumerate}
+
+\tabref{table4} shows that this baseline reaches 100\% recall, covering all target constructions, but precision is very low, as contextual information is not taken into account during identification.
+Our \textsc{BEST$_1$} system can identify the target ambiguous MWEs much better than the baseline for both \fullAQ{} and \fullDD{}.
+
+%One should not expect our system to outperform parsing-based approaches, 
+For some constructions, we do obtain results that are close to those obtained by the parsers (see \tabref{tab:performance-per-expr} for more details). For \fullAQ{}, our \textsc{BEST$_1$} system obtains an F$_1$ score that is 1.2 absolute points lower than the best parser. For \fullDD{}, however, our best system, which includes lexicon features (LF), is comparable with a parser without lexicon features. When the parser has access to the lexicon, it beats our system by a significant margin of 7.99 points, indicating that the accurate disambiguation of DD constructions indeed requires syntax-based methods rather than sequence taggers. These results contradict our hypothesis that sequence models can deal with continuous constructions with a performance equivalent to parsing-based approaches. While this may be true for non-ambiguous expressions, parsing-based methods are superior for AQ and DD constructions, given that they were trained on a full treebank, have access to more sophisticated models of a sentence's syntax, and handle long-distance relations and grammatical information.
+
+Despite the different results obtained depending on the nature of the target constructions, the results are encouraging, as they prove the feasibility of applying sequence taggers\is{sequence labelling} for the identification of highly ambiguous MWEs. Our method has mainly two advantages over parsing-based MWE identification: (a) it is fast and only requires a couple of minutes on a desktop computer to be trained; and (b) it does not require the existence of a treebank annotated with MWEs.
+
+
+\tabref{tab:performance-per-expr} shows the detailed scores for each expression in the MORPH dataset. We notice that some expressions seem to be particularly difficult to identify, especially if we look at precision, whereas for others we obtain scores well above 90\%. 
+When we compare our results to those reported by \citet{nasr:acl:2015}, we can see that they are similar to ours: \exidio{ainsi}{likewise}, \exidio{alors}{then} and \exidio{bien}{well} have F$_1$ higher than 90\%, while \exidio{autant}{as much} and \exidio{tant}{while} have a score lower than 80\%.  The AQ constructions with \exidio{encore}{still} and \exidio{maintenant}{now} are the only ones which behave differently: our system is better for \exidio{encore}{still}, but worse for \exidio{maintenant}{now}.
+%, even if the difference is less than 8\%. 
+Likewise, for DD expressions, our system obtains a performance that is close to their system without lexicon features (LF), but considerably worse than their system including LFs for three out of 4 expressions. Both approaches are more efficient in identifying the plural article \exidio{de les}{of the.PL} than the partitive constructions. % whereas the other results are rather similar. Our results are just a little more homogeneous.   
+
+
+\begin{table}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+                    & \multicolumn{3}{c@{~~~~~~~~}}{\textsc{BEST$_1$} system} & \multicolumn{3}{c}{\citet{nasr:acl:2015}} \\
+\hd{Expression}     & \hd{P}   & \hd{R}& \hd{F$_1$}   & \hd{P}   & \hd{R}& \hd{F$_1$} \\ 
+\midrule
+\ile{ainsi que}      & 94.44  & 93.15 & 93.79        & 95.94    & 89.87 & 92.81      \\ 
+\ile{alors que}      & 84.00  & 97.67 & 90.32        & 93.81    & 93.81 & 93.81      \\ 
+\ile{autant que}     & 93.48  & 51.81 & 66.67        & 86.66    & 70.65 & 77.84      \\
+\ile{bien que}       & 100.00 & 91.43 & 95.52        & 91.66    & 99.18 & 90.41      \\
+\ile{encore que}     & 76.19  & 94.12 & 84.21        & 92.85    & 65.00 & 76.47      \\
+\ile{maintenant que} & 97.62  & 64.06 & 77.36        & 90.91    & 74.62 & 81.96      \\
+\ile{tant que}       & 100.00 & 60.00 & 75.00        & 82.35    & 70.00 & 75.67      \\[.7em]
+\ile{de le}          & 78.05  & 71.11 & 74.42        & 85.41    & 91.11 & 88.17      \\
+\ile{de la}          & 67.74  & 72.41 & 70.00        & 81.25    & 89.65 & 85.24      \\ 
+\ile{de les}         & 92.41  & 71.57 & 80.66        & 98.70    & 76.00 & 85.87      \\
+\ile{de l'}          & 61.11  & 95.65 & 74.58        & 64.51    & 86.95 & 74.07      \\
+\lspbottomrule
+\end{tabular}
+\caption{Performance of the \textsc{BEST$_1$} configuration broken down by expression, along with the results for the best model of \citet{nasr:acl:2015} (with LF).}
+\label{tab:performance-per-expr}
+\end{table}
+ 
+ 
+ 
+\subsubsection{General MWEs} 
+% (Results from out.ftbFull.test/**/measure-parseme)
+
+We now compare our system with two baselines and with the system proposed in \citet{leroux:hal-01074298}.\footnote{The comparison with \citet{leroux:hal-01074298} is not ideal, since we predict MWEs with the help of gold POS and lemmas, whereas they try to predict both POS and MWEs. However, we could not find a fully comparable evaluation in the literature.} 
+Baseline$_1$ consists in identifying as MWE every continuous occurrence of tokens that has been seen as an MWE in the training corpus. For example, the MWE \mwegloss{bien sûr}{well sure}{of course} can be seen in the training corpus, and so every occurrence of this expression was predicted as an MWE for the test corpus.
+Baseline$_2$ filters the list of MWEs seen in the training corpus, so that only the expressions which had been annotated more than 40\% of the time are predicted as MWEs. For example, the expression \mwegloss{d'un côté}{of a side}{on the one hand} is not predicted as MWE, as it was only annotated in $38\%$ of its occurrences in the training corpus. The baselines were directly inspired by a predictive model applied to the \ili{English} language in a similar task, where a threshold of 40\% was found to yield the best results \citep{cordeiro-ramisch-villavicencio:2016:SemEval-dimsum}. The applied threshold in Baseline$_2$ only eliminates 6.46\% of the MWEs from the list, but it contributes to an increase of 20--30 points in precision without impacting the recall.
+% 76.71% of the MWEs are annotated 100% of the time
+% Other examples: "histoire de" 7.69%, "là encore" 8.33%, "seconde guerre" 9.09%, "une fois" 20.59%, "bon marché" 54.54%, "bon sens" 66.67%, "faire part" 75.00%, "numéro deux" 83.33%
+
+%... \todo{Manon:describe the baseline. Silvio: can you help here?}.
+
+Our system (BEST$_3$ configuration) is more accurate than the baselines, both in terms of precision and recall. It also has a higher precision than the approach proposed by \citet{leroux:hal-01074298}, but the recall is considerably worse (9.48\% less than their system). This means that our system misses more expressions, even if its predictions have higher precision. This could be partly explained by the fact that they employed dictionaries, and have access to more expressions that our system has never seen and could not predict. 
+Nonetheless, our results are sufficiently close and represent a decent alternative if high-quality external resources are not available.
+
+\begin{table*}
+\centering
+\begin{tabular}{p{.3\textwidth}@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{System}} & \multicolumn{3}{c|}{\hd{MWE-based}} & \multicolumn{3}{c}{\hd{Token-based}} \\ %\cline{2-7}
+ & \hd{P} & \hd{R} & \hd{F$_1$} & \hd{P} & \hd{R} & \hd{F$_1$} \\ \midrule
+Baseline$_1$ & 52.93 & 66.20 & 58.82 & 62.70 & 69.73 & 66.03 \\ %\hline
+Baseline$_2$ & 82.76 & 69.36 & 75.47 & 84.80 & 69.62 & 76.46 \\ %\hline
+{\textsc BEST$_3$} configuration & 84.03 & 74.71 & 79.10 & 86.72 & 78.47 & 82.39 \\ %\hline
+\citet{leroux:hal-01074298} & 80.76 & 84.19 & 82.44 & --- & --- & --- \\ 
+\lspbottomrule
+\end{tabular}
+\caption{Comparison with baseline and state of the art of general MWE identification on FTB-test.}
+\label{tab:compAllMWEs}
+\end{table*}
+
+\subsection{Analysis of results}
+\label{schol:sec:analysis}
+
+The performance of our CRF identification model depends on the characteristics of the identified MWEs and of the training and test corpora. Therefore, we have performed a detailed analysis of its performance focusing on a subset of the test corpus. We focus on two phenomena: variants and unseen MWEs. We define a \textbf{variant} as an MWE whose lemmatised form occurs both in the training and in the test corpus, but whose surface form in the test corpus is different from all of its surface forms in the training corpus. We define an \textbf{unseen} MWE as one whose lemmatised form occurs in the test corpus but never (under any surface form) in the training corpus. MWEs which have identical occurrences in the training and test corpora will be referred to as \textbf{seen} MWEs.
+
+Both variants\is{idiomatic variation} and unseen MWEs\is{multiword expression!unseen} are harder to identify than seen MWEs. None\-theless, we hypothesise that our model is able to recognise variants correctly, since its features are based on lemmas. On the other hand, we expect that unseen MWEs cannot be easily predicted given that our system is absed on categorical features and does not have access to much information about an expression that has never been seen in the training corpus, except for its association measures in a large unannotated corpus. To verify these hypotheses, we create sub-corpora of FTB-test, where the density of variants and unseen MWEs is higher than in the full FTB-test corpus. In these experiments, the model is not newly trained, but the  \textsc{BEST$_2$} and \textsc{BEST$_3$} models are applied to different sub-corpora with a high density of variant/unseen MWEs.
+
+The evaluation measures reported in our experiments (\sectref{subsec:evalmeas}) consider the best bijection between predicted and gold MWEs. Therefore, we cannot simply remove seen MWEs from the test set, since they will be predicted anyway, artificially penalising precision. Therefore, instead of completely removing seen MWEs, we remove sentences that contain only seen MWEs and keep sentences that contain (a) at least one variant MWE or (b) at least one unseen MWE.
+
+
+\begin{table*}
+\centering
+\begin{tabular}{l@{~~~}c@{~~~}c@{~~~}c@{~~~}c@{~~~}c@{~~~~~~~~}c@{~~~}c@{~~~}c}
+\lsptoprule
+\multirow{2}{*}{\hd{Feature set}} & \%var & \%unseen &  \multicolumn{3}{c@{~~~~}}{\hd{MWE-based}} & \multicolumn{3}{c}{\hd{Token-based}} \\ %\cline{2-7} 
+ & & & \hd{P} & \hd{R} & \hd{F$_1$} & \hd{P} & \hd{R} & \hd{F$_1$} \\ \midrule
+Nominal full & 5\% & 28\% & 76.00 & 67.28 & 71.38 & 77.74 & 69.58 & 73.43 \\ 
+Nom. variants & 65\% & N/A & 86.42 & 63.64 & 73.30 & 85.84 & 66.20 & 74.75 \\
+Nom. unseen & N/A & 72\% & 82.01 & 42.70 & 56.16 & 87.78 & 46.75 & 61.01 \\ [.7em]
+General full & 5\% & 23\% & 84.03 & 74.71 & 79.10 & 86.72 & 78.47 & 82.39 \\ 
+Gen. variants & 32\% & N/A & 88.91 & 69.44 & 77.98 & 92.77 & 74.05 & 82.36 \\
+Gen. unseen & N/A & 51\% & 86.94 & 65.22 & 74.25 & 90.40 & 69.14 & 78.35 \\
+\lspbottomrule
+\end{tabular}
+\caption{Results of \textsc{BEST$_2$} (nominal MWEs) and \textsc{BEST$_3$} (general MWEs) on FTB-test, on sub-corpus containing unseen variants of a seen MWEs, and on sub-corpus containing unseen MWEs. Columns \%var and \%unseen show the proportion of variants/unseen MWEs in each sub-corpus.}
+\label{tab:analysis}
+\end{table*}
+
+\tabref{tab:analysis} presents the performance of the \textsc{BEST$_2$} configuration for nominal MWEs (first row) and \textsc{BEST$_3$} configuration for general MWEs (fourth row) on the full FTB-test corpus.  For each expression (nominal and general), we also present the results for the sub-corpus containing a higher density of variants\is{idiomatic variation} and of unseen MWEs\is{multiword expression!unseen}. The numbers in columns \%var and \%unseen indicate the proportion of variant/unseen MWEs in each sub-corpus. Notice that, in the case of general MWEs, these proportions are quite low (32\% and 51\%), indicating that sentences containing variant and unseen general MWEs often contain seen ones too. When focusing on variants (Nom.\ variants and Gen.\ variants sub-corpora), the proportion of unseen MWEs is very small and not relevant (N/A), and vice-versa.
+
+If we focus on variants, we can observe relatively stable results with respect to the full FTB-test corpus. For nominal MWEs, precision increases by 8-10\%, whereas recall decreases by about 3\% for both MWE-based and token-based measures. Results for general MWEs follow a similar pattern: around 4-6\% improvement in precision at the cost of around 4-5\% decrease in recall. The precision of general MWE identification in the variants sub-corpus is particularly impressive, reaching 92.77\%.
+
+The variants sub-corpora contain less unseen MWEs than the full FTB-test corpus, so the predicted MWEs are more reliable (better precision), showing that our model is robust to morphological variability\is{idiomatic variation!morphological}. On the other hand, the fact that recall drops indicates that it is indeed slightly harder to recognise variants of MWEs than those seen identically in training and test corpora. In short, we infer that variants can be correctly handled and identified by our model, provided that a good lemmatiser is available (results presented here are based on gold lemmas, their substitution by predicted lemmas should be studied in the future).
+
+On the other hand, predicting unseen MWEs\is{multiword expression!unseen} is considerably harder. Recall drops drastically by about 23-25\% for nominal MWEs and by about 9\% for general MWEs, and the improvements in precision do not compensate for this, yielding much lower F-measure values, specially for nominal MWEs where the concentration of unseen MWEs in the sub-corpus is higher (72\%). The improvements in precision are probably due to the fact that some seen and variant MWEs are still present in the sub-corpora. AMs could also have some predictive power to identify unseen MWEs, and we intend to verify their contribution for unseen MWE identification in the future. These results show that our model is limited in the identification of unseen MWEs, and can probably only identify some of those that appear in the AM lexicons.
+
+
+\section{Conclusions and future work}
+\label{schol:sec:concl}
+
+We have described and evaluated a simple and fast CRF tagger that is able to identify several categories of continuous multiword expressions in \ili{French}. We have reported feature selection studies and shown that, for AQ constructions and for general MWEs, our results are almost as good as those obtained by parsers, even though we do not rely on syntactic trees. This was not true for DD constructions, though, which seem to require parsing-based methods to be properly analysed. Based on these results, we conclude that, when treebanks are not available, sequence models such as CRFs can obtain reasonably good results in the identification of continuous MWEs. On the other hand, when MWE-annotated treebanks exist, parsing-based models seem to obtain better results, especially for expressions whose high ambiguity requires syntax to be resolved.
+
+An interesting direction of research  would be to study the interplay between automatic POS tagging and MWE identification. We recall that our results were obtained with an off-the-shelf POS tagger and lemmatizer. Potentially, performing both tasks jointly could help obtaining more precise results \citep{constant-sigogne:2011:MWE}. Moreover, we could explore CRFs' ability to work with lattices in order to pre-select the most plausible MWE identification (and POS tagging) solutions, and then feed them into a parser which would take the final decision.
+
+Another idea for future work would be an investigation of the features themselves. For example, in this work, we were not fully satisfied with the quality of the representation of lexical features. We would like to investigate the reason why lexical features were not always useful for the task of MWE identification, which could be done by performing an error analysis on the current systems. Another interesting question is whether annotated corpora are at all necessary: could hand-crafted and/or automatically built lexicons be employed to identify MWEs in context in a fully unsupervised way?
+
+While these experiments shed some light on the nature of MWEs in \ili{French}, the feature selection methodology is highly empirical and cannot be easily adapted to other contexts. Therefore, we would like to experiment different techniques for generic automatic feature selection and classifier tuning \citep{Ekbal2012}. This could be performed on a small development set, and would ease the adaptation of the tagger to other contexts.
+
+Finally, we would like to experiment with other sequence tagging models such as recurrent neural networks. In theory, such models are very efficient to perform feature selection and can also deal with continuous word representations able to encode semantic information. Moreover, distributed word representations could be helpful in building cross-lingual MWE identification systems.
+  
+\section*{Acknowledgments}
+
+This work has been funded by projects PARSEME (Cost Action IC1207), PARSEME-FR (ANR-14-CERA-0001), and AIM-WEST (FAPERGS-INRIA~1706-2551/13-7). We also thank the anonymous reviewers for their valuable suggestions.
+
+\section*{Abbreviations}
+
+\begin{tabularx}{.48\textwidth}{ll}
+\textsc{aq} & adverb+\ile{que}   \\
+\textsc{am} & association measure  \\
+\textsc{bio} & begin-inside-outside   \\
+\textsc{crf} & conditional random field  \\
+\end{tabularx}
+\begin{tabularx}{.48\textwidth}{ll}
+\textsc{dd} & \ile{de}+determiner   \\
+\textsc{ftb} & French Treebank   \\
+\textsc{lf} & lexicon feature  \\
+\textsc{mwe} & multiword expression   \\
+\end{tabularx}
+
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this]
+}
+
+\end{document}

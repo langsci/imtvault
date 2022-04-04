@@ -1,0 +1,729 @@
+\documentclass[output=paper]{LSP/langsci} 
+\ChapterDOI{10.5281/zenodo.1228275} 
+\author{Sander Lestrade\affiliation{Centre for Language Studies, Radboud University}}
+\title{The emergence of differential case marking}   
+
+\abstract{This paper shows that grammatical argument marking need not be inherent to language but can result from language use. For this, a computer model is used that simulates the emergence of differential case marking in artificial protolanguages in which only lexical expressions and very general communicative principles are used. Agents check the expected success of their utterances and initially add lexical ad hoc markers to make the distributions of roles clear if deemed necessary. Such role markers need not be very specific, as they only have to distinguish between maximally two, often very different, predicate roles. Over time, as popular marking solutions become less costly to produce and irrelevant meaning dimensions are removed from their lexical representations, case markers may develop. It is also shown how this development can be impaired if alternative strategies, such as Agent First, are used.
+
+%\keywords{case marking, computer simulation, cultural evolution, grammaticalization}
+}
+
+\maketitle
+
+\begin{document}
+
+\section{Introduction}\label{17-le-sec:Intro}
+ The goal of this paper is to show that grammatical argument marking need not be inherent to language but can result from language use. Instead of taking a more traditional approach for this, \ie by tracing strategies from modern languages back to their historical roots, a computer model is used that simulates the emergence of differential \isi{case marking} in artificial \textit{protolanguages}, languages without a formal grammar. 
+
+In the next section, it is explained how the roles of event participants can be communicated in protolanguage. In \sectref{17-le-sec:Model} and \sectref{17-le-sec:Language-Change}, the way in which event communication and language change are modeled will be explained. \sectref{17-le-sec:Results} shows the results of the simulation, which will be discussed in \sectref{17-le-sec:Discussion}.
+
+\section{Event communication in protolanguage}\label{17-le-sec:Event}
+It seems reasonable to assume that language began as a set of referential expressions only, without any rules of grammar. In this first phase, called \textit{protolanguage} by \cite{Bickerton1981Roots}, speakers had to use more general communicative principles to communicate who did what to whom. On the basis of present-day language variation, we can hypothesize at least four principles for this: \textit{Typing, Grouping, AgentFirst}, and \textit{CheckSuccess}. These \textit{protoprinciples }are nothing but simple marking strategies and interpretation heuristics that speakers can be assumed to use in the absence of standard rules of grammar. As will be shown in \sectref{17-le-sec:Results}, they do in fact suffice for successful event communication. 
+
+\subsection{Typing}\label{17-le-sec:Event-Typing}
+\textit{Typing} is the preference of predicate or semantic roles for specific performers \citep{aristar96, aristar97}. For example, the predicate \textsc{read} asks for an external argument that is sentient and an internal argument that carries readable information. If an argument sufficiently suits the predicate role that it is assigned, nothing needs to be done to ensure the correct interpretation beyond uttering the forms referring to the concepts. If there is a mismatch, however, the argument needs to be forced into its role in order for the hearer to understand the utterance correctly (\cf \citealt{aristar96, aristar97} for the original account pertaining to semantic case and \citealt{dissertatie, casealternations} for a generalization). The effect of Typing in the argument domain can be seen in the case-marking systems of modern languages in which, for example, only unexpected (subject) role performers are marked, such as \textit{yaga}, `pig' \citep{donohueanddonohue}.
+
+\ea \label{17-le-ex:1:Fore}
+\langinfo{Fore}{Nuclear Trans New Guinea}{\citealt[115--116]{Scott1987Fore}}\\
+\begin{xlist}
+
+\ex \label{17-le-ex:1a:Fore}
+	\gll Yaga:-wama w\'a aeg\'uye.\\
+		pig-\textsc{erg} man \textsc{3sg.obj.}hit\textsc{.3sg.su.ind}\\
+	\glt `The pig attacks the man.' 
+
+\ex \label{17-le-ex:1b:Fore}
+	\gll Yaga: w\'a aeg\'uye.\\
+		pig man \textsc{3sg.obj.}hit\textsc{.3sg.su.ind}\\
+	\glt `The man kills the pig.' 
+	
+\end{xlist}
+\z
+
+\subsection{Grouping}\label{17-le-sec:Event-Grouping}
+The addition of explicit marking of roles by the speaker of course requires the hearer to combine these markers with the referential expressions whose roles they should make explicit. This involves a simple Grouping principle that says to ``interpret together'' what stands together \citep{Givon1995Functionalism, Jackendoff2002Foundations}. Indeed, if one is asked to make sense of the string of words \textit{car green stand in front of house yellow}, most probably one will say that the car is green and the house is yellow, not the other way around. The principle can be also observed in case-marking systems where case concord only takes place if a modifier is separated from its head, as in \ili{Warlpiri}. If the modifier is adjacent to its head, as in~(\ref{17-le-ex:2a:Warlpiri}), their grouping follows automatically and need not be marked; if they are separated, as in~(\ref{17-le-ex:2b:Warlpiri}), the \isi{ergative case} suffix is duplicated. 
+
+\protectedex{
+\ea 
+\langinfo{Warlpiri}{Pama-Nyungan}{Hale 1973, cited in \citealt[96]{Blake2001Case}}\\
+\begin{xlist}
+
+\ex \label{17-le-ex:2a:Warlpiri}
+	\gll Tyarntu wiri-ngki=tyu yarlki-rnu.\\
+		dog big\textsc{-erg}=1.\textsc{sg.obj} bite-\textsc{pst}\\
+	\glt `The big dog bit me.'
+	
+\ex \label{17-le-ex:2b:Warlpiri}
+	\gll Tyarntu-ngku=tyu yarlki-rnu wiri-ngki.\\
+		dog\textsc{-erg}=1.\textsc{sg.obj} bite-\textsc{pst} big-\textsc{erg}\\
+	\glt `The big dog bit me.' 
+	
+\end{xlist}
+\z
+}
+
+\subsection{AgentFirst}\label{17-le-sec:Event-AgentFirst}
+Typologists have firmly established the cross-linguistic word-order preference ``subject precedes object (S$\prec$O)''. But \cite{Dryer2013Order}, for example, says that in his study \textit{subject} and \textit{object} are used ``in a rather informal semantic sense, to denote the more agent-like and more patient-like elements respectively.'' More generally, \citet[8]{Siewierska1988Word} notes that when determining basic \isi{word order}, linguists often only consider ``stylistically neutral, independent, indicative clauses with full noun phrase participants, where the subject is \isi{definite}, agentive, and human, the object is a \isi{definite} semantic patient, and the verb represents an action, not a state or an event''. This means that word-order generalizations that say that S$\prec$O (often) are really about semantic roles (rather than grammatical roles) and claim that the more agentive participant should precede the other one. The AgentFirst principle is sometimes explained through iconicity, an agent prototypically instigates an event that affects a patient and hence the agent part of the event precedes that of the patient in time (\citealt{DeLancey1981Interpretation}; \citealt[185]{Croft1991Syntactic}; \citealt{Anderson2006Modern}). Whatever the explanation, even if grammatical notions such as subjects and objects cannot be used, people can assume that John hit Pete if someone said \textit{John hit Pete}. Indeed, this preference can be observed in the speech varieties of second language learners (\cf \citealt{Kleietal1997Basic}). 
+
+\subsection{CheckSuccess}\label{17-le-sec:Event-CheckSuccess}
+
+Whereas \cite{donohueanddonohue} analyze the differential use of \isi{case marking} in~(\ref{17-le-ex:1:Fore}) in terms of Typing, \cite{Scott1987Fore} himself proposes a \textit{global} account. In this analysis, what matters is whether the argument qualifies significantly better for its role than the other argument that could be assigned to it in its stead. This second type of reasoning is subsumed under the CheckSuccess principle, which checks whether an utterance is likely to be interpreted correctly taking into account all possible cues, including the effect of other marking principles. Unlike these other principles, which may or may not be \isi{active} in a speech community, the CheckSuccess principle is understood to be universal, as the goal of communication is to be understood. In many (theoretical and computational) models, this involves speakers pretending to be hearers to check whether they themselves would get the right meaning \citep[cf.][]{Levelt1983Monitoring, Hurford1989Biological, Zeevat2000Asymmetry, Steels2003Language, BlutneretalOptimalOptimal, deSwart2011Sense}. Note that it is hereby assumed that in principle speakers preferably use as little effort as possible and only elaborate if checking shows that a short expression does not suffice (\citealt{Grice1975Logic}; \cf \citealt{Lestradeetal2016Origin} for a more comprehensive discussion).
+
+As with typing, if deemed necessary, the role distribution is made clear through additional marking. But note that CheckSuccess is more self-restrained: Typing uses additional role marking even if this turns out not to be strictly necessary for communicative success. For example, although goats may not form the best readership, they are still more qualified for it than books, which are much more likely to be read. If a goat is said to read a book, it should be marked according to Typing, but not for CheckSuccess. Whereas much could be said for a Typing scenario (thus reducing the role of economy in grammar and increasing the desire to prevent miscommunication),\footnote{This possibility was suggested to me by Fred Weerman.} it is also interesting to see what happens if other protostrategies preempt the use of additional marking. 
+
+
+\subsection{Other general principles}\label{17-le-sec:Other}
+When formulating and interpreting an utterance in a protolanguage, the four principles just mentioned can be used. For example, if speakers think the role distribution does not follow from Typing, they can use additional words specifying the verb-specific role of the arguments. The hearer in turn will use these words by Grouping to assign arguments to their roles. In addition to these heuristics for role disambiguation, several other general cognitive and communicative principles are assumed to play a role. Differently from the principles discussed above, they do not contribute to marking the \isi{argument structure} directly. Instead, they influence the development of strategies with this purpose. These other principles are mentioned only briefly here; a more elaborate discussion follows in \sectref{17-le-sec:Model} and \sectref{17-le-sec:Language-Change}.
+
+In the selection of words from the mental lexicon, it is assumed that both frequency and semantic weight play a role (\cf Section \sectref{17-le-sec:Lexicon} for the implementation of semantic weight). In real language, the activation threshold is lower for frequent items \citep{Balotaetal1985Locus}; in the model, frequent and semantically ``light'' items take precedence when the lexicon is searched for an expression. 
+
+When utterances are actually produced, frequently used and predictable items are pronounced sloppily \citep{Jurafskyetal2001Probabilistic}. As hearers change their form representation on the basis of what they hear, forms may subsequently erode over time \citep{Nettle1999Linguistic}. When words become too short to stand on their own, they are suffixed to the preceding word (or prefixed to the following one, an option that is not explored in the model).
+
+People also seem to keep track of the actual usage of words and may change the meaning representations accordingly \citep{Bybee2010Language}. If a word is found in a large variety of contexts, the dimensions along which these contexts differ most are removed from the lexical representation of this word. 
+
+Finally, in many languages, given information is communicated before new information. This is arguably done to provide some sort of mental anchor for smooth processing. Whereas such information-structuring preferences have grammaticalized completely in a language like \ili{Hungarian} \citep{Kiss2002Syntax}, they can be observed as soft constraints too in the speech varieties of second language learners \citep{Kleietal1997Basic}. In the model, \textit{TopicFirst} preposes the topic, after which an anaphoric copy is put directly after the verb for cross-referencing, yielding the equivalents of constructions like \textit{the man, I saw him} (following the proposal of \citealt{Givon1995Functionalism}).\footnote{In \citet{Lestrade2015Simulating}, it is shown how these cross markers can eventually develop into indexes (agreement markers); in this study, they will largely be ignored.} 
+
+\section{Modeling communication (in protolanguage)}\label{17-le-sec:Model}
+In \cite{Lestradeetal2016Origin} the development of differential \isi{case marking} in protolanguages is simulated too. We show that in communication systems in which initially only very general principles are involved, rules that say that \isi{animate} objects need to be case-marked can be derived from the automatization of ad hoc repair solutions for imminent communicative failure. There are some limitations to our previous study, however, as suggested by the definition of \isi{differential argument marking} given by \citetv{Witzlacketal2017Differential}:
+
+\ea
+\textit{Differential Argument Marking:}\\
+Any kind of situation where an argument of a predicate bearing the same generalized \isi{semantic role} (or macrorole) may be coded in different ways, depending on factors other than the argument role itself.\\
+\z
+
+Note that the way in which an argument is coded is left unspecified here. This is done for good reasons, as coding can be achieved in different ways: through \isi{word order}, indexing, and flagging (or, using more traditional terms for the latter two, \textit{head marking} and \textit{dependent marking}). Although it could be hypothesized that these strategies are mutually exclusive (\isi{case marking} for example freeing up \isi{word order} for other uses, as is sometimes claimed; \cf  \citealt[15]{Blake2001Case}), most languages in fact combine multiple strategies \citep{Lestrade2015Interaction}. Also, the definition does not specify the factors that drive \isi{differential argument marking}. Again, this is appropriate. Although many studies on \isi{differential argument marking} focus on \isi{animacy}, other factors play a role too (in fact, \isi{animacy} even seems to play a subordinate role cross-linguistically according to \citealt{Sinnemki2014Typological}). This means that if we want to understand the (differential) usage of individual strategies, we should take into account the larger argument-marking environment in which they partake. That is, we should consider various marking options and factors. 
+
+In the present study, therefore, a more elaborate simulation, viz.\,\textit{WDWTW}, will be used in which neither the discriminating factor (\isi{animacy}) nor the solution (flagging of the object) of the communication problem is predefined. 
+
+\subsection{The simulation model}\label{17-le-sec:Simulation-Model}
+\textit{WDWTW} (for \textit{who does what to whom}) is a cognitively motivated multi-agent model that simulates language use and change.\footnote{Eventually, a user-friendly version is to be included in the CRAN archive. Meanwhile, the codes are available from the author on request. Note that virtually all assumptions can be manipulated through the use of model parameters. The most relevant parameters for present purposes are given in the appendix.} The agents of WDWTW live in a very abstract virtual world, in which their only goal is to communicate successfully. Agents consist of a lexicon of object and action words, a common ground of recently discussed objects, a set of cognitive and communicative principles as discussed in the previous section, and a usage history which keeps track of the contexts in which the words have been used. The lexicon, common ground, and usage history are agent-specific and change over time; the principles are constant and shared by the population.
+
+Agents die after 3000 utterances and procreate at the age of 2250, at which point their lexicon is inherited by (\ie taught faultlessly to) their offspring, save for minor modifications to the meanings of those words that have not been used until then. Thus, in the present proposal, language change is not so much the result of `faulty' learning, but rather that of processing constraints (\cf \sectref{17-le-sec:Language-Change}). The age of procreation is not meant to be representative: The overlap between generations is kept short to speed up the simulation, while remaining large enough in order for new generations to learn the basic usage patterns from their parents. As the development and maintenance of a conventional lexicon has been successfully modeled elsewhere \citep[e.g.][]{Hurford1989Biological, Hutchinsetal1995How, Steels1997Constructing, Kirby2000Syntax}, the present simplifications seem warranted. 
+
+The conversation procedure is given in~(\ref{17-le-ex:4:Conversation Procedure}). The general idea is that two agents, a speaker and hearer, find themselves in a situation in which multiple events are going on at the same time. The speaker wants to talk about one of these events, for which it formulates an utterance using the protoprinciples available in its speech community. Next, the hearer has to identify which of the events the speaker was talking\footnote{This set up is taken from \cite{Steels2003Language} and was suggested to me by Simon Kirby.} about. Conversations last between 10 and 30 utterances (for each of which a new situational context is developed on the basis of the (conversation-dependent) common ground).
+
+\ea\label{17-le-ex:4:Conversation Procedure}
+\textit{Conversation Procedure}
+\begin{enumerate}
+\item Select two agents and randomly create initial common ground
+\item Create situational context on the basis of common ground
+\end{enumerate}
+\textit{Speaker:}
+\begin{enumerate}
+\setcounter{enumi}{3}
+\item Develop initial proposition for target event 
+\item Apply protoprinciples to develop proposition further
+\item Check expected communicative success and elaborate if necessary
+\item Produce utterance
+\end{enumerate}
+\textit{Hearer:}
+\begin{enumerate}
+\setcounter{enumi}{7}
+\item Analyze words in utterance
+\item Group words into constituents
+\item Determine \isi{argument structure}
+\item Identify target event
+\end{enumerate}
+\begin{enumerate}
+\setcounter{enumi}{11}
+\item Update lexicon, usage history, and common ground of speech participants on the basis of success
+\item Switch speech roles and start again at Step 2 or stop.
+\end{enumerate}
+\z
+
+These steps (save the first and the last, which are self-explanatory) will be discussed in turn below. But as the lexicon serves as the basis for most procedures in~\REF{17-le-ex:4:Conversation Procedure}, I will first explain how the mental lexicon is represented.
+
+\subsection{The lexicon and vector comparison}\label{17-le-sec:Lexicon}
+Following \cite{Wierzbicka1996Semantics}, natural-language concepts can be decomposed into meaning primitives such a CONCRETE, HUMAN, MALE, etc. (\cf also \citealt{Guiraud1969Semic}). Somewhat similarly, \citet{Gaerdenfors2000Conceptual} argues that concepts are sets of values along different meaning dimensions. Thus, we can think of a cat as something that is time-stable, concrete, alive, four-legged, tailed, etc. Note that whereas the initial meaning dimensions in such characterizations are very general and bisect the world (\eg time-stability), eventually meaning dimensions become more and more specific in order to single out a concept (\eg having a tail).
+
+Abstracting away from the quality of the dimensions that organize our mental lexicon, the nominal lexicon of the agents is modeled as a list of randomly generated forms with values along several numerical meaning dimensions (their \textit{vector representation}). Following the observation just made, the dimensions make an increasing number of distinctions (the first five are binary, the next four make nine distinctions; for computational reasons, values are restricted to the 0--1 range). These dimensions may be taken to represent whatever properties are grammatically relevant for the linguistic behavior of words in natural language, but the model does not commit to any such specific interpretation. \tabref{17-le-tab:1} shows six different noun meanings that are specified for nine dimensions. 
+
+\begin{table}
+\caption{First entries in the noun lexicon}\label{17-le-tab:1}
+\fittable{
+\begin{tabular}{l lllllllll rl}
+\lsptoprule
+	 D1 & D2 & D3 & D4 & D5 & D6 & D7 & D8 & D9 & ID & form\\ 
+\midrule
+1.00 & 0.00 & 1.00 & 1.00 & 0.00&0.75 & 0.25 & 1.00 & 1.00 & 1 & atadoso\\ 
+1.00 & 1.00 & 0.00 & 1.00 & 1.00&0.38 & 0.38 & 0.62 & 0.88 & 2 & nimator\\ 
+1.00 & 1.00 & 0.00 & 0.00 & 0.00&0.62 & 0.50 & 0.25 & 0.62 & 3 & umimota\\ 
+1.00 & 0.00 & 1.00 & 0.00 & 1.00&1.00 & 0.12 & 1.00 & 0.62 & 4 & isomera\\ 
+0.00 & 0.00 & 1.00 & 1.00 & 1.00&0.00 & 0.25 & 0.75 & 0.00 & 5 & enolate\\ 
+1.00 & 1.00 & 1.00 & 0.00 & 0.00&0.88 & 0.75 & 0.75 & 0.12 & 6 & romutil\\ 
+\lspbottomrule
+\end{tabular}
+}
+\end{table}
+
+
+Verbs are specified similarly, as shown in \tabref{17-le-tab:2}, with the addition of one or two \textit{perspectival} roles, viz.\,the \textit{external} and, in the case of a two-place predicate, \textit{internal argument} role (\cf the (Neo-)Davidsonian approach in which an event argument is thought of as an argument itself, which needs to be characterized accordingly; \citealt{Davidson2001Logical, Parsons1994Events}).\footnote{Here, the external argument is understood as the ``lexical subject'', \ie the participant whose perspective on the event is taken by the corresponding verb. In a standard declarative sentence (in English), the external argument corresponds to the subject. 
+
+It may seem redundant to specify both the action and the roles of its participants. But on the one hand, an event involves more than just the activities of the core arguments (\eg \textit{cooking }involves heat and pans and is done for the purpose of eating, which does not follow from what the cook and the food themselves ``do''). But also, it seems the very same event can be described using different perspectives, which therefore involve different argument roles (\cf \textit{buy} \vs \textit{sell}, \textit{eat} \vs \textit{eat a sandwich}, and \textit{sweep the table} \vs \textit{sweep the crumbs}).\label{buy}} These roles are also characterized using vector representations. And here too, one could think of each meaning dimension as one that is grammatically relevant in natural language ($\pm$instigating, $\pm$intentional, $\pm$affected, etc.), although these notions have no meaning in the model. 
+
+In natural languages, higher perspectival roles (which become the subjects of simple sentences) have a preference for ``prominent'' features \citep{Dowty1991Thematic, Primus1999Cases, Yipetal1987Case}. For example, the \isi{animate} and volitional reader and not the \isi{inanimate} book is the external argument of \textit{to read}. To model this, external role specifications are assigned higher values on average. If we understand high numbers as prominent features, we can thus say that external roles are more prominent than internal ones in the model too. 
+
+\begin{table}
+\caption{First entries in the verb lexicon (abbreviated). Columns \textit{D1:9} define the action itself, \textit{Ext1:9} characterize the external role, \textit{Int1:9} the internal one.}
+\label{17-le-tab:2}
+\begin{tabular}{r@{ {\ldots} }l r@{ {\ldots} }l r@{ {\ldots} }l rl}
+	\lsptoprule
+	 D1  & D9 & Ext1  & Int1  & Int9 & type & ID & form\\ 
+\midrule
+1.00 &  0.50 & 1.00 & 0.00 &  0.00 & twoPlace & 1 & rirunes\\  
+1.00 &  0.50 & 1.00 & 0.00 &  1.00 & twoPlace & 2 & amumali\\  
+1.00 &  0.75 & 0.00 & 1.00 &  0.62 & twoPlace & 3 & emimano\\  
+0.00 &  0.75 & 0.00 & 0.00 &  0.38 & twoPlace & 4 & litaril\\  
+1.00 &  1.00 & 1.00 & 0.00 &  0.25 & twoPlace & 5 & adasumu\\  
+0.00 &  0.75 & 1.00 & 1.00 &  0.12 & twoPlace & 6 & edesito\\  
+\lspbottomrule
+\end{tabular}
+\end{table}
+
+Vector representations play an extremely important role in the model, for example in word selection and determining typing scores. The match between two vectors is determined by calculating the average (absolute) difference per meaning dimension, and subtracting this from 1, in which dimensions that are not specified are ignored. Given the range of possible values (0--1), a score of 1 shows a perfect match, a 0 shows maximal deviation.
+
+For concreteness, the typing score of \textit{atadoso} for the external role of \textit{rirunes} is calculated in \tabref{17-le-tab:ex5}. Note that it is thus assumed that the noun and role dimensions correspond to each other. That is, the first dimension of a predicate role concerns the same feature as the first dimension characterizing an argument. 
+
+\begin{table}
+\begin{tabular}{lrrrrrrrrr}
+\lsptoprule
+representation \textit{atadoso} &1&0&1&1&0&.75&.25&1 &1\\
+representation \textit{rirunes} &1&1&1&0&0&0 &1 &.125&0\\
+absolute difference&0&1&0&1&0&.75&.75&.875&1\\
+\midrule
+mean difference&.60\\
+typing score&.40\\
+\lspbottomrule
+\end{tabular}
+\caption{The typing score of \textit{atadoso} for the external role of \textit{rirunes}}\label{17-le-tab:ex5}
+\end{table}
+
+
+\subsection{Step 2: Create a situational context}\label{17-le-sec:Situational}
+Events in a situation could simply be generated as a collection of randomly generated numbers, the subsets of which constitute the various event ingredients (\ie the action and event participants) for which the speaker has to find the best words available. Instead, the lexicon is used as a starting point for this, as it makes sense to assume a link between the meaning of words and the structure of the world. In real life, the classification of the world into the categories that words denote follows from the logic and organization of the world as perceived by the speakers of some language: we coin and maintain words for those meanings that are cognitively and culturally relevant (\cf \eg \citealt{Jackendoff2012Users} for the same intuition.). We can use this link the other way around in the simulation, generating events by sampling meanings from the lexicon and taking their combinatorial possibilities into consideration. Thus, for transitive events, objects from the common ground are randomly selected to instigate the events. Next, verbs are sampled from the lexicon on the basis of the match between the properties of the objects and the external-role specifications of the verbs. Finally, a second set of objects is sampled from the common ground and from the lexicon on the basis of their match with the internal role of the verb, in which the odds for a new object from the lexicon are 1/6. For \isi{intransitive} events, a set of objects is sampled from either the common ground or the lexicon with the odds just mentioned, after which verbs are sampled on the basis of the (external) role match. At each step, a certain amount of noise is added, as a result of which ``real world" entities are not always perfect instances of ``mental representations'' and event participants are not always the ideal performers of their roles.
+
+\tabref{17-le-tab:3} shows an (abbreviated) example of a situation in the model. The \textit{V} columns refer to the characteristics of the actions that are ongoing, \textit{A} refers to the referential properties of the more agent-like participants, the \textit{actors}, and \textit{U} refers to those of the `other' participants, the \textit{undergoers} (after \citealt{VanValin1999Generalized}). Which grammatical and semantic roles these participants receive depends on the verb that is chosen by the speaker to conceptualize the event, which need not be the same verb that was used to develop it (\cf again the contrast between \textit{buy} and \textit{sell} from Footnote~\ref{buy}). The \REF{17-le-ex:5} column identifies the event that is to be communicated. 
+
+\begin{table}
+\caption{First six events of a situation (abbreviated). \textit{V1:V9} show the properties of the actions, \textit{A1:A9} the referential properties of the actors, \textit{U1:U9} those of the undergoers, while the target column identifies the event of interest.} \label{17-le-tab:3}
+\begin{tabular}{r@{ {\ldots} }l r@{ {\ldots} }l r@{ {\ldots} }l r}
+	\lsptoprule
+	 V1  & V9 & A1 &  A9 & U1  & U9 & target\\  
+\midrule
+0.00   & 0.12  & 0.00  & 0.50 & \multicolumn{2}{c}{}  & 0\\ 
+0.00   & 0.12  & 0.00  & 0.25 & \multicolumn{2}{c}{}  & 0\\ 
+1.00   & 0.75  & 1.00  & 1.00 & 1.00   & 0.38 & 0\\ 
+1.00   & 1.00  & 0.00  & 1.00 & 1.00   & 0.38 & 0\\ 
+1.00   & 0.50  & 1.00  & 1.00 & 0.00   & 0.50 & 0\\ 
+0.00   & 0.875 & 1.00  & 1.00 & 0.00   & 0.25 & 1\\ 
+\lspbottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Step 3: Develop initial proposition}\label{17-le-sec:Proposition}
+The full target event to be communicated in the situation shown in \tabref{17-le-tab:3} is given in~\REF{17-le-ex:5}.
+
+\ea\label{17-le-ex:5}
+Target event\\
+\gll \textit{V1} \textit{V2} \textit{V3} \textit{V4} \textit{V5} \textit{V6} \textit{V7} \textit{V8} \textit{V9} \textit{A1} \textit{A2} \textit{A3} \textit{A4} \textit{A5} \textit{A6} \textit{A7} \textit{A8} \textit{A9} \textit{U1} \textit{U2} \textit{U3} \textit{U4} \textit{U5} \textit{U6} \textit{U7} \textit{U8} \textit{U9}\\
+0.00 0.00 0.00 0.00 1.00 0.25 0.25 0.375 0.875 1.00 0.00 0.00 1.00 0.00 0.125 0.5 0.875 1.00 0.00 0.00 0.00 1.00 1.00 0.625 0.00 0.875 0.25\\
+\z
+
+The speaker now first selects referential expressions for the ingredients of the target event, \ie the action itself and the event participants. Conceptually, it searches for those lexical items that suffice to identify their referents in the situational context (as the expressions have to be sufficiently distinctive given the distractors in the other events). Computationally, it compares the vector representation of the referent with all meaning representations in its lexicon and next checks if the match between the meaning representation of the preferred item is sufficiently distinct from the distractor vectors in the situation (that is, better by at least 0.05). 
+
+The order in which items are considered for expression is only partly determined by the vector match. Frequency of use and semantic weight are also taken into consideration. The first factor prefers frequently used forms, the latter ``light'' meanings, which are specified for less meaning distinctions.\footnote{For example, if the target object is a 0 1 1 and the only distractors are a 0 1 0 and a 1 1 1, the selected expression at least has to specify the first and the third dimension, but need not represent the second faithfully as it is not distinctive. Thus, if the lexicon contains the lexemes 0 1 1, 0 0 1, and 0 -- 1 (in which ``--'' means not specified), all three could be used successfully, but the third will be preferred because of its lower semantic weight.} 
+
+\largerpage
+For the target event in~\REF{17-le-ex:5}, the initial proposition is given in~\REF{17-le-ex:7}. As shown by the referential match value (\textit{refMatch}; other values will be discussed when relevant), neither of the nouns perfectly describes their referents, but, apparently, they suffice given the context. Note further that the order of the referential ingredients has been randomized.
+
+\ea\label{17-le-ex:7}
+\textit\textbf{Initial proposition}
+\ea
+\textbf{Internal argument}\\
+\gll  \textit{D1} \textit{D2} \textit{D3} \textit{D4} \textit{D5} \textit{D6} \textit{D7} \textit{D8} \textit{D9} \textit{ID} \textit{form} \textit{freq} \textit{argFreq} \textit{nounFreq} \textit{verbFreq} \textit{recency} \textit{semWeight} \textit{refMatch} \textit{collFreq} \textit{topic} \textit{Typing}\\
+0 0 0 1 1 0.375 0 0.875 0.125 43 leludor 0 0 0 0 51 1 0.9583333 0 1 0.75\\
+
+%\newpage
+
+\ex
+\textbf{External argument}\\
+\gll \textit{D1} \textit{D2} \textit{D3} \textit{D4} \textit{D5} \textit{D6} \textit{D7} \textit{D8} \textit{D9} \textit{ID} \textit{form} \textit{freq} \textit{argFreq} \textit{nounFreq} \textit{verbFreq} \textit{recency} \textit{semWeight} \textit{refMatch} \textit{collFreq} \textit{topic} \textit{Typing}\\
+1 0 0 1 0 0.25 0.375 0.75 1 50 inideta 0 0 0 0 51 1 0.8472222 0 0 0.625\\
+\ex
+\textbf{Verb}\\
+\gll \textit{D1} \textit{D2} \textit{D3} \textit{D4} \textit{D5} \textit{D6} \textit{D7} \textit{D8} \textit{D9} \textit{Ext1} \textit{Ext2} \textit{Ext3} \textit{Ext4} \textit{Ext5} \textit{Ext6} \textit{Ext7} \textit{Ext8} \textit{Ext9} \textit{Int1} \textit{Int2} \textit{Int3} \textit{Int4} \textit{Int5} \textit{Int6} \textit{Int7} \textit{Int8} \textit{Int9} \textit{type} \textit{ID} \textit{form} \textit{freq} \textit{recency} \textit{semWeight} \textit{refMatch} \textit{collFreq} \textit{topic}\\
+0 0 0 0 1 0.25 0.25 0.375 0.875 0 1 0 1 1 0.125 0.375 0.625 0.875 0 0 0 0 0 0.25 0 0.875 0.25 twoPlace 126 nulotos 0 51 1 1 0 0\\
+\z
+\z
+
+
+\subsection{Step 4: Apply protoprinciples}\label{17-le-sec:Protoprinciples}
+Depending on the protoprinciples that are \isi{active} in a speech community, various operations are performed at this step. Here, agents from the first generation of three different lineages will be discussed for illustration; in \sectref{17-le-sec:Results}, all other possible combinations are discussed. 
+
+In the AF lineage, AgentFirst is used as a marking strategy, because of which a speaker puts the actor participant in first position. The actor is understood as performing the more prominent verb role, and as explained in \sectref{17-le-sec:Lexicon}, higher values stand for prominent features. Thus, as the initial values of the external role of the verb are higher than those of the internal one, the external argument is found to be the actor, and is therefore put in first position.\footnote{In this comparison, the first few values are deemed more important than the later ones. The dimensions of the two role vectors are compared one by one, starting with the first, and as soon as a difference is found between two corresponding values (the second, in the present example), the vector in which the highest values is attested is considered as the actor role.} As nothing else changes, the representation is shown in abbreviated form only in~\REF{17-le-ex:8-AF}:
+
+\ea \label{17-le-ex:8-AF}
+\textbf{AF proposition}\\
+\ea \textit{\textbf{External argument}}
+\ex \textit{\textbf{Internal argument}}
+\ex \textit{\textbf{Verb}}
+\z
+\z
+
+After having placed the actor in first position, a speaker of the AFTF lineage, in which TopicFirst is also \isi{active}, preposes the topic of the utterance. In addition, an anaphoric copy is added as a verbal marker for cross reference (following \citealt{Givon1995Functionalism}). In the initial phases of language development, this cross marker is often the same word as the antecedent (\cf the identical values for marker ID and marker target in~\REF{17-le-ex:9-AFTF}), but once pronouns have been developed, more general items can be used for this. As illustrated in the present example, TopicFirst may interfere with AgentFirst. Whenever the \isi{undergoer} happens to be the topic, it will be put in first position in spite of AgentFirst. In the model, actors are five times more likely to be the topic of communication than undergoers.
+
+\ea \label{17-le-ex:9-AFTF}
+\textbf{AFTF proposition}
+\ea \textit{\textbf{Internal argument}}
+\ex \textit{\textbf{External argument}}
+\ex \textit{\textbf{Verb}}\\
+\gll {\ldots} intMarkerID intMarker intMarkerTarget intMarkerFreq\\
+{\ldots} 43 leludor 43 0\\
+\z
+\z
+
+ The AFTFTC lineage uses all available marking principles by also including TypeCast, the production instantiation of Typing. The same initial procedure is followed as in the previous lineage (since AgentFirst and TopicFirst apply too). In addition, however, the speaker now considers whether event participants qualify for their roles. If the Typing score is below .7, the speaker searches its noun lexicon to look for the best expression to make this role explicit. As the Typing score of \textit{inideta} in~\REF{17-le-ex:7} shows, it falls short for its external role. The best expression to remedy this is found to be \textit{rurutis}, which is added to the representation of the external argument (again, only the changes that are made with respect to the initial proposition are shown):
+
+\ea  \label{17-le-ex:10-AFTFTC}
+\textbf{AFTFTC proposition}\small
+\ea\label{TypingProp}
+\textit{\textbf{Internal argument}}\\
+
+\ex \textit{\textbf{External argument}}\\
+\gll {\ldots} markerID marker markerFreq\\
+{\ldots} 916 rurutis 0\\
+
+\ex \textit{\textbf{Verb}}\\
+\gll  {\ldots} intMarkerID intMarker intMarkerTarget intMarkerFreq\\
+{\ldots} 43 leludor 43 0\\
+\z
+\z
+
+\subsection{Step 5: Check success and elaborate if necessary}\label{17-le-sec:Elaborate}
+In Step 5, speakers determine whether their derived proposition would be understandable if uttered as such. If the role distribution of the arguments is made explicit by TypeCast or can be told using AgentFirst, communicative success is assumed. 
+If these principles do not apply or lead to the wrong result, speakers check whether the typing score of the arguments for their own roles are distinctively above the scores of the other arguments for these roles. If so, the hearer should be able to derive the meaning nevertheless. If not, a marker is added to make the role of the second argument explicit, where the ambiguity first arises (assuming incremental processing). 
+
+When the speaker of the AF lineage checks whether the meaning of its derived proposition would follow sufficiently from the selected combination of lexemes, it assumes that its hearer will use the same AgentFirst principle in interpretation. Also in the AFTFTC lineage no further action is needed, as bad performers were explicitly marked for their role in Step 4 already. The speaker of the AFTF lineage, however, finds out that the hearer cannot derive the intended meaning. Because of the preposed \isi{undergoer} topic, AgentFirst would lead to the wrong result. As the actor happens to come second, it is again the actor role that has to be made explicit, and the same proposition as in~\REF{17-le-ex:10-AFTFTC} is derived. 
+
+\subsection{Step 6: Produce the utterance}\label{17-le-sec:Produce-Utterance}
+In principle, speakers simply utter the lexemes present in the derived proposition at this step. However, forms are ``pronounced'' sloppily if they are frequently and recently used, or predictable in their context \citep{Jurafskyetal2001Probabilistic}. Words are predictable if they frequently co-occur in specific relations, such as \textit{external-argument-of} (shown by the collostruction value \textit{collFreq} in~\REF{17-le-ex:7}). Sloppy pronunciation is operationalized by replacing the last vowel/consonant of a word by the preceding vowel/consonant in the alphabet, or removing it altogether if this is no longer possible (in the cases of \textit{a} and \textit{b}). As none of the items in the example above meet the requirements for reduction, none of the forms is reduced. Thus, we arrive at the utterance in~\REF{17-le-ex:8a} for the AF speaker and at that in~\REF{17-le-ex:8b} for both the AFTF and AFTFTC speakers.
+
+\ea\label{17-le-ex:8}
+\begin{xlist}
+\ex\label{17-le-ex:8a}
+\emph{inideta leludor nulotos}\\
+`Inideta nulotoses leludor.' (AF)\\
+
+\ex\label{17-le-ex:8b}
+\gll leludor inideta rurutis nulotos leludor\\
+leludor inideta nulotoser nulotos.V leludor\\
+\glt `Leludor is nulotosed by inideta.' (AFTF/AFTFTC)\\
+\end{xlist}
+\z
+
+	
+\subsection{Step 7: Analyze words}\label{17-le-sec:Analyze}
+Now it is the hearer's turn. First it needs to determine which lexemes it thinks were intended (as the word forms may differ from their representation because of sloppy pronunciation). The agent looks for each form in both its verb and noun lexicon for entries that match best (in terms of the edit distance between the perceived and represented forms).\footnote{Editing final characters is considered less costly than editing initial ones in this procedure.} In order to determine the verb, for each word, the product of the verb match (\textit{verbScore}) and the argument matches of the remaining words is calculated (\textit{nounScore}), resulting in a \textit{verbEvidence} score for that word. In \tabref{verbid} the results are shown for the analysis of \REF{17-le-ex:8b}. The word that yields the best product is understood as the verb, which is (indeed) \textit{nulenod}. 
+
+\begin{table}
+\fittable{
+\begin{tabular}{lr llr llr rrlll}
+\lsptoprule
+form & role & vID & vMatch & vScore & nID & nMatch & nScore & verbEvidence\\ 
+\midrule
+leludor & ? 	& 236 & leletad & 0.02 & 43 & leludor & 1 & 0.00\\ 
+inideta & ? 	& 439 & iniraru & 0.04 & 50 & inideta & 1 & 0.00\\ 
+rurutis & ? 	& 205 & runisum & 0.04 & 916 & rurutis & 1 & 0.00\\ 
+nulotos & verb 	& 126 & nulotos & 1.00 & 690 & nulenod & 0.04 & 1.00\\ 
+leludor & ? 	& 236 & leletad & 0.02 & 43 & leludor & 1 & 0.00\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Identifying the verb in the AFTF utterance. \label{verbid}}
+\end{table}
+
+\subsection{Step 8: Group words}\label{17-le-sec:Group-Words}
+After identifying the verb, various groupings of the remaining words are possible. Analyses in which words are not assigned a function in the reconstruction under a given grouping analysis (either as an argument or a marker) are discarded. Given the situation in \tabref{verbid}, there are only two possible groupings. The second word could be a noun marker making the role of the first word explicit, or the third word could be the role marker of the second word (\cf \tabref{17-le-tab:5}). 
+
+\begin{table}
+\begin{tabularx}{.75\textwidth}{p{1cm}p{2cm}Xp{1cm}p{2cm}}
+\lsptoprule
+\multicolumn{2}{c}{grouping 1~~~~~~~~}&&\multicolumn{2}{c}{grouping 2~~~~~~~~}\\
+form & role &&form & role\\
+\midrule
+leludor & argument 	&& leludor & argument 	\\
+inideta & role marker 	&& inideta & argument\\
+rurutis & argument	&& rurutis & role marker 	\\
+nulotos & verb 		&& nulotos & verb 	\\
+leludor & cross marker	&& leludor & cross marker 	\\
+\lspbottomrule
+\end{tabularx}
+\caption{Grouping possibilities for AFTF utterance\label{17-le-tab:5}}
+\end{table}
+
+\subsection{Step 9: Determine argument structure}\label{17-le-sec:Determine-Structure}
+Next, for all possible groupings, the \isi{argument structure} is determined. In all lineages it holds that ``morphology'' overrules heuristics such as AgentFirst and TypeMatch. That is, arguments are assigned the predicate role with which their markers match best. The match between the verb roles of \textit{nulotos} with the two presumed markers are given in \tabref{17-le-tab:6}.
+
+\begin{table}
+\begin{tabular}{lrr}
+\lsptoprule
+			&\multicolumn{2}{c}{verb role}\\
+marker	&external	&internal\\
+			\midrule
+inideta	&.74	&.75	\\
+rurutis &.94	&.49	\\
+\lspbottomrule
+\end{tabular}
+\caption{Match between markers and predicate roles.}\label{17-le-tab:6}
+\end{table}
+
+When analyzed as a role marker, \textit{inideta} cannot properly distinguish between the two roles, because of which the \isi{argument structure} cannot yet be determined for the first grouping. \textit{Rurutis}, however, does clearly mark the external role of \textit{nulotos}. It now follows logically that the other argument should have the internal role. Thus, the meaning arrived at given this second grouping is `Inideta nulotoses leludor.' 
+
+After failing to exploit the morphology in the first grouping, hearers of the AFTF and AFTFTC lineage now use the AgentFirst principle to arrive at the interpretation `Leludor nulotoses rurutis.' Note that they cannot use TopicFirst as an interpretation heuristic, as this says nothing about the predicate role. Instead, the hearers assume that if the first argument were not the agent, a speaker would have made this explicit in Step 5. 
+
+\subsection{Step 10: Identify target event}\label{17-le-sec:Identify-Target-Event}
+For each of the interpretations for the various groupings, the hearer now determines which of the events in the situation matches best by comparing the vector representations of the words with those of the properties of the corresponding referents in the events. Each interpretation is then linked to the event it describes best overall, and the interpretation that results in the combination with the highest score is considered the correct one. Thus, the overall best match of the interpretation `Inideta nulotoses leludor' is 2.81 with the 16th event in the situation (in which the verb semantics match perfectly, the external argument has a referential match of .85, and the internal argument has a referential match of .96). As the best event match of the interpretation `leludor nulotoses inideta' is 2.38 only, the former interpretation is preferred. This interpretation does indeed lead to the target event the speaker was trying to point out, hence communication is successful. 
+
+
+\subsection{Step 11: Update numbers}\label{17-le-sec:Update-Numbers}
+If communication is successful, \ie if the hearer identifies the target event, both agents update the frequency scores in their lexicons. In this, they distinguish between overall and relative frequency. That is, separate scores are kept of the net use of words as referential expressions, noun or verb markers. If, for example, a word is used as a noun marker, both its total and noun-marker frequency go up by one point, while the argument and verb-marker scores go down by one (with a minimum of zero). 
+
+In addition, agents add the words used to their usage history, together with the event ingredient to which they referred or the verb role they marked. Thus, for the noun \textit{inideta} it will be remembered that it has been used for a 1.00 0.00 0.00 1.00 0.00 0.125 0.5 0.875 1.00 (\cf \REF{17-le-ex:5} and \REF{17-le-ex:7}). Finally, if there was a newly introduced argument noun in the utterance, this is added to their mutual common ground, on the basis of which a situation is generated for the next turn.
+
+
+\section{Modeling language change}\label{17-le-sec:Language-Change}
+Although it is now explained how agents talk with each other, it still needs to be shown how language can change and how argument-marking strategies can develop in the model. For this, \isi{grammaticalization} principles as proposed by \cite{Heineetal2007Genesis} are implemented. As was shown in \sectref{17-le-sec:Lexicon}, initially all words are fully specified semantically and have a word length of 7 characters. Over time, however, words can \textit{desemanticize} and \textit{erode}. 
+
+Erosion results from frequent use, either in terms of absolute frequency or in specific combinations. As said in \sectref{17-le-sec:Other}, forms are pronounced sloppily if they are frequently and recently used or predictable \citep{Jurafskyetal2001Probabilistic}. Sloppy pronunciation does not lead to a change of lexical representation for the agent using the form. If a (younger) agent does not have a firmly established representation yet, however, it will adapt its representation on the basis of what it hears as a result of which word length may change over time. Thus, \textit{rurutis} may become \textit{rurutir}, and eventually \textit{ru}. Erosion stops if a form is two characters long. 
+
+If forms become too light to be used independently, they are suffixed to the preceding word in the utterance. In case of noun markers, this is of course the argument whose role they make explicit. The phonological weight of a letter is simply implemented by considering its rank in the alphabet, distinguishing between vowels and consonants: \textit{a} and \textit{b} cost one point, \textit{e} and \textit{c} two, etc. The production effort of a word is then calculated by adding up the ranks of its constituent letters. If the production effort of a word falls below 15, it becomes a suffix.
+
+In addition, a word may extend its denotation range	incidentally (due to the lack of a better expression altogether or because a better matching expression is not necessary given the context). Eventually, this extension may become a standard part of a word's meaning, as a result of which it becomes more general. In the model, such desemanticization involves the progressive removal of the meaning dimensions of a word along which most deviation from the lexical representation is found in the usage history. Deletion takes place after certain frequency thresholds have been reached. For a first dimension to be removed, a word has to be used in 1\% of utterances. This proportion increases exponentially to 30\% of utterances for the last dimension to be removed. Following \cite{Bybee2010Language}, desemanticization can occur within a single generation.
+
+\newpage 
+Note that frequently used words are likely to appear in a larger variety of contexts (as variation requires variables). Thus, frequent words can be expected to be more prone to desemanticization. Moreover, as both high frequency and light semantics lead to higher activation (\ie precedence in the evaluation of candidate expressions; \cf the discussion of word selection in Step 3), the \isi{grammaticalization} process starts a positive feedback loop. More general words can be applied in an larger variety of contexts, because of which they become even more frequent, because of which they desemanticize even further, because of which they are more often considered, etc.
+
+In this process, there is a crucial difference between words that are used as markers and those that are used as referential expressions: To refer to things in the world, it is often necessary to use explicit terms to distinguish the intended referent from the distractors in the situation. Thus, after being considered as a referential expression, many top-ranked words will be discarded for the very same reason they were considered first: they apply to too many things and thus they are not distinctive enough. But for both role and cross markers, there is always only one distractor: either the other predicate role or the other argument. This means that markers need not be very explicit, and therefore that in many cases, ``light'' expressions suffice. Thus, markers have a much easier time maintaining their positive feedback loop, which allows them to develop their characteristically short form and general meaning.
+
+\section{Simulating the development of differential case marking}\label{17-le-sec:Results}
+The evolution of eight different lineages combining the different marking strategies introduced in \sectref{17-le-sec:Protoprinciples} is studied over 56 generations. The set of strategies used by a lineage can be derived from its name, \eg the lineage AFTC combines AgentFirst and TypeCast. CheckSuccess is always present, and all other model parameters are kept constant (\cf the appendix). 
+
+\subsection{Communicative success}\label{17-le-sec:Communicative-Success}
+First consider the success rates of the different lineages over time in Figure~\ref{17-le-fig:1}. For this, a ninth lineage, TM, is added in which no marking strategy whatsoever is used. TM speakers simply produce the selected referential expressions and hope that their hearers can derive the distribution of roles using type matching. Thus, this lineage establishes a baseline of communicative success given the ``predictability of the world''. As was shown in \sectref{17-le-sec:Event}, events are created on the basis of the meaning representations of the agents, meaning that many utterances need no additional marking: If a book and a woman are involved in a reading event, it is obvious who is doing what. Because of the noise that is added, however, things are not always this clear. The noise level and therefore the world predictability is the same for all lineages. 
+
+All lineages initially score well above the TM baseline of roughly 85\%, and manage to communicate events (almost) completely successfully throughout. Note that the combined use of TopicFirst and AgentFirst in the AFTF lineage leads to negligible decrease in communicative success if any. Although, as explained above, TopicFirst impairs the functionality of AgentFirst whenever the Actor happens not to be the topic, such utterances are ``repaired'' by CheckSuccess. 
+
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/17-le-fig1.pdf}
+\caption{Success rates over time per lineage. Lineage names are abbreviations of the marking principles included (AgentFirst, TopicFirst, TypeCast). The solid line marks the baseline of communicative success given the predictability of the world as evidenced by the TM lineage; CS uses CheckSuccess only.}\label{17-le-fig:1}
+\end{figure}
+
+\largerpage
+\subsection{Profiles of most frequent words}\label{17-le-sec:Frequent-Words}
+The goal of the simulation was to see under which conditions \isi{differential argument marking} emerges. This section will show the profiles of the three most frequently used words in the different lineages after 56 generations, and contrast these with their original representations to see whether they developed into case markers. In natural language, case markers can be characterized as frequently used words with maximally short forms and a very general meaning that mark the relation of an argument with its head. The model equivalents will be recognized as such if they are used to mark the semantic/perspectival role of their host, are specified for a few semantic dimensions only, and have eroded to the extent that they have to be suffixed. 
+
+In the tables below, semantic weight (\textit{semWeight}) is the proportion of dimensions that is still specified out of the maximum of nine. Production effort (\textit{prodEff}) shows the production effort of the lexemes. The frequency column (\textit{freq}) shows the total successful use frequency; the \textit{arg, noun}, and \textit{verb }variants show net use as argument, noun marker, and verb marker respectively. 
+
+Let us first consider the lineages in which only one marking strategy is \isi{active} (beyond CheckSuccess). Since AgentFirst is a perfectly viable argument marking strategy, no \isi{case marking} is expected to develop. Indeed, in the AF lineage words are used as referring expressions only, as shown in \tabref{17-le-tab:7-AF}. 
+
+As explained in \sectref{17-le-sec:Language-Change}, most situations require a rather specific expression to distinguish a target object from its distractors, meaning that it is rather hard for a referential expression to grammaticalize. Nevertheless \textit{mamesut/mames} developed into what one could call a pronoun. It lost four meaning dimensions (its semantic weight is 5/9) and 12 production points (going down from 27 to 15), and it is used in more than 10\% of utterances. 
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+624 & mamesut & 3 & 3 & 0 & 0 & 27 & 1\\ 
+890 & anedume & 0 & 0 & 0 & 0 & 18 & 1\\ 
+216 & dadutin & 3 & 3 & 0 & 0 & 22 & 1\\ 
+\tablevspace
+
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+624 & mames & 411 & 411 & 0 & 0 & 15 & 0.56\\ 
+890 & anedi & 70 & 70 & 0 & 0 & 11 & 0.89\\ 
+216 & dadut & 69 & 69 & 0 & 0 & 15 & 0.89\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the AF lineage. First block: first generation; second block: representations after 56 generations.\label{17-le-tab:7-AF}}
+\end{table}
+
+At the other extreme, there is the TypeCast strategy, which uses role marking even if not strictly necessary for communicative success. If anywhere, \isi{case marking} is expected to develop here. Indeed, \textit{rilamos/rid} was already found to be a convenient marker in the first generation, quickly losing four meaning dimensions (\cf \tabref{17-le-tab:8-TC}). After 56 generations, only three dimensions remain. Also, it lost 15 production points, with the result that it now has to be suffixed to its host. 
+
+\begin{table} 
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+374 & rilamos & 713 & 1 & 511 & 0 & 24 & 0.56\\ 
+342 & omasusu & 116 & 44 & 0 & 0 & 30 & 0.89\\ 
+681 & onodato & 13 & 11 & 0 & 1 & 25 & 1\\ 
+\tablevspace 
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+374 & rid & 1517 & 0 & 1121 & 0 & 9 & 0.33\\ 
+342 & omad & 388 & 303 & 0 & 0 & 9 & 0.56\\ 
+681 & ono & 155 & 129 & 0 & 0 & 12 & 0.67\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the TC lineage.\label{17-le-tab:8-TC}}
+\end{table}
+
+A typical example of the usage of \textit{rid} is given in~\REF{17-le-ex:9} . As the remaining meaning dimensions have a value of zero and high numbers were understood as prominent (\cf \sectref{17-le-sec:Lexicon}), \textit{ri(d)} is glossed as an \isi{undergoer} marker.
+
+\ea\label{17-le-ex:9} 
+\gll omad atilomi-ri lematim\\
+3A atilomi-U lematim.V\\
+\glt `It lematims atilomi.'
+\z
+
+Like \textit{mames }in the previous lineage, \textit{omad} and \textit{ono} could be considered pronouns. The remaining dimensions of the former all have a value of 1, hence the gloss as Actor in~\REF{17-le-ex:9}; four out of five dimensions of \textit{ono} are zero, which could therefore be considered the object pronoun. 
+
+Note that the noun marker \textit{rid} has grammaticalized much further than these referential expressions. Recall from \sectref{17-le-sec:Language-Change} that this is expected indeed. Whereas role markers only have to be minimally distinctive (given only one distractor role), referential expressions have to distinguish between dozens of distractors. 
+
+Since noun marking is only used in case of a typing mismatch, we can easily create a minimal pair in which the internal argument is better qualified for its role and hence no marking is necessary. The contrast between \REF{17-le-ex:9} and \REF{17-le-ex:10} shows the differential nature of the marking system:
+
+\ea\label{17-le-ex:10}
+\gll omad isosisi lematim\\
+3A isosisi lematim.V\\
+\glt `It lematims isosisi.'
+\z
+
+Also in the CS lineage role markers are used, albeit less frequently for reasons explained in \sectref{17-le-sec:Protoprinciples}. And here too, case markers eventually develop. As shown in \tabref{17-le-tab:9-CS}, the most frequently used word, \textit{unatoru/una}, is mostly used as a noun marker and lost five meaning dimensions and 21 production points, with the result that it can only be used as a suffix.
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+237 & unatoru & 102 & 1 & 44 & 0 & 31 & 0.89\\ 
+940 & donuran & 5 & 2 & 1 & 0 & 24 & 1\\ 
+69 & damumil & 4 & 4 & 0 & 0 & 18 & 1\\ 
+\tablevspace 
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+237 & una & 715 & 0 & 314 & 0 & 10 & 0.44\\ 
+940 & doni & 243 & 235 & 0 & 0 & 12 & 0.67\\ 
+69 & dami & 49 & 49 & 0 & 0 & 8 & 0.89\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the CS lineage\label{17-le-tab:9-CS}.}
+\end{table}
+
+A typical example of the usage of \textit{un(a)} is given in~\REF{17-le-ex:11}. As the remaining meaning dimensions again all have a value of zero, it is glossed as an \isi{undergoer} marker.
+
+\ea\label{17-le-ex:11}
+\gll udeloto dosotum-un rodones\\
+udeloto dosotum-U rodones.V\\
+\glt `Udeloto rodoneses dosotum.'
+\z
+
+
+In the CS lineage, noun marking is only used when the role distribution does not follow automatically. Thus, if a minimal pair is created in which the external argument qualifies better for its role than the internal argument, no marking is necessary:
+
+\ea\label{17-le-ex:12}
+\gll dadesad dosotum rodones\\
+dadesad dosotum rodones.V\\
+\glt `Dadesad rodoneses dosotum.'
+\z
+
+The final single-strategy lineage is TF. The results should be similar to those of CS, since TopicFirst is not an argument-marking strategy proper. Indeed, a case marker again develops, \viz \textit{etamo/eta}, which desemanticizes further than the pronoun \textit{rilelod/rid} (\tabref{TF3}). Note that since preposed topics are cross-referenced by anaphoric expressions, in this lineage verb markers are frequently used too for the development of indexing (see \citealt{Lestrade2015Simulating}).
+ 
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+22 & etamamo & 35 & 0 & 33 & 0 & 21 & 1\\ 
+597 & iridono & 14 & 0 & 0 & 14 & 24 & 1\\ 
+791 & rilelod & 126 & 21 & 38 & 0 & 19 & 0.89\\ 
+\tablevspace
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+22 & eta & 1003 & 0 & 641 & 0 & 10 & 0.44\\ 
+597 & ira & 424 & 0 & 0 & 420 & 9 & 0.89\\ 
+791 & rid & 329 & 287 & 0 & 0 & 9 & 0.56\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the TF lineage\label{TF3}.}
+\end{table}
+
+
+Combinations of the different strategies lead to predictable results. When any marking strategy is combined with TypeCast (AFTC, TFTC, and AFTFTC), case markers emerge, and when TopicFirst is used, verb markers are frequently used too. The results are shown in \tabref{AFTC3}, \tabref{TFTC3}, and \tabref{AFTFTC3}.
+
+The only lineage whose results cannot be predicted straightforwardly is AFTF. In principle, TopicFirst may interfere with AgentFirst, meaning that role markers are sometimes necessary. However, since the actor is much more likely than the \isi{undergoer} to become the topic, in most cases AgentFirst can still be used. In the present setup, the odds for the actor vs. the \isi{undergoer} to become the topic were kept constant at 5:1. As shown in \tabref{AFTF3}, case markers apparently do not develop under these conditions.
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+727 & memunus & 12 & 9 & 0 & 0 & 28 & 1\\ 
+693 & alenidu & 8 & 3 & 0 & 0 & 18 & 1\\ 
+641 & osoranu & 22 & 11 & 0 & 0 & 29 & 1\\ 
+\tablevspace
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+727 & memun & 512 & 434 & 0 & 0 & 17 & 0.44\\ 
+693 & alenida & 244 & 0 & 0 & 234 & 14 & 0.89\\ 
+641 & osa & 108 & 15 & 1 & 0 & 11 & 0.78\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the AFTF lineage. \label{AFTF3}}
+\end{table}
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+356 & tisosar & 588 & 0 & 448 & 0 & 32 & 0.67\\ 
+965 & onedera & 38 & 30 & 0 & 0 & 19 & 1\\ 
+372 & mulirol & 3 & 0 & 3 & 0 & 24 & 1\\ 
+\tablevspace
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+356 & tid & 1412 & 0 & 912 & 0 & 11 & 0.33\\ 
+965 & ona & 240 & 238 & 0 & 0 & 9 & 0.67\\ 
+372 & mulil & 60 & 60 & 0 & 0 & 15 & 0.89\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the AFTC lineage\label{AFTC3}.}
+\end{table}
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+206 & esusiti & 656 & 0 & 428 & 1 & 32 & 0.56\\ 
+6 & inomola & 11 & 5 & 0 & 0 & 21 & 1\\ 
+998 & irutide & 20 & 12 & 0 & 0 & 26 & 1\\ 
+\tablevspace
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+206 & esa & 1621 & 0 & 1129 & 0 & 9 & 0.33\\ 
+6 & ina & 230 & 0 & 0 & 230 & 8 & 1\\ 
+998 & irun & 227 & 227 & 0 & 0 & 17 & 0.67\\ 
+\lspbottomrule
+\end{tabular}
+} 
+\caption{Representations of three most frequent words of the TFTC lineage\label{TFTC3}.}
+\end{table}
+
+\begin{table}
+\fittable{
+\begin{tabular}{rlrrrrrr}
+\lsptoprule
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+915 & esodine & 649 & 3 & 473 & 0 & 22 & 0.67\\ 
+584 & olalune & 2 & 2 & 0 & 0 & 20 & 1\\ 
+341 & osutula & 9 & 1 & 3 & 0 & 30 & 1\\ 
+\tablevspace
+ID & form & freq & argFreq & nounFreq & verbFreq & prodEff & semWeight\\ 
+\midrule
+
+915 & esa & 1447 & 0 & 903 & 0 & 9 & 0.33\\ 
+584 & ola & 352 & 0 & 0 & 342 & 7 & 0.89\\ 
+341 & osur & 245 & 237 & 0 & 0 & 20 & 0.67\\ 
+\lspbottomrule
+\end{tabular}
+}
+\caption{Representations of three most frequent words of the AFTFTC lineage\label{AFTFTC3}.}
+\end{table}
+
+\section{Discussion}\label{17-le-sec:Discussion}
+In this paper it was shown how differential \isi{case marking} emerges in artificial languages in which, initially, only lexical expressions and very general communicative principles are used. This section discusses the main findings and implications, plus some limitations that should be taken into account. 
+
+The results suggest that formal means of argument marking, and perhaps grammar more generally, need not be inherent to the language system. Over time, nothing changes in the (cognitive/biological) makeup of the agents. Instead, the language itself adapts to its usage, in a process of \textit{cultural evolution} \citep{Smithetal2008Cultural,Christiansenetal2008Language}. As a result of \isi{grammaticalization}, popular marking solutions become less costly to produce and irrelevant meaning dimensions are removed from their lexical representations. Thus, case markers eventually develop; \ie maximally short forms with maximally general meanings that mark an argument for its relation with its head. Importantly, the development of these more grammatical means of expression did not improve or diminish communicative success. In fact, events were communicated successfully throughout the process. 
+
+Although it was not shown here, as the model does not yet allow for this, it is easy to imagine how differential case markers extend their domain of application even further to become obligatory for all subject or object arguments. Then, it is no longer evaluated whether a marker is necessary to mark a role for a specific argument, but it is used simply to mark that role for any argument (resulting in \textit{functional overkill}, \cf \citealt{Durie1995Towards}). The only way to get from the former to the latter, at least in the present model, is when speakers make the generalization that not only deviant arguments are marked, but any argument. Interestingly, unlike the general assumption in the literature, this would mean that wholesale marking is the special, derived case rather than the default as indeed argued for by \citet{Sinnemki2014Typological}. Of course, this does not mean that in still later stages, \isi{case marking} may not be lost again.
+
+\newpage
+Finally, the simulations show a crucial difference between the \isi{grammaticalization} potential of markers and referential expressions. Whereas the latter often have to be fairly specific in order to distinguish the intended referent from a large number of distractor objects, for markers there is always only one distractor: either the other predicate role or the other argument. As a result, general expressions more often suffice as markers, which means that they can be used much more frequently, because of which they grammaticalize even further.
+
+Using a computer model implies that there are some obvious limitations to the present study too. An attempt was made to parameterize as many assumptions as possible (\cf the appendix). As the model is rather comprehensive, however, the full parameter space cannot easily be explored. For example, in the simulations it was assumed that the actor was much more likely to be the topic, with the result that AgentFirst could still be used. This seems to make sense, as \cite{Comrie1989Language} found that the two do indeed generally align. Still, it may be interesting to further explore the interplay between TopicFirst and AgentFirst. Some other assumptions are fundamental to the model. For example, the only source for markers in the model is the nominal lexicon, whereas for example in Chinese, the differential \isi{object marker} \textit{ba} derives from a verb \citep[22]{Yang2008Indefinite}.
+
+
+\subsection*{Acknowledgments}
+I would like to thank the editors, two anonymous reviewers, Helen de Hoop, Peter de Swart, and Sebastian Collin for valuable comments that helped to improve this paper. 
+
+This research was made possible by the Netherlands Organization for Scientific Research (NWO; Veni grant 27578001, \textit{The exaptation of argument marking}), whose financial support is gratefully acknowledged. 
+
+\section*{Appendix: (Relevant) model parameter settings}
+\begin{lstlisting}
+#dimensionality and distinctionality of meaning representations
+	distinctions=c(2,2,2,2,2,9,9,9,9)
+#initial word length
+	wordLength=7
+#alphabet
+	vowels=c('a','e','i','o','u'); consonants=c('d','l','m','n','r','s','t')
+#lexicon size
+	nNouns=999; nVerbs=499
+#preference for the external role to combine with higher values
+	oddsLinkingHierarchy=2
+#amount of referential noise (0--1)
+	referenceNoise=.2
+#amount of noise in role assignment
+	roleNoise=.5
+#maximum number of events that are ongoing in speech situation
+	nEvents=30
+#preference for actor, \isi{undergoer} and event to be the topic
+	roleTopicality=c(100,20,1)
+#maximum number of turns conversations consist of
+	nTurns=30
+#protoprinciples
+	checkSuccess=T; solutionMethod='secondArgument'
+	typeCast=F; castingThreshold=.7
+	agentFirst=F
+	topicFirst=F; topicCopy=T
+	orderAgentFirstTopicFirst='TA'
+#reduction/change
+	reductionFrequencyThreshold=20
+	reductionCollostructionThreshold=5
+	reductionRecencyThreshold=3
+	suffixThreshold=15
+	distinctiveness=.05
+	erosion=T,	
+	formSetFrequency=3,
+	erosionMax=2
+	desemanticization=T
+	desemanticizationThreshold=.01	
+	desemanticizationCeiling=.3
+	minimalSpecification=2
+	desemanticizationMethod='variance'
+#life
+	deathAge
+	procreationAge=.75
+\end{lstlisting}
+
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this]
+}
+\end{document}
+

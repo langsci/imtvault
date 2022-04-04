@@ -1,0 +1,758 @@
+\documentclass[output=paper]{langsci/langscibook}
+\ChapterDOI{10.5281/zenodo.4450089}
+
+\author{Éric André Poirier\affiliation{Université du Québec à Trois-Rivières}}
+
+\title{What can Euclidean distance do for translation evaluations?}
+
+\abstract{We describe an empirical method to screen informational translation shifts in parallel segment pairs extracted from a bilingual or multilingual translation corpus using two linguistic features that are independent of the languages matched by the translation. The method applies to most known languages and in one or the other of the two translation directions (direct or inverse). The features measured for each segment in source and target languages are character count and lexical word count (or information volume). Information volume is compiled through an algorithm coded in Python using spaCy v2.1.3 core linguistic models. The values of source and target segment features and the translation precision ratio of each segment pairs are averaged over the text to which they belong and all segment values are standardized in relation to their textual average. The deviation between standardized values for each segment in a pair, as measured by the weighted Euclidean distance, allows for the screening and identification of target segments that are atypical or heteromorphic in comparison with their source segment. Our hypothesis is that those heteromorphic segment pairs, as opposed to isomorphic ones, are more likely to contain informational translation shifts. The objective and reproducible method described herein allows for semi-automatic identification of problematic translations and uncovering of textual and linguistic facts revealing translation processes, contingencies, and determinism.}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+We describe below the theoretical framework and the methodological steps of the method that we have applied in a systematic and exploratory way to parallel bilingual corpora in different languages and in different translation directions with English, French, and Spanish. The method may be applied manually on small texts and for pedagogical purposes in the analysis, evaluation, and comparison of translations and translation processes, or it can be implemented for manual identification of informational translation shifts in automatically screened segment pairs in large corpora. Automatic POS tagging of all segment pairs was done with spaCy v2.1.3 (a commercial-grade natural language processing environment, \parencite{spacy16}) core linguistic models in an algorithm coded in Python version 3.7.3 with language models en\_core\_web\_sm (version 2.1.0) for English and es\_core\_news\_sm for Spanish (version 2.1.0). POS tagging is required to calculate the information volume of each segment. Languages that are covered with our method are determined by the availability of a specific linguistic module in the spaCy environment designed for Python programming.
+
+For illustrative purposes, we present the results obtained with the method applied to the United States President Barack Obama’s speech to the Cubans on March 22, 2016, for which an official translation is provided in Spanish. The bitext used for the analysis was compiled with the original English version\footnote{\href{https://obamawhitehouse.archives.gov/the-press-office/2016/03/22/remarks-president-obama-people-cuba}{https://obamawhitehouse.archives.gov/the-press-office/2016/03/22/remarks-president-obama-people-cuba}} and its official Spanish translation,\footnote{\href{https://obamawhitehouse.archives.gov/the-press-office/2016/03/22/discurso-del-presidente-obama-al-pueblo-cubano}{https://obamawhitehouse.archives.gov/the-press-office/2016/03/22/discurso-del-presidente-obama-al-pueblo-cubano}} both of which are posted on the obamawhitehouse.archive.gov Web site, which includes official speeches delivered by President Obama. The speech has 2,420 words in English, 2,468 in Spanish, and the raw bitext was segmented in 255 segment pairs, as described below in \sectref{ep:meth}.
+
+\section{Theoretical framework}\label{ep:th}
+
+Before explaining our method, we describe the typology of informational translation shifts for the manual annotation and analysis that is required to measure the efficiency of the method. This framework also describes key concepts in the evaluation of the efficiency and utility of the method we present regarding the screening of segment pairs which are most likely to contain translation shifts.
+
+\subsection{Free and fixed translation shifts}\label{ep:frfr}
+
+First, let us define what we mean by translation shift and propose a typology of the types of informational shifts found in the segment pairs of parallel translation corpora. The term shift is used in its broad sense to mean \enquote{a change in position or direction}.\footnote{Source: Online Cambridge Dictionary at \url{https://dictionary.cambridge.org}} Translation shifts generally refer to specific changes attributable to translation, explained thus: \textcquote[269]{baketal09}{The transformation which is occasioned by the translation process can be specified in terms of changes with respect to the source texts, changes which are termed \enquote{shifts}.}
+
+In this sense, translation shifts do not include systematic or systemic differences between languages. Although no empirical criteria have been provided to differentiate between translation shifts and differences between languages, it is generally accepted that these two transformations in the translation process must be distinguished. To account for these two very different types of shifts, we have adopted the terminology of \textcite{wecetal15}. The authors distinguished fixed shifts that are attributable to differences between languages from free shifts that are attributable to the translation operation itself and result from a choice freely exercised by the translator, from bias on the part of that person, or simply from translation errors. While fixed shifts are mandatory, free shifts are by definition free or the result of a deliberate choice. Strictly speaking, they are members of a group of at least two expressions that adequately translate the expression or the same elements of the source segment. In theory, fixed shifts describe conventional translation processes, while free shifts describe creative, original, or to some extent novel translation processes. Instead of relying exclusively on our own judgment on the acceptability of Spanish translations, we designed a process that supports the empirical definition of free shifts based on the \textit{tertium comparationis} provided by machine translation. For a source expression, if a literal translation in the target text co-occurs with an acceptable literal translation of the same expression in DeepL,\footnote{\url{https://www.deepl.com/translator}} the shift in the official translation is fixed. When the target text contains a non-literal translation, if the same source expression is translated literally in DeepL, the shift is considered free. A good example among others (see \sectref{ep:res}) is the translation of the segment number 187 \enquote{that is a measure of our progress as a democracy} that was translated as \enquote{Esa es la medida de nuestro progreso}, which is not literal and which co-occurs with a literal translation in DeepL \enquote{que es una medida de nuestro progreso como democracia}. The comparison with DeepL highlights the omission of the content word \textit{democracia} in the official translation. Translation shifts screened with our method are limited to informational translation shifts and can either result in the addition of one or more content words or the omission of one or more content words (see \sectref{ep:posneg} below).
+
+\subsection{Informational translation shifts}
+
+The term \enquote{informational shift} refers to a particular type of translation shift. In the identification of all translation shifts (semantic, lexical, syntactic, stylistic, terminological, socio-linguistic, etc.) that are required for the knowledge and maintenance of a coherent set of translation processes (which constitute the basic elements of translation learning and teaching), informational translation shifts represent a critical group of translation shifts. In fact, they are requisite to the proper identification and definition of all other types of shifts since informational shifts affect the information content of the messages to be translated, which is required to be invariant in the translation of pragmatic texts, and on which the analysis and evaluation of other translation shifts depend.
+
+We hypothesize that informational translation shifts are most likely present when a comparison of source and target segments show an important discrepancy or \enquote{distance} in two correlative linguistic features: the string length in characters and the lexical word count. Lexical words are numerous; they carry a lexicalized or stable meaning and form an open class of elements. This is in contrast with grammatical words that are few, do not carry a lexicalized meaning, and form a closed set of elements. By counting lexical words in source and target segments (in two different languages), the method we describe here allows for the quantifying of the translation precision in terms of information volume. This measure is defined in the next section.
+
+\subsection{Positive and negative information shifts}\label{ep:posneg}
+
+As discussed in \sectref{ep:frfr}, information shifts may result in the addition or the omission of information. The volume of information as measured by the lexical word count is an approximation of the quantity of basic (stable) information present in source and target segments. The translation precision ratio (TPR) is calculated by dividing the information volume of the source segment by the information volume of the target segment and may be \enquote{positive}, \enquote{negative} or \enquote{neutral}. TPR is a numeric measure of the discrepancy of information volume between target and source segments. When segment pairs contain an equal volume of information in both the source and target segments, the TPR between the two segments is \enquote{neutral} with a value of 1.0 and those segment pairs are isomorphic. When segment pairs contain at least one negative information shift, that is, the omission of information in the target segment, the information volume of the target segment is smaller than the information volume of the source segment. The TPR between the two segments is \enquote{negative} with a value lower than 1.0 and those translation segment pairs are negative heteromorphic. When segment pairs contain at least one positive information shift, that is, the addition of information in the target segment, the information volume of the target segment is greater than the information volume of the source segment. The TPR between the two segments is \enquote{positive} with a value higher than 1.0 and those translation segment pairs are positive heteromorphic.
+
+Since information shifts mostly occur within the segment level, numerous combinations of positive and negative shifts may exist in isomorphic, negative heteromorphic, and positive heteromorphic segment pairs. For example, an isomorphic segment pair may have one positive shift and one negative shift, each canceling out the value of the other and a heteromorphic segment pair may have multiple negative shifts and positive shifts. In this case, there may be a single positive or negative shift, as the case may be, or there may be multiple negative or positive shifts that combine within a segment pair that is either negative or positive as a whole.
+
+\subsection{Antinomic shifts}
+
+Antinomic shifts are those whose positive or negative nature is opposite to that of the whole segment to which they belong. For example, a positive heteromorphic segment pair may contain two positive shifts of one lexical word each or a single positive shift of two lexical words, in combination with a negative shift of one lexical word that does not contribute to the positive orientation of the segment pair. The positive or negative orientation of antinomic shifts is opposite to that of the orientation of all the combined shifts of a pair of segments. In neutral isomorphic segments (having a TPR of 1.0), any pair of information shifts that may occur (one positive and one negative) cancel each other out and are therefore both antinomic. For this reason, it should not be concluded that there is no informational translation shift in isomorphic segment pairs. However, as demonstrated in \sectref{ep:conc}, we hypothesize that there are fewer of them in isomorphic segment pairs than in the positive or negative heteromorphic segment pairs.
+
+\subsection{False shifts and undetected shifts}
+
+Because of the shortcomings of the spaCy v2.1.3 core linguistic models and the erroneous results they sometimes produce as regards POS tagging, we created two other categories of information shifts that could only be detected through manual and meticulous analysis of the segment pairs screened by the weighted Euclidean distance (see \sectref{ep:eup}). One difficulty in POS tagging is that most tokens belong to several lexical or grammatical word classes. Some parts-of-speech are also equivocal regarding their belonging to a lexical or a grammatical class. This is the case, for example, of verbal auxiliaries in English, Spanish or French, or for some particles in phrasal verbs in English -- are they adverbs or prepositions? Most POS tagging algorithms struggle to provide a proper analysis of all source and target segment tokens (despite, and with the support of, language-specific rules), and for specific tokens or POS may present original aberrations that need to be corrected. For some older releases of spaCy's POS tagger, \textcite{gieeve09} report a success rate of less than 93\%, and this rate varies (downward) depending on the type of text analyzed. When manual analysis reveals errors or anomalies in POS tagging of tokens, the involved information shifts have been classified as false shifts (in the way that they are false positives) that owe their existence only to POS tagging errors. Another development that would enhance the efficiency of the empirical method described here is the improvement of POS tagging such that every token and every compound or group of tokens would be properly tagged as a lexical or a grammatical item. As we explained in a previous paper \parencite[8]{poirier17}, converting even a 97\% POS tagging accuracy at the segment level makes it less impressive since it can be reasonably argued that most segments (and sentences) generally have at least 10 words or more. For ten segments of 10 words, an accuracy of 97\% would imply that as much as three segments out of ten (that is 30\% of segments) would contain a POS tagging inaccuracy provided the three words inaccurately tagged out of 100 are distributed in three different segments. Furthermore, considering that parallel corpora involve two different languages (and two different POS tagging sources of errors), this number may skyrocket to 60\% of all 10 segment pairs if the two language-specific groups of 30\% erroneous segments are each matched to a properly analyzed source or target segments.
+
+When the POS tagging modules produce an erroneous analysis that results in the inexistence of an information shift (and which produces a false negative), these information shifts that go unnoticed have been classified as undetected shifts, i.e., shifts that were not detected because of wrong POS tagging. For example, an undetected shift was found in segment number 63 of our corpus (see \sectref{ep:saa}) which contained the expression \enquote{a multi-party democracy} matched with the Spanish translation \enquote{\itshape una democracia de múltiples partidos}. The source segment was wrongly analyzed as having four lexical words by the English language model of spaCy,\footnote{In this case, this was due to the the hyphen being wrongly analyzed as an adjective, but this was not the only wrongful POS tagging issue with the hyphen since in parallel segment number 239 (see \sectref{ep:sac}) it was analyzed as a proper noun.} giving rise to a false shift and a fourth lexical word. In this case, the target segment was analyzed correctly with three lexical words. What the module analysis made as a negative heteromorphic segment pair turns out to be a positive (antinomic) heteromorphic segment pair because \textit{multi-party} should be analyzed as a unitary lexical word (compound). Thus, in this segment, our manual analysis found an undetected information shift that both linguistic language models have been unable to bring to light.
+
+\section{Corpus data processing methodology}\label{ep:meth}
+
+The file used as input is a bitext file in HTML format provided free online by YouAlign\footnote{\url{https://youalign.com}} (maximum file size for each file is limited to 1MB). The speech file size of our corpus did not exceed this limit but one could use a comma-separated value file format or other proprietary bitext creation software such as Logiterm Pro v5.8.2 for larger files and corpora. It has been verified that the alignment of all segments of the bitext is adequate and that each source segment matches its translation with one or more target segments, if applicable. Manual processing was necessary at this step on the source and target language plain text of the speech. In our corpus, annotations such as \enquote{Applause} and \enquote{Laughter} that describe the audience's reaction to the speaker's words have not been included and translated in the target text. It seems fair and reasonable to delete those items that were not genuinely communicated by the speaker and not translated in Spanish because they were provided by the context. For reasons that are difficult to explain (and which probably have to do with character encoding or the core and basic language models that were used even if some testings with more complete language models that were available at the time did not demonstrate noticeable improvements), some abbreviated forms with apostrophes in English needed to be modified as the last recourse solution (such as \textit{that's} = \textit{that is}) because the apostrophes were recognized as lexical words, which is not accurate. In the English source text, the last greeting from the speaker is \enquote{\itshape muchas gracias} in Spanish which obviously does not need to be translated. This last single segment needed to be removed from the bitext since it cannot form a pair of parallel bilingual segments. For the target speech in Spanish, the segmentation results with the dash and colon had to be corrected to match the segmentation results of their corresponding punctuation marks in English.
+
+Once these modifications were made to our corpus, a module written in Python analyses all the pairs of segments of the corpus one by one. In this analysis, two specific linguistic modules are called sequentially for the source segment and the target segment to count their lexical words and measure the total information volume of each segment as well as the TPR of each segment pair. These values are appended to a variable and then exported to a CSV file which can be read in a spreadsheet. The character count of each segment could be quantified afterward in the spreadsheet with the help of a function such as LEN (cell) function in Excel. We also calculated for each source and target language text the average value of information volume and character count by segment for the whole corpus.
+
+Our English-Spanish parallel corpus of Obama's speech to the Cubans contains 255 segments of 9.49 lexical words and 89.68 characters on average in English and 9.68 lexical words and 96.15 characters on average in its translated version in Spanish. These averages were calculated with the values of both linguistic features for the whole corpus as described in the \tabref{ep:t1}.
+
+\begin{table}\caption{Total values of linguistic features in source and target languages}\label{ep:t1}
+  \begin{tabularx}{\textwidth}{XrY}
+    \lsptoprule
+                      & \textbf{Characters} & \textbf{Lexical words}\\
+    \midrule
+    English (source)  & 22,869              & 2,420\\
+    Spanish (target)  & 24,517              & 2,468\\
+    Difference        & + 7.21\%            & + 1.98\%\\
+    \lspbottomrule
+  \end{tabularx}
+\end{table}
+
+In recent years, we have applied different versions of our methodology and translation precision algorithm to some corpora (see \textcite{poirier19} for an example of English-French analysis and earlier methodology). We have found that three linguistic features may be measured for each parallel segment pair in bitexts. These are character count, total word count (or token count), and lexical word count. We tested the correlation of each feature in different corpora that were analyzed with our methodology. In order to measure the correlation of these features we simply applied the Pearson correlation coefficient between two variables (values of linguistic features in source and target segments) as defined with the following formula, where \textit{cov} is the covariance, $\rho_{X}$ and $\rho_{Y}$ are the standard deviations of X and Y, respectively:
+
+\[
+  \rho_{X,Y}=\frac{\text{cov}(X,Y)}{\sigma_{X}\sigma_{Y}}
+\]
+
+\tabref{ep:tcorr} below presents the correlation which was calculated with different political speeches in English translated in Spanish, such as Abraham Lincoln’s Gettysburg Address (1863), Inaugural Address of John F. Kennedy (1961), Martin Luther King’s \textit{I have a dream} (1963), Obama’s speech to the Cubans (2016), Donald Trump’s State of the Union (2018) and Oval Office Address on Border Wall (2019).
+
+\begin{table}\caption{Correlation of three linguistic features in English-Spanish translations}\label{ep:tcorr}
+\fittable{
+  \begin{tabular}{lp{15mm}p{20mm}p{15mm}p{16mm}}
+    \lsptoprule
+    {\bfseries Speech}  & {\bfseries Number of words (text)} & {\bfseries Number of characters} & {\bfseries Total word count } & {\bfseries Lexical word count }\\
+    \midrule
+    Gettysburg & 268 & 0.9725 & 0.963 & 0.9691\\
+    KennedyInauguralAddr & 1393 & 0.9888 & 0.984 & 0.9736\\
+    DreamMLKing & 1673 & 0.9766 & 0.9772 & 0.9684\\
+    ObamaCuba & 4161 & 0.9733 & 0.9663 & 0.9583\\
+    TrumpStateUnion2018 & 5188 & 0.9649 & 0.9408 & 0.9573\\
+    Trump\_BorderWall & 1119 & 0.9513 & 0.9205 & 0.9501\\
+    \midrule
+    Averages & & 0.9712 & 0.9586 & 0.9628\\
+    \lspbottomrule
+  \end{tabular}
+  }
+\end{table}
+
+\tabref{ep:tcorr} shows that on average, the character count has the strongest correlation (0.9712),\footnote{These data support previous works in machine translation, such as the seminal paper of \textcite[89]{galchu93}, who found that there exist very high correlations between the length of a paragraph in characters and the length of its translation.} followed by the lexical word count (0.9628) and by the total word count (0.9586). Because of this high correlation of these features between the source and target segments, the significance of the lexical word and character differences between the source and target segments is difficult to establish when the length of segment pairs may vary widely. For example, the absence of a lexical word in a target segment that is associated with a source segment of 30 lexical words is not as significant as the absence of a lexical word in a target segment that is associated with a source segment of three lexical words.
+
+\subsection{Standardized values of segment pairs}
+
+To account for the relative length of each string in segment pairs, and to make each segment pair comparable in terms of their selected features, we standardized the value of the two features for each segment by relating them to their average value for the whole source or target segments in the parallel corpus. To this end, a rule of three was used to determine the standardized values of information volume and character count for each segment in pairs. In the context of Barack Obama’s English-Spanish corpus, let’s take for example a source and target segments having respectively 3 and 4 lexical words and 25 and 31 characters. If we relate these numbers to their average value for the corpus (9.49 lexical words and 89.68 characters for the source segments, and 9.68 lexical words and 96.15 characters for the target segment), we get standardized values of 4.07 (3x[9.49+9.68]/7) lexical words, for the source segment, and 5.53 (4x[9.68+9.49]/7) lexical words, for the target segment. The same formula is used for the character count standardized values. The standardized value of the two features measured for each pair of segments is crucial since they will make it possible to detect target segment pairs that are atypical (or unusually distant from their source segment), as measured by the weighted Euclidean distance.
+
+\subsection{Precision deviation factor}
+
+To characterize the positive or negative value of the information volume of the whole target segment compared to the whole source segment, we subtracted its TPR from the average value of this ratio for the whole text, a value which is normally close to 1.00 (a target segment normally contains the same volume of information as its corresponding source segment). In Barack Obama’s Speech English-Spanish corpus, this figure was 1.02. Any segment pair having a TPR lower than 1.02 would, therefore, have a negative value, and, conversely, any segment pair having a TPR higher than 1.02 would have a positive value. The precision deviation factor (PDF) used in the calculation of the Euclidean distance is simply a multiple (10 times) of this value (positive or negative.\footnote{A value of zero is theoretically possible with a TPR of 0.99 but this value did not occur in our corpus. Some adjustments might be required in the following calculations to take this value into account.}) Just like the positive and negative values of information shifts were an indication of a potentially wrong additional or missing information in the translation, the negative or positive value of the Euclidean distance would point to a potentially wrong additional or missing information in the target segment.
+
+\subsection{The weighted Euclidean Distance for screening segment pairs}\label{ep:eup}
+
+The Euclidean distance is calculated using the standardized lexical word count and the standardized string length in characters that were calculated for the source and target segment of each parallel pair in the corpus. The exact formula of the Euclidean distance ($d(\text{p,q})$) that we used is defined as follows:
+
+\[
+  d(\text{p,q})=\sqrt{(q_{1}-p_{1})^2+(q_{2}-p_{2})^2+\dots+(q_{n}-p_{n})^2}=\sqrt{\sum_{i=1}^n(q_{i} - p_{i})^2}
+\]
+
+Simply put, the Euclidean distance is measured by the square root of the sum of the squared deviations of the two features (information volume and string length in characters) measured and standardized for each source and target segment of all parallel pairs in our corpus. Since translation is an operation that takes into account meaning, we gave more weight to the difference in information volume than to the difference in the number of characters in the calculation of the weighted Euclidean distance. Multiplying the Euclidean distance by the positive or negative precision deviation factor gives more weight to the information volume and results in a positive or negative value of the distance between the source and target standardized segments of each parallel pair. When the value is negative, the target segment contains fewer lexical words or characters than the source segment and is likely to contain at least one or more negative shifts. Similarly, when the value is positive, it means that the target segment contains more lexical words or characters than the source segment and is therefore likely to contain at least one or more positive shifts.
+
+This method has made it possible to calculate the weighted Euclidean distance separating each pair of segments. Of the 255 pairs of segments in the English-Spanish corpus of Barack Obama's speech in Cuba, the weighted value (by the precision deviation factor) of the Euclidean distance is between -193.81 and 313.26. Segment pairs with extreme negative or positive values of weighted Euclidean distance are highly heteromorphic and their target segment is very likely to contain informational translation shifts. The two most heteromorphic segments and their particular calculations are described in the next table. The segments are preceded by their sequential number in the English-Spanish corpus. Proper and improper content words (leading to false shifts) identified with the spaCy v2.1.3 language models are marked in bold. The volume of information and the number of characters in each source and target segment is in square brackets. In the calculation of the precision deviation factor, TPR is averaged at 1.02 and the weighting of this difference has been multiplied by a constant of 10. The precision deviation factor for segment \#12 is therefore $(0.333-1.02)*10=-6.87$. For calculating standardized values, the average value of source segments features are 9.49 lexical words and 89.68 characters, and for the target segment features these figures are 9.68 lexical words and 96.15 characters. Some slight differences may occur due to the rounding of the decimals and their precision. \tabref{ep:het} presents the detailed calculations for the most negatively heteromorphic segment pair number 12 and the most positively heteromorphic segment pair number 144 in the corpus. The table shows the translation precision ratio (TPR), the precision deviation factor (PDF), the standardised information volume (SID) and string length (SSL) of the segment, the Euclidean distance (d) and the weighted Euclidean distance (wd).
+
+\begin{table}\caption{Most negative and positive heteromorphic segment pairs and their linguistic feature values (lexical words in bold)}\label{ep:het}
+  \begin{tabularx}{\textwidth}{lQX}
+    \lsptoprule
+    Segment & 12. \textbf{Thank} you \textbf{very much}. = Muchas \textbf{gracias}. [3, 20 = 1, 15] & 144. \textbf{Not everybody agrees} with me on this. = \textbf{No} todo el \textbf{mundo está} de \textbf{acuerdo conmigo} 
+    \textbf{sobre} esto. [3, 37 = 6, 52]\\
+    \midrule
+    TPR & 0.33 & 2.00\\
+    PDF & -6.87 & 9.80\\
+    SID & 14.38 and 4.79 & 6.39 and 12.78\\
+    SSL & 106.19 and 79.64 & 77.26 and 108.57\\
+    d & 28.22 & 31.96\\
+    wd & -193.81 & 313.26\\
+    \lspbottomrule
+  \end{tabularx}
+\end{table}
+
+Manual analysis of the shifts in the segment pair number 12 shows that the great negative Euclidean distance is due to a false shift that is attributable to the classification of the Spanish adverb \textit{muchas} as a determinant (a grammatical word), compared to the English adverb \textit{much}, which is classified as an adverb and therefore as a lexical word. In the same segment, there is a second fixed shift with the use of the adverb \textit{very} in English which has no corresponding Spanish equivalent (probably because \textit{muchas} is already used as an adverb). The two shifts taken together explain the shift in the information volume of 2 found between the two segments. The number of characters is in the same negative direction of the information volume shift and reveals that the target segment of the pair is shorter than the source segment.
+
+In segment pair number 144, there are three positive shifts of one lexical word for each in favor of the target segment. First, there is a fixed shift with the correspondence of the verb \textit{agree} (one lexical word) and the Spanish phrase \textit{está de acuerdo} (two lexical words). Then there are two false shifts with a positive value due to the wrong POS tagging of \textit{conmigo} as an auxiliary (lexical word) rather than as a preposition or prepositional phrase, and another wrong POS tagging of \textit{sobre} as a verb (lexical word) rather than as a preposition. These two false shifts are due to POS tagging errors in the spaCy v2.1.3 language models. The analysis of \textit{todo} seems to have been well done by the spaCy v2.1.3 language models since it is categorized as a grammatical word even though the type of grammatical word seems to be wrong, i.e. a determiner rather than an indefinite pronoun. 
+
+These two examples show the importance of POS tagging in the analysis of translations and the calculation of the information volume. It is to be hoped that significant progress will be made in this area. Despite scientific articles that regularly report success rates of 95\% to 98\% in POS tagging, it seems that these data are inaccurate, at least with spaCy v2.1.3 POS tagging modules.
+
+\section{Results}\label{ep:res}
+
+After having applied the corpus data processing methodology described above, we wanted to validate its efficiency regarding the screening of negative and positive informative translation shifts. For this purpose, we manually analyzed three samples (A, B, and C) of twenty pairs of segments screened automatically with the numeric value of the weighted Euclidean distance. Segment pairs in two of those samples (A and B) were selected for their highest (positive) and lowest (negative) weighted Euclidean distance between the source and target segments (and for being representative of the most negative and positive heteromorphic segment pairs within the analyzed English-Spanish corpus). In a third sample (C), twenty other segment pairs were selected for their very neutral (near zero) weighted Euclidean distance between the source and target segments (and for being representative of the most isomorphic segment pairs within the analyzed English-Spanish corpus). These three groups of 21 segment pairs were analyzed manually as regards the presence or the absence of information shifts described in \sectref{ep:th}. Detailed data on the manual analysis of each of the three samples of twenty segments is described in the next subsections below.
+
+In each of the three annotation tables in the left column, lexical words in segment pairs are marked in bold to inform the reader of the results of the automatic POS tagging process. For difficult or ambiguous word-forms, parts of speech are indicated in uppercase when needed. The tag set that is used is the same as spaCy v2.1.3 POS tag symbols that are called Universal POS tags and that comes from the Universal Dependencies Scheme.\footnote{\url{https://universaldependencies.org/u/pos}} The empty symbol (Ø) is used to describe an item having no semantic match in the target segment. The asterisk symbol (*) is used to describe erroneous tagging which explains the false shift POS annotation. Information shifts are described in their order of appearance in the target segment.
+
+\subsection{Sample A annotations -- most negative heteromorphic pairs}\label{ep:saa}
+
+This section contains the manual analysis and annotations of sample A segments for the classification of information shifts observed in the most negative heteromorphic segment pairs. Translation pairs have been sorted from the longest negative Euclidean distance (-67.52)) to the shortest negative Euclidean distance (-15.67).
+
+\begin{description}
+  \item[(12)] \textbf{Thank}\textsc{-v} you \textbf{very}\textsc{-adv} \textbf{much}\textsc{-adv}. 3, 20 \rightarrow Muchas-\textsc{*det\slash adj} \textbf{gracias}. 1, 15
+
+    -193.81 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): much-\textsc{adv} \rightarrow muchas-\textsc{*det\slash adj}
+      \item Fixed shift (-1): very\textsc{-adv} \rightarrow Ø [confirmed with DeepL: \textit{Muchas gracias.}]
+    \end{enumerate}
+
+  \item[(258)] And it \textbf{will} \textbf{not} \textbf{be easy}, and \textbf{there}\textsc{-*adv/pron} \textbf{will be setbacks}. 8, 52 \rightarrow Y \textbf{no} \textbf{será fácil}, y \textbf{habrá reveses}. 5, 33 
+
+    -165,00 [-3 lexical words] (3 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): will-\textsc{v} \rightarrow Ø [future tense]
+      \item False shift POS (-1): there\textsc{*adv/pron} be-\textsc{v} \rightarrow haber-\textsc{v}
+      \item Fixed\textbf{ }shift\textbf{ }(-1): will-\textsc{v} \rightarrow Ø [future tense]
+    \end{enumerate}
+
+  \item[(11)] \textbf{Thank}\textsc{-v} you \textbf{so}-\textsc{adv} \textbf{much}-\textsc{adv}. 3, 18 \rightarrow Muchas-*\textsc{det/adj} \textbf{gracias.} 1, 15
+    
+    -133.37 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): much-\textsc{adv} \rightarrow muchas-*\textsc{det/adj}
+      \item Free shift (-1): so-\textsc{adv} \rightarrow Ø [DeepL: \textit{Muchísimas gracias.}]
+    \end{enumerate}
+
+  \item[(75)] \textbf{Why}-\textsc{adv} \textbf{now}-\textsc{adv} \textbf{?} \textbf{Why}-\textsc{adv}\textbf{now}-\textsc{adv}\textbf{?} 4, 17 \rightarrow \textbf{¿}por qué \textbf{ahora-}\textsc{adv}\textbf{?} 1, 15
+
+    -125.86 [-3 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): why-\textsc{adv} (1) \rightarrow por qué (0)
+      \item Free shift (-2): Why now? (2) \rightarrow Ø (0) [confirmed with DeepL, translated twice]
+    \end{enumerate}
+
+  \item[(259)] It \textbf{will take time}. 3, 18 \rightarrow \textbf{Tomará tiempo}. 2, 14 
+
+    -83.19 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): will-\textsc{v} \rightarrow Ø [future tense]
+    \end{enumerate}
+
+  \item[(95)] It \textbf{is called Miami}. 3, 19 \rightarrow se \textbf{llama Miami}. 2, 15
+
+    -78.43 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): is called (2) \rightarrow se llama (1) [confirmed with DeepL]
+    \end{enumerate}
+
+  \item[(132)] What \textbf{changes come will depend} upon the \textbf{Cuban people.} 6, 52 \rightarrow Lo que \textbf{cambie dependerá} del \textbf{pueblo cubano.} 4, 42
+
+    -71.15 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Free shift (-1): changes-\textsc{n} come-\textsc{v} (2) \rightarrow lo que cambie-\textsc{v} (1) [DeepL:\textit{Los cambios que se produzcan\dots}]
+      \item Fixed shift (-1): will-\textsc{v} \rightarrow Ø [future tense]
+    \end{enumerate}
+
+  \item[(187)] that \textbf{is} a \textbf{measure} of our \textbf{progress} as a \textbf{democracy}. 4, 49 \rightarrow Esa \textbf{es} la \textbf{medida} de nuestro \textbf{progreso}. 3, 37
+
+    -70.40 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Free shift (-1): democracy-\textsc{n} (1) \rightarrow Ø (0)
+    \end{enumerate}
+
+  \item[(174)] I \textbf{am not saying} this \textbf{is easy.} 5, 29 \ \rightarrow \textbf{No} \textbf{digo} que \textbf{sea fácil}. 4, 22
+
+    -56.31 [-1 lexical words] (1 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): am saying (2) \rightarrow digo (1)
+    \end{enumerate}
+
+  \item[(173)] That \textbf{was} because of the \textbf{freedoms} that \textbf{were afforded} in the \textbf{United States} that we \textbf{were able} to \textbf{bring} about\textsc{-adp} \textbf{change.} 10, 113 \rightarrow Eso \textbf{fue} por las \textbf{libertades otorgadas} en los \textbf{Estado Unidos} que \textbf{pudimos traer} el \textbf{cambio}. 8, 86
+
+    -55.67 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): were afforded (2) \rightarrow otorgar (1) [confirmed with DeepL]
+      \item Fixed shift (-1): were able (2) \rightarrow pudimos (1) [confirmed with DeepL]
+    \end{enumerate}
+
+  \item[(186)] Who \textbf{would have believed} that back-\textsc{adv} in \textbf{1959}? 5, 44 \rightarrow ¿Quién \textbf{habría apostado} por eso en \textbf{1959}? 3, 39
+
+    -51.14 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): would have (2) \rightarrow habría (1) [conditional tense]
+      \item Fixed shift (-1):\textbf{ }back-\textsc{adv} \rightarrow Ø
+    \end{enumerate}
+
+  \item[(178)] That'\textbf{s-*}\textsc{propn/poss}\textbf{ how}-\textsc{adv} we \textbf{made enormous gains} in \textbf{women’s rights} and \textbf{gay rights.} 10, 68 \rightarrow \textbf{Es como}-*\textsc{v/adv} \textbf{hicimos grandes avances} en los \textbf{derechos} de las \textbf{mujeres} y de los \textbf{homosexuales}. 8, 85
+
+    -45.67 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): ‘s-*\textsc{propn/poss} \rightarrow Ø
+      \item Free shift (-1): rights-\textsc{n} and \dots rights-\textsc{n} (2) \rightarrow derecheos-\textsc{n} y \dots (1) [DeepL: \textit{\dots los derechos de las mujeres y los derechos de los gays.}]
+    \end{enumerate}
+
+  \item[(228)] that \textbf{is why}-\textsc{adv} their \textbf{heartache is so great.} 6, 40 \rightarrow \textbf{Es} por\textsc{-adp} eso\textsc{-pron} que la \textbf{pena} en sus \textbf{corazones es tan grande}. 5, 51
+
+    -42.06 [-1 lexical word] (3 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): why-\textsc{adv} (1) \rightarrow por\textsc{-adp} eso\textsc{-pron} (0)
+      \item Antinomic fixed shift (+1): heartache-\textsc{n} (1) \rightarrow pena-\textsc{n} en sus cora\-zo\-nes-\textsc{n} (2)
+      \item Free shift (-1): is-\textsc{v} (1) \rightarrow Ø (0) [DeepL: \textit{\dots su dolor de corazón es tan grande.}]
+    \end{enumerate}
+
+  \item[(76)] There-\textsc{adv} \textbf{is} \textbf{one-}\textsc{num} \textbf{simple answer:} 5, 27 \rightarrow La \textbf{respuesta es} \textbf{sencilla:} 3, 25
+
+    -36.39 [-2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Free shift (-1): there-\textsc{adv} \rightarrow Ø [DeepL: \textit{\dots Hay una respuesta simple.}]
+      \item Fixed shift (-1): one-\textsc{num} \rightarrow Ø or una-\textsc{det}
+    \end{enumerate}
+
+  \item[(188)] So \textbf{here}\textsc{-adv} \textbf{is} my \textbf{message }to the \textbf{Cuban government} and the \textbf{Cuban people}: 7, 67 \rightarrow Este es mi \textbf{mensaje para}*\textsc{v/adp} el \textbf{gobierno} y \textbf{pueblo }de \textbf{Cuba}: 6, 53
+
+    -35.39 [-1 lexical word] (3 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): here-\textsc{adv} \rightarrow Ø
+      \item Antinomic false shift POS (+1): to-\textsc{adp} \rightarrow para, parir *\textsc{v/adp}
+      \item Free shift (-1): \textit{Cuban government and the Cuban people } \rightarrow \textit{el gobierno y pueblo de Cuba} [confirmed with DeepL]
+    \end{enumerate}
+
+  \item[(10)] \textbf{Muchas}\textsc{-*propn/adj} \textbf{gracias.} 2, 15 \rightarrow Muchas \textbf{gracias.} 1, 15
+
+    -33.23 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item False shift POS (-1): muchas-*\textsc{propn/adj} \rightarrow muchas *\textsc{det/adj} [target expression used in source text]
+    \end{enumerate}
+
+  \item[(161)] We \textbf{do have too}\textsc{-adv} \textbf{much}\textsc{-adj} \textbf{money} in \textbf{American politics.} 7, 47 \rightarrow \textbf{Sí}\textsc{-adv} que \textbf{hay demasiado dinero} en la \textbf{política estadounidense.} 6, 58
+
+    -31.80 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): too\textsc{-adv} much-\textsc{adj} \rightarrow demasiado-\textsc{adv} [confirmed with DeepL]
+    \end{enumerate}
+
+  \item[(56)] For all\textsc{-det} of our \textbf{differences}, the \textbf{Cuban} and \textbf{American} \textbf{people share common values} in their \textbf{own}\textsc{-adj} \textbf{lives}. 9, 97 \rightarrow Con todas nuestras \textbf{diferencias,} el \textbf{pueblo estadounidense} y el \textbf{pueblo cubano} \textbf{comparten} los mismos\textsc{-*det/adj} \textbf{valores }en sus propias\textsc{-*det/adj}\textsuperscript{ }\textbf{vidas.} 8, 126
+
+    -31.72 [-1 lexical word] (3 shifts)
+
+    \begin{enumerate}
+      \item Antinomic free shift (+1): people (1) \rightarrow pueblo y pueblo (2)
+      \item False shift POS (-1): common values \rightarrow mismos-*\textsc{det/adj} valores-\textsc{n}
+      \item False shift POS (-1): own\textsc{-adj} lives \rightarrow proprias-*\textsc{det/adj} vidas N
+    \end{enumerate}
+
+  \item[(63)] the \textbf{United States is} a \textbf{multi-}\textsc{adj} \textbf{party democracy}. 7, 45 \rightarrow \textbf{Estados Unidos es} una \textbf{democracia} de \textbf{múltiples partidos}. 6, 55
+
+    -30.36 [-1 lexical word] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): --\textsc{adj} [-1] \ \rightarrow Ø [0]
+      \item Undetected fixed shifts (+1): multi-party-\textsc{n} (*3/1) \rightarrow múltiples-\textsc{adj} par\-ti\-dos-\textsc{n} (2)
+    \end{enumerate}
+
+  \item[(194)] \textbf{Many}\textsc{-adj} \textbf{suggested} that I \textbf{come here}\textsc{-adv} and \textbf{ask} the \textbf{people} of \textbf{Cuba} to \textbf{tear something}\textsc{-n} \textbf{down}\textsc{-adv} -- but I \textbf{am appealing} to the \textbf{young people} of \textbf{Cuba} who \textbf{will lift something}\textsc{-n} up, \textbf{build something}\textsc{-n} \textbf{new.} 21, 180 \rightarrow Muchos\textsc{-pron} \textbf{han sugerido} que \textbf{vengo aquí}\textsc{-adv} \textbf{para}\textsc{-*aux/adp} \textbf{pedir} al \textbf{pueblo cubano} que \textbf{destruya} algo\textsc{-pron}; pero yo me \textbf{dirijo} a los \textbf{jóvenes} de \textbf{Cuba} quienes \textbf{alzarán} y \textbf{construirán} algo\textsc{-pron} \textbf{nuevo.} 15, 163
+
+    -29.80 [-6 lexical words] (10 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): many *\textsc{adj/pron} \rightarrow muchos-\textsc{pron}
+      \item Antinomic free shift (+1): suggested \rightarrow han sugerido [DeepL: \textit{Muchos me sugirieron\dots}]
+      \item Antinomic false shift POS (+1): and-\textsc{conj} \rightarrow para, parir *\textsc{aux/adp}
+      \item Fixed shift (-1): something-\textsc{n} \rightarrow algo-\textsc{pron} [confirmed with DeepL: \textit{\dots\ que derribara algo\dots}]
+      \item Fixed shift (-1): tear\textsc{-v} down-\textsc{adv} \rightarrow destruya\textsc{-v}
+      \item Fixed shift (-1): am\textsc{-v} \rightarrow yo-\textsc{pron}
+      \item Fixed shift (-1): young people \rightarrow jóvenes
+      \item Fixed shift (-1): will \rightarrow Ø [future tense]
+      \item Fixed shift (-1): something\textsc{-n} \rightarrow algo-\textsc{pron}
+      \item Fixed shift (-1): something\textsc{-n} \rightarrow Ø (algo-\textsc{pron)}
+    \end{enumerate}
+
+  \item[(207)] It \textbf{gives everyone}\textsc{-*n/pron} in this \textbf{hemisphere hope.} 4, 42 \rightarrow Le \textbf{brinda esperanza} a todos\textsc{-pron} en este \textbf{hemisferio.} 3, 47
+
+    -29.14 [-1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item False shift POS (-1): everyone\textsc{-*n/pron} \rightarrow todos-\textsc{pron}
+    \end{enumerate}
+\end{description}
+
+We found 46 information shifts in sample A, with 12 false shifts POS (due to various POS tagging errors), 24 fixed shifts, and 10 free shifts. For all types of shifts, 5 antinomic shifts were found. We will not go into the details of the analysis but provide to the reader a brief survey of what we can deduct from the data collected. A more detailed review of these results is of high interest for translation studies and training but deserves to be addressed in a separate publication. First, this sample contains mostly fixed information shifts due to source language constraints such as verb compositions (modals, active/passive (mandatory)), transformations for verbal constructions exclusive to one language (\textit{is called} translated by \textit{se llama} in pair 95, or \textit{there be} translated by \textit{haber} in pair 258, for example), some peculiar uses of adverbs in English that may be omitted in Spanish or are translated by a preposition, and some English-Spanish POS tagging difference regarding functional words such as pronouns (in pair 194, the pronoun \textit{something} is analyzed as a noun and translated with the pronoun \textit{algo}, for example). Second, regarding the free information shifts found in sample A, those are far fewer in number. Some can be explained with the traditional concepts of \enquote{concentration} or \enquote{concision} used in translation studies. Most of them seem to be due to some sort of Spanish grammatical \enquote{flexibility} or \enquote{freedom} which affords the translation process highly acceptable syntactic reductions of redundant information in the source language such as non-repetitions of generic nouns in noun phrase coordination like in the pair \textit{Cuban government and Cuban people}, which is reducted to \textit{el gobierno y pueblo de Cuba}. We found one characteristic omission of the notion of democracy in pair 187 that is due to the different political systems of reference between the United States and Cuba, but that illustrates very well one political issue between the two countries.
+
+\subsection{Sample B annotations -- most positive heteromorphic pairs}
+
+This section contains the manual analysis and annotations of sample B segments for the classification of information shifts observed in the most positive heteromorphic segment pairs. Translation pairs are presented from the highest positive weighted Euclidean distance (313.26) to the lowest positive weighted Euclidean distance (52.35).
+
+\begin{description}
+  \item[(144)] \textbf{Not everybody}\textsc{-n} \textbf{agrees} with\textsc{-adp} me on this. 3, 37 \rightarrow \textbf{No} todo\textsc{-det} el \textbf{mundo está}\textsc{-aux} de \textbf{acuerdo}\textsc{-*v}/\textsc{n}\textbf{ conmigo}\textsc{-*aux/adp}\textbf{ sobre}\textsc{-*v/adp} esto. 6, 52
+
+    313.26 [+3 lexical words] (3 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): agree-\textsc{v} (1) \rightarrow está-\textsc{v} de acuerdo-*\textsc{v/n} (2)
+      \item False shift POS (+1): with-\textsc{adp} \rightarrow conmigo\textsc{-*aux/adp}
+      \item False shift POS (+1): \ on-\textsc{adp} \rightarrow sobre, sobrar-*\textsc{v/adp}
+    \end{enumerate}
+
+  \item[(177)] that \textbf{is how}\textsc{-adv} we \textbf{got health care} for \textbf{more}\textsc{-adj} of our \textbf{people. }7, 54 \rightarrow \textbf{Es como}\textbf{\textsc{-}}\textsc{*aux/conj} \textbf{conseguimos servicios} de \textbf{salud para}-*\textsc{v/adp} una \textbf{mayor cantidad} de \textbf{personas}\textbf{\textsc{-*v/n}} del \textbf{país}. 10, 84
+
+    165.63 [+3 lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item Antinomic false shift POS (-1): how-\textsc{adv} \rightarrow como\textsc{-*aux/conj}
+      \item False shift POS (+1): for-\textsc{adp} \rightarrow para, parir-*\textsc{v/adp}
+      \item Free shift (+1): more-\textsc{adj} (1) \rightarrow mayor\textsc{-adj} cantidad-\textsc{n} (2)
+      \item Free shift (+1): people-\textsc{n} (1) \rightarrow personas\textsc{-*v/n} del país-\textsc{n} (2) [DeepL: \textit{… para más de nuestra gente.}]
+    \end{enumerate}
+
+  \item[(191)] And we -- like\textsc{-adp} every\textsc{-det} \textbf{country} -- \textbf{need} the \textbf{space} that \textbf{democracy gives} us to \textbf{change}. 6, 81 \rightarrow Y nosotros -- \textbf{al}\textsc{-*v/adp+det} \textbf{igual}\textsc{-*adv/n} que todos\textsc{-det} los \textbf{países} -- \textbf{necesitamos} el \textbf{espacio} que la \textbf{democracia} nos\textsc{-*adv/pron} \textbf{da}\textsc{-aux} \textbf{para}\textsc{-*aux/adp} \textbf{cambiar.} 10, 104
+
+    152.58 [+4 lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): like-\textsc{adp} (1) \rightarrow al-*\textsc{v/adp+det} igual-*\textsc{adv/n} (loc adv) (*2/1)
+      \item False shift POS (+1): Ø \rightarrow al*\textsc{v/adp+det}
+      \item False shift POS (+1): us-\textsc{pron} \rightarrow nos, no\textsc{-*adv/pron}
+      \item False shift POS (+1): to\textsc{-adp} \rightarrow para, parir-*\textsc{aux/adp}
+    \end{enumerate}
+
+  \item[(46)] We \textbf{have welcomed} both\textsc{-det} \textbf{immigrants} who \textbf{came} a \textbf{great distance} to \textbf{start new lives} in the \textbf{Americas.} 10, 94 \rightarrow \textbf{Ambos}\textsc{-num} \textbf{hemos} \textbf{abierto} nuestras \textbf{puertas} a \textbf{inmigrantes} que \textbf{recorrieron grandes} \textbf{distancias}\textsc{-*aux/n}\textbf{ para}\textsc{-*aux/adp}\textbf{ empezar vidas nuevas} en el \textbf{continente americano.} 14, 139
+
+    134.12 [+4 lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (+1): both-\textsc{det} \rightarrow ambos\textsc{-num}
+      \item Free shift (+1): have welcomed (2) \rightarrow hemos abierto puertas (3) [DeepL: \textit{hemos acogido a ambos inmigrantes \dots}]
+      \item False shift POS (+1): to-\textsc{adp} \rightarrow para, parir-*\textsc{aux/adp}
+      \item Free shift (+1): Americas (1) \rightarrow continente americano (2) [DeepL : \textit{\dots en las Américas.]}
+    \end{enumerate}
+
+  \item[(157)] I \textbf{welcome} this \textbf{open debate} and \textbf{dialogue.} 4, 40 \rightarrow \textbf{estoy dispuesto} a \textbf{tener} este \textbf{debate} y \textbf{diálogo abierto.} 6, 54
+
+    134.12 [+2 lexical words] (1 shift)
+
+    \begin{enumerate}
+      \item Free shift (+2): welcome-\textsc{v} (1) \rightarrow estoy-\textsc{v} dispuesto-\textsc{adj} a tener-\textsc{v} (3) [DeepL: \textit{Me complace este \dots\ }]
+    \end{enumerate}
+
+  \item[(183)] You \textbf{can see} that in the \textbf{election going} on \textbf{back}\textsc{-adv} \textbf{home}\textsc{-*adv/n}. 6, 52 \rightarrow Lo \textbf{podemos apreciar} en las \textbf{elecciones} que \textbf{están} en \textbf{curso ahora}\textsc{-adv} \textbf{mismo}\textsc{-adj} en mi \textbf{país.} 8, 80
+
+    123.81 [+2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Free shift (+3): going-\textsc{v} (1) \rightarrow están-\textsc{v} en curso-\textsc{n} ahora-\textsc{adv} mismo-\textsc{adj} (4)
+      \item Antinomic free shift (-1): back-\textsc{adv} home-*\textsc{adv/n} (2) \rightarrow en mi país (1) [DeepL : \textit{… que se están llevando a cabo}\textsc{-loc-adv}\textit{ en casa.}]
+    \end{enumerate}
+
+  \item[(38)] I \textbf{want} to \textbf{be clear:} 3, 19 \rightarrow \textbf{Quiero dejar} una \textbf{cosa clara}: 4, 28
+
+    111.83 [+1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Free shift (+1): be clear-\textsc{v} (2) \rightarrow dejar-\textsc{v} una cosa-\textsc{n} clara-\textsc{adj} (3) [DeepL : \textit{Quiero ser claro:}]
+    \end{enumerate}
+
+  \item[(145)] \textbf{Not everybody}\textsc{-n} \textbf{agrees} with the \textbf{American people} on this. 5, 54 \rightarrow \textbf{No} todo el \textbf{mundo está} de \textbf{acuerdo} con el \textbf{pueblo estadounidense} \textbf{sobre}\textsc{-*v/adp} esto. 7, 73
+
+    106.34 [+2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): agree-\textsc{v} (1) \rightarrow está-\textsc{v} de acuerdo-\textsc{n} (2)
+      \item False shift POS (+1): on-\textsc{adp} \rightarrow sobre, sobrar-*\textsc{v/adp}
+    \end{enumerate}
+
+  \item[(113)] It \textbf{is} an \textbf{outdated burden} on the \textbf{Cuban people.} 5, 45 \rightarrow \textbf{Es} una \textbf{carga anticuada} que \textbf{lleva} a \textbf{cuestas} el \textbf{pueblo cubano.} 7, 60
+
+    101.61 [+2 lexical words] (1 shift)
+
+    \begin{enumerate}
+      \item Free shift (+2): on-\textsc{adp} (0) \rightarrow llevar-\textsc{v} a cuestas-\textsc{n} (2) [DeepL : \textit{… anticuada para el pueblo cubano.}]
+    \end{enumerate}
+
+  \item[(122)] It \textbf{is} up to you. 1, 16 \rightarrow Eso \textbf{es cosa} suya. 2, 17
+
+    83.47 [+1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Free shift (+1): is-\textsc{v} up (1) \rightarrow es-\textsc{v} cosa-\textsc{n} (2) [DeepL : \textit{Depende de usted.}]
+    \end{enumerate}
+
+  \item[(41)] But before\textsc{-adp} I \textbf{discuss} those \textbf{issues}, we \textbf{also}\textbf{\textsc{-adv}} \textbf{need} to \textbf{recognize how}\textbf{\textsc{-adv}} \textbf{much}\textbf{\textsc{-adj}} we \textbf{share.} 8, 79 \rightarrow Pero \textbf{antes}\textsc{-adv} de \textbf{hablar sobre}-*\textsc{v/adp} esos \textbf{temas}, \textbf{también}\textsc{-adv} \textbf{es} nuestro \textbf{deber reconocer} \textbf{cuánto}\textsc{-adj} \textbf{tenemos} en \textbf{común.} 11, 98
+
+    71.63 [+3 lexical words] (5 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): before-\textsc{adp} \rightarrow antes-\textsc{adv}
+      \item False shift POS (+1): Ø \rightarrow sobre, sobrar-*\textsc{v/adp}
+      \item Free shift (+1): we need-\textsc{v} (1) \rightarrow es-\textsc{v} nuestro deber-\textsc{n} (2) [DeepL: \dots\ \textit{también necesitamos reconocer cuánto compartimos.}]
+      \item Antinomic fixed shift (-1): how-\textsc{adv} much-\textsc{adv} (2) \rightarrow cuánto-\textsc{adj} (1)
+      \item Free shift (+1): share-\textsc{v} (1) \rightarrow tenemos-\textsc{v} en común-\textsc{n (2)}
+    \end{enumerate}
+
+  \item[(27)] The \textbf{blue waters} beneath-\textsc{adp} \textbf{Air Force One} \textbf{once}\textsc{-adv} \textbf{carried American battleships} to this \textbf{island} -- to \textbf{liberate}, but \textbf{also}\textsc{-adv} to \textbf{exert control} over \textbf{Cuba.} 15, 139 \rightarrow Las \textbf{aguas azuladas bajo}\textsc{-*v/adj} \textbf{Air Force One transportaron} en su \textbf{día} los \textbf{barcos} de \textbf{batalla estadounidenses} hasta esta \textbf{isla, para}\textsc{-*aux/adp} \textbf{liberar} pero\textsc{-conj} \textbf{también}\textsc{-adv} \textbf{para}\textsc{-*aux/adp} \textbf{ejercer control sobre}\textsc{-*v/adp}\textbf{ Cuba.} 20, 175
+
+    67.31 [+5 lexical words] (5 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): beneath-\textsc{adp} \rightarrow baja, bajar-*\textsc{v/adj }[confirmed with DeepL: \textit{\dots\ bajo \dots}]
+      \item False shift POS (+1): to-\textsc{adp} \rightarrow para, parir-*\textsc{aux/adp}
+      \item False shift POS (+1): to-\textsc{adp} \rightarrow para, parir-*\textsc{aux/adp}
+      \item False shift POS (+1): over-\textsc{adp} \rightarrow sobre, sobrar-*\textsc{v/adp}
+      \item Free shift (+1): battleships-\textsc{n} (1) \rightarrow barcos-\textsc{n} de batalla-\textsc{n} (2) [DeepL: \textit{\dots\ acorazados \dots}]
+    \end{enumerate}
+
+  \item[(190)] \textbf{Not} because \textbf{American}\textsc{-adj} \textbf{democracy is perfect}, but \textbf{precisely} because we \textbf{are not}. 8, 76 \rightarrow \textbf{No} porque \textbf{pienso} que la \textbf{democracia} en \textbf{Estados}\textsc{-propn}\textbf{ Unidos}\textsc{-propn}\textbf{ sea perfecta}, sino \textbf{precisamente} porque \textbf{no} lo \textbf{somos}. 10, 104
+
+    66.67 [+2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Free shift (+1): Ø \rightarrow pienso-\textsc{v}
+      \item Free shift (+1): American-\textsc{adj} (1) \rightarrow Estados\textsc{-propn} Unidos-\textsc{propn} (2) [DeepL: \textit{No porque la democracia americana sea perfecta \dots}]
+    \end{enumerate}
+
+  \item[(155)] He \textbf{has} a \textbf{much}\textsc{-adv} \textbf{longer}\textsc{-adj} \textbf{list}\textbf{\textsc{-n}}. 4, 26 \rightarrow Él \textbf{tiene} una \textbf{mucho}\textsc{-adv} \textbf{más}\textsc{-adv} \textbf{lista}\textbf{\textsc{-n}} \textbf{larga}\textsc{-adj}. 5, 35
+
+    63.25 [+1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): much-\textsc{adv} (1) \rightarrow mucho-\textsc{adv} más-\textsc{adv} (2)
+    \end{enumerate}
+
+  \item[(128)] Before \textbf{1959}, some \textbf{Americans saw Cuba} as\textsc{-adp} \textbf{something}\textsc{-n} to \textbf{exploit, ignored poverty, enabled corruption}. 10, 98 \rightarrow Y desde \textbf{1959,} algunos\textsc{-pron} \textbf{estadounidenses veían Cuba como}\textsc{-v} un \textbf{lugar} del que se \textbf{podían aprovechar}, \textbf{ignoraron} la \textbf{pobreza} y \textbf{permitieron} la \textbf{corrupción}. 12, 142
+
+    61.40 [+2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (+1): as-\textsc{adp} \rightarrow como, comer-*\textsc{v/adp}
+      \item Free shift (+1): something-\textsc{n} to exploit-\textsc{v} (2) \rightarrow lugar-\textsc{n} del que se podían-\textsc{v} aprovechar-\textsc{v} (3) [DeepL: \textit{\dots\ como algo para explotar \dots}]
+    \end{enumerate}
+
+  \item[(129)] And since\textsc{-adp} \textbf{1959}, we \textbf{have been shadow-boxers} in this \textbf{battle} of \textbf{geopolitics} and \textbf{personalities.} 8, 91 \rightarrow Desde\textsc{-adp} \textbf{1959, hemos} \textbf{sido como}\textsc{-*v/adp} \textbf{boxeadores} con un \textbf{con\-trin\-can\-te}-*\textsc{adv/n} \textbf{imaginario} en esta \textbf{batalla} de \textbf{geopolítica} y \textbf{personalidades.} 10, 118
+
+    55.43 [+2 lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (+1): Ø \rightarrow como, comer-*\textsc{v/adp}
+      \item Free shift (+1): shadow-boxers-\textsc{n} (2) \rightarrow boxeadores-\textsc{n} con un contrincante-*\textsc{adv/n} imaginario-\textsc{adj} (3) [DeepL: \textit{\dots\ hemos sido boxeadores en la sombra en esta batalla \dots}]
+    \end{enumerate}
+
+  \item[(45)] Like\textsc{-adp} the \textbf{United States,} the \textbf{Cuban people can trace} their \textbf{heritage} to both \textbf{slaves} and \textbf{slave-owners}. 10, 98 \rightarrow Al \textbf{igual}\textsc{-*adj/n} que en \textbf{Estados Unidos}, el \textbf{pueblo cubano puede encontrar} sus \textbf{orígenes tanto}\textsc{-*adv/pron} en los \textbf{esclavos}\textsc{-*pron/n}\textbf{ como}\textsc{-*v/cconj} en los \textbf{dueños} de los \textbf{esclavos}\textsc{-adj}. 12, 135
+
+    53.21 [+2 lexical words] (5 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): like-\textsc{adp} (0) \rightarrow Al igual\textsc{-*adj/n} \textsc{(1)}
+      \item False shift POS (+1): both-\textsc{det }\rightarrow tanto\textsc{-*adv/pron}
+      \item Antinomic false shift POS (-1): slaves\textsc{-n }\rightarrow esclavos-*\textsc{pron/n}
+      \item False shift POS (+1): \ and-\textsc{cconj }\rightarrow como, comer-*\textsc{v/cconj}
+      \item Undetected fixed shift [+1]: slave-owners-\textsc{n} (*2/1) \rightarrow dueños-\textsc{n} de los esclavos-\textsc{n} (2)
+    \end{enumerate}
+
+  \item[(91)] \textbf{Hope} that \textbf{is rooted} in the \textbf{future} that you\textsc{-pron} \textbf{can choose} and that you\textsc{-pron} \textbf{can shape}, and that you\textsc{-pron} \textbf{can build} for your \textbf{country}. 11, 118 \rightarrow \textbf{Esperanza} que \textbf{tiene} una \textbf{base} en el \textbf{futuro} que \textbf{ustedes}\textsc{-*n/pron} \textbf{pueden elegir;} que \textbf{ustedes}\textsc{-*n/pron} \textbf{pueden moldear}; que \textbf{ustedes}\textsc{-*n/pron} \textbf{pueden construir} \textbf{para}\textsc{-*v/adp} su \textbf{país.} 15, 139
+
+    53.15 [+4 lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (+1): you\textsc{-pron} \rightarrow ustedes, vosotros\textsc{-*n/pron}
+      \item False shift POS (+1): you\textsc{-pron} \rightarrow ustedes, vosotros\textsc{-*n/pron}
+      \item False shift POS (+1): you\textsc{-pron} \rightarrow ustedes, vosotros\textsc{-*n/pron}
+      \item False shift POS (+1): \ for\textsc{-adp} \rightarrow para, parir\textsc{-*v/adp}
+    \end{enumerate}
+
+  \item[(70)] We \textbf{have begun initiatives} to \textbf{cooperate} on \textbf{health} and \textbf{agriculture}, \textbf{education} and \textbf{law enforcement}. 9, 96 \rightarrow \textbf{Hemos lanzado iniciativas para}\textsc{-*v/adp} \textbf{cooperar} en \textbf{temas}\textsc{-*v/n} de \textbf{salud} y \textbf{agricultura}, \textbf{educación} y \textbf{autoridades} del \textbf{orden público}. 12, 115
+
+    53.13 [+3 lexical words] (3 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (+1): to\textsc{-adp} \rightarrow para, parir\textsc{-*v/adp}
+      \item False shift POS (+1): Ø \rightarrow temas, temer\textsc{-*v/n}
+      \item Free shift (+1): law enforcement (2) \rightarrow autoridades del orden público (3) [DeepL: \dots\ \textit{la aplicación de la ley.}]
+    \end{enumerate}
+
+  \item[(25)] \textbf{Havana is only 90 miles} from \textbf{Florida}, but to \textbf{get here}\textsc{-adv} we \textbf{had} to \textbf{travel} a \textbf{great distance} -- over \textbf{barriers} of \textbf{history} and \textbf{ideology}; 15, 129 \rightarrow La \textbf{Habana} se \textbf{encuentra} \textbf{tan}\textsc{-*n/adv} \textbf{solo}\textsc{-*n/adv} a \textbf{90 millas} de \textbf{Florida}, pero \textbf{para}\textsc{-*aux/adp} \textbf{llegar} hasta \textbf{aquí tuvimos} que \textbf{recorrer} una \textbf{gran distancia: derribar}\textsc{-v} las \textbf{barreras} de la \textbf{historia} y la \textbf{ideología}; 18, 177
+
+    52.56 [+3 lexical words] (3 shifts)
+
+    \begin{enumerate}
+      \item Free shift (+1): only-\textsc{adv} \rightarrow tan\textsc{-*n/adv} solo\textsc{-*n/adv} [DeepL: \textit{La Habana está a sólo 90 millas \dots}]
+      \item False shift POS (+1): to-\textsc{adp} \rightarrow para, parir\textsc{-*aux/adp}
+      \item Free shift (+1): over-\textsc{adp} \rightarrow derribar-\textsc{v} ) [DeepL: \dots\ \textit{por encima de las barreras de la \dots}]
+    \end{enumerate}
+
+  \item[(135)] But \textbf{having removed} the \textbf{shadow} of \textbf{history} from our \textbf{relationship}, I \textbf{must speak honestly} about the \textbf{things} that I \textbf{believe} -- the \textbf{things} that we, as \textbf{Americans}, \textbf{believe}. 13, 63 \rightarrow Pero \textbf{ahora}\textsc{-adv} que \textbf{hemos quitado} la \textbf{sombra} de la \textbf{historia} de nuestra \textbf{relación}, \textbf{debo} \textbf{hablar honestamente sobre}-*\textsc{v/adp} las\textbf{ cosas} en las que yo \textbf{creo} {--}-\textsc{*aux/punct} las cosas en las que nosotros, \textbf{como}-*\textsc{v/adp}\textbf{ estadounidenses}, \textbf{creemos}. 17, 198
+
+    52.35 [+4 lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item Free shift (+1): Ø \rightarrow ahora\textsc{-adv} [DeepL: \textit{Pero habiendo eliminado la sombra \dots}]
+      \item False shift POS (+1): about-\textsc{adp} \rightarrow sobre, sobrar-*\textsc{v/adp}
+      \item False shift POS (+1): -- \rightarrow {--}-\textsc{*aux/punct}
+      \item False shift POS (+1): as-\textsc{adp} \rightarrow como, comer-*\textsc{v/adp}
+    \end{enumerate}
+\end{description}
+
+Sample B contains 59 information shifts in total with 30 false shifts POS, 8 fixed shifts, and 21 free shifts. For all types of shifts, 4 antinomic shifts and 1 undetected shift were found. By comparison with sample A, we can see that free shifts are more than two times the number of fixed shifts, which were two times more numerous than the former in sample A. Here is a brief overview of the trend we can observe from the annotations. A lot of the numerous positive free shifts seem to be associated with some form of mandatory and translation-inherent explicitations (see \textcite{blum-kulka86} who proposed the explicitation hypothesis, as well as the work of \textcites{becher10}{becher11} who rejected the hypothesis and the more recent synthesis article by \textcite{murtisari16} on the concept of explicitation in translation studies). One example is the periphrastic translation of \textit{shadow-boxers} with \textit{boxeadores con un contrincante imaginario} in pair 129 or the creative translation of \textit{battleship} with \textit{barcos de batallas} in pair 27. A good example of \enquote{political} explicitness that tends to reduce a statement is found in pair 190 when President Obama state that American democracy could be seen as \enquote{perfect} (even though he clearly states that this is not the case). The translation makes explicit that the statement is its own way of thinking by adding the verb phrase \textit{pienso que}. As regards the eight positive fixed shifts, these are mostly the opposite operations that were described in the analysis of sample A negative fixed shifts, such as the addition of an adverb or the translation of a preposition by an adverb as in pair 41. These last data validate the existence of mandatory explicitations and implicitations processes that are symmetrical and dependent from syntactic and lexical structures of languages \parencite[see][]{klaudy11}.
+
+\subsection{Sample C annotations -- most isomorphic and less heteromorphic pairs}\label{ep:sac}
+
+This section contains the manual analysis and annotations of sample C segments for the classification of information shifts observed in the most isomorphic and least heteromorphic segment pairs. Translation pairs all have near-zero weighted Euclidean distance and are presented from the highest negative weighted Euclidean distance (-0.42) to the highest positive weighted Euclidean distance (1.29).
+
+\begin{description}
+  \item[(176)] But \textbf{democracy is} the \textbf{way} that we \textbf{solve} them. 4, 44 \rightarrow Pero la \textbf{democracia es} la \textbf{forma} de \textbf{cambiarlos}. 4, 45
+
+    --0.42 [0 difference in lexical words] (0 shift)
+
+  \item[(104)] \textbf{Look} at \textbf{Papito Valladeres,} a \textbf{barber}, whose\textsc{-det} \textbf{success allowed} him to \textbf{improve conditions} in his \textbf{neighborhood}. 9, 105 \rightarrow Miren a Papito Valladeres, un barbero, cuyo\textsc{-pron} \textbf{éxito} le \textbf{permitió mejorar} las \textbf{condiciones} en su \textbf{vecindario}. 9, 103
+
+    --0.36 [0 difference in lexical words] (0 shifts)
+
+  \item[(133)] We \textbf{will not impose} our \textbf{political} or \textbf{economic system} on you. 6, 59 \rightarrow \textbf{No vamos} a \textbf{imponerles} nuestro \textbf{sistema político} ni económico. 6, 60
+
+    --0.31 [0 difference in lexical words] (0 shifts)
+
+  \item[(18)] We \textbf{will}\textsc{-v} \textbf{do} whatever \textbf{is necessary} to \textbf{support} our \textbf{friend} and \textbf{ally}, \textbf{Belgium}, in \textbf{bringing} to \textbf{justice} those who \textbf{are responsible}. 12, 123 \rightarrow \textbf{Haremos} lo que \textbf{sea necesario para}\textsc{-*aux/adp} \textbf{apoyar} a nuestra \textbf{amiga} y \textbf{aliada}, \textbf{Bélgica,} \textbf{para}\textsc{-*aux/adp} \textbf{ajusticiar}\textsc{-v} a aquellos que \textbf{sean responsables}. 12, 125
+
+    --0.30 [0 difference in lexical words] (4 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): will\textsc{-v} do\textsc{-v} (2) \rightarrow haremos\textsc{-v} (1)
+      \item False shift POS (+1): to\textsc{-adp}\textbf{ }\rightarrow para\textsc{-*aux/adp}
+      \item False shift POS (+1): in\textsc{-adp}\textbf{ }\rightarrow para\textsc{-*aux/adp}
+      \item Free shift (-1): bringing\textsc{-v} to justice\textsc{-n} (2) \rightarrow ajusticiar\textsc{-v} (1) [DeepL: \textit{\dots, para llevar a la justicia a los responsables.}]
+    \end{enumerate}
+
+  \item[(234)] And I \textbf{have come here}\textsc{-adv} -- I \textbf{have traveled} this \textbf{distance} -- on a \textbf{bridge} that \textbf{was built} by \textbf{Cubans} on both\textsc{-det} \textbf{sides} of the \textbf{Florida Straits}. 13, 131 \rightarrow Y \textbf{he venido aquí}\textsc{-adv} -- he\textsc{-*adp} \textbf{viajado} esta \textbf{distancia} -- \textbf{sobre}\textsc{-*v/adp} un \textbf{puente construido}\textsc{-adj} por los \textbf{cubanos} a \textbf{ambos}\textsc{-num} \textbf{lados} del \textbf{Estrecho} de la \textbf{Florida}. 13, 129
+
+    --0.29 [0 difference in lexical words] (4 shifts)
+    
+    \begin{enumerate}
+      \item False shift POS (-1): have\textsc{-aux} \rightarrow -he\textsc{-*adp/aux}
+      \item False shift POS s(+1): on\textsc{-adp} \rightarrow sobre, sobrars\textsc{-*v/adp}
+      \item Free shift (-1): was\textsc{-aux} built\textsc{-v} (2) \rightarrow construido\textsc{-adj} (1) [DeepL: \textit{\dots\ en un puente que fue construido por \dots}]
+      \item Fixed shift (+1): both\textsc{-det} \rightarrow ambos\textsc{-num} [DeepL: \textit{\dots\ a ambos lados del Estrecho de Florida.}]
+    \end{enumerate}
+
+  \item[(216)] I \textbf{know} that \textbf{many}\textsc{-adj} of the \textbf{issues} that I \textbf{have talked} about \textbf{lack }the \textbf{drama} of the \textbf{past}. 8, 83 \rightarrow \textbf{Sé} que \textbf{muchos}\textsc{-adv} de los \textbf{problemas} de los que \textbf{he hablado carecen} del \textbf{drama} del \textbf{pasado.} 8, 82
+
+    --0.23 [0 difference in lexical words] (0 shift)
+
+  \item[(208)] We \textbf{took different journeys} to our \textbf{support} for the \textbf{people} of \textbf{South Africa} in \textbf{ending apartheid.} 9, 93 \rightarrow \textbf{Tomamos diferentes pasos} en nuestro \textbf{apoyo} al \textbf{pueblo} de \textbf{Sudáfrica para}\textsc{-*aux/adp} \textbf{acabar} con el \textbf{apartheid}. 9, 94
+
+    --0.20 [0 difference in lexical words] (2 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): South Africa (2) \rightarrow Sudáfrica (1)
+      \item False shift POS (+1): in ADP \rightarrow para\textsc{-*aux/adp}
+    \end{enumerate}
+
+  \item[(201)] But\textsc{-conj} no\textsc{-det} one \textbf{should deny} the \textbf{service} that \textbf{thousands} of \textbf{Cuban doctors have delivered} for the \textbf{poor} and \textbf{suffering}. 10, 109 \rightarrow Pero\textsc{-conj} nadie\textsc{-pron} \textbf{debe negar} el \textbf{servicio} que \textbf{miles} de \textbf{médicos cubanos han prestado} a los \textbf{pobres} y a los que \textbf{sufren}. 10, 108
+
+    --0.17 [0 difference in lexical words] (0 shift)
+
+  \item[(84)] \textbf{Creo} en el \textbf{pueblo Cubano.} 3, 25 \rightarrow \textbf{Creo} en el \textbf{pueblo cubano.} 3, 25
+
+    0,00 [0 difference in lexical words] (0 shift)
+
+  \item[(86)] This \textbf{is not just}-\textsc{adv} a \textbf{policy} of \textbf{normalizing relations} with the \textbf{Cuban government}. 8, 77 \rightarrow Esto \textbf{no es solo}\textsc{-adj} una \textbf{política} de \textbf{normalizar relaciones} con el \textbf{gobierno Cubano}; 8, 77
+
+    0.00 [0 difference in lexical words] (0 shift)
+
+  \item[(102)] \textbf{Look} at \textbf{Sandra Lidice Aldama,} who \textbf{chose} to \textbf{start} a \textbf{small} \textbf{business}. 8, 66 \rightarrow \textbf{Miren} a \textbf{Sandra Lidice Aldama}, que \textbf{eligió abrir} un \textbf{pequeño negocio.} 8, 66
+
+    0.00 [0 difference in lexical words] (0 shift)
+
+    \begin{enumerate}
+      \item Note: This is the central pair of isomorphic segments, being exactly in the middle of two other isomorphic segment pairs.
+    \end{enumerate}
+
+  \item[(151)] \textbf{the death penalty;} 2, 18 \rightarrow la \textbf{pena} de \textbf{muerte}; 2, 18 
+
+    0.00 [0 difference in lexical words] (0 shift)
+
+  \item[(66)] \textbf{Cuba has emphasized} the \textbf{role} and \textbf{rights} of the\textbf{ state}; 6, 53 \rightarrow \textbf{Cuba ha reforzado} el \textbf{papel} y los \textbf{derechos} del \textbf{estado;} 6, 53
+
+    0.00 [0 difference in lexical words] (0 shift)
+
+  \item[(197)] And \textbf{given}-\textsc{v} your \textbf{commitment} to \textbf{Cuba’s}\textsc{-*propn/poss} \textbf{sovereignty} and \textbf{self-determination}, I \textbf{am also}\textsc{-adv} \textbf{confident} that you \textbf{need not fear} the \textbf{different voices} of the \textbf{Cuban people} -- and their \textbf{capacity} to \textbf{speak,} and \textbf{assemble}, and \textbf{vote} for their \textbf{leaders}. 22, 229 \rightarrow \textbf{Teniendo} en \textbf{cuenta}\textsc{-*v/n} su \textbf{compromiso} con la \textbf{soberanía} y la \textbf{autodeterminación} de \textbf{Cuba, también}\textsc{-adv} \textbf{estoy seguro} de que \textbf{no tiene} que \textbf{temer} las \textbf{diferentes voces} del \textbf{pueblo cubano} -- y\textsc{-*adj/cconj} su \textbf{capacidad} par\textsc{-*v/adp} \textbf{hablar,} y \textbf{reunirse}, y \textbf{votar} por sus \textbf{líderes.} 23, 233
+
+    0.42 [+1 lexical word] (5 shifts)
+
+    \begin{enumerate}
+      \item Free shift (+1): given\textsc{-v} (1)~\rightarrow teniendo-\textsc{v} en cuenta\textsc{-*v/n} (2) [DeepL: Y dado su compromiso con la soberanía \dots]
+      \item False shift POS (-1): ‘s-\textsc{*propn/poss} \rightarrow de\textsc{-adp}
+      \item False shift POS (-1): self-determination (2) \rightarrow autoderminación (1)
+      \item False shift POS (+1): -- and\textsc{-adp} \rightarrow -- y\textsc{-*adj/cconj}
+      \item False shift POS (+1): to\textsc{-adp} \rightarrow para\textsc{-*v/adp}
+    \end{enumerate}
+
+  \item[(236)] And I \textbf{know how}\textsc{-adv} they \textbf{have suffered more}\textsc{-adj} than the \textbf{pain} of \textbf{exile} -- they also \textbf{know} what it \textbf{is} like\textsc{-adp} to \textbf{be} an \textbf{outsider,} and to \textbf{struggle}, and to \textbf{work harder} to \textbf{make sure} their \textbf{children can reach higher} in \textbf{America}. 22, 207 \rightarrow Y \textbf{sé} que \textbf{han sufrido más}\textsc{-adv} que el \textbf{dolor} del \textbf{exilio: saben} lo que se \textbf{siente} al \textbf{ser} un \textbf{extraño}, al \textbf{luchar}, al \textbf{trabajar} más\textsc{-adv} duro\textsc{-*aux/adj} para\textsc{-*v/adp} \textbf{asegurarse} de que sus \textbf{hijos puedan llegar más}\textsc{-adv} \textbf{lejos}\textsc{-adv} en los \textbf{Estados Unidos.} 23, 203
+
+    0.47 [1 lexical word] (5 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (-1): how\textsc{-adv (1)} \rightarrow que\textsc{-sconj (0)}
+      \item Fixed shift (+1): harder\textsc{-adj} (1) \rightarrow más\textsc{-adv} duro\textsc{-*aux/adj} (2)
+      \item False shift (+1): to\textsc{-adp} \rightarrow para\textsc{-*v/adp}
+      \item Fixed shift (+1): higher\textsc{-adj} (1) \rightarrow más\textsc{-adv} lejos\textsc{-adv} (2)
+      \item Fixed shift (-1): make\textsc{-v} sure\textsc{-adj} \rightarrow asegurarse\textsc{-v}
+      \item Free shift (+1): America\textsc{-propn} \rightarrow Estados\textsc{-propn} Unidos\textsc{-propn} [DeepL: \textit{\dots más alto en América.}]
+    \end{enumerate}
+
+  \item[(162)] But, in \textbf{America}, it \textbf{is} still\textsc{-adv} possible\textsc{-adj} for \textbf{somebody}-*\textsc{n/pron} like\textsc{-adp} me -- a \textbf{child} who \textbf{was raised} by a \textbf{single mom,} a \textbf{child} of \textbf{mixed race} who \textbf{did not} \textbf{have} a \textbf{lot} of \textbf{money} -- to \textbf{pursue} and \textbf{achieve} the \textbf{highest}\textsc{-adj} \textbf{office} in the \textbf{land.} 23, 212 \rightarrow Pero en \textbf{EEUU}, \textbf{todavía}\textsc{-adv} \textbf{es posible} que alguien\textsc{-pron} \textbf{como}\textbf{\textsc{-}}\textsc{*v} yo, un \textbf{niño} que \textbf{fue criado} por una \textbf{madre soltera}, un \textbf{niño} de \textbf{raza mixta} que \textbf{no tenía} mucho\textsc{-det} \textbf{dinero, pueda}\textbf{\textsc{-v}} \textbf{ir}\textsc{-v} \textbf{atrás}\textsc{-adv} de y \textbf{conseguir} el \textbf{cargo más alto} del \textbf{país}. 24, 206
+
+    0.63 [1 lexical word] (6 shifts)
+
+    \begin{enumerate}
+      \item False shift POS (-1): somebody-*\textsc{n/pron} \rightarrow alguien-\textsc{pron}
+      \item False shift POS (+1): like-\textsc{adp} \rightarrow como-*\textsc{v/adp}
+      \item Fixed shift (-1): did not have (3) \rightarrow no tenía (2)
+      \item False shift POS (-1): a lot-\textsc{n} \rightarrow mucho\textsc{-*det/adj}
+      \item Free shift (+2): pursue-\textsc{v (1)} \rightarrow pueda-\textsc{aux} ir-\textsc{v} atrás\textsc{-adv} de (3) [DeepL: \textit{\dots persiga y logre el cargo más alto de la tierra.}]
+      \item Fixed shift (+1): highest\textsc{-adj} \rightarrow más\textsc{-adv} alto\textsc{-adj}
+    \end{enumerate}
+
+  \item[(209)] But \textbf{President Castro} and I \textbf{could} both\textsc{-det} \textbf{be there}\textbf{\textsc{-adv}} in \textbf{Johannesburg} to\textsc{-adp} \textbf{pay tribute} to the \textbf{legacy} of the \textbf{great Nelson} \textbf{Mandela}. 12, 120 \rightarrow Pero el \textbf{presidente Castro} y yo \textbf{pudimos estar allí}\textsc{-adv} en \textbf{Johannesburgo para}\textsc{-*aux}\textbf{/}\textsc{adp} \textbf{rendir homenaje} al \textbf{legado} de \textbf{gran Nelson Mandela.} 13, 121
+
+    0.69 [1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item False shift POS (+1): to\textsc{-adp} \rightarrow para\textsc{-*aux}\textbf{/}\textsc{adp}
+    \end{enumerate}
+
+  \item[(136)] As \textbf{Marti said, “}\textsc{-*propn/punct} \textbf{Liberty is} the \textbf{right} of every\textsc{-det} \textbf{man} to \textbf{be honest}, to \textbf{think} and to \textbf{speak} without \textbf{hypocrisy.”}\textsc{-punct} 12, 105 \rightarrow Como \textbf{dijo Martí: “}\textsc{-*propn/punct} La \textbf{libertad es} el \textbf{derecho} de todo\textsc{-det} \textbf{hombre} a \textbf{ser honesto, pensar} y \textbf{hablar} sin \textbf{hipocresía”}\textsc{-*n/punct}\textbf{.} 13, 106
+
+    0.74 [1 lexical word] (1 shift)
+
+    \begin{enumerate}
+      \item False shift POS (+1): \textsc{ }hypcocrisy.-\textsc{punct} \rightarrow hipocresía\textsc{-*n/punct}
+    \end{enumerate}
+
+  \item[(214)] From the \textbf{beginning} of my \textbf{time}\textsc{-n} in \textbf{office,} I \textbf{have urged} the \textbf{people} of the \textbf{Americas} to \textbf{leave} behind\textsc{-adp} the \textbf{ideological battles} of the \textbf{past}. 11, 133 \rightarrow Desde el \textbf{inicio} de mi \textbf{mandato, he instado} a los \textbf{pueblos} del \textbf{continente americano a dejar atrás}\textsc{-adv} las \textbf{batallas ideológicas} del\textbf{ pasado}. 12, 131
+
+    1.16 [1 lexical word] (3 shifts)
+
+    \begin{enumerate}
+      \item Free shift (-1): time\textsc{-n} in office-\textsc{n} \rightarrow mandato-\textsc{n }[DeepL: \textit{Desde el principio de mi tiempo en la oficina \dots}]
+      \item Free shift (+1): Americas (1) \rightarrow continente americano (2) [DeepL: \textit{He instado a los pueblos de América \dots}]
+      \item Fixed shift (+1): leave-\textsc{v} behind\textsc{-adp} (1) \rightarrow dejar-\textsc{v} atrás-\textsc{adv} (2)
+    \end{enumerate}
+
+  \item[(210)] And in \textbf{examining} his \textbf{life} and his \textbf{words}, I \textbf{am sure} we both\textsc{-det} \textbf{realize} we \textbf{have more}\textsc{-adj} \textbf{work} to \textbf{do} to \textbf{promote equality} in our \textbf{own}\textsc{-adj}\textbf{ countries} -- to-\textsc{adp} \textbf{reduce discrimination based} on \textbf{race} in our \textbf{own}\textsc{-adj} \textbf{countries.} 20, 195 \rightarrow Y al \textbf{examinar} su \textbf{vida} y sus \textbf{palabras, estoy seguro} de que \textbf{ambos}\textsc{-num} \textbf{nos}\textsc{-*adv/pron} \textbf{damos}-\textsc{v}\textbf{ cuenta}-\textsc{n} de que \textbf{tenemos mucho trabajo} por\textbf{ hacer} {--}-*\textsc{propn/punct} \textbf{para}-*\textsc{aux/adp} \textbf{reducir} la \textbf{discriminación basada} en la \textbf{raza} en \textbf{ambos países.} 21, 187
+
+    1.18 [1 lexical word] (6 shifts)
+
+    \begin{enumerate}
+      \item Fixed shift (+1): both\textsc{-det} \rightarrow ambos\textsc{-num}
+      \item False shift POS (+1): we\textsc{-pron} \rightarrow nos\textsc{-*adv/pron}
+      \item Free shift (-4): to promote equality in our own countries \rightarrow Ø [DeepL: \textit{\dots\ para promover la igualdad en nuestros propios países.}] 
+      \item Fixed shift (+1): realize-\textsc{v} (1) \rightarrow damos-\textsc{v} cuenta-\textsc{n} (2)
+      \item False shift POS (+1): --\textsc{-punct} \rightarrow {--}-*\textsc{propn/punct}
+      \item False shift POS (+1): to-\textsc{adp} \rightarrow para-*\textsc{aux/adp}
+    \end{enumerate}
+
+  \item[(239)] ``-\textsc{*propn/punct} You \textbf{recognized} me, but I \textbf{did}\textsc{-v} \textbf{not recognize} you,'' -\textsc{punct} \textbf{Gloria said} after-\textsc{adp} she \textbf{embraced} her \textbf{sibling}. 9, 93 \rightarrow ``-\textsc{-*propn/punct} Tú me \textbf{reconociste}, pero yo-\textsc{pron} \textbf{no} te \textbf{reconocí}''-\textsc{*propn/punct}, le \textbf{dijo Gloria} a su \textbf{hermana después}\textsc{-adv} de \textbf{abrazarla.} 10, 94
+
+    1.29 [+1 lexical words] (3 shifts)
+\largerpage
+    \begin{enumerate}
+      \item Fixed shift (-1): did V \rightarrow yo-\textsc{pron}
+      \item Fixed shift (+1): after-\textsc{adp} (0) \rightarrow después-\textsc{adv (1)}
+      \item False shift (+1): ``-\textsc{punct (0) \rightarrow *propn/punct (1)}
+    \end{enumerate}
+\end{description}
+
+In this sample, antinomic shifts may be positive or negative since the segment pairs all have zero or near zero weighted Euclidean distance while almost half of them are negatively close to zero or positively close to zero. Sample C has 40 information shifts in total, with 18 false shifts POS, 14 fixed shifts, 8 free shifts, and 19 antinomic shifts. This sample contains the highest number of antinomic information shifts among the three samples annotated. Because the TPR of most segments is neutral (=1.0), the number of antinomic shifts is doubled as it is the case for segments 18, 234, and 208 which account for 10 antinomic shifts. The other 9 antinomic shifts appear in lengthy segment pairs having a small positive TPR value. Their number could be reduced if the segmentation of the text could have a finer or smaller granularity to the level at least of propositions. This is a development that would enhance the efficiency of the empirical screening method of information shifts described here. 
+
+We can observe for sample C annotations that segments having zero weighted Euclidean distance contain no information shift at all. The number of these segments is small (5), but it’s worth noting the efficiency of the method for screening pairs having no information shift at all. We can also note that some particular lengthy segment pairs have a lot of information shifts while all the other short segment pairs have zero information shifts. The average length of the 11 segment pairs having at least one information shift is 144 characters while the average length of the 10 segment pairs having zero information shift is less than half of this amount with 63.8 characters. In the case of mostly isomorphic segment pairs, the short length in characters seems to be predictive of the absence of information shifts. This correlation hypothesis needs to be further tested and set for different corpora.
+
+\section{Conclusion}\label{ep:conc}
+
+We described in detail an empirical method for screening segment pairs in parallel corpora for informational translation shifts. Our manual analysis of the three samples A B and C of parallel pairs screened with our method confirm our hypothesis that heteromorphic segment pairs, as opposed to isomorphic ones, contain higher numbers of informational translation shifts. These tendencies can be observed with the number of information shifts that were detected in the most negative (46) and positive (59) heteromorphic segment pairs, compared to the number of information shifts present (40) in more isomorphic pairs (among which 5 pairs having a weighted Euclidean distance of exactly zero contained no information shift). If we discard the false information shifts which are erroneous, the observation is perhaps strengthened with a lower volume of information shifts (22) in sample C by comparison with 34 in sample A and 29 in sample B. Regarding our hypothesis for information shift screening, another criterion that need to be taken into account is that we found that the length of mostly isomorphic pairs seems to be predictive of the presence or absence of information shift. The discovery of this correlation for sample C pairs needs to be further tested with other corpora and against heteromorphic segment pairs.
+
+What was also considered surprising in the annotations of the two most heteromorphic samples is that negative heteromorphic segment pairs tend to contain much more (mandatory) fixed shifts than free shifts while the exact opposite holds for positive heteromorphic segment pairs. This could be in line with the explicitation hypothesis in translation which can be viewed as a tendency to add content in the target segments in translation (thus creating an information asymmetry) by giving more details and explanations than what is given in the source text (to make sure for instance that the content is well understood or clear for the intended audience). Further studies and progress on the empirical methods developed herein are needed to shed light on this result.
+
+A better knowledge of the origin, the cause and the impact of fixed information shifts are essential for a better knowledge of language constraints in translation (in contrastive phraseology, translation difficulties, and their idiosyncratic solutions) while the study of free information shifts should shed light on cognitive issues in translation operations (errors, individual and cultural biases). The manual examination and categorization of 145 informational shifts have shown that fixed and free shifts are relevant categories for the study of these phenomena. In order to reduce false shifts (false positives) and undetected shifts (false negatives), new POS tagging models and methods for English and for other major languages would need to be developed. The situation was found to be worse for the Spanish language, where many significant errors in POS tagging were found, especially for many simple tokens such as \textit{sober} and \textit{para} used as prepositions that were wrongly tagged as verbs.
+
+In the methodology we propose, we also demonstrated the usefulness of machine translation in the comparison of translation solutions by leveraging the standardization of style and expressions that seem to be favored because of their consumption of the enormous amount of corpus data. In fact, we have shown that machine translation may be used to distinguish automatically most instances of fixed shifts, which are confirmed when machine translation also produces the same information shift, from free shifts, which are confirmed when the information shift in human translation is not present in an otherwise grammatically and semantically correct machine translation.
+
+Finally, in the context of increased interest towards more formal and objective methods in human and machine translation assessment and evaluation, we hope that the methodology described in this paper could lay the foundation for language-independent translation assessment procedures and models. For example, the weighted Euclidean distance could be used in association with other automatic translation quality control methods that rely on reviewing translations of specific lexical items in a source segment against conventional translations found in bilingual dictionaries or other reference material or documentations.
+
+\section*{Abbreviations}
+
+\begin{tabularx}{.75\textwidth}{ll@{\qquad}ll}
+TPR & Translation precision ratio &
+PDF & Precision deviation factor \\
+\end{tabularx}
+
+{\sloppy\printbibliography[heading=subbibliography,notkeyword=this]}
+
+\end{document}

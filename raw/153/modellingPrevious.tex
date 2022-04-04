@@ -1,0 +1,2081 @@
+
+
+
+
+
+\chapter[Previous models]{Modeling semantic transparency: previous approaches}
+\label{cha:modPrevious}
+
+This chapter reviews in detail 3 studies which introduced different statistical models
+for semantic transparency. The first study by
+\citet{Reddyetal:2011} explores the usage of distributional semantics
+in order to model human judgments of transparency. The second study,
+by \citet{PhamandBaayen:2013}, models human transparency judgments with
+the help of regression models employing measures related to the CARIN
+theory. Finally, the study by \citet{Marellietal:2014} explores the
+behavior of 2 different distributional semantics measures in
+predicting lexical decision times to reflect
+more or less compositional aspects of compound words. 
+Because all 3 studies employ distributional semantics techniques
+in their modeling, this section starts with a short introduction to
+distributional semantics.
+
+These different approaches will lead to a reflection of how semantic
+transparency is best conceptualized and the predictors
+considered in the models will partially reappear in the statistical
+models presented in Chapters \ref{cha:empirical-1} and
+\ref{cha:empirical-2}.
+
+% \textbf{all use ds measures, maybe introduce d semantics at the beginning?}
+% \begin{verbatim}
+% Reddy et al
+% Pham and Baayen 2013
+% Marrellietal 2014
+% \end{verbatim}
+
+
+
+\section{Distributional semantics and word space models}
+\label{sec:intro-dist-sem}
+\is{distributional semantics|(}
+
+The core idea behind distributional semantics is the
+distributional hypothesis, stated in \Next, in this formulation
+taken from \citet[21]{Sahlgren:2006}.
+
+\ex. The distributional hypothesis:\\
+Words with similar distributional properties have similar
+meanings.\is{distributional semantics!{distributional hypothesis}}
+
+Early formulations of this idea can be found in the work of Zellig
+S. Harris, cf. \Next, taken from \citet{Harris:1954}, or the
+often-quoted 
+% ``a word is characterized by the company it keeps" from
+% \citet{Firth:1957} 
+``You shall know a word by the company it keeps!" from
+\citet[11]{Firth:1957b} (for a more detailed look at the origins of the
+hypothesis, cf. \citealt{Sahlgren:2006,Sahlgren:2008}).
+
+\ex. ``[\dots] if we consider words or morphemes A and B to be more different in
+meaning than A and C, then we will often find that the distributions
+of A and B are more different than the distributions of A and C.
+In other words, difference of meaning correlates with difference of
+distribution." % (Harris, 1970, p.786)
+
+A word-space model of meaning (for this term,
+cf. \citealt[17]{Sahlgren:2006}, who builds on \citealt{Schuetze:1993}) is a computational model of meaning that is
+based on this core idea. In particular, it assumes that word meaning
+can be spatially represented and, as \citet[18]{Sahlgren:2006}
+writes, ``semantic similarity can be represented in
+\emph{n}-dimensional space, where \emph{n} can be any integer ranging
+from 1 to some very large number \dots". What is missing at this point
+is a method to establish the actual vectors based on the distribution
+of the words one is interested in. This is done by collecting the
+co-occurrences of other words with the word of interest and storing
+this information in a vector, called context vector in
+\citet[27]{Sahlgren:2006}. The distributional information is typically
+stored in a matrix of co-occurrence counts, the co-occurrence matrix,
+and the context vectors correspond to the rows or columns of the
+co-occurrence matrix \citep[31]{Sahlgren:2006}. Instead of word-by-word co-occurrence counts, one can also use word-by-document co-occurrences counts, as is often done in Latent Semantic Analysis \citep{Dumais:2005}.
+
+\subsection{The basics of distributional semantics: a toy example}
+\label{sec:toy-example}
+
+\is{distributional semantics!{introduction to}|(}
+I will use a toy example to explain the distributional semantics approach.
+Let us consider the 3 nouns \emph{soldier, baker, butcher} and
+their co-occurrences with the 3 verbs
+\emph{kill}, \emph{knead} and \emph{cut}. Let us assume that the nouns and the
+verbs co-occur as reported in the fictional distribution given in
+\tabref{tab:soldiers3d}, the word-by-word
+co-occurrence matrix for this example.
+
+
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabular}{lccc}\lsptoprule
+&cut&kill&knead\\\midrule   
+butcher  &4&3&1\\
+baker&2&0&4\\
+soldier&3&4&1\\\lspbottomrule
+  \end{tabular}
+  \caption{Fictional co-occurrences of the 3 nouns \emph{soldier, butcher}, and \emph{baker} with the 3 verbs \emph{cut, kill}, and \emph{knead}.}
+  \label{tab:soldiers3d}
+
+\end{table}
+
+This information can be used to construct a 3-dimensional space, with
+the 3 verbs providing the 3 axes. The co-occurrence counts of the
+nouns can now be used to place the 3 nouns in this geometrical space,
+cf. \figref{fig:soldiers3d-simple}.
+
+\begin{figure}
+  \centering
+\fbox{
+
+%Angle Definitions
+%-----------------
+
+%set the plot display orientation
+%synatax: \tdplotsetdisplay{\theta_d}{\phi_d}
+\tdplotsetmaincoords{60}{110}
+
+%define polar coordinates for some vector
+%TODO: look into using 3d spherical coordinate system
+\pgfmathsetmacro{\rvec}{.8}
+\pgfmathsetmacro{\thetavec}{30}
+\pgfmathsetmacro{\phivec}{60}
+
+%start tikz picture, and use the tdplot_main_coords style to implement the display 
+%coordinate transformation provided by 3dplot
+\begin{tikzpicture}[scale=1,tdplot_main_coords]
+
+%set up some coordinates 
+%-----------------------
+\coordinate (O) at (0,0,0);
+
+%determine a coordinate (P) using (r,\theta,\phi) coordinates.  This command
+%also determines (Pxy), (Pxz), and (Pyz): the xy-, xz-, and yz-projections
+%of the point (P).
+%syntax: \tdplotsetcoord{Coordinate name without parentheses}{r}{\theta}{\phi}
+% \tdplotsetcoord{P}{\rvec}{\thetavec}{\phivec}
+
+%draw figure contents
+%--------------------
+
+%draw the main coordinate system axes
+\draw[thick,-] (0,0,0) -- (5,0,0) node[anchor=north east]{$cut$};
+\draw[thick,-] (0,0,0) -- (0,5,0) node[anchor=north west]{$kill$};
+\draw[thick,-] (0,0,0) -- (0,0,5) node[anchor=south]{$knead$};
+
+\draw[thin, -] (1,0,0) -- (1,-0.2,0) node[anchor=east] {1};
+\draw[thin, -] (2,0,0) -- (2,-0.2,0) node[anchor=east] {2};
+\draw[thin, -] (3,0,0) -- (3,-0.2,0) node[anchor=east] {3};
+\draw[thin, -] (4,0,0) -- (4,-0.2,0) node[anchor=east] {4};
+
+\draw[thin, -] (0,0,1) -- (0,-0.2,1) node[anchor=east] {1};
+\draw[thin, -] (0,0,2) -- (0,-0.2,2) node[anchor=east] {2};
+\draw[thin, -] (0,0,3) -- (0,-0.2,3) node[anchor=east] {3};
+\draw[thin, -] (0,0,4) -- (0,-0.2,4) node[anchor=east] {4};
+
+\draw[thin, -] (0,1,0) -- (-0.2,1,0) node[anchor=south] {1};
+\draw[thin, -] (0,2,0) -- (-0.2,2,0) node[anchor=south] {2};
+\draw[thin, -] (0,3,0) -- (-0.2,3,0) node[anchor=south] {3};
+\draw[thin, -] (0,4,0) -- (-0.2,4,0) node[anchor=south] {4};
+
+
+\draw[thick,color=black] (3,4,1) -- (3,4,1) node[scale=2.5*sqrt(\pgflinewidth)]{\textbf{.}};
+\draw[thick,color=black] (2,0,4) -- (2,0,4) node[scale=2.5*sqrt(\pgflinewidth)]{\textbf{.}};
+\draw[thick,color=black] (4,3,1) -- (4,3,1) node[scale=2.5*sqrt(\pgflinewidth)]{\textbf{.}};
+\draw[thick,color=black] (3,4,1) -- (3,4,1) node[anchor=north, align=center]{\textbf{(3,4,1)}\\\textbf{soldier}};
+\draw[thick,color=black] (2,0,4) -- (2,0,4) node[anchor=east, align=center]{\textbf{(2,0,4)}\\\textbf{baker}};
+\draw[thick,color=black] (4,3,1) -- (4,3,1) node[anchor=north, align=center]{\textbf{(4,3,1)}\\\textbf{butcher}};
+
+
+% visualization help soldier
+\draw[thin,dashdotted,-,color=blue] (3,0,0) -- (3,4,0) node[anchor=north west]{}; 
+\draw[thin,dashdotted,-,color=blue] (3,0,1) -- (3,4,1) node[anchor=north west]{}; 
+
+\draw[thin,dashdotted,-,color=blue] (3,4,0) -- (3,4,1) node[anchor=north west]{}; 
+\draw[thin,dashdotted,-,color=blue] (0,4,0) -- (0,4,1) node[anchor=north west]{}; 
+\draw[thin,dashdotted,-,color=blue] (3,0,0) -- (3,0,1) node[anchor=north west]{}; 
+
+\draw[thin,dashdotted,-,color=blue] (0,4,1) -- (3,4,1) node[anchor=north west]{}; 
+\draw[thin,dashdotted,-,color=blue] (0,4,0) -- (3,4,0) node[anchor=north west]{}; 
+\draw[thin,dashdotted,-,color=blue] (0,0,1) -- (3,0,1) node[anchor=north west]{}; 
+
+\draw[thin,dashdotted,-,color=blue] (0,0,1) -- (0,4,1) node[anchor=north west]{}; 
+
+
+% visualization help baker
+\draw[thin,dashed,-,color=blue] (2,0,0) -- (2,0,4) node[anchor=north west]{}; 
+\draw[thin,dashed,-,color=blue] (2,0,4) -- (0,0,4) node[anchor=north west]{}; 
+
+
+% visualization help butcher
+% vertical lines
+\draw[thin,dotted,-,color=blue] (4,3,0) -- (4,3,1) node[anchor=north west]{}; 
+\draw[thin,dotted,-,color=blue] (4,0,0) -- (4,0,1) node[anchor=north west]{}; 
+\draw[thin,dotted,-,color=blue] (0,3,0) -- (0,3,1) node[anchor=north west]{}; 
+
+\draw[thin,dotted,-,color=blue] (0,3,0) -- (4,3,0) node[anchor=north west]{}; 
+\draw[thin,dotted,-,color=blue] (0,3,1) -- (4,3,1) node[anchor=north west]{}; 
+
+\draw[thin,dotted,-,color=blue] (4,3,1) -- (4,0,1) node[anchor=north west]{}; 
+\draw[thin,dotted,-,color=blue] (4,3,0) -- (4,0,0) node[anchor=north west]{}; 
+
+\draw[thin,dotted,-,color=blue] (0,0,1) -- (4,0,1) node[anchor=north west]{}; 
+
+
+
+\tdplotsetrotatedcoordsorigin{(P)}
+
+
+%change the rotated coordinate frame so that it lies in its theta plane.
+%Note that this overwrites the original rotated coordinate frame
+%syntax: \tdplotsetrotatedthetaplanecoords{\phi'}
+% \tdplotsetrotatedthetaplanecoords{45}
+
+%draw theta arc and label
+
+\end{tikzpicture}
+
+
+}
+  \caption{\emph{Soldier}, \emph{butcher}, and \emph{baker} in 3-dimensional
+    space. The 3 axes indicate the co-occurrences of the 3 nouns with the 3 verbs
+    \emph{cut, kill}, and \emph{knead} respectively.}
+
+  \label{fig:soldiers3d-simple}
+
+\end{figure}
+
+Again, on the idea that meaning similarity corresponds to geometrical
+proximity in the word space, ocular inspection of
+\figref{fig:soldiers3d-simple} suggests that \emph{soldier} and
+\emph{butcher} are more similar to each other than either is to
+\emph{baker}. Taking the co-occurrences as context vectors, that is, if
+the co-occurrence counts are the endpoints or the scalar components of the corresponding vectors,
+methods from vector algebra can be used to calculate their proximity,
+that is, their similarity. A common similarity measure for context vectors is the
+cosine similarity, that is, the cosine of the angles between the 2
+items to be compared. Thus, to measure the similarity between
+\emph{soldier} and \emph{butcher}, one measures the cosine of the angle $\phi$
+between their vectors,
+cf. \figref{fig:soldiers3d}. 
+
+\begin{figure}
+  \centering
+\fbox{
+  \includegraphics{./figures/distrib-sem-3d-example.pdf}
+% http://www.texample.net/tikz/examples/the-3dplot-package/
+}
+  \caption{\emph{Soldier}, \emph{butcher}, and \emph{baker} in 3-dimensional
+    space. The 3 axes indicate the co-occurrences of the 3 nouns with the 3 verbs
+    \emph{cut, kill}, and \emph{knead} respectively. The context vectors for the 3 nouns span from the origin to the respective coordinates. The angle $\phi$ between the vectors of \emph{butcher} and \emph{soldier} can be used to assess the similarity of the 2 words.}
+
+  \label{fig:soldiers3d}
+
+\end{figure}
+
+The equation in \Next shows how the cosine similarity is calculated.
+
+\ex. % cosine similarity:\\
+\( \displaystyle 
+sim_{\text{cos}}(\vec{x}, \vec{y}) = \frac{x \cdot y}{||x||\;||y||} =
+\frac{\sum_{i=1}^{n} x_i y_i}
+{\sqrt{\sum_{i=1}^{n} x_i^2}\sqrt{\sum_{i=1}^{n} y_i^2}} \)
+% note: double || more common for vector length
+
+\enlargethispage{1\baselineskip}
+In \Last, the cosine of the angle between 2 vectors, $\vec{x}$ and $\vec{y}$, is calculated
+by dividing their dot product, $x \cdot y$ ,  by their norms, $||x||\;||y||$, where the dot product is
+the sum of the products of the corresponding scalar components, and
+the norm, or length, of the vectors is calculated by summing over the
+squares of their scalar components and taking the root.
+
+The cosine can only have values in the range between 1 and -1. The
+closer the value gets to 1, the more similar 2 vectors
+are. A cosine of 0, corresponding to a 90 degree angle, indicates
+unrelated scores and a cosine of -1, corresponding to a 180 degree
+angle, indicates opposite scores.
+
+In my toy example, the cosine similarity between \emph{soldier} and
+\emph{butcher} is 0.96, cf. the calculation in \Next.
+
+\ex. %cosine similarity:\\
+\( \displaystyle 
+sim_{\text{cos}}(\overrightarrow{\text{\textit{soldier}}}, \overrightarrow{\text{\textit{butcher}}}) = \frac{\text{\textit{soldier}} \cdot \text{\textit{butcher}}}{||\text{\textit{soldier}}||\;||\text{\textit{butcher}}||}\)
+\\[.5em] 
+\( \displaystyle = \frac{3 \times 4 \;+\; 4 \times 3 \;+\; 1 \times 1}
+{\sqrt{9+16+1}\times\sqrt{16+9+1}} = \frac{25}{26} = 0.96 \)
+% \frac{\sum_{i=1}^{n} x_i y_i}
+% {\sqrt{\sum_{i=1}^{n} x_i^2}\sqrt{\sum_{i=1}^{n} y_i^2}}
+% = 
+% \\[1ex]
+
+That is, the angle $\phi$ is 16$^{\circ}$. For the pair
+\emph{soldier}/\emph{baker} the cosine value is 0.44,
+corresponding to an angle of 64$^{\circ}$. And finally, for the pair
+\emph{butcher}/\emph{baker}, the cosine value is 0.53, corresponding to
+an angle of 58$^{\circ}$. In other words, based on the toy
+distribution used here, the meaning of \emph{butcher} and \emph{soldier} are
+very similar, while both meanings are quite distinct from the meaning
+of \emph{baker}, with \emph{butcher} being slightly less distant, or dissimilar, from \emph{baker} than \emph{soldier} from \emph{baker}.
+\is{distributional semantics!{introduction to}|)}
+
+% HXH 1578 	To make it clear I have to adopt the Swiss linguist
+% Saussure's theory which distinguishes between "langue" and "parole" . 
+
+% CCV 619 	Linguists distinguish between prescriptive and descriptive views of language, and teachers need to understand when they need to insist on rules, to prescribe, and when it is more appropriate to describe the differences between dialects and Standard English, or between spoken and written usage. 
+
+% % linguist[,s] <<s>> kill[,s] no hits
+% 3	 A45 85 	The Khmer Rouge had no mercy for any
+% Vietnamese they took prisoner, and many Vietnamese soldiers preferred
+% to kill themselves rather than be captured. 
+
+% 	 ALX 582 	Soldiers do not kill many Indians unless they are wounded. 
+
+% K91 276 	Certainly Pétain's love for the French soldier in 1916 seems to have been entirely naive and genuine, remarkably free (whatever may have been written more recently) of bogus popularity seeking; in any case, soldiers the world over are phenomenally quick to distinguish the genuine from the phony. 
+
+\subsection{Design decisions}
+\label{sec:dist-design}
+
+\is{distributional semantics!{design decisions}}
+In actual implementations, several decisions can and need to be
+made. The first decision concerns the co-occurrence counts. Here, one
+has to decide whether to use word-by-word or word-by-document
+co-occurrences. Furthermore, in both cases, additional decisions regarding the further procedure
+need to be made. For a word-by-word matrix, one has to decide which words to use to build the co-occurrence matrix. For example, one can decide to only use content words, or only the
+10,000 most common content words. The number of words used to
+establish co-occurrences determines how many dimensions the
+geometrical space is going to have. Furthermore, the size of the
+context used to look for co-occurrences needs to be set. Both of these
+decisions crucially influence the computational tractability of the
+proposed models. For further dimension reduction techniques, cf. also
+the idea behind Latent Semantic Analysis explained in Section \ref{sec:lsa}.
+% Usually, dimension reduction techniques are employed (\textbf{VERWEIS?}).
+The second question concerns the similarity measure used to
+assess context vector similarity. While cosine similarity is widely
+used, it is not the only possibility. The dot product alone
+can be used as a similarity measure, other common measures are
+distance measures. Distance measures measure the distance between
+2 points in an n-dimensional space. These measures include e.g. Euclidean distance, Manhattan distance, or Minkowski distance (see
+ \citealt[34--35]{Sahlgren:2006} for
+discussion).\is{distributional semantics!similarity measures} 
+
+% Further treatments: Reddy/
+There are many other places where distributional semantic
+implementations can differ from each other.
+Thus, besides the raw counts, other measures can be used in the context
+vectors. For word-by-document approaches, the frequencies of the
+individual words (=terms) are often weighted against the inverse
+document frequencies, that is, in how many of the documents in the set
+of documents the terms occur, leading to the family of so-called TF-IDF-weight
+approaches (cf. \citealt{SaltonandYang:1973}. 
+\is{distributional semantics!{TF-IDF-weight approaches}}
+For word-by-word approaches, \citet{MitchellandLapata:2008} set the components ``to the
+ratio of the probability of the context word given the target word to
+the probability of the context word overall"
+\citep[241]{MitchellandLapata:2008}. 
+% "These components were set to the ratio of the proba-
+% bility of the context word given the target word to
+% the probability of the context word overall." \citet[241]{MitchellandLapata:2008}
+\citet{Reddyetal:2011} treat
+their context vector components in the same way, pointing out that
+this in effect corresponds to pointwise mutual information without
+logarithm (cf. \citealt[215, Footnote 4]{Reddyetal:2011}).  
+% OK, das lass ich mal so stehen hier
+Such steps are a departure from the simple geometric approach as
+outlined in the toy example, because now the context vectors are
+representing probabilities and not raw counts. While such steps have usually been taken
+because they delivered better results on the tasks at hand, they make
+the resulting models less intuitively
+accessible. Discussing the difference
+between geometric and probabilistic approaches, \citet[28]{Sahlgren:2006} points to work by
+\citet{Ruge:1992}, who interprets her results to mean ``that the model
+of semantic space in which the relative position of two terms
+determines the semantic similarity better fits the imagination of
+human intuition semantic similarity than the model of properties that
+are overlapping" \citep[328--329]{Ruge:1992}. 
+
+%   \end{minipage}
+% }
+
+\subsection{Two implementations: LSA and HAL}
+\label{sec:ds-well-known}
+
+% Some distributional semantic implementations have become known under
+% their own names, most famously Latent Semantic Analysis, LSA. Here,
+In
+order to get a feeling for the range of possibilities within
+distributional semantics, this section introduces 2 well-known
+implementations: Latent Semantic Analysis (LSA) and  HAL, a
+Hyperspace Analogue to Language.
+% measures.  
+
+\subsubsection{Latent Semantic Analysis (LSA)}
+\label{sec:lsa}
+
+\is{distributional semantics!Latent Semantic Analysis}
+Latent Semantic Analysis is a technique in Natural Language Processing that
+also uses distributional-semantics techniques. As \citet{Dumais:2005}
+points out, one of the main motivations behind LSA was to circumvent
+problems in information retrieval that stem from synonymy and
+polysemy. In order to address these problems, LSA uses a dimensionality
+reduction technique, so that fewer dimensions than unique terms are
+used. This dimensionality reduction induces similarities between terms
+that can then be used to solve the problems of synonymy and
+poly\-semy. The term `latent' in the name alludes to the idea that this
+dimensionality reduction, metaphorically speaking, uncovers hidden
+relations between terms. 
+Following \citet[192--193]{Dumais:2005}, an LSA analysis can be divided
+into 4 steps:
+\begin{enumerate}
+\item A term-document-matrix is created: with each row standing
+  for an individual word, the columns contain the occurrences of these
+  words in the text units of interest (e.g. documents or
+  sentences). Because LSA ignores order, this is also often referred
+  to as a \emph{bag of words} approach. This step corresponds to the
+  establishment of a co-occurrence matrix as described above in
+  Section \ref{sec:dist-design}.
+\item The term-document-matrix might be transformed (e.g. using logs,
+  or using probability/entropy based scores). 
+This is not
+  unique to LSA, cf. the remarks at the end of
+  Section \ref{sec:dist-design}.
+\item In a third step, dimension reduction is performed. This is done
+  via singular value decomposition, a process by which a matrix is
+  factorized, that is, in the case of LSA, decomposed into a product of 3
+  matrices. These matrices contain so-called singular values, of which
+  only the n-largest ones are retained, allowing calculation of a matrix
+  which is an approximation to the original
+  matrix, albeit with fewer dimensions (for more mathematical detail
+  see \citealt{Landaueretal:1998}).
+\item Finally, similarities between terms can be computed in the
+ dimensionally-reduced space. Here, again, cosine similarity is used.
+\end{enumerate}
+
+
+
+\subsubsection{A Hyperspace Analogue to Langague (HAL)}
+\label{sec:hal}
+\is{distributional semantics!Hyperspace Analogue to Language}
+In contrast to LSA, HAL \citep{LundandBurgess:1996}, a Hyperspace Analogue to Language, is based
+on word-by-word co-occurrences. The constructed matrix is direction
+sensitive and counts the co-occurrences before or after the word of
+interest in a given window. In addition, the co-occurrences are
+weighted, with words close to the word given greater weight. To
+measure similarity HAL
+uses distance measures, measuring proximity in geometrical space. In
+particular, HAL uses measures from the Minkowski family (this includes, e.g.,
+Euclidean distances). 
+In contrast to cosine
+similarity, these measures are sensitive to vector length. For this reason, the vectors are first
+normalized to unit length. The unit length of a vector is, in turn,
+related to the vector lengths/vector norms introduced in Section \ref{sec:toy-example}.
+
+% \subsubsection{Mikolov the google man}
+% \label{sec:mikolov}
+
+\subsection{Conclusion}
+\label{sec:ds-conclusion}
+
+The aim of this section was to give an overview of
+% sufficient to understand
+the main ideas behind distributional semantics. The
+implementations used in the 3 papers to be discussed in the following 3 sections do not depart too much from
+the ideas presented here. Note, however, that the field is constantly
+developing. cf. \citet{Mikolovetal:2013} who use a simple neural
+network architecture to compute high dimensional word vectors for
+large amounts of data (cf. also \url{https://code.google.com/p/word2vec/}).\is{distributional semantics|)}
+% \textbf{Mention latest attempts: Mikolov:}
+% "More recently, Neural Language Models (Collobert et
+% al., 2011; Mikolov, Chen, Corrado, \& Dean, 2013) induce vectors
+% trained to predict contextual patterns, rather than directly encoding
+% them." \citet[488]{MarelliandBaroni:2015}
+\section{\citet{Reddyetal:2011}}
+\label{sec:Reddyetal2011sum}
+
+\citet{Reddyetal:2011} test several distributional semantic measures
+for semantic compositionality in compound nouns. Although the term `semantic
+transparency' does not occur in their paper, their
+actual implementation of literality amounts to an assessment of
+semantic transparency. 
+% \citet{Reddyetal:2011} differs from the papers discussed so far in that it does not explicitly
+% use the term , but discusses the phenomenon under the heading of
+% `compositionality'. 
+% However, their understanding of the notion of compositionality
+% is clearly linked to the understanding of semantic transparency as
+% meaning predictability. In particular, 
+\citet[211]{Reddyetal:2011} adapt
+the following definition of compound compositionality proposed in
+\citet[66]{Bannardetal:2003}: ``[\dots] the overall semantics of the MWE
+[multiword expression] can be composed from the simplex semantics of its
+parts, as described (explicitly or implicitly) in a finite lexicon.''
+\is{semantic transparency!{as semantic compositionality}}
+This definition of compositionality is equivalent to semantic
+transparency if understood in terms of meaning predictability, cf. the quote below, taken from
+the discussion of derivational morphology in \citet{Plag:2003}.
+\begin{quotation}
+  [\dots], these forms are also semantically transparent, i.e. their
+  meaning is predictable on the basis of the word-formation rule
+  according to which they have been formed. \citep[46]{Plag:2003}
+\end{quotation}\is{semantic transparency!{in terms of meaning predictability}}
+If one can compose the meaning of a complex expression from the
+meanings of its parts, then its meaning is predictable. Likewise,
+if the meaning of a complex expression is predictable, then one can
+state the mechanism that allows one to compose this predictable meaning
+of the complex expression from the meanings of its parts. 
+Whether this predictability comes about via a word-formation
+rule as suggested in Plag's definition or via some implicit mechanism is a
+separate issue. In a further step, \citet[211]{Reddyetal:2011} link compound
+compositionality to literality: ``A compound is compositional if its meaning can be understood from the literal (simplex) meaning of its
+parts'' (for more discussion of this issue see Chapter \ref{cha:theo}, Section
+\ref{sec:other_measures_and_notions}). 
+
+Because the literality ratings from \citet{Reddyetal:2011} will also
+be used in the new studies presented in Chapters \ref{cha:empirical-1}
+and \ref{cha:empirical-2}, their
+methodology is presented here in some detail.
+
+
+
+\subsection{Selection procedure}
+\label{sec:Reddy-selection}
+To arrive at a representative sample, \citet{Reddyetal:2011} first randomly selected 30 compounds for 4 classes,
+where the distribution across the 4 classes is based on the literal usage
+of the compound's constituents. Whether a given constituent was used
+literally was decided based on whether it occurred either
+in the hypernymy hierarchy or in the definition(s) of the compound in
+{WordNet} (\citealt{Fellbaum:1998}; cf. the extended discussion in Chapter \ref{cha:empirical-2}, Section \ref{sec:wordnet}). % \url{https://wordnet.princeton.edu/}). 
+More specifically, the 4 classes in \tabref{tab:reddy4classes} were distinguished,
+each class illustrated by one example (the examples below are from their dataset, but the information from WordNet was added by me).
+\is{compound!{classification via literal constituent usage}}
+\is{literal meaning!{in compound classification}}
+
+% \ex. 
+% \begin{enumerate}
+% \a.[1.] both constituents are used literally:&  \emph{gold mine}\\
+% \begin{table}[!htb]
+\begin{table}[p]
+\is{WordNet!{selecting compound classes based on}}
+%  \begin{tabular}[t]{lp{4.8cm}p{5.8cm}}\lsptoprule
+  \begin{tabularx}{\textwidth}{lQQ}\lsptoprule
+  \textbf{1.}&\textbf{both constituents are used literally:}&{\rule{18pt}{0pt}}\newline \emph{gold mine}\\\tablevspace%\cmidrule{2-3}
+&WordNet definition (second entry):& \emph{a mine where gold ore is found}\\\tablevspace%\cmidrule{2-3}
+&Constituents in the\newline WordNet hypernym hierarchy:&{\rule{18pt}{0pt}}\newline  \emph{mine}\\\tablevspace %\midrule
+\textbf{2.}&\textbf{only the first constituent is used literally:}&{\rule{18pt}{0pt}}\newline  \emph{speed limit}\\\tablevspace%\cmidrule{2-3}
+& WordNet definition:& \emph{regulation establishing the top speed permitted on
+   a given road}\\\tablevspace%\cmidrule{2-3}
+&Constituents in the WordNet hypernym hierarchy:&{\rule{18pt}{0pt}}\newline  none\\\tablevspace
+\textbf{3.}&\textbf{only the second constituent is used literally:}&{\rule{18pt}{0pt}}\newline  \emph{game plan}\\\tablevspace%\cmidrule{2-3}
+&WordNet definition (second entry):& \emph{(sports) a plan for achieving an objective in some sport}\\\tablevspace%\cmidrule{2-3}
+&Constituents in the WordNet hypernym hierarchy:&{\rule{18pt}{0pt}}\newline  \emph{plan}\\ \tablevspace
+\textbf{4.}& \textbf{none of the 2 constituents are used literally:}&{\rule{18pt}{0pt}}\newline  \emph{agony aunt}\\\tablevspace %\cmidrule{2-3}
+%\cmidrule{2-3}
+&WordNet definition:& \emph{agony aunt (a newspaper
+  columnist who answers questions and offers advice on personal problems to
+  people who write in)}\\\tablevspace%\cmidrule{2-3}
+&Constituents in the WordNet hypernym hierarchy:&{\rule{18pt}{0pt}}\newline  none\\\lspbottomrule 
+% \end{tabular}
+\end{tabularx}
+  \caption{The 4 classes distinguished in \citet{Reddyetal:2011} to create a representative sample. Each class is illustrated with one example from their dataset and the corresponding definitions and hypernyms from WordNet.}
+  \label{tab:reddy4classes}
+\end{table}
+%\end{enumerate}
+
+Because there were not enough candidates for group 2 (only the first
+constituent is used
+literally) and group 4 (no literal constituent), additional examples were added
+from Wiktionary (cf. \url{https://www.wiktionary.org/}). After these first steps, the compounds were merged and a set
+of 90 compounds was chosen, with every compound occurring at least  50
+times in the ukWaC corpus, a large ($>$ 2 billion tokens) web-based corpus of English \citep[cf.][]{Ferraresietal:2008}. % {Baronietal:2009}
+
+
+\subsection{Reddy et al.'s human judgment data}
+
+% The method used by \citet{Reddyetal:2011} is already described in
+% section \ref{sec:direct_measures}. 
+For every compound in their set,
+\citet{Reddyetal:2011} created 3 independent sub-tasks: (1) rating of the compound,
+(2) rating of its
+first constituent, and (3) rating of its second constituent. 
+
+\is{semantic transparency!{human judgements}|(}
+The compound literality ratings were elicited by asking the subjects
+to give a score ranging from 0 to 5 for how literal the phrase AB is,
+with a score of 5 indicating `to be understood very literally' and a
+score of 0 indicating `not to be understood literally at all'. For the
+individual constituents, the subjects were asked for judgments on how literal the respective
+constituents are in the compounds, likewise on a 6-point scale. The
+concept of literality for phrases was explained in a qualification
+test, where it is stated that ``A phrase is literal if you can
+understand the meaning of the phrase from its parts" (for the
+qualification test, cf. the downloadable material at
+\url{http://sivareddy.in/papers/files/ijcnlp_compositionality_data.tgz}).
+In contrast to all previous attempts to get transparency ratings,
+\citet{Reddyetal:2011} used a concrete task where (1) the target words
+were presented in context and (2) some precaution was taken that in
+cases of polysemous compounds it was clear which reading the
+annotators judged. One concrete example will make their procedure
+clearer. 
+% Thus, for their target complex expression \emph{sacred cow},
+% annotators where presented with two definitions, cf. \Next, and 5
+% different contextually embedded occurrences of the string, cf. \NNext.
+
+% \ex. \emph{sacred cow}
+% \a. a person unreasonably held to be immune to criticism
+% \b. A cow which is worshipped
+
+% \ex. \a. seller , two ice cream vendors , a fruit stall , a beggar and a
+% \textbf{sacred cow} have all arrived on the scene . About two dozen adults are waiting
+% to go 
+% \b. worlds of art and sacrilege . For Savoy , in fact , there are no
+% \textbf{sacred cows} ; every icon is a balloon to be punctured . They 've been accused
+% of 
+% \c. minds . In The Complete Plain Words , Sir Ernest Gowers quotes : Â“ The
+% \textbf{sacred cows} have come home to roost with a vengeance Â” as a stock example of
+% the 
+% % Strange characters on original sheets!!!
+% \d. fearful of change and sacrifice . As a result we cling on to our '
+% \textbf{sacred cows} ' ( or our definitions of a ' stable society ' ) even when we
+% \d. news room . Enlightenment Blues deserves to be reviewed in a spiritual
+% magazine that slaughters \textbf{sacred cows} , asks hard questions and is deeply
+% courageous ) . b ) Review of Enlightenment
+For the target compound \emph{brick wall},
+annotators were presented with 2 definitions, cf. \Next, and 5
+different contextually embedded occurrences of the string, cf. \NNext, with normalized punctuation.
+
+\ex. Definitions:
+\a. an obstacle
+\b. a wall built with bricks
+% \z. Cf. \texttt{brick_wall.html} in mturk_hits
+
+\enlargethispage{2\baselineskip}
+\ex. Examples:
+\a.  of the merits of the case. The 3 month limit though is not a brick wall, if circumstances demand an extention [sic] of time, then it is in the discretion% \pagebreak[4]
+\b. 1975. A couple of years later another female who apparently vanished on reaching a brick wall, was observed near Traitor's Gate. Top WESTMINSTER ABBEY Victoria Street London SW
+\c. the landward side but sloping down steeply to a wooden door set in the high brick wall to seaward." 7 Tower 28 is recognisable not only from the above description
+\d. for some time been aware of the outline of a structure in the form of brick walls at ground level. It was not until the end of April this year that
+\d. 'back, but we wont get them back by battling against a `yellow brick wall'. Talking of `exclusive clubs' thanks to Jes for getting me into
+% \ex. Examples:
+% \a.  of the merits of the case . The 3 month limit though is not a brick wall , if circumstances demand an extention [sic] of time , then it is in the discretion% \pagebreak[4]
+% \b. 1975 . A couple of years later another female who apparently vanished on reaching a brick wall , was observed near Traitor 's Gate . Top WESTMINSTER ABBEY Victoria Street London SW
+% \c. the landward side but sloping down steeply to a wooden door set in the high brick wall to seaward . " 7 Tower 28 is recognisable not only from the above description
+% \d. for some time been aware of the outline of a structure in the form of brick walls at ground level . It was not until the end of April this year that
+% \d. ' back , but we wont get them back by battling against a ' yellow brick wall ' . Talking of ' exclusive clubs ' thanks to Jes for getting me into
+% Punctuation checked!
+% Also: in their data it is "3 month limit"
+   
+% Definitions:
+
+%     # An obstacle.
+%     $ a wall built with bricks
+
+% Examples:
+
+%     of the merits of the case . The 3 month limit though is not a brick wall , if circumstances demand an extention of time , then it is in the discretion
+%     1975 . A couple of years later another female who apparently vanished on reaching a brick wall , was observed near Traitor 's Gate . Top WESTMINSTER ABBEY Victoria Street London SW
+%     the landward side but sloping down steeply to a wooden door set in the high brick wall to seaward . " 7 Tower 28 is recognisable not only from the above description
+%     for some time been aware of the outline of a structure in the form of brick walls at ground level . It was not until the end of April this year that
+%     ' back , but we wont get them back by battling against a ' yellow brick wall ' . Talking of ' exclusive clubs ' thanks to Jes for getting me into
+
+
+\noindent
+Based on the 5 examples, the annotators first have to choose that definition which
+occurs most often in the examples. Secondly, they have to give a
+score for how literal the phrase is (or, alternatively, for how
+literal either the first or the second constituent in the phrase is), basing their decision on the
+chosen definition. 
+
+They used the crowd-sourcing service Amazon
+Mechanical Turk (cf. \linebreak[4] \url{https://www.mturk.com/mturk/welcome}).
+Every task was randomly assigned to 30
+annotators each. 
+% The task were assigned randomly, and 
+On average,
+every annotator worked on 53 tasks. 
+In order to control for the quality of the contributions, the annotators % turkers
+first had to pass a qualification test. For the 151 annotators that passed the test,
+\citeauthor{Reddyetal:2011} calculated the average Spearman correlation score
+($\rho$) correlating all annotation values of all annotators. The
+annotations of 21 annotators % turkers
+with negative $\rho$ were discarded, those of 81 annotators with a positive $\rho >
+0.6$ were all accepted. The remaining annotations from 49 annotators were
+accepted or rejected for a given task depending on whether they fell
+within the range of $\pm$ 1.5
+around the mean of the task. All in all, 383 annotations were rejected. 
+% [HIER WEITER!! POINT TO OTHER WORK SHOWING THE QUALITY OF AT?]
+
+
+
+\subsubsection{The relationship between the literality scores}
+\label{sec:inter-score-relations}
+
+Before developing their vector space model, \citeauthor{Reddyetal:2011} investigated
+the relationship between the means of the different literality scores. In
+particular, they compared the fitting of 5 types of functions,
+cf. \tabref{tab:reddy-types-of-functions}, where ST1 stands for the mean literality ratings for the
+first constituent, ST2 for the mean literality ratings for the second
+constituent, and ST-compound for the mean literality rating for the
+whole compound.\footnote{I used ST here instead of their usage of just \emph{s} in order to make clear that at this point the variables refer to the mean literality scores, not to the scores based on cosine similarity introduced in Section \ref{sec:reddy-distrib-models}.}
+ \emph{a}, \emph{b}, and \emph{c} are coefficients.
+
+% \ex. Types of functions \label{ex:reddy-types-of-functions}
+% \a. \textsc{ADD}: a $\times$ ST1 + b  $\times$ ST2 = ST-compound 
+% \b. \textsc{MULT}: a $\times$ ST1 $\times$ ST2 = ST-compound 
+% \c. \textsc{COMB}: a $\times$ ST1 + b $\times$ ST2 + c $\times$ ST1 $\times$ ST2 = ST-compound 
+% \d. \textsc{WORD1}: a $\times$ ST1 = ST-compound 
+% \d. \textsc{WORD2}: a $\times$ ST2 = ST-compound 
+\begin{table}[!htb]
+  \begin{center}
+\begin{tabular}[h]{lll}\lsptoprule
+function&\multicolumn{2}{c}{formula}\\\midrule
+ADD&ST-compound =&a $\times$ ST1 $+$ b  $\times$ ST2   \\
+MULT&ST-compound =&a $\times$ ST1 $\times$ ST2\\
+COMB&ST-compound =& a $\times$ ST1 $+$ b $\times$ ST2 $+$ c $\times$ ST1 $\times$ ST2\\
+WORD1&ST-compound =& a $\times$ ST1\\
+WORD2&ST-compound =& a $\times$ ST2\\\lspbottomrule
+\end{tabular}
+\end{center}
+% \caption[shortHello]{Hello\footnotemark}
+\caption[Functions for literality scores]{Types of functions used to investigate the relationship between the means of the different literality scores, cf. \citet[213]{Reddyetal:2011}.}
+\label{tab:reddy-types-of-functions}
+\end{table}
+
+The correlations between the scores are reported in \tabref{tab:reddy-cor-tran}, their Table 3.
+
+\begin{table}[!htb]
+  \centering
+\begin{tabular}[h]{lrr}\lsptoprule
+  function&$\rho$&R$^2$\\\midrule
+ADD&0.966&0.937\\
+MULT&0.965&0.904\\
+COMB&0.971&0.955\\
+WORD1&0.767&0.609\\
+WORD2&0.720&0.508\\\lspbottomrule
+\end{tabular}
+    \caption{Correlations between functions and phrase compositionality scores reported in \citet{Reddyetal:2011}. The R$^2$ value shows how much of the variation in the original data is explained when using these functions. It ranges from 0, no variation explained, to 1, all variation explained.}
+\label{tab:reddy-cor-tran}
+\end{table}
+
+As \citeauthor{Reddyetal:2011} point out, the results clearly show that functions
+using literality scores of
+both constituents are superior to those involving only the first or only the second word. Interestingly, the correlation scores are obtained although the
+compounds are treated as types and not further distinguished according
+to the senses chosen by the raters. % I will come back to this point. \marginpar{TODO\textbf{WHERE?}}
+\is{semantic transparency!{human judgements}|)}
+\subsection{Reddy et al.'s distributional semantics models}
+\label{sec:reddy-distrib-models}
+\is{semantic transparency!{dependent variable}!{in distributional semantics models}|(}
+\citeauthor{Reddyetal:2011} model the data with the help of distributional
+semantics, using a vector space model of meaning or, in the
+terminology of \citet{Sahlgren:2006}, a word space model of meaning
+(cf. the introduction in Section \ref{sec:intro-dist-sem}). 
+% In these models, the
+% meaning of a word is represented by multidimensional vectors which
+% represent the words co-occurrences with other words. 
+% For practical
+% reasons, however, not all other words are used to establish co-occurrences, and the window for
+% co-occurrences is limited. 
+In the Reddy et al. study, the top 10,000
+content words in the ukWaC corpus (\citealt{Ferraresietal:2008}) are used and the context window is set to
+100. That is, for every compound and every compound constituent,
+\citet{Reddyetal:2011} use the 100 word context around every
+occurrence in their corpus and extract the co-occurrences with the top 10,000
+content words. In addition, ``the context words in the vector are set to the ratio of probability of the context
+word given the target word to the overall probability of the context
+word" \citep[215]{Reddyetal:2011}, cf. also Section \ref{sec:dist-design}.  
+% "to the
+% ratio of the probability of the context word given the target word to
+% the probability of the context word overall.", 
+\citet{Reddyetal:2011} distinguish between 2 types of models,
+constituent based models and composition function
+based models. 
+
+
+\subsubsection{Constituent based models}
+\is{distributional semantics!{constituent based models}}
+For the constituent based models, \citet{Reddyetal:2011} first
+model the literality score of the first and the second constituent
+separately, using the cosine similarity between the constituents and
+the corresponding compounds. Secondly, the
+model scores for the first or the second or both constituents are used as
+input to a function calculating the literality score for
+the whole compound. The functions explored are the same that were
+already considered for the constituent judgment based models, cf. \tabref{tab:reddy-types-of-functions} above.
+% \item basic idea: models like those described in section 3.1
+% That is, in a first step the literality scores s1 and s2
+%   \item using one of the functions to get the compositionality score s3
+%   \end{enumerate}
+% \end{itemize}
+
+% \subsubsection{Modelling literality scores of the constituents}
+The core hypothesis behind the idea that the literality scores of the
+con\-stit\-u\-ents could be useful in determining the literality score of
+the whole compound is that constituents that are used literally in a
+compound are likely to share co-occurrence with the
+compound. \citet[215]{Reddyetal:2011} illustrate this with the example
+string \emph{swimming pool}, which co-occurs with \emph{water},
+\emph{fun}, and \emph{indoor}, all of which also often co-occur with
+both \emph{swimming} and \emph{pool}.
+  % $\rightarrow$ highly likely that compound and constituent have
+  % shared co-occurrences (e.g. swimming pool, swimming, pool:
+  % \emph{water, fun, indoor})
+They model the literality of a given word in a compound in terms of
+the cosine similarity between the compound's and
+  the constituent's co-occurrence vectors, cf. \Next and \NNext, where
+  \emph{s1} and \emph{s2} stand for the calculated literality scores and \emph{v1} and \emph{v2} for the
+  co-occurrence vectors of the first
+  and second constituent respectively. The co-occurrence vector
+  for the compound is represented by \emph{v3}.
+
+\ex. \label{ex:reddy.lit.score.N1}
+s1 = $sim_{\text{cos}}$(\emph{v1,v3})
+% \\
+% literality score of the first constituent (s1) = cosine similarity between
+% the vector for the first constituent (v1) and the vector for the
+% compound (v2)
+
+\ex. \label{ex:reddy.lit.score.N2}
+s2 = $sim_{\text{cos}}$(\emph{v2,v3})
+% \\
+% literality score of the second constituent (s2) = cosine similarity between
+% the vector for the second constituent (v2) and the vector for the
+% compound (v3)
+
+% [HIER WEITER]
+% \subsubsection{Compositionality of the compound}
+% \begin{itemize}
+% \item gives the function to compute the compound compositionality score
+% \end{itemize}
+Having established the literality scores of the individual
+constituents, calculating the compositionality score for the whole
+compound is straightforward.  \citet{Reddyetal:2011} use the same set
+of 5 functions they already used to investigate the relationship
+between the human judgments on the constituents and on the compound:
+ADD, MULT, COMB, WORD1, WORD2. This time, however, the input is not
+the human judgments but the modeled literality
+scores. \citet{Reddyetal:2011} point to the following works as
+partially motivating these models: \citet{Baldwinetal:2003} used the
+similarity of verb and verb + particle combination in a Latent
+Semantic Analysis as a measure of
+decomposability. \citet{SporlederandLi:2009} differentiate between
+literal and non-literal uses of words exploiting lexical chains, that
+is, one of the cohesion measures, lexical cohesion, proposed in
+\citet{HallidayandHasan:1976}. \citet{Bannardetal:2003}, again
+investigating verb particle combinations, argued that
+compositionality could be measured by investigating the similarity
+between the co-occurrences of either verb or particle with the
+co-occurrences of the verb-particle
+combination. \citet{McCarthyetal:2003}, working on phrasal verbs and exploiting various measures
+for nearest neighbors, likewise argued for the usefulness of a
+comparison between individual constituents and a multiword
+expression. % Recheck?
+
+% \ex. s3 = f(s1, s2)\\
+% where s3 = compositionality score of the compound, s2, s1 =
+% compositionality scores of the constituents (cf. \Last and \LLast),
+% and the function is any of the functions discussed previously (cf. \ref{ex:reddy-types-of-functions})
+
+\subsubsection{Composition function based models}
+\is{distributional semantics!{composition function based models}}
+In contrast to the constituent based models, the composition function
+based models use the co-occurrence vectors for the constituents
+directly as input to a compositionality function $\oplus$.
+
+% authors mentioned by Reddy et al:
+% SchoneandJurafsky:2001 OK
+% KatzandGiesbrecht:2006 OK
+% Giesbrecht:2009 OK
+% Guevara:2011 OK
+% MitchellandLapata:2008 OK
+% BUT: I added MitchellandLapata:2010 NO, I leave this aside for now!
+
+
+Again, \citet{Reddyetal:2011} point to a number of papers that already
+employ this idea: \citet{SchoneandJurafsky:2001}, in their equation (1), reproduced in \Next, propose a
+general template for measuring non-compositionality of multi-word
+expressions.
+
+\ex.  \( \displaystyle g(\Psi (C) , h( \Psi (X_1 ),..., \Psi (X_n ) ) ) \ge 0 \)
+
+In \Last, \emph{C} is a word n-gram, consisting of subcomponents $X_1$
+to $X_n$. $\Psi$ is a meaning function, e.g. a context vector or
+some probability based measure. The function
+ \emph{h} combines the
+meanings of the subcomponents of the n-gram represented by \emph{C} and
+ \emph{g} measures the difference between the meaning of
+the multi-word expression and the combined meanings of its
+constituents. Working on German
+preposition-noun phrase-verb
+combinations, \citet{KatzandGiesbrecht:2006} used vector addition to estimate the compositional
+meaning of an expression. \il{German!{distributional measures for PP-NP-VP}}
+\citet{Giesbrecht:2009} compares additive
+and multiplicative models and finds that multiplicative models using tensor products
+fare best. Modeling human judgments
+on a sentence similarity task, \citet{MitchellandLapata:2008} compared the performance of additive
+vs. multiplicative models, showing the superiority of the latter.
+\citet{Guevara:2010} models the observed vectors
+of adjective noun combinations on the basis of the observed vectors of their 2
+constituents and compares the performance of additive and
+multiplicative composition functions. \is{adjective noun
+  constructions!{distributional semantics model}}
+In his models, vector addition
+performed better than vector multiplication. 
+
+\enlargethispage{1\baselineskip}
+\citet{Reddyetal:2011} compare the performance of 2 compositionality
+functions $\oplus$, simple addition and simple multiplication. Both
+functions operate on both constituent vectors \emph{v1} and \emph{v2}.  \Next
+shows how the $i^{\text{th}}$ element of the composition \emph{v1} $\oplus$
+\emph{v2} is defined in these 2 functions, cf. \citet[216]{Reddyetal:2011}.   
+
+\ex. Compositionality functions:
+\a. simple addition:\\$(\text{\textit{a}} \times \text{\textit{v1}} + \text{\textit{b}} \times \text{\textit{v2}})_i = \text{a} \times \text{\textit{v1}}_i + b \times \text{\textit{v2}}_i$
+\b. simple multiplication:\\ (\emph{v1} $\times$ \emph{v2})$_i$ = \emph{v1}$_i$ $\times$ \emph{v2}$_i$ 
+
+Note that in the simple addition function 2 weights \emph{a} and
+\emph{b} are used; \citet{Reddyetal:2011}
+found best results by setting \emph{a} to 0.60 and \emph{b} to
+0.40. In a final step, the compositionality score for the compound is
+calculated based on the cosine similarity between the composed vector
+and the corpus-based co-occurrence vector.
+
+\subsubsection{Evaluation}
+For the human judgments of the literality of the constituents and the
+calculated literality scores for the constituents
+(cf. \ref{ex:reddy.lit.score.N1} and \ref{ex:reddy.lit.score.N2} above), \citet{Reddyetal:2011} report
+a Spearman's $\rho$ correlation of
+0.616 for the first and 0.707 for the second constituent. They do not
+have an explanation for the greater correlation of the second
+constituent, hypothesizing that ``[p]erhaps these constitute an easier
+set of nouns for modelling [\dots]" \citep[216]{Reddyetal:2011}.
+
+% \begin{itemize}
+% \item constituent models evaluated against all 3 measures
+% \item composition function models only evaluated on phrase level scores
+% \end{itemize}
+
+For the human judgments of compound literality, the different functions
+are compared using a linear regression analysis. The results are
+presented in \tabref{tab:reddyResults}, cf. their Table (5).  
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabular}{lrr}\lsptoprule
+    model&$\rho$&\emph{R}$^2$\\\midrule
+ADD&0.686&0.613\\
+MULT&0.670&0.428\\
+COMB&0.682&0.615\\
+WORD1&0.669&0.548\\
+WORD2&0.515&0.410\\
+$\text{\textit{a}} \times \text{\textit{v1}} + \text{\textit{b}} \times \text{\textit{v2}}$&0.714&0.620\\
+\emph{v1} $\times$ \emph{v2}&0.650&0.501\\\lspbottomrule
+  \end{tabular}
+  \caption{Comparison of the performance of the different models for compound literality in \citet{Reddyetal:2011} (see their Table 5)}
+\label{tab:reddyResults}\end{table}
+
+\pagebreak[4] 
+Within the group of
+constituent based models, the ADD and COMB functions perform best,
+while the functions using only one constituent perform worst, with
+WORD1 leading to better results than WORD2. 
+
+Of the 2 compositionality functions, the additive function performs
+better. When comparing both the constituent and the compositionality
+function based approaches, the additive compositionality function
+performs best. \citeauthor{Reddyetal:2011}, in contemplating a possible reason for the advantage of the approach based on the compositionality function, point out that
+%  ``reason could be because 
+``while
+  constituent based models use contextual information of each
+  constituent \emph{independently}, composition function models make
+  use of collective evidence from the contexts of both the
+  constituents \emph{simultaneously}"
+  \citep[217]{Reddyetal:2011}. This statement seems a little
+  misleading to me, as all models use exactly the same contextual
+  information. What happens independently in the constituent based
+  models is the comparison of this information against the contextual
+  information coming from the compound. Another take on a possible
+  explanation could thus be that compounding always involves some
+  degree of actual composition over and above the semantic relation
+  between the individual constituents and the whole compounds, and
+  that the slight advantage of composition function based models
+  reflects this.
+\is{semantic transparency!{dependent variable}!{in distributional semantics models}|)}
+  
+
+% \subsubsection*{Constituent based models evaluation}
+% \begin{itemize}
+% \item ADD and COMP best, MULT ok, word1 better than word2
+% \end{itemize}
+% \subsubsection*{Composition function based models evaluation}
+% \begin{itemize}
+% \item additive functions better than multiplicative
+% \end{itemize}
+
+% \subsubsection*{Winner}
+% \begin{itemize}
+% \item both approaches competitive, but composition function based
+%   models slightly outperform constituent based models
+% \item Reddy et al. hypothesize that the "reason could be because while
+%   constituent based models use contextual information of each
+%   constituent \emph{independently}, composition function models make
+%   use of collective evidence from the contextsw of both the
+%   constituents \emph{simultaneously}." \citet[217]{Reddyetal:2011}.
+% \end{itemize}
+
+
+\section{Pham and Baayen (2013)}
+\label{sec:phambaayen2013}
+
+\citet{PhamandBaayen:2013} are mainly concerned with testing measures
+derived from assumptions of the CARIN theory (cf. the discussion of
+this approach in Chapter \ref{cha:semTranPsycho}, Section \ref{sec:conceptual_combination}, in
+particular in Section \ref{sec:carin}). \is{CARIN model}
+However, in doing so, they use
+semantic transparency as a predictor and, in their Study 3, 
+their dependent variable is a measure of human semantic transparency
+judgments. Their modeling of these judgments is the focus of this
+section. First, I will introduce their general selection procedure for
+the compounds used in their study and their semantic coding of these
+compounds as well as the measures they calculated for
+all of these compounds. Secondly, I will discuss the details of their
+Study 3. The goal of \citet{PhamandBaayen:2013} was to see to what extent
+CARIN based measures outperformed LSA measures; in their modeling of
+semantic transparency this seems to be the case, as the LSA measures
+are not mentioned. They also use several entropy-based measures; I will
+therefore start this section with a short overview of informativity
+based measures.
+
+\subsection{Informativity based measures}
+
+\subsubsection{Informativity and entropy}
+\label{sec:informativity}
+\is{compound!{informativity based measures}}
+\is{compound!{entropy based measures}}
+\is{informativity based measures|(}
+\is{entropy based measures|(}
+
+All modern informativity measures can be traced back to
+\citet[11]{Shannon:1948}, where he introduced the formula in \Next as an
+example for ``measures of information, choice and uncertainty''.
+
+\ex. $H = - K \sum_{i=1}^{n} p_i\; \mbox{log}\; p_i$
+
+H is usually referred to as entropy; if the logarithm is to the
+base of 2, H
+is measured in bits. K stands for some positive constant and is usually
+disregarded, typically only indicating the measure, and $p_i$ gives the
+probability of i.  Derived from this entropy measure
+are measures for the information content of particular
+words, e.g. the definition from \citet[149]{PanandMcKeown:1999} in \Next.
+
+\ex. information content of a word \emph{w} = - log(P(\emph{w}))
+
+In \Last, P(\emph{w}) stands for the probability of a word \emph{w} in a corpus, estimated
+via the frequency of the word \emph{w} in the corpus divided by the accumulative
+occurrence of all the words in the corpus. The intuitive idea behind this
+measure is that the more likely a word is to occur, the less informative it is
+going to be. \Next gives some examples of single words and their
+information content, based on the BNC.\footnote{For the sake of exposition, the
+  numbers are based on non-lemmatized queries for only the word forms
+  as they occur below. \label{foot:exposition}}
+
+\ex. 
+\a. \emph{agony}:\\ 922 hits in the BNC, a 98,313,429 corpus:\\
+information content:\\ $- log_2 (P(w))= - log_2 (922/98313429)$ % =  - log_2 0,000009378
+% = 5,027889772$
+= 5.029 
+\b. \emph{aunt}: 2,744 occurrences\\information content: 4.554 %4,554224603
+% 0,000027911 [probability]
+% −4,554224603 [log of the probability]
+\c. \emph{uncle}: 3,350 occurrences\\information content: 4.468 %4,467564135
+% 0,000034075
+% −4,467564135
+\d. \emph{column}: 2,775 occurrences\\information content:  4.549%4,549350663
+% 0,000028226
+% −4,549350663
+
+% Example!:
+% agony 
+% Your query "agony" returned 922 hits in 462 different texts (98,313,429 words [4,048 texts]; frequency: 9.38 instances per million words)
+% aunt
+% Your query "aunt" returned 2744 hits in 501 different texts (98,313,429 words [4,048 texts]; frequency: 27.91 instances per million words)
+% uncle
+% Your query "uncle" returned 3350 hits in 733 different texts (98,313,429 words [4,048 texts]; frequency: 34.07 instances per million words)
+% column
+% Your query "column" returned 2775 hits in 858 different texts (98,313,429 words [4,048 texts]; frequency: 28.23 instances per million words)
+% agony aunt
+ \citet{PhamandBaayen:2013} introduce the new measure `compound entropy', which they
+define over the probability distributions of modifier and head. \is{compound measures!{compound entropy}|(}
+The probability distributions, in turn, are based on the frequencies
+of the modifier and the head, cf. e.g. the procedure used in
+\citet{Baayenetal:2008b} to measure inflectional entropy via the
+frequencies of the singular and plural forms of a lexeme. \citet{PhamandBaayen:2013} do not
+give the exact formula, but I assume it is the same one that
+Baayen uses in a later paper, \citet[468]{Baayenetal:2011}, reproduced
+in \Next, with $i$ ranging over the probability of
+the modifier and the probability of the head. %, given the compound.
+% similar to the one used
+% for inflectional entropy in \citet{Baayenetal:2008b}, then we would
+% have a definition like \Next, with $i$ ranging over the probability of
+% the modifier and the probability of the head.
+
+\ex. \( \displaystyle H_{\text{compound}} = -\sum_{i=1}^2 p_i log_2 (p_i) \)
+
+% Compound entropy 
+% ``We further calculated Compound Entropy (defined over the probability 
+% distribution of modifier and head, cf. Baayen et al. (2008b) and Baayen (2010)), 
+% and Modifier and Head Family Size (De Jong et al., 2002; Baayen et al., 2010." \textbf{CHECK!} 
+% \citet{Baayenetal:2008b}: Paradigmatic structure in speech
+% production:
+% inflectional entropy H defined over the probabilities of sg and pl forms
+% given a lexeme, where the probabilities of the forms are estimated
+% from the frequencies of sg and pl forms divided by overall
+% occurrences of the lexeme.
+% \citet{Baayen:2010}: The directed compound graph of English 
+% eng gelesen, nichts über die probability distribution of modifier and head oder entropy ???
+% from the explanation files: Hcomp             : compound entropy calculated over ModFreq and HeadFreq
+% Dafür: entropy für compounds klar definiert in Baayen et al 2011
+Returning to our above examples, we can now calculate the compound
+entropy of \emph{agony aunt}, \emph{agony uncle} and \emph{agony
+  column}, re-using the BNC frequencies from \LLast.
+
+\ex. 
+\a. compound entropy of \emph{agony aunt}:\\
+\( \displaystyle - (\frac{922}{922 + 2744} \times log_2 \frac{922}{922 + 2744}\, + \, \frac{2744}{922 + 2744} \times
+log_2 \frac{2744}{922 + 2744}) \)
+\\[.5em]
+\( \displaystyle = 0.8136 \) 
+\b. compound entropy of \emph{agony uncle} = 0.7525
+\c. compound entropy of \emph{agony column} = 0.8103
+
+Compound entropy, thus defined, picks up imbalances in the
+frequencies of the 2 constituents across their combined count.
+\is{compound measures!{compound entropy}|)}
+
+\citet{PhamandBaayen:2013} also use relative entropy, also known under the name of
+Kullback–Leibler divergence. Intuitively, this measure compares the difference between 2 different distributions.
+
+The equation \Next, cf. (3) in 
+\citet[459]{PhamandBaayen:2013}, defines reC, a
+relative entropy measure comparing the distributions of conceptual
+relations across the modifier family and all compounds in the dataset.
+\is{compound measures!{relative entropy measure reC}}
+\ex. \( \displaystyle reC = D(p||q) = \sum_i p_i \; log_2 (p_i/q_i)) \)
+
+% \enlargethispage{1\baselineskip}
+In \Last, $p$ stands for the probability distribution of the conceptual
+relations within the modifier family $\mathcal{M}$, and $q$ stands for the
+probability distribution of the conceptual relations in the lexicon
+$\mathcal{L}$. The way that \citet{PhamandBaayen:2013} classified the
+conceptual relations and the size of their lexicon will be discussed
+below. For purposes of illustration, let us take the
+\emph{agony}-modifier family. In the BNC (again, considering only the singular word forms, cf. Footnote \ref{foot:exposition}), this family only consists
+of the 3 compounds introduced above, all with the conceptual relation
+\textsc{for} between the 2 elements. Thus, the conceptual relation \textsc{for} has a
+probability of 1 and all other conceptual relations have a probability
+of 0 for this modifier family. In the whole corpus, however, all
+conceptual relations occur, so \textsc{for} necessarily cannot occur with a
+probability of 1, let us assume for the sake of the example that
+across all noun noun compound types \textsc{for} occurs with a probability of
+0.5. The reC measure for \emph{agony aunt} would thus be calculated as
+in \Next (note that the summation over all the other relations besides
+\textsc{for} can be disregarded, since the respective summands will always be zero). 
+\is{compound measures!{relative entropy measure reC}}
+
+\ex. $reC = D(p||q) = \sum_i p_i \; log_2 (p_i/q_i))$\\
+$= 1 \times log_2 (1/0.5) + 0 + 0 \dots= 2$
+
+Finally, an entropy measure that is often used in combination with
+distributional semantics is mutual information or derivatives
+thereof. An example is positive pointwise mutual information, which
+is discussed in detail in \citet[157--158]{TurneyandPantel:2010}. They
+walk through the steps needed to turn a word-context frequency matrix
+into a matrix on which positive pointwise mutual information has been
+applied. Here, I will closely follow their discussion, using the
+numeric examples from above, the baker-butcher-soldier matrix,
+adding in 2 further verbs for illustration, \emph{have} and \emph{be}. The
+frequency matrix F has 3 rows and 5 columns, and just as before the words of interest are \emph{baker}, \emph{butcher}, and \emph{soldier}. The 5 verbs represent 5 different
+contexts. 
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabularx}{.8\textwidth}{lR{1cm}R{1cm}R{1cm}R{1cm}R{1cm}R{1cm}}\lsptoprule
+% &cut&kill&knead&have&be&\\\tablevspace %\midrule
+&cut&kill&knead&have&be&\\\midrule
+butcher  &4&3&1&10&12&30\\
+baker&2&0&4&10&12&28\\
+% soldier&3&4&1&10&12&30\\\tablevspace %\midrule
+soldier&3&4&1&10&12&30\\\midrule
+&9&7&6&30&36&\\\lspbottomrule
+  \end{tabularx}
+  \caption{Fictional co-occurrences of the 3 nouns \emph{soldier,
+      butchers}, and \emph{baker} with the 5 verbs
+    \emph{cut, kill, knead}, \emph{have}, and \emph{be}, with added
+    margin totals}
+  \label{tab:soldiers-and-more}
+
+\end{table}
+
+That is, a given element $f_{ij}$ in the $i^{th}$ row and the $j^{th}$ column,
+$f_{ij}$ gives the number of times that word $w_i$ occurred in context
+$c_j$. Every row $f_{i:}$ corresponds to a word w and every column to
+a context $f_{j:}$, with the : standing for all of the columns/rows
+respectively. To calculate pointwise mutual information, \citet[157]{TurneyandPantel:2010} define
+3 probabilities estimated via the frequencies, the estimated
+probability $p_{ij}$ that word $w_i$ occurs in context $c_j$, the estimated
+probability of the word $w_i$, $p_{i*}$,  and the estimated probability of the
+context $c_j$, $p_{*j}$, cf. \Next-\ref{ex:context-prob}, based on
+their (1--3). Note that the denominator for all estimated probabilities
+is always the same, the sum of the summed frequencies of the word vectors. 
+
+\ex. \( \displaystyle p_{ij} = \frac{f_{ij}}{\sum^{n_r}_{i=1}\sum^{n_c}_{j=1}f_{ij}} \)
+
+\ex. \( \displaystyle p_{i*}= \frac{\sum^{n_c}_{j=1}f_{ij}}{\sum^{n_r}_{i=1}\sum^{n_c}_{j=1}f_{ij}} \)
+
+\ex. \label{ex:context-prob}
+\( \displaystyle p_{*j}= \frac{\sum^{n_r}_{i=1}f_{ij}}{\sum^{n_r}_{i=1}\sum^{n_c}_{j=1}f_{ij}} \)
+
+We can now calculate the estimated probability of the word
+\emph{baker} to occur in the context of \emph{knead}, cf. \Next, or in
+the context of \emph{have}, cf. \NNext.
+
+\ex. \( \displaystyle p_{\text{baker-knead}} = \frac{4}{(30+28+30)} = \frac{4}{88} =
+\frac{2}{44} = 0.045 \)
+
+\ex. \( \displaystyle p_{\text{baker-have}} = \frac{10}{(30+28+30)} = \frac{10}{88} =
+\frac{5}{44} = 0.114 \)
+% 0,113636364
+
+The estimated probability for the occurrence of the word
+\emph{baker} is given in \Next.
+
+\ex. \( \displaystyle p_{\text{baker}}= \frac{28}{88}= \frac{14}{44}= 0.318 \)
+% 0,318181818
+
+Finally, the estimated probabilities of the 2 contexts are given in \Next and
+\NNext.
+
+\ex. \label{ex:context-prob-knead}
+\( \displaystyle p_{\text{knead}}= \frac{6}{88}= \frac{3}{44}= 0.068 \) 
+% 0,068181818
+
+\ex. \label{ex:context-prob-have}
+\( \displaystyle p_{\text{have}}= \frac{30}{88}= \frac{15}{44}= 0.341 \)
+% 0,340909091
+
+The definition for \isi{pointwise mutual information} is given in \Next, and
+the step from pointwise mutual information to positive pointwise
+mutual information is given in \NNext, cf. (4--5) in
+\citet[157]{TurneyandPantel:2010}.
+
+\ex.  \( \displaystyle pmi_{ij} = log\left(\frac{p_{ij}}{p_{i*}p_{*j}}\right)\)
+
+\ex. \(x_{ij} = \Bigg\{
+\begin{array}{c}
+  pmi_{ij} \text{ if } pmi_{ij} > 0\\
+\text{0 otherwise}
+\end{array}
+\)
+% 
+%        \)
+
+As the definition shows, pointwise mutual information is a measure of
+association between 2 variables. If the co-occurrence between 2
+events is statistically independent, then the pointwise mutual
+information will be zero. This follows from the definition of statistical
+independence, according to which the joint probability of 2 events
+ equals the product of their probabilities. In this case, the joint
+probability divided by the product of the 2  probabilities equals 1,
+the $log_2$ of which is 0. In contrast, PMI will be positive if word
+and context co-occur above chance level, negative if they co-occur below
+chance level. \citet[157]{TurneyandPantel:2010} point out that the
+distributional hypothesis is concerned with the co-occurrences above
+chance level, which motivates the dismissal of all negative values in
+the step from PMI to PPMI.
+
+We can now turn the frequencies of \emph{baker} in the context
+of \emph{knead} and in the context of \emph{have} into positive
+pointwise mutual information, cf. \Next and \NNext.
+
+\ex. % \(ppmi_{baker-knead}\) \\
+\( \displaystyle pmi_{\text{baker-knead}} = log_2\left(\frac{ \frac{2}{44}}{ \frac{14}{44}
+    \times \frac{3}{44}}\right) = log_2 \frac{88}{42} = 1.067 \)
+%    
+% log2(88/42)
+% [1] 1.067114
+\\[.5em] \(ppmi_{\text{baker-knead}} = 1.067\)
+
+
+\ex. % $ppmi_{baker-have}$\\
+\( \displaystyle pmi_{\text{baker-have}} = log_2\left(\frac{ \frac{5}{44}}{ \frac{14}{44}
+    \times \frac{15}{44}}\right) = log_2 \frac{220}{210} = 0.067 \)
+%    
+\\[.5em] \(ppmi_{\text{baker-have}} = 0.067 \)
+% 14*15
+% [1] 210
+% log2(220/210)
+% [1] 0.0671142
+
+The whole matrix transformed to positive pointwise mutual information is given in table \ref{tab:butcher-ppmi}.
+
+\begin{table}[!htb]
+  \centering
+%   \begin{tabular}{lccccc}\lsptoprule
+  \begin{tabularx}{.8\textwidth}{lR{1cm}R{1cm}R{1cm}R{1cm}R{1cm}R{1cm}}\lsptoprule
+&cut&kill&knead&have&be\\\midrule
+butcher  &0.383 &0.330 &0 &0 &0\\
+baker&0  &  0  &1.067  &0.067  &0.067\\
+soldier&0& 0.745 &0& 0& 0\\\lspbottomrule
+  \end{tabularx}
+% butcherPMIij
+%           cut      kill     knead        have          be
+% 1  0.38261602 0.3301486 -1.032421 -0.03242148 -0.03242148
+% 2 -0.51784830      -Inf  1.067114  0.06711420  0.06711420
+% 3 -0.03242148 0.7451861 -1.032421 -0.03242148 -0.03242148
+  \caption{PPMI transformation of the co-occurrence matrix of the 3 nouns \emph{soldier,
+      butchers}, and \emph{baker} with the 5 verbs
+    \emph{cut, kill, knead}, \emph{have}, and \emph{be}.}
+  \label{tab:butcher-ppmi}
+\end{table}
+What the PPMI transformed table shows is that now
+frequency counts that do not help to distinguish between different
+words play a much smaller role than before, even if their absolute
+counts are high.
+\is{entropy based measures|)}
+
+\subsubsection{Other informativeness measures}
+\label{sec:other-informativeness}
+
+While the previous sections introduced the basics of entropy-based
+measures, I will use this section to introduce the informativity
+measures used in
+\citet{BellandPlag:2012} in their study on noun noun compound stress
+assignment. They use 3
+different informativeness measures, based on absolute and relative
+frequencies of the constituents and on what they refer to as semantic
+specificity. As an absolute measure, they used the frequency of the
+second constituent, the idea being that the more frequent the second
+constituent, the less informative it will be. 
+The 2 other measures are more
+complex.
+%  and therefore discussed in the 2 following sections.
+% \paragraph{Informativeness measures based on relative frequencies}
+The first relative measure that \citet[492]{BellandPlag:2012} introduce is the
+conditional probability of N2 relative to N1, calculated by simply dividing
+the compound frequency by the N1 frequency. Again, the idea is clear: if the ratio
+of compound frequency to N1 frequency is high, then the probability of a specific N2 is also high and
+its information content therefore low. The 2 other relative measures are
+based on family size measures. %  (cf. \ref{sec:family_size}).
+Family size is a concept introduced in
+\citet[121]{SchreuderandBaayen:1997}. \is{compound measures!{family size}}\is{compound!{constituent family}}
+The morphological family of a word denotes
+the set of all words that are either derivations from that word or that are
+compounds containing that word. The family size of a word is the number of
+different words in the morphological family, excluding the word itself. % \is{family size} 
+% The cumulative family frequency are the summed token frequencies of all words in a
+% words family, again exluding the frequency of the word itself. 
+\citet{BellandPlag:2012}
+used 2 type-based compound family size measures: (1) The N2 family size, i.e. the number of noun noun compound types in which N2 occurred as N2,
+in order to assess the probability of N2 occurring as the second member of a compound (see also \citealt{PlagandKunter:2010} who already use N1 and N2 family sizes as proxies for the  informativeness of the respective compound constituents). (2)
+One divided by the type-based N1 family size, in order to assess the informativity of N2 (that is, the
+larger the N1 family is, the less probable is a particular N2 and thus the higher
+its informativity). 
+
+For their second measure gauging relative informativeness, \citet[493]{BellandPlag:2012} are concerned with semantic specificity.
+% \paragraph{Informativeness measures based on semantic specifity}
+\citet{BellandPlag:2012} argue that highly-specific words can be considered to
+be more informative. They implement semantic specificity via the number of
+`synsets' individual words have in the WordNet database
+(cf. \citealt{Fellbaum:1998}, see also Chapter \ref{cha:empirical-2}, Section \ref{sec:wordnet}), where synsets are ``A synonym set; a set of words
+that are interchangeable in some context without changing the truth value of
+the proposition in which they are embedded.'' %\citet{}  
+% Princeton University "About WordNet." WordNet. Princeton
+% University. 2010. <http://wordnet.princeton.edu>, Glossary
+For example, a word like the noun \emph{dog} has a synset count of 7
+(WordNet-Search 3.1), as compared to a word like \emph{buttercup} with a
+synset count of 1. \is{WordNet!{semantic specifity and}}
+ \citet{BellandPlag:2012} argue that the number of synsets
+of N2 is linked inversely to N2 informativity and that N2 informativeness is
+affected by the synset count of N1 in that N2 is more informative if it is
+more specific than N1. 
+Note that for words where no synset counts were available,
+\citet{BellandPlag:2012} used the sense numbers in the OED online.
+
+The study by \citet{PanandMcKeown:1999} mentioned above also
+introduces a second measure for informativity that could be
+categorized under the term of semantic specificity. In particular,
+they use TF-IDF weighting, cf. Section \ref{sec:dist-design}: the frequency of
+the word within a document is multiplied with the inverse document
+frequency. The inverse document frequency, in turn, is the logarithm
+of the ratio of the total number of documents to the number of
+documents containing the word (see their study for the concrete
+algorithm they used). Importantly, this measure of semantic
+specificity is always relative to a given document and thus not a
+global measure like all the other measures discussed so far.
+\is{informativity based measures|)}
+
+
+ 
+
+
+\subsection{Pham and Baayen: compound selection and variable coding}
+\label{sec:phambaayenbasic}
+
+Since the CARIN measures require compounds annotated for their semantic
+relations, \citet{PhamandBaayen:2013} built a database of conceptual
+relations (cf. their Study 1).
+They started with a set of 783 randomly selected 
+compounds. Although they do not state the source from which these compounds were randomly selected, it is clear that some other considerations must have been in play, given that the database contains only 50 different modifier families and 46 different head families. For these compounds, \citeauthor{PhamandBaayen:2013} selected the constituent families, that is,
+all compounds sharing either the
+head or the modifier with these compounds, from the \isi{CELEX}
+database. This resulted in a set of 3,455 compounds.
+% Thus, with this step they retrieved
+% the constituent families of the compounds originally selected, that is,
+% those compound types sharing either the modifier (the modifier family)
+% or the head (the head family) of the compound.
+
+
+
+
+
+The first author, Hien Pham, coded the compounds with regard to
+semantic type, semantic relation, semantic modifier, and semantic
+head. Semantic type encodes
+semantic transparency, using a ternary distinction into transparent, partially opaque, or
+fully opaque compounds. Examples from their data are given in \Next
+(their data was at some point available at
+\url{http://openscience.uni-leipzig.de/index.php/mr2/article/view/43}\footnote{As
+of December 2016, neither the .pdf of the paper nor their data is
+available from this location.}). 
+
+% martinPhamBaayen.R in /Dropbox/statistics/
+
+\ex. Examples for the different semantic types
+\a.
+\begin{tabular}[t]{p{3cm}p{6cm}}
+transparent:& \emph{cartwheel}, \emph{firebomb}, \emph{railhead} 
+  \end{tabular}
+% OED railhead: 
+ % 1.  (a) The furthest point reached by a railway (also fig.).  (b) The point on a railway from which road or branch-line transportation of supplies begins.
+ % 2. The shaped top of a rail.
+\b. \begin{tabular}[t]{p{3cm}p{6cm}}
+partially opaque:& \emph{cardboard}, \emph{firearm}, \emph{ragtime}
+\end{tabular}
+\c. \begin{tabular}[t]{p{3cm}p{6cm}}
+fully opaque:& \emph{candlewick}, \emph{jackass}, \emph{redcoat }
+\end{tabular}
+\z. Selected from the datasets used in \citet{PhamandBaayen:2013}
+% OED candlewick 2. As one word. A soft material, usually cotton yarn, used to produce a tufted surface, also called candlewicking; material embroidered with tufts of this yarn.
+% BNC: candlewick bedspread etc.
+
+\pagebreak[4]
+Note that, incidentally, these randomly picked examples already show
+typical problems in judging transparency. Take \emph{cartwheel},
+which has the meaning `wheel of a cart' but also occurs
+in expressions such as `to turn/do cartwheels', e.g. to perform
+sidewise somersaults. In the BNC, \emph{cartwheel/s} yields 42
+hits, with 17 of them clearly referring to the latter usage. If judged
+as transparent, probably its `wheel of a cart' meaning is
+intended. And if we consider
+\emph{railhead}, `the farthest point reached by a railway under
+construction', the classification as transparent is somewhat
+surprising as it clearly contains a meaning shift for its head. Note further
+that in their actual datasets as far as accessible to me, only 35
+compounds are judged as opaque, 243 compounds are judged as partially opaque, and the
+remaining 2,216 compounds are all judged as transparent. More disturbingly, of the 35 opaque
+compounds all but 5 start with the letter `b', which makes one
+wonder whether this is even the correct dataset.\footnote{This doubt
+  is further backed by the fact that calculation of the CARIN measures
+based on their database does not lead to results matching with their calculations.}
+
+To code the semantic relations, Hien Pham adapted  the set of 15 relations
+from \citet{GagneandShoben:1997} (cf. 
+\tabref{tab:gagneandshoben1997_relations} in Chapter
+\ref{cha:semTranPsycho})  and added 4 
+relations, cf. the overview in \tabref{tab:relations-in-phamandbaayen}, reproducing their Table 2. Note that of their 4 additions, the relation head-of-modifier is quite underspecified, in their data as available to me only used for \emph{airspeed}, \emph{bloodstream/s}, and \emph{bombshell}. The relation \textsc{likes} is unclear. It does not occur in their database as available to me and its inclusion in the table is probably an error. 
+
+\begin{table}[!htb]
+  \centering
+\begin{tabular}{lll}\lsptoprule
+&relation&example\\\midrule
+1&head causes modifier&\emph{flu virus}\\
+2&modifier causes head&\emph{job tension}\\
+3&head has modifier&\emph{college town}\\
+4&modifier has head&\emph{lemon peel}\\
+5&head made of modifier&\emph{chocolate bar}\\
+6&head makes modifier&\emph{honey bee}\\
+7&head location is modifier&\emph{office friendships}\\
+8&head for modifier&\emph{plant food}\\
+9&head is modifier&\emph{canine companion}\\
+10&head uses modifier&\emph{machine translation}\\
+11&head is derived from modifier&\emph{peanut butter}\\
+12&head about modifier&\emph{budget speech}\\
+13&head during modifier&\emph{summer clouds}\\
+14&head used by modifier&\emph{servant language}\\\tablevspace
+15&modifier location is head&\emph{murder town}\\
+16&head by modifier&\emph{student vote}\\
+17&modifier likes head&\emph{age-long}\\
+18&head of modifier&\emph{bombshell}\\
+19&head made by modifier&\emph{anthill}\\
+20&head resemble modifier&\emph{arrow-root}\\\lspbottomrule
+\end{tabular}
+    \caption{Relational coding used in \citet{PhamandBaayen:2013}, reproducing their Table 2 on page 457. The first 15 relations are adapted from \citet{GagneandShoben:1997}, the final 5 relations are their own new additions.}
+\label{tab:relations-in-phamandbaayen}\is{semantic relations!{set used in Pham \& Baayen}}
+\end{table}
+
+
+In coding, Hien Pham distinguishes between the meaning of a
+constituent in isolation and the meaning of the constituent in a
+compound. Thus, as illustrated in \citet[461]{PhamandBaayen:2013}, in \emph{airstrip} and \emph{airport}, the modifier
+is \emph{air}, but the semantic modifier is \emph{airplane/aircraft},
+and the conceptual relation for \emph{airport} is coded as \textsc{for}.
+For \emph{backlash}, the semantic modifier is \emph{adverse}, the
+semantic head is \emph{(violent) reaction}. The compound \emph{backlash} is
+classified as head IS modifier, cf. \citet[461]{PhamandBaayen:2013}. Their database also
+contained exocentric compounds, their treatment is exemplified by
+\emph{camel-hair}, where \citet[462]{PhamandBaayen:2013} assume the
+semantic modifier \emph{camel-hair} and a notional head \emph{cloth},
+so that the relation is coded as head MADE OF modifier. While the
+decision to encode the semantic relations after meaning shifts or
+reductions of
+individual constituents, that is, cases like \emph{airport} and
+\emph{backlash}, seem defendable to me, I think that classifying
+\emph{camel-hair} as MADE OF is a strange choice, cf. the model to be
+discussed in Chapter \ref{cha:empirical-1}, Section \ref{sec:bell-schaefer-sem-annotation}, where the semantic relation
+would be coded before the metonymic meaning shift (in that case, FROM
+being the obvious choice). 
+
+% Carin related measures
+\pagebreak[4]
+Based on their database of conceptual relations, \citet{PhamandBaayen:2013} cal\-cu\-lat\-ed 3
+CARIN-related measures: (1) the strength measure C, (2) the gen\-er\-al\-ized
+strength measure gC, and (3) the relative entropy measure reC.
+
+The strength measure C is defined in \Next, reproducing (1) in
+\citet{PhamandBaayen:2013}. It gauges the relative frequency of a
+compound's conceptual relation relative to its modifier family.
+\is{compound measures!{strength measure C}}
+\ex. \label{ex:strength-C}
+\( \displaystyle C_i = \frac{n(s_i)}{\sum_{j \in r(\mathcal{M})} n(j)} \)
+
+\enlargethispage{1\baselineskip}
+In \Last, $\mathcal{M}$ stands for the modifier's family, $s_i$ the for the
+conceptual relation of the \emph{i}-th compound, and \emph{n}($s_i$) for the type count
+of compounds with the same relation in $\mathcal{M}$. N(j) counts the
+compound types with relation \emph{j} in $\mathcal{M}$, where \emph{j} ranges over the
+semantic relations. This measure
+is closely related to the strength measure proposed in
+\citet{GagneandShoben:1997} (cf. the definition
+\ref{ex:strength-ratio} and the discussion in Chapter
+\ref{cha:semTranPsycho}, Section \ref{sec:carin}). \is{strength ratio}
+However, as
+\citet[458]{PhamandBaayen:2013} point out, the
+operationalization differs in 2 crucial places:
+\begin{inparaenum}
+\item[(1)] C is not
+restricted to the 3 highest ranked relations in the modifier
+family and
+\item[(2)] C is the probability of the relation of interest in the modifier
+  family, whereas \citet{GagneandShoben:1997} use an exponential decay function.
+\end{inparaenum}
+
+The generalized strength measure gC is not based on the relations in a
+compounds modifier family but takes into account the full lexicon,
+cf. the definition in \Next, reproducing (2) in \citet[458]{PhamandBaayen:2013}.
+\is{compound measures!{generalized strength measure gC}}
+
+\ex. \label{ex:generalized-strength-C}
+\( \displaystyle gC_i = 
+\frac{m(s_i)}{\sum_{j \in r(\mathcal{L})} m(j)} \)
+
+In \Last, $m(s_i)$ denotes the number of compounds in the lexicon that
+share the conceptual relation $s_i$, that is, the conceptual relation
+of the compound $i$. $r\mathcal{L}$ stands for the conceptual relations in
+the lexicon and $m(j)$ counts the types for each relation $j$. 
+
+Finally, \citet{PhamandBaayen:2013}, use the reC measure introduced
+above.\is{compound measures!{relative entropy measure reC}}
+
+% \Next, cf. (3) in \citet[459]{PhamandBaayen:2013}, defines , a relative entropy measure.
+
+\ex. $reC_i = D(p||q) = \sum_i p_i \; log_2 (p_i/q_i))$
+% added subscript i to reC as the relative entropy should be different
+% for every compound (= for each different modifier)
+
+Here, $p$ stands for the probability distribution of the conceptual
+relations within the modifier family $\mathcal{M}$, and $q$ for the
+probability distribution of the conceptual relations in the lexicon $\mathcal{L}$.
+
+% Entropy measures
+% Furthermore, they used compound entropy as a predictor, cf. the discussion above.
+They also used 3 measures based on Latent Semantic
+Analysis, namely the LSA similarity (cf. Section \ref{sec:lsa}) between modifier and head,
+modifier and compound, and head and compound. 
+% However, since these played no role in the transparency rating experiment, I will disregard them here.
+
+
+\subsection{Study 3: transparency rating experiment}
+\label{sec:phambaayen3}
+
+In their Study 3, \citet{PhamandBaayen:2013} only used a subset of 1,313 randomly selected compounds from
+their set of 3,455 compounds. This subset was identical to the subset that was
+already used in their Study 2; in fact, Study 3 immediately followed Study 2
+for the individual subjects. Between 125 and 147 compounds were presented
+to  33 subjects. The compounds were presented together with a sentence
+describing its meaning. The subjects were then
+asked to rate the transparency of a compound ``specifically with respect to whether the constituents of a compound
+help to understand its meaning" \citep[467]{PhamandBaayen:2013}. They
+employed a 7-point scale ranging from `not at all' to `fully' transparent. 
+% Das habe ich auch in chapter \ref{cha:semTranPsycho} section
+% \ref{sec:direct_measures}.
+
+% \subsubsection{Pham and Baayen's  regression model for semantic transparency}
+\label{sec:phanbaayenregress}
+\is{semantic transparency!{dependent variable}!{in regression model}|(}
+\citet{PhamandBaayen:2013} fitted a linear mixed effects
+model. Subjects and items were treated as crossed random effects. They
+report that ``[t]he most parsimoneous yet adequate model incorporated 4 parameters for the
+random effects structure of the data, all of which were supported by likelihood
+ratio tests: standard deviations for the random intercepts for subjects and items, a
+standard deviation for by-subject random slopes for compound frequency, and a
+correlation parameter for the 2 by-subject random effect
+components" \citep[467]{PhamandBaayen:2013}. 
+The coefficients of their model are given in \tabref{tab:phambaayentrans}.
+
+\begin{table}[!htb]
+  \centering
+  \begin{tabular}{lrrr}\lsptoprule
+                 &estimate &std. error&t value\\\midrule
+intercept &4.1795&0.3705&11.2804\\
+semantic type: partially opaque&1.2371&0.3442&3.5939\\
+semantic type: transparent&1.9426&0.3244&5.9884\\
+gC&1.3627&0.5583&2.4409\\
+reC&-0.3475&0.0927&-3.7467\\
+compound frequency&0.1262&0.0439&2.8774\\
+modifier family size&0.0931&0.0382&2.4387\\
+compound entropy&0.1075&0.0368&2.9259\\\lspbottomrule
+
+    
+  \end{tabular}
+  \caption{Fixed effects of the mixed effects model for transparency ratings, reference
+    level for the predictor transparency is `opaque' (from Pham \&
+    Baayen 2013)}
+\label{tab:phambaayentrans}
+\end{table}
+
+The authors report that they also fitted generalized additive models, but no non-\-linearities
+were discovered. Further, they report that including the semantic
+relations as predictors also improved the model fit, but replacing them with the 2 CARIN measures led to
+better models. They do not report the exact numbers and as
+reported above, it is not possible for me to re-run their
+models. 
+
+Looking at the final model in more detail, the results with
+regard to the 3 levels of the semantic type come as no surprise;
+in effect, what is shown here is that the ratings for the semantic
+type and those for transparency addressed the same issue. 
+
+Of more interest is the next predictor, the generalized strength
+measure gC. \is{compound measures!{generalized strength measure gC}}
+The higher the gC, that is, the
+higher the probability of the compound's relation in the language, the
+more transparent it is judged. Note that gC is
+not a measure relative to a specific compound, as in the original
+formula for the strength measure. It could therefore be
+argued that this finding shows that the relations themselves, via their
+absolute type frequencies, do have some independent status. The authors
+do not report on the comparison of the generalized strength measure
+and the simple strength measure C, which only uses the relations in
+the compounds modifier family.
+
+The negative
+value of the relative entropy measure reC indicates that the more different the distribution of the relations
+across the modifier family is in comparison to the distribution of the
+relations in the lexicon, the less transparent the compound is judged.
+
+Compound frequency and modifier family size both make a compound seem
+more transparent. Both effects do not seem very surprising. If a
+compound is very frequent, it might be perceived as more transparent
+due to its relative familiarity. Likewise, if a modifier occurs in
+very many different compound types, it is likely to participate in
+recognizable patterns which give the appearance of transparency. 
+% [\textbf{link to  literature; H\&B Baayen don't mention anything specific here}]
+
+As for the role of compound entropy, \citet[467]{PhamandBaayen:2013}
+write that ``[t]he enhancement in the ratings
+is consistent with the general effect of Compound Entropy in Study 2, where a
+greater Compound Entropy afforded reduced response latencies." Note,
+however, that in their Study 2, where they investigated familiarity
+responses, compound entropy participated in a 3-way interaction
+with the relative entropy measure and the strength measure C, which
+was dichotomized into C=1 and C$<$1. Recall that this measure is
+simply the proportion of the relation under investigation in the
+modifier family; its value is 1 only if the relation under
+consideration is the only relation in the modifier
+family. \citet[464]{PhamandBaayen:2013} point out that % in this case
+this has unwanted consequences for the relative entropy measure and
+``the statistical support for its predictivity is restricted." The
+effect of compound entropy with regard to reduced latencies is clearly
+observable only in the case of C$<$1. This merits closer
+investigation.
+% I mention this in detail,
+% because it is not quite clear to me how the compound entropy effects
+% are to be interpreted.
+Recall that the measure is the higher the more
+skewed the distributions of modifier and head are with respect to each
+other. It is not clear to me to what extent this should lead to increased
+transparency, or to what extent one would expect it to interact with the C
+value, as it did in their Experiment 2.
+\is{semantic transparency!{dependent variable}!{in regression model}|)}
+
+% \fbox{
+% \begin{minipage}{1.0\linewidth}
+%   \begin{center}
+%     \textbf{OPEN QUESTIONS}
+%   \end{center}
+%  \begin{itemize}
+%   \item the role of compound entropy
+%     \begin{itemize}
+%     \item "The enhancement in the ratings
+% is consistent with the general effect of Compound Entropy in Study 2, where a
+% greater Compound Entropy afforded reduced response latencies." (467)
+
+%     \item Study 2:
+% For C < 1:
+% "Here we see that latencies decrease for smaller values of Compound Entropy, and that especially
+% for these  smaller values of Compound Entropy, a greater CARIN relative entropy predicts
+% longer latencies." (465-466)
+% \item graphics/tensor smooths on page 465: \textbf{WHAT???}
+% \item In general: wouldn't one rather aspect that the higher the
+%   entropy, the less transparent? Or would one really expect anything much?
+% \item How exactly was it calculated?
+%     \end{itemize}
+%   \end{itemize}
+% \end{minipage}
+% }
+
+
+\section{\citet{Marellietal:2014}}
+\label{sec:marellietal2014}
+
+The starting point in \citet{Marellietal:2014} is the observation that
+semantic transparency can be conceptualized either via semantic
+relatedness or via semantic compositionality. While this is nothing
+new, the interesting point they make is that these 2 things do not
+necessarily go together, saying that semantic transparency in the latter conceptualization
+``measur[es] how well the combination of the constituents represents the
+compound meaning, independently of the degree to which the components,
+when treated as independent words, are related to the meaning of the
+whole" \citep[1422]{Marellietal:2014}. They illustrate this independence
+with the example \emph{swordfish}:
+\begin{quotation}
+[T]he meaning of \emph{swordfish}
+is not related to the meaning of \emph{sword}; nevertheless, when
+\emph{sword} and \emph{fish} are considered together, it becomes
+apparent that \emph{sword} underlines features which highly
+characterize the combined concept \emph{swordfish}, hence
+\emph{swordfish} is semantically compositional to a certain degree" % \marginpar{CHECK footnote!}
+\citep[1422]{Marellietal:2014}.\footnote{\citet[2]{Marellietal:2014}
+  point to \citet{MarelliandLuzzatti:2012} as already distinguishing
+  between these 2 conceptualizations, cf. the discussion of their paper in Chapter \ref{cha:semTranPsycho}, Section \ref{sec:marelliluzuatti2012}. }
+\end{quotation}
+Note that this illustration of the independence of the composition of
+compound meaning on the
+one hand and the relation between the compound meaning and the
+meanings of the individual constituents on the other hand is far from
+convincing: the name of the fish is clearly motivated by its bill
+having the shape of a sword and it is unclear why this fact should
+play no role when comparing the meaning of \emph{sword} in isolation with the
+meaning of the compound.
+
+\citet{Marellietal:2014} use distributional semantics based semantic
+transparency measures. They work with 2 different
+measures for every compound, reflecting occurrences as solid or open
+forms, where solid forms are occurrences of compounds written as unique
+orthographic strings and open forms are realizations with blank
+spaces separating the constituents. Hyphenated forms are not
+considered (\citealt[Footnote 1]{Marellietal:2014} point to
+\citealt{KupermanandBertram:2013}, who find that semantic factors do not
+play a role in explaining a preference for hyphenated vs. spaced
+realizations, in contrast to the preference for 
+concatenated over spaced forms,
+cf. \citealt[960--962]{KupermanandBertram:2013}). The idea behind these 2 measures
+is that they ``propose that semantic representations extracted from
+contexts in which a compound is written in open versus solid form will
+capture more or less compositional usages of the compound and that
+this orthographic cue can thus be used as  a proxy for
+compositionality" \citep[1424]{Marellietal:2014}. They report 2
+experiments, in Experiment 1, they investigate whether open and solid
+forms are actually associated with different meanings, in Experiment 2
+they test whether their 2 semantic transparency measures serve as
+better or worse predictors for compounds in a lexical decision task
+dependent on the preferred spelling for these compounds. I will
+discuss both experiments in more detail below.
+
+\subsection[Experiment 1: connotations]{Experiment 1: the connotations of open and solid forms}
+
+\is{compound!{distributional models for solid and open forms}}
+\is{distributional semantics!{models for solid and open compound forms}}
+\citet{Marellietal:2014} started with a random sample of 100 compounds
+drawn from the set of 2-constituent compounds listed in the English
+Lexicon Project database (cf. \citealt{Balotaetal:2007} and \url{http://elexicon.wustl.edu/}). For these compounds, they collected sentence internal
+co-occurrences, using ukWaC, English Wikipedia, and the BNC. The co-occurrences were collected separately for the open and
+the solid forms. The compound meaning was then approximated by 2
+vectors, one for the open and one for the solid form,  both built by
+using the co-occurrence with the 10,000 most frequent content words in
+the corpus. \citet{Marellietal:2014} reweighted the resulting vectors
+using positive pointwise information as described in
+\citet{TurneyandPantel:2010}, cf. the detailed description in Section \ref{sec:informativity}.
+
+For both the open and the solid forms, \citet{Marellietal:2014}
+evaluated the semantic connotations by extracting the 3 closest
+nearest neighbors, see the 2 examples \emph{moonlight} and
+\emph{football} in \Next, taken from their table 1. 
+
+\ex. \a. \emph{moonlight}
+\a. solid form: \emph{dream}, \emph{love}, \emph{wonder}
+\b. open form: \emph{shine}, \emph{light}, \emph{dark}
+\z. 
+\b. \emph{football}: 
+\a. solid form: \emph{coach}, \emph{soccer}, \emph{team}
+\b. open form: \emph{kick}, \emph{throw}, \emph{round}
+\z.
+
+The resulting 6 words were paired with every
+compound constituent, yielding 12 word pairs. Via crowd-sourcing, each
+pair was rated by 10
+different raters for meaning relatedness between the 2 words (using
+a 5-point scale ranging from `unrelated' to `almost the same meaning').
+% "Participants were asked to rate each pair for the relatedness
+%  between the meanings of the two words, using a 5-point rating scale ranging from
+%  completely unrelated (1) to almost the same meaning (5). Each pair was evaluated
+%  by 10 different raters."
+
+In a mixed effects model with the collected ratings as dependent
+variable, orthographic form emerged as a significant predictor, that
+is, constituent neighbors are judged as closer to the open form than
+to the solid form, corresponding to the authors' qualitative
+observation that the solid forms have neighbors ``related to an extended
+(if not metaphorical) meaning of the compound word, often at an
+abstract level" \citep[1426]{Marellietal:2014}. They conclude: ``open forms reflect productive, constituent-based combinatorial procedures, as opposed to solid forms reflecting a more lexicalized interpretation
+of the compound" \citep[1426]{Marellietal:2014}.
+
+\subsection[Experiment 2: semantic processing]{Experiment 2: semantic processing in the recognition of
+  compound words}
+\label{sec:marelli-et-al-2014-ex2}
+
+In Experiment 2, \citet{Marellietal:2014} use the 2 different semantic transparency
+measures in a regression analysis of \isi{lexical decision} times, reasoning
+as follows:
+\begin{quotation}
+If S[emantic ]T[ransparency] effects are purely dependent on the semantic relatedness between a compound and its constituents, and
+\isi{compositionality} plays only a limited role, we should find very similar effects on
+response times for measures associated to open and solid compounds. However,
+the conceptual-composition hypothesis would predict that semantic similarity will
+be\linebreak[3] more reliable as a ST measure when calculated in contexts where the com\-pound
+is used in an actively compositional way (i.e., \emph{open compounds}), in comparison
+with contexts in which the compound is more lexicalized (i.e., \emph{solid
+compounds}). \citep[1427]{Marellietal:2014}.
+  \end{quotation}
+
+In contrast to Experiment 1, they extend the number of compounds from
+100 to 1,176 2-constituent
+compounds. The lexical decision times, which constitute the dependent variable, were
+taken from the ELP. Since the ELP used only solid forms, the dependent
+variable was always the lexical decision time for the solid form of
+the compound. Further variables of interest were the frequencies for
+the constituents and the compounds from the \isi{CELEX} database, and the
+compound length in letters. In
+addition, they also used the bias towards concatenated spelling (BiasC) measure introduced in
+\citet[954]{KupermanandBertram:2013}. \is{compound measures!{BiasC}}This measure is calculated by
+dividing the number of solid forms by the total number of
+compound realizations (\citealt[954]{KupermanandBertram:2013} do not
+give the exact algorithm, but this checks with their description and
+the resulting range of the predictor). \citet{Marellietal:2014}
+calculated BiasC again on the basis of the concatenation of the
+ukWaC, English Wikipedia, and the BNC.
+
+\is{semantic transparency!{dependent variable}!{in distributional semantics models}|(}
+Vectors were obtained in the same way as in Experiment 1 (using again
+the concatenated corpus), but this
+time, 2 semantic transparency measures were obtained for each form:
+one relative to the modifier and one relative to the head. These
+were measured via the cosine similarity between the compound vector
+and the respective constituent vectors.
+\is{compound!{distributional models for solid and open forms}}
+\is{distributional semantics!{models for solid and open compound forms}}
+
+In model building, they used generalized additive models and started
+with a lexical baseline model, using the log-transformed frequencies and length
+variables, with BiasC as an additional covariate. The contribution of
+semantic transparency was then tested against this baseline
+model. However, because there was a correlation of 0.51 between
+modifier and head semantic transparency, ``modifier ST was regressed on head
+ST, and the latter was replaced by the residuals of the resulting
+model"
+\citep[1429]{Marellietal:2014}.\footnote{\citet[1429]{Marellietal:2014} make
+reference to \citet{Kupermanetal:2009}, who use a similar procedure to
+orthogonalize the morphological family of the left compound
+constituent and their occurrences as free forms, cf.
+\citet[879]{Kupermanetal:2009}.} In other words, modifier
+semantic transparency was left untouched, but head semantic
+transparency was replaced by the residuals. \is{semantic
+  transparency!{modifier transparency regressed on head transparency}}
+
+As \citet{Marellietal:2014} report, inclusion of the semantic
+transparency measures increased the goodness of fit. Both transparency
+measures interacted nonlinearly with spelling form and BiasC. \is{compound measures!{BiasC}}
+In
+contrast, the frequency measures were involved in linear interactions.
+
+% - "Because the correlation
+% between ST measures was relatively high (.51), modifier ST was regressed on head
+% ST, and the latter was replaced by the residuals of the resulting model (Kuperman
+% et al., 2009)." HÄH?
+% - "The introduction of ST measures significantly increased the
+% overall goodness of fit (38.9%, p = .0003). In particular, an interaction between
+% BiasC, head ST, modifier ST, and spelling form was eventually included. Outlier
+% removal further increased model fit to 42.4%."
+% - linear interactions between frequency measures
+
+The semantic transparency measures from the open forms lead to more
+effects and they also show considerable interaction in that they are 
+most helpful in boosting the reaction times when both are strongly
+related to the constituent meaning, whereas the measures from
+the solid forms show little interaction and only a small effect
+size. The finding that the measures from the open forms lead to more effects is
+interpreted by \citet{Marellietal:2014} as an indication that these measures
+are taken from contexts where active composition is taking place. Their
+interaction, in turn, is argued to point to combinatorial processing: 
+\begin{quotation}
+The possibility to integrate both constituents is thus
+   crucial for the semantic processing of compounds, an effect that is
+   difficult to explain with a pure relatedness-based model (for which
+   \emph{fly} should be helpful in recognizing \emph{butterfly},
+   irrespective of the unrelated constituent \emph{butter}). A
+   combinatorial procedure, on the other hand, would underline the
+   importance of both constituent meanings, in line with the reported
+   interaction between constituent-based ST measures. \citep[1434]{Marellietal:2014}
+  \end{quotation}
+Note that these effects hold even though, as mentioned above, the
+reaction times are based on solid forms, leading them to conclude:
+\begin{quotation}
+The properties
+associated to the everyday usage of a compound can thus dissociate from its actual
+form and arguably represent information stored in the mental lexicon. In other
+words, the properties observed for open forms are associated to the compound
+representation itself and play a role during processing irrespective of the way the
+compound is actually presented." \citep[1434]{Marellietal:2014}  
+\end{quotation}
+% checked the quote, they have associated to
+\citet[1434]{Marellietal:2014} argue that routine access to open and solid forms is also supported by the interaction observed for the 
+BiasC measure: When the
+value is very large, that is, when the compound is almost always
+written as one word, the reaction times are very fast and there is no
+interplay between constituent semantic transparency measures. In
+contrast, when BiasC \is{compound measures!{BiasC}}is very low, the reaction times are very low,
+argued by them to be probably due to an interference effect of seeing
+a compound presented in its solid form which usually occurs in its
+open form.
+They interpret the results as support for a routinely
+combinatorial procedure.
+\is{semantic transparency!{dependent variable}!{in distributional semantics models}|)}
+% is interpreted  With regard to the BiasC measure,  
+% - best results for open forms: compositionality!
+% - Based on experiment 1 and previous evidence: spelling variability ~ reflection of compositionality
+%  - can be assumed that open forms used in contexts where constituents
+%    are actively combined to create new composed meaning involving
+%    conceptual combination
+% - this interpretation confirmed by interaction of ST measures: boost
+%    in recognition when both constituents strongly related; either
+%    constituent far from the compound meaning makes processing more
+%    difficult 
+% - solid form results: little interaction, small effect size
+%  - condition not ideal to describe compound properties associated to
+%    semantic combination (reflecting that constituent meaning is not
+%    crucial here)
+% - BUT: the model is still a model for RTs for solid forms only:
+%   "Note however
+% that compound stimuli are presented in their solid forms in the ELP. The properties
+% associated to the everyday usage of a compound can thus dissociate from its actual
+% form and arguably represent information stored in the mental lexicon. In other
+% words, the properties observed for open forms are associated to the compound
+% representation itself and play a role during processing irrespective of the way the
+% compound is actually presented. (Obviously, how a compound is presented in the
+% experimental setting can still influence the relative importance of the combination
+% procedure; see Juhasz, Inhoff, & Rayner, 2005.)"(14)
+% - routine access to both open and solid form supported by modulation
+%   of BiasC
+%  - very large BiasC value = almost always solid forms = fast RT = no
+%    interplay between constituent ST measures
+%  - very low = slow RT = probably due to interference (from presenting
+%    a word in solid form that usually appears open)
+%  - in-line with familiarity of form interpretation in Kuperman &
+%    Bertram 2013
+% - results support hypothesis of routinely combinatorial procedure
+%   even for known compounds presented in concatenated form
+% - some more interesting remarks wrt to frequency, parallel processing
+%   etc.
+
+
+% \section{Conclusion: previous models}
+\section{Conclusion}
+\label{sec:con-prev-mod}
+
+This chapter discussed in detail 3 studies in which either semantic
+transparency was the dependent variable or a stand-in for semantic transparency
+was used that was not based on human judgments but on some
+distributional measure. In the process, I also introduced the basic
+ideas behind distributional semantics and entropy-based
+measures. Importantly, the 2 approaches are often combined and
+vectors based on co-occurrence counts are transformed into some
+probability-based measure.
+
+As far as the 3 studies are concerned, the first study by
+\citeauthor{Reddyetal:2011} showed that distributional semantics can
+be used to predict the transparency ratings of compounds. In addition,
+they showed that the individual constituent ratings of compounds are
+highly predictive of the compound transparency ratings. Of the
+different composition functions they tested, the additive
+compositionality function performed best. This function adds the
+weighted vectors of both constituents.
+
+\citeauthor{PhamandBaayen:2013} presented a regression
+model for semantic transparency. Here, the most interesting results
+are that CARIN-based measures turned out to be significant predictors
+of semantic transparency. At the same time, it is also interesting that of the CARIN based measures only  the
+generalized strength measure and the relative entropy measure remained
+as significant predictors in the model. And finally, the model for
+semantic transparency presented in \citeauthor{PhamandBaayen:2013}
+shows that purely distributional, that is, frequency of occurrence measures, and distributional measures
+derived from semantic annotations, here the distribution of relations
+in constituent families, can both occur as significant predictors in
+the same model. On the downside, since the semantic coding of the
+compound selection that served as the basis of the measures in
+\citet{PhamandBaayen:2013} is itself not very transparent, it is not
+clear to what extent the results of their modeling can be treated as
+reliable findings.
+
+In the work of \citet{Marellietal:2014}, semantic transparency
+functioned as an independent variable, however, and this is the reason why
+their work was discussed in this chapter, the semantic transparency
+measure they used was itself a distributional semantics measure. In
+addition, they used 2 transparency measures, distinguishing between
+open and closed forms, that is, occurrences of the 2 constituents of
+a compound written spaced or unspaced, and dismissing hyphenated
+occurrences. In a meaning relation experiment, the nearest neighbors
+of the open forms were judged as closer to the meanings of the
+compounds in their open form. In modeling lexical reaction times, the
+measures based on the open forms also turned out to be more important,
+leading \citet{Marellietal:2014} to the conclusion that these measures
+reflect semantic composition more than the measures based on closed
+forms.
+
+Many aspects and points raised by these 3 studies will reappear in one
+form or another in the 2 empirical studies to be discussed in
+Chapters \ref{cha:empirical-1} and \ref{cha:empirical-2}: clear
+examples are the finding by \citet{Reddyetal:2011} that there is a
+strong correlation between constituent transparency ratings and whole
+compound ratings and the usage of the distribution
+of semantic relations across compound families in \citet{PhamandBaayen:2013}. The finding in
+\citet{Marellietal:2014} that measures based on open and solid
+forms make a huge difference is implicitly reflected in the spelling
+ratio which is used as a predictor there. However, many of the
+predictors used in their models are not further explored there and
+more work is needed to understand the interrelationship between the
+different measures and their effectiveness in capturing core aspects
+of human compound processing.
+% I will return to all of these points when discussing the results of my
+% own empirical modeling.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "habil-master_rev-1"
+%%% End: 

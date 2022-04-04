@@ -1,0 +1,2068 @@
+\documentclass[output=paper]{LSP/langsci}
+\author{Gerhard Kremer\and
+ Matthias Hartung\and
+   Sebastian Padó\lastand
+ Stefan Riezler}
+\affiliation{Institute for Computational Linguistics, % (\textsc{icl}),
+   University of Heidelberg\\
+%    \email{{kremer,hartung,pado,riezler}@cl.uni-heidelberg.de}
+}
+
+\title{Statistical machine translation support         improves human adjective translation} 
+\shorttitlerunninghead{SMT support improves human adjective translation}
+
+\abstract{    % 150-200 words
+In this paper we present a study in computer-assisted translation,
+investigating whether non-professional translators can profit directly
+from automatically constructed \emph{bilingual phrase pairs}. Our
+support is based on state-of-the-art statistical machine translation
+(\textsc{smt}), consisting of a phrase table that is generated from
+large parallel corpora, and a large monolingual language model. In our
+experiment, human translators were asked to translate adjective--noun
+pairs in context in the presence of suggestions created by the
+\textsc{smt} model. Our results show that \textsc{smt} support results
+in an acceptable slowdown in translation time while significantly
+improving translation quality.
+}
+
+\ChapterDOI{10.5281/zenodo.1019697}
+ 
+\maketitle
+\begin{document}
+
+
+
+\section[Introduction]{Introduction}
+\label{sec:kremer:intro}
+Translating a sentence adequately from one language into another is a
+difficult task for humans. One of its most demanding subtasks is to
+select, for each source word, the best out of many possible
+alternative translations. This subtask is known, in particular in
+computational contexts, as \emph{lexical choice} or \emph{lexical
+selection} \citep{Wu:1994:VSL:981732.981751}.
+
+Bilingual lexicons which are commonly used by human translators
+contain by no means all information that is necessary for adequate
+lexical choice, which is often determined to a large degree by
+\emph{context}. Often, dictionaries merely list a small number of
+translation alternatives, or a small set of particularly prototypical
+contexts is provided. The provided translations are neither
+exhaustive, nor do they provide distinguishing information on which
+contexts they require.
+
+In this study, we ask whether the shortcomings of traditional
+dictionaries can be evaded by directly using a data structure used in
+most current machine translation (\textsc{mt}) systems, namely
+\emph{phrase tables} \cite{Koehn:10:SMT}. Phrase tables are
+merely bilingual lists of corresponding word sequences observed in
+parallel corpora, and thus provide a compact representation of the
+translation information inherent in a corpus, complemented with
+statistical information about the correspondences (\eg, frequencies or
+association measures).  Together with the orthogonal information
+source of a monolingual language model, phrase tables build the core
+components of state-of-the-art statistical machine translation
+(\textsc{smt}). While phrases serve the purpose of suggesting possible
+translations found in parallel data, the purpose of the language model
+is to fit the phrase translations into the larger context of the
+sentence. In our experiment, we will extract bilingual phrase pairs
+from the \textsc{smt} output of \emph{n}-best translations of the
+input sentence. In this manner, we directly deploy the information
+available from \textsc{smt} to support human translators.
+%Phrase tables can potentially provide both smaller and larger contexts surrounding a particular target word (\ie, context size can be adapted to specific needs of a translator), but they are not prepared for easy interpretation by human translators. 
+%We aim to investigate how phrase tables can be presented to translators for faster and better translation. We approached this question through an experiment in which users had to solve a translation task. They were presented with different types of phrase table information, and we compare the efficacy of different modes of presenting the information.
+
+The current study focuses on one construction, namely the translation
+of adjectives in attributive position (preceding a noun). This task is
+fairly simple and can be manipulated more easily than sentence-level
+translation. At the same time, it is complex enough to be interesting:
+adjectives are known to be highly context-adaptive in that they
+express different meanings depending on the noun they modify
+\citep{Sapir:1944,JustesonKatz:1993}. They also tend to take on
+figurative or idiomatic interpretations, again depending on the
+semantics of the noun in context \citep{Miller:1998}. Lexical choice
+is therefore nontrivial, and context-dependent translations are seldom
+given systematically in dictionaries.  For example, consider the
+adjective \textit{heavy}. In noun contexts like \textit{use},
+\textit{traffic}, and \textit{investment}, its canonical translation
+as German \textit{schwer} is inappropriate. It might be translated as
+\textit{intensiv(e Nutzung)}, \textit{stark(er Verkehr)}, and
+\textit{groß(e Investition)}.
+
+Another reason for the restricted experimental setup is to control for
+translation complexity explicitly. While previous experiments on
+computer-aided translation could show a significant increase in
+productivity and quality for machine-assisted translation (especially
+for less qualified translators), they can only dem\-on\-strate a weak
+correlation between translation times and translation quality. This is
+due to the varying complexity of test examples and the varying degree
+of expertise of human translators. In our experiments, we aim to
+control the variable of translation complexity better, by restricting
+the task to translations of adjectives in noun contexts, and by
+providing machine assistance for these pairs only. Furthermore, the
+human translators in our experiments were all native speakers of the
+target language, German, with a similar level of expertise in the source
+language, English. The goal of our experiment is to provide a basis
+for re-interpretation of results by using a clear and simple
+experimental design which allows us to analyse the contribution of
+each variable.
+
+Our experimental results show that, at least for translation from
+English into German by native German speakers, phrase table support
+results in an acceptable slowdown in translation time while
+significantly improving translation quality. This confirms the
+conclusions drawn in previous studies through evidence from a rigidly
+controlled experiment.
+
+
+
+\section{Related work}
+\label{sec:kremer:relatedwork}
+Interactive \textsc{mt} systems aim to aid human translators by
+embedding \textsc{mt} systems into the human translation
+process. Several types of assistance by \textsc{mt} systems have been
+presented: \emph{translation memories} \citep{Bowker:02} provide
+translations of phrases recurring during a project. Such phrases have
+to be provided by the translator the first time they appear, and they
+are typically restricted to a document, a project, or a domain
+\cite{Zanettin:02, Freigang:98}.
+
+A closer interaction with human translators is explored in the
+TransType system of \cite{LanglaisETAL:00}. Here, the machine
+translation component makes \emph{sentence completion predictions}
+based on the decoder's search graph. The interactive tool is able to
+deal with human translations that diverge from the \textsc{mt} system's
+suggestions by computing an approximate match in the search graph and
+using this as trigger for new predictions \citep{BarrachinaETAL:08}.
+
+Other types of assistance integrate the phrase tables of the
+\textsc{mt} systems more directly: \cite{KoehnHaddow:09} and
+\cite{Koehn:10} deploy a phrase-based \textsc{mt} system to display
+word or phrase \emph{translation options} alongside the input words,
+ranked according to the decoder's cost model. Finally, full-sentence
+translations can be supplied for \emph{post-editing} by the user.
+
+Our approach is most closely related to the display of translation
+options alongside input words. Similarly to \cite{KoehnHaddow:09}, we
+use a web applet to display options and record reaction
+times. However, our experiment is deliberately restricted to
+translations of adjectives in noun contexts, in order to explicitly
+control for translation complexity, an aspect that has been missing in
+previous work.
+
+
+\section{Experimental Approach}
+\label{sec:kremer:exp-appr}
+
+
+
+%\paragraph{Measuring improvement.}
+
+% erwähnensnötig? : 
+% lokales Exp. (bessere Exp.Kontrolle; Verlosung)
+
+This section presents an overview of the experimental design and
+describes how the set of stimulus items was assembled. 
+% SP: redundant (steht alles in 1)
+%The goal of
+%this study was to test if naive human translators might have any
+%advantages (in terms of translation times and translation quality)
+%during the translation process of adjectives in sentence context when
+%being provided with machine-translated adjectives as translation
+%suggestions.
+
+The study comprises two experiments. In the first experiment (cf. \sectref{sec:kremer:exp-ts}),
+%We conducted a sequence of two experiments. In the first one (the main
+%experiment, see section~), 
+participants performed a translation task with different types of
+supporting information provided by the machine translation system (no
+suggestion, best unigram translation of the adjective, best bigram
+translation of the adjective--noun pair). In order to test the impact
+of presenting phrase tables on translation speed, we measured reaction
+times between specific time points during each of the participants'
+translation tasks, using time gain/loss as a measure for the
+usefulness of machine-aided human translation as discussed in
+\cite{Gow:03}.
+
+% \footnote{The response times might vary a lot depending on differing
+%   translation habits of the participants: One person might select
+%   the first cognitively available lexical items, while other persons
+%   might take their time to consider alternatives. We plan to modify
+%   experiment instructions to equalise translation strategies among
+%   participants.}
+
+% translation quality assessment still needs to develop (beyond
+% subjective, one-sided, or dogmatic judgements); evaluation of
+% various described approaches rated as arguable, or at least
+% difficult to perform
+%
+% Juliane House (2001?): "Quality of Translation" In Routledge
+% Encyclopedia of Translation Studies, Monika Baker (ed.)
+
+The second experiment complements the time aspect with a measure of
+the translation's quality (cf. \sectref{sec:kremer:exp-qr}).\footnote{Note that there have been ongoing
+  debates on how translation quality can be assessed objectively
+  \cite{House:98}. For example, see \cite{Reiss:1971} for a
+  discussion on factors to consider when evaluating a translation.}
+We collected human judgements for all translations from experiment~1
+on a simple three-point scale. This appears to be the only feasible
+strategy given our current scenario which focuses on local changes,
+\ie, the translation of individual words, which are unlikely to be
+picked up by current automatic \textsc{mt} evaluation measures like
+\textsc{bleu}~\citep{Papineni:02} or \textsc{ter}~\citep{ter}.
+
+% redundant? SP
+%The remainder of this section describes the general setup of our
+%experimental approach in this project. 
+Participants in the experiment were asked to translate an attributive
+adjective in sentential context (\eg, \emph{bright} in ``The boy's
+\emph{bright} face, with its wide, open eyes, was contorted in
+agony.''), given one of our set of translation support types.  With
+German participants, we investigated translations from English into
+German, the participants' native language. This is the preferred type
+of translation direction in professional human translation, as the
+translator's experience of commonly used words in a particular
+semantic context is more extensive in the native language. In this
+experiment we assumed four factors to interact with translation speed
+and accuracy (cf. \tabref{tab:factors}):
+% subjects&items als factors ist üblich, also nicht erklärungsbedürftig
+adjective (30 different items), noun context (4 sentences per
+adjective, each sentence with a different adjacent noun), variability
+class (2 levels), and translation support (3 conditions), all of which
+are described in more detail below.
+
+\begin{table}
+\begin{tabularx}{\textwidth}{Xcccc}
+\lsptoprule
+Variability class & \multicolumn{3}{c}{Translation support condition}   & Noun context\\
+\cmidrule(lr){2-4}
+                  & None & Adjective unigrams & Adjective--noun bigrams & \\
+\midrule
+High              & 5    & 5                  & 5                        & \multirow{2}{*}{$\bigg\}\times 4$}\\
+% \left.\parbox{0.1cm}{\phantom{5}\phantom{5}}\right\}
+Low               & 5    & 5                  & 5                        & \\
+\lspbottomrule
+\end{tabularx}
+  \caption{Partitions of the set of 30 adjective stimuli presented to each participant for the factors \emph{variability} and \emph{support}. Factor \emph{context}: Each adjective was shown in 1 out of 4 sentences. Each context combines the adjective with a different noun.}
+\label{tab:factors}
+\end{table}
+
+Given these considerations, each experimental item is an instance of
+an adjective in sentence context combined with some type of
+translation support. As shown in \tabref{tab:factors}, we sampled
+a total of 120 experimental items for 30 adjectives. To avoid
+familiarity effects, we ensured that each participant saw only one
+instance of each adjective. Consequently, we showed each participant
+exactly 30 experimental items. Each participant saw 3 differing sets
+of 10 adjectives in one of our three support conditions.
+
+%The next subsections describe in more detail the procedure of
+%selecting adjective stimuli to allow us controlling for the named
+%factors above.
+
+% What do we expect from translators using a (n electronic) dictionary?
+% - include as 4th condition?
+
+
+
+
+
+\subsection{Variability classes}  
+
+Stimuli for the translation experiment have been collected by
+examining the most frequent adjectives from the British National
+Corpus (\textsc{bnc}), many of which are polysemous, \ie, showing high
+context-dependent variability in translation
+(\sectref{sec:kremer:intro}). 
+
+To verify this postulated relationship between corpus frequency and
+degree of polysemy, 200 high-frequent adjectives from the \textsc{bnc}
+were used in a measurement of translation variability. We defined the
+variability as the number of times an English adjective lemma in a
+two-word phrase was translated into a different German
+lemma\footnote{Bernd Bohnet's parser~\citep{bohnet:2010:PAPERS} was
+  used to lemmatise the German words.} according to the
+\textsc{europarl} v6 phrase table \citep[see][]{Koehn:05}. Two-word
+phrases should roughly account for adjectives in noun context (please
+note that the translated phrases were constrained to consist of
+exactly two words, but neither correspondence of nouns nor word order
+was checked). All translations that occurred only once for a given
+target lemma in the phrase table were considered spurious translations and
+thus were excluded.
+
+The set of high-frequent adjectives from the \textsc{bnc} showed a
+highly significant correlation (Spearman's $\rho$ = 0.5121)
+% w/ jitter (b/c of ties): rho=0.5113433, p-value < 2.2e-16
+between corpus frequency and variability in translation
+(operationalised as the number of unique translations in the
+\textsc{europarl} v6 phrase table). We divided adjectives into two
+classes and collected our targets from both extremes: one set that
+shows a particularly high variability in unique translations, and one
+set with a relatively low translation variability.
+
+% some had not different translations, but synonymous ones (or
+% compounds) !  (so variability not reliably measured, thus no
+% significant difference in analysis later)
+
+\paragraph*{Hypothesis} 
+Highly variable adjectives are more difficult to translate, but
+translators will profit more from the presentation of phrase table
+information.
+
+
+\subsection{Adjectives and contexts} 
+\label{sec:kremer:adjectives-contexts}
+
+For each of the two variability classes (according to the phrase
+table) we selected 15 adjectives (see
+Appendix~\ref{sec:kremer:adj-stimuli}). For each English adjective, we
+randomly sampled four full sentences from the
+\textsc{bnc}~\citep{burnard95:_britis_nation_corpus} parsed with the
+C\&C parser \citep{clark07:_wide_cover_effic_statis_parsin} as
+experimental items, with the adjective in attributive position
+directly preceding a noun so that the modified noun was different for
+each sentence.
+
+In order to further minimise variation in translation times, we
+imposed some constraints on the sentences. Their length was restricted
+both in terms of words (15--20) and characters (80--100). Also,
+sentences with \textsc{html} tags were excluded and sentences were
+manually checked for tagging errors and cases where the noun was part
+of a compound expression.
+%
+Selecting a set of four sentence contexts for each of the full set of
+30 adjectives, our resulting set of experimental items summed up to 120 (see
+\tabref{tab:factors}).
+
+% \begin{inparaenum}[(a)]
+% \item restricted the length of sentences to a defined range of number
+%   of words and characters (so that reading times are comparable); and
+% \item ensured that the succeeding English noun is also highly frequent
+%   (so that there is no influence of corpus frequency between
+%   contexts).
+% % oh, haben wir das schon?
+% \end{inparaenum}
+
+Clearly, our setup leads to a \textit{domain difference} between the
+sentences to be translated (sampled from the \textsc{bnc}) and the
+phrase table (drawn from \textsc{europarl}).  This makes the task of
+the model more difficult, and we might fear that the \textsc{bnc}
+bigrams we want to translate are very rare or even unseen in
+\textsc{europarl}.
+
+We made the decision to adopt this setting nevertheless, since it
+corresponds to the standard situation for machine translation. There
+is only a very small number of domains (including newswire,
+parliamentary proceedings, and legal texts) in which the large
+parallel corpora exist that are necessary to train \textsc{smt}
+models. In the translation of texts from virtually all other domains,
+the models are faced with new domains. Being able to show an
+improvement for this across-domain scenario is, in our opinion,
+significantly more relevant than for the within-domain setting.
+
+
+
+\subsection{Translation support}
+\label{sec:kremer:trans-support}
+
+Finally, we provided three kinds of translation support to the participants:
+\begin{inparaenum}[(a)]
+\item no support,
+% the list of translations suggested by a bilingual dictionary;
+\item the list of translations for the adjective unigram produced by
+  the \textsc{smt} system, and
+\item the list of translations for the adjective--noun bigram produced
+  by the \textsc{smt} system.
+\end{inparaenum}
+In addition to adjective translations proposed by the system in the
+unigram condition, suggested noun translations for the target sentence
+might further aid the human translator in finding the most appropriate
+adjective in that context, in particular for collocation-like phrases.
+
+% \begin{table}
+%   \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{\extracolsep{1.5em}}r@{}}
+% \lsptoprule
+% \multicolumn{1}{@{}l@{}}{Unigram support} &
+% \multicolumn{2}{@{}r@{}}{Bigram support}\\
+% \midrule
+% %\cmidrule{1-1}
+% %\cmidrule{2-2}
+%     verhei\ss{}ungsvoll & verhei\ss{}ungsvolles & (Angesicht)\\
+%     positiv & positives & (Angesicht)\\
+%     gut & verhei\ss{}ungsvolles & (Gesicht)\\
+% \lspbottomrule
+%   \end{tabular*}
+%   \caption{Example: Translation support in the experiment conditions with support -- for the target adjective \emph{bright} in the stimulus sentence ``The boy's \emph{bright} face, with its wide, open eyes, was
+%     contorted in agony.''.}
+%   \label{tab:bsp-support-cond}
+% \end{table}
+
+We presented three distinct candidate translations as supports. We
+chose three as a number which is high enough to give translators at
+least some insight into the polysemy of target adjectives but still
+not enough to overload them and to slow down the translation
+process too much. The candidate translations were shown in the order
+in which they were extracted from the \emph{n}-best list (with
+$n=3,000$) produced by the
+Moses\footnote{\url{http://www.statmt.org/moses}} \citep{KoehnETAL:07}
+\textsc{mt} system (trained and tuned on \textsc{europarl} v6) that
+decoded each target sentence. See \REF{ex:bsp-support-cond}
+for an illustration (target adjective: \emph{bright}).
+
+\begin{exe}
+  \ex \label{ex:bsp-support-cond}
+The boy's \textbf{bright} face, with its wide, open eyes, was contorted in agony.\\[.5ex]
+\begin{tabular*}{.9\textwidth}{@{}l@{\extracolsep{\fill}}l@{\extracolsep{1em}}r@{}}
+  \emph{Unigram support:} &
+  {\emph{Bigram support:}}\\
+    verhei\ss{}ungsvoll & verhei\ss{}ungsvolles & (Angesicht)\\
+    positiv & positives & (Angesicht)\\
+    gut & verhei\ss{}ungsvolles & (Gesicht)\\  
+\end{tabular*}
+\end{exe}
+
+%%% parameters used?
+%%% cite publication?
+% manual work
+\noindent{}Specifically, phrase alignments were looked up for each \emph{n}-best
+sentence given as output for a target sentence, and the corresponding
+translated adjective and noun were used for the unigram or the bigram
+list, respectively. In case of phrase alignments containing multiple
+words (instead of just one), word alignments were looked up in the
+phrase table and if in this manner English target words could be
+uniquely paired with translated German words, these pairs were chosen.
+Three differing unigrams and three differing bigrams were selected in
+order of appearance in the \emph{n}-best list and lemmatised manually.
+
+In case this procedure yielded less than three differing unigrams, the
+missing adjective unigrams were chosen from the unigram list of the
+adjective in the other three sentence contexts. Similarly, in case
+less than three bigrams were found, adjective unigrams produced by the
+\textsc{mt} system for that sentence were combined with nouns in the
+bigram list of that sentence (in order of appearance in the
+list). Candidate words for unigrams and bigrams were only selected
+from the \emph{n}-best lists if they plausibly could have been tagged
+as adjectives or nouns, respectively.
+
+
+\paragraph*{Hypothesis} 
+Presenting
+% either dictionary or 
+unigram translations leads to faster and more appropriate
+translations. Bigram phrases will produce the most appropriate
+translations, even if translating in this condition might be slower
+due to the need to read through more complex translation suggestions.
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper-GSCL11"
+%%% End: 
+
+
+
+\section{Experiment 1: The time course of machine-supported human translation}
+\label{sec:kremer:exp-ts}
+% Our first experiment investigates the time course of supported
+% translation.
+
+\subsection{Experimental procedure}
+
+The experiment was realized as a dynamic web page, using an internet
+browser as our experimental platform and administering the experiment
+over the internet. The advantage of this method is that we have quick
+access to a large pool of participants. In psycholinguistics, the
+reliability of this type of setup for reading time studies has been
+demonstrated by \cite{keller09:_timin_accur_of_web_exper}.  Our setup
+is also similar to crowdsourcing, a recent trend in computational
+linguistics to use naive internet users for solving language
+tasks~\citep{snow-EtAl:2008:EMNLP,
+  mohammad11:_crowd_word_emotion_assoc_lexic}. Unlike almost all
+crowdsourcing work, however, we did not use a crowdsourcing platform
+like Amazon Mechanical Turk and were specifically interested in the
+time course of participants' reactions.
+
+The 30 experimental items were presented in three blocks of ten
+items each. Each block corresponded to one support condition (none,
+unigram, bigram). The participant could take a break between blocks,
+but not between items. Both the order of the blocks and the order of
+the items within each block were randomised.
+
+\begin{figure}%[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figures/screenshot-big300dpi}
+  \caption{Screen shot of translation setup}
+  \label{fig:screen-trans}
+\end{figure}
+
+For each item, the experiment proceeded in four steps:
+\begin{enumerate}
+\item Sentence is shown to participant (plain text, no indication of
+  the target adjective).
+  \newpage 
+\item When the participant presses a key, the target adjective to be
+  translated is marked in boldface. Concurrently, the translation
+  support is shown as well as a window for entering the translation
+  (shown in \figref{fig:screen-trans}).
+\item The participant starts to type the translation.
+\item The participant marks the current item as finished by pressing
+  return. The experiment proceeds directly to step 1 of the next item.
+\end{enumerate}
+%
+
+The central question in this procedure is how to measure our variable
+of interest, namely the length of the period that participants require
+to \textit{decide on} a translation. The total time of steps 2 to 4 is
+a very unreliable indicator of this variable. It involves the time for
+reading and the time for typing. Since participants can be expected to
+read and type with different speeds, the total time will presumably
+show a very high variance, making it difficult to detect differences
+among the support conditions. Instead, we decided to measure the time
+from the start of step 2 to the start of step 3. We assume that this
+period, which we will call \textit{response time},
+comprises the following cognitive tasks:
+\begin{inparaenum}[(a)]
+\item reading the bold-faced target;
+\item reading the translation suggestions; and
+\item deciding on a translation.
+\end{inparaenum}
+We believe that this response time, which corresponds fairly closely
+to the concept of \textit{décalage} in sight translation, is a
+reasonable approximation of our variable of interest. This assessment
+rests on two assumptions. The first one is that at the time when a
+participant starts typing, they have essentially decided on a
+translation. We acknowledge that this assumption is occasionally false
+(in the case of subsequent corrections). The second assumption is that
+it is not practicable to separate translation time from reading time
+for the target adjective and the translation suggestions, since
+presumably the translation process starts already during
+reading~\citep{John:1996:TTP:1462965.1462967,
+  carl12:_insid_monit_model}.
+
+To avoid possible errors introduced into the time measurements by a
+remotely administered experiment, all time stamps during the course of
+an experiment are measured by the participant's machine, similar to
+\cite{keller09:_timin_accur_of_web_exper}. It is only at the end of
+each experiment that these time stamps are transmitted back to the
+server and evaluated. In this manner, the time measurements are as
+accurate as the users' machines, which usually means at least a
+millisecond resolution. We also applied the usual methods to remove
+remaining outlier participants (cf. \sectref{sec:kremer:analys-react-times}).
+
+\subsection{Participants}
+
+We solicited native German speakers as participants mostly through
+personal acquaintance; no professional translators
+participated. Participants were not paid for the experiment. We had a
+total of 103 participants. 87 of these were from Germany, 13 from
+Switzerland, and 1 each from Luxembourg and Austria.\footnote{One
+  participant declined to state their country.} 47 were male and 56
+female. The mean age was 32, and the mean number of years of
+experience with English (comprising both instruction and practical
+use) was 16.1. Thus, the participant population consisted of
+proficient speakers of English. This is also supported by the
+participants' self-judgements of their proficiency in English on a
+five-point scale (1: very high, 5: very low), where the mean was 1.8.
+
+\subsection{Analysis of response time}
+\label{sec:kremer:analys-react-times}
+
+We removed outliers following standard procedure. First, 18 participants who did not
+complete all experimental items were completely removed from consideration. From the response times for the
+remaining 85 participants, we removed all measurements below the 15th
+percentile ($t<$ 2.4 s) and above the 85th percentile ($t>$ 12.9 s)
+for each experimental item. These outliers have a strong chance of
+resulting from invalid trials. Participants with a very fast response
+time may have used their computer's copy--paste function frequently to
+simply copy one of the suggested translations into the response
+field. Participants with very slow response times may have been
+distracted.
+
+Recall that each of the 85 participants saw one instance of each of the
+target adjectives, and that our materials contain 12 experimental
+items for each adjective: 3 support conditions combined with 4 context
+sentences. Having further discarded 30\,\% of our measurements, we were
+left with an average of (85 / 12) * 0.7 $\approx$ 5 measurements for
+each experimental item. In our analysis, we use the mean of these
+individual measurements.
+
+Our data set contains independent variables of two distinct
+classes~\citep{jaeger08:_categ_data_analy}. In the first class, we
+have two variables (variability class and the support condition,
+cf. \tabref{tab:factors}) which are \textit{fixed effects}: we
+assume that these variables explain variation in the response
+time. The second class comprises a number of \textit{random effects}
+which we expect to introduce variance but whose overall effect should
+be essentially random. This class includes the context sentence and
+the identities of adjective, participant, and context.
+
+\newpage
+We therefore analysed our data with a linear mixed effects
+model~\citep{hedeker05:_gener_linear_mixed_model}. Linear mixed
+effects models are a generalisation of linear regression models and
+have the form
+
+\begin{equation}
+ \label{eq:mixedeffects}
+y = X \beta + Z b + \epsilon \hfill 
+\textup{ with}\quad b \sim \mathcal N(0, \sigma^2\textit{Σ}),\; 
+\epsilon \sim \mathcal N(0, \sigma^2 I)
+\end{equation}
+
+\noindent{}where $X$ is a set of variables that are fixed effects, $Z$ a set of
+variables that are random effects, and $\epsilon$ an error term. The
+first term in the model ($X\beta$) corresponds to a normal regression
+model---the coefficients $\beta$ for the variables $X$ are
+unconstrained. The second term, $Zb$ accounts for the nature of random
+effects $Z$ by requiring their coefficients $b$ to be drawn from a
+normal distribution centred around zero. The model was implemented in
+the R statistical environment\footnote{\url{http://R-project.org}}
+with the package
+\texttt{lme4}\footnote{\url{http://lme4.r-forge.r-project.org}}.
+% REML: nicht wichtig
+
+
+
+
+\subsection{Results and discussion}
+\label{sec:kremer:react-times-results}
+
+\begin{table}%[t!]
+   \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+%   \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+     \lsptoprule
+     & Low variability & High variability & Overall\\
+     \midrule
+     No support & 5.512 & 5.603 & 5.558\\
+     Unigram support & 5.885 & 5.335 & 5.615\\
+     Bigram support & 6.118 & 6.120 & 6.119\\
+%     & No support & Unigram support & Bigram support \\
+%     \midrule
+%     Low variability &  5.512 & 5.885 & 6.118\\
+%     High variability & 5.603 & 5.335 & 6.120\\
+% %    \cmidrule(l){2-4}
+% \addlinespace
+%     Overall & 5.558 & 5.615 & 6.119\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Mean response times for all support conditions $\times$ translation variabilities}
+  \label{tab:rt-table}
+\end{table}
+
+
+\begin{figure}%[p]
+  \subfloat[][low-variability adjectives]{  % arg1:text in list_of_floats, arg2: caption
+    \includegraphics[width=.48\textwidth]{figures/rt-boxplot-lowV}
+    \label{fig:rt-boxplot-lowvar}
+  }
+  \hfill
+  \subfloat[][high-variability adjectives]{
+    \includegraphics[width=.48\textwidth]{figures/rt-boxplot-highV}
+    \label{fig:rt-boxplot-highvar}
+  }\\
+  \centering
+  \subfloat[][across variability classes]{
+    \includegraphics[width=.48\textwidth]{figures/rt-boxplot}
+    \label{fig:rt-boxplot-var}
+  }
+  \caption{Distribution of response times in all experiment conditions 
+% for
+% %     \subref{fig:rt-boxplot-lowV} 
+% a)
+% low- and
+% %     \subref{fig:rt-boxplot-highV} 
+% b)
+% high-variability adjectives, and
+% %     \subref{fig:rt-boxplot-var} 
+% c) 
+% across variability classes
+}
+% \todo[inline]{move subcaptions to subfigures?}
+\label{fig:rt-boxplots}
+\end{figure}
+
+
+\tabref{tab:rt-table} shows mean response times for the six
+conditions corresponding to all combinations of the levels of the
+fixed effects, variability and support. All conditions result in mean
+response times between 5.5 and 6.1
+seconds. \figref{fig:rt-boxplots} visualises robust statistics
+about the data in the form of \textit{notched
+  box-and-whiskers-plots}~\citep{mcgill78:_variat_of_box_plots}. The
+box indicates the median and the upper and lower quartiles, and the
+whiskers show the range of values.
+% (outliers are shown if values extend
+%quartile +/- 1.5 IQR) 
+The notches (\ie, the ``dents'' in the boxes) offer a rough guide to
+significance of difference of medians: if the notches of two boxes do
+not overlap, this offers evidence of a statistically significant
+difference (95\,\% confidence interval) between the medians.
+%The notches are defined as
+%+/- 1.58 InterQuartileRange/squareroot(num\_measurements). 
+
+
+We make two main observations on these boxplots: 
+\begin{inparaenum}[(a)]
+\item comparing Figure~\subref*{fig:rt-boxplot-lowvar} with
+  Figure~\subref*{fig:rt-boxplot-highvar}, there does not appear to be a
+  significant influence of variability;
+\item comparing the different conditions in
+  Figure~\subref*{fig:rt-boxplot-var}, there appears to be a significant
+  influence of the support condition.
+\end{inparaenum}
+In all three boxplots, we find that bigram support leads to
+significantly longer response times than no support and unigram
+support, which in turn are not significantly different. 
+%Differences
+%between the support conditions, averaged over variability classes, are
+%shown again in figure~\subref*{fig:rt-boxplot-var}.
+
+These observations were validated by an analysis of our mixed effects
+in which we determined the significance of the individual coefficients
+using a likelihood ratio test. Selecting the condition ``high
+variability/no support'' as the intercept, the coefficient for bigram
+support (0.69, SE: 0.15) is significantly different from zero
+(p $<$ 0.001) while the coefficient for unigram support (0.11, SE: 0.15)
+is not. The coefficient for low variability (0.13, SE: 0.24) is also
+not significantly different from zero.
+
+%still todo, this R-data in PT-overview.pdf/tex).
+
+% SP: diese beiden folgenden Absätze können, wenn nötig, in die 
+% general discussion.
+
+In sum, one of the two hypotheses we formulated in
+\sectref{sec:kremer:exp-appr} does not hold, while the other one holds at
+least partially. Contrary to our expectations, we do not find an
+effect of variability. That is, the adjectives with many possible
+translations are as difficult to translate as those with few possible
+translations. We believe that this effect is absent because we present
+all adjectives in a rich sentence context, as a consequence of which
+usually just a fairly small number of translations is reasonable,
+independent of whether the adjective, as a lemma, has a very large
+number of translation candidates or not. 
+
+Regarding the influence of the different levels of translation
+support, there is no significant difference between no support and
+unigram support: reading three additional words does not seem to
+interfere greatly with the time course of translation (although note
+that there is a tendency towards a difference between the low and high
+variability adjectives for this level). Bigram support, on the other
+hand, does add a statistically significant delay to the response
+time. However, the overall size of this effect, namely 0.5 to 0.6
+seconds per translation, accounts for just 10\,\% of the response time,
+and only a very small percentage of the total translation
+time. Therefore, this effect should not be an obstacle to presenting
+translators with bigram support, should it be beneficial for the
+quality of the outcome.
+
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper-GSCL11"
+%%% End: 
+
+
+
+\section{Experiment 2: Translation quality rating}
+\label{sec:kremer:exp-qr}
+The second experiment investigates possible effects of different
+support conditions on translation quality. For this purpose, we
+elicited quality ratings from human annotators for all translations
+and support suggestions from the first experiment. We first describe
+the experimental procedure of this survey in
+\sectref{sec:kremer:exp-qr-procedure}, before we thoroughly analyse and
+discuss the obtained quality rating data in
+\sectref{sec:kremer:qr-analysis-discussion}.
+
+
+\subsection{Experimental procedure}
+\label{sec:kremer:exp-qr-procedure}
+
+We elicited quality ratings for all translations collected in the
+first experiment after eliminating the reaction time outliers (cf. \sectref{sec:kremer:analys-react-times}). This includes the union of all
+translations entered by participants and all suggestions provided by
+the system. The full set consisted of 1,334 adjective instances to be
+rated, including inflected forms and incorrect spellings of the same
+adjective.\footnote{If the same adjective lemma occurred in various forms as a translation in the same sentence due to inflection or spelling mistakes, the raters were instructed to assign the same rating to all these forms.} The sentences were presented to all raters in the same
+randomised order. For each sentence, the corresponding adjective
+translations and support adjectives were shown in alphabetical order
+alongside the sentence and the target adjective's head noun
+translation (which had been manually produced by one of the
+authors). The English target adjective was explicitly marked
+(surrounded by stars: `*') in the sentence context. See
+\REF{ex:ratings_presentation-1} and
+\REF{ex:ratings_presentation-2} for an illustration.
+
+\begin{exe}
+  \ex \label{ex:ratings_presentation-1}  
+%As they reached the mouth of the tunnel , fresh air drifted in and Devlin took a *deep* breath .\\
+%\multicolumn{2}{@{}p{\textwidth}@{}}{%
+  As they reached the [\,\dots ] tunnel , fresh air drifted in and Devlin took a *deep* breath . \\[.5ex]
+%\begin{tabular*}{.9\textwidth}{@{\extracolsep{\fill}}ll@{}}
+\begin{tabular*}{.9\textwidth}{@{}ll@{}}
+tief & Atemzug\\
+tiefen & Atemzug\\
+tiefer & Atemzug\\
+\end{tabular*}
+\end{exe}
+%
+\begin{exe}
+\ex  \label{ex:ratings_presentation-2}  
+ But after three weeks of this Potter claimed to have lost nothing but his *good* humour .\\[.5ex]
+%\begin{tabular*}{.9\textwidth}{@{\extracolsep{\fill}}ll@{}}
+\begin{tabular*}{.9\textwidth}{@{}ll@{}}
+frohe & Stimmung\\
+gute & Stimmung\\
+positiv & Stimmung\\
+\end{tabular*}
+%  \caption{Example sentences with target adjectives (surrounded by stars: `*'), three exemplary translations produced by participants, and head noun translations given to the raters}
+\end{exe}
+
+\noindent{}Each adjective instance was judged by eight human raters who were
+native speakers of German with a (computational) linguistics
+background. They were asked to rate the quality of each adjective
+translation in the given sentence context and for the predefined head
+noun translation. For their judgements, we instructed our raters to
+apply a three-point Likert scale according to the following
+conventions:
+
+\begin{itemize}
+  \item 3: perfect translation in context of sentence and noun
+  \item 2: acceptable translation, while suboptimal in some aspect
+  \item 1: subjectively unacceptable translation %Bad translation
+\end{itemize}
+
+Our notion of ``suboptimal translation'' (level 2 on the scale)
+includes two aspects: core semantic mismatches (the meaning of the
+adjective does not fully reflect all aspects of the best translation)
+and collocational incongruence (the translation of the adjective does
+not yield a well-formed collocation in combination with the respective
+noun). The second translations listed for the two following examples
+illustrate semantic mismatch \REF{ex:sem-mismatch} and
+collocational incongruence \REF{ex:coll-incongruence}:
+
+\begin{exe}
+\ex\label{ex:sem-mismatch}
+    But there is a *common* belief that low-rise building will increase the urban sprawl.\\[.5ex]
+  \begin{tabular*}{.9\textwidth}{@{}l@{\extracolsep{1em}}l@{\extracolsep{\fill}}}
+    verbreiteter Glaube & (3.00)\\
+    \emph{allgemeiner} Glaube & (2.67)\\
+\end{tabular*}
+\end{exe}
+
+
+% \begin{myEx}
+%   \label{ex:sem-mismatch}
+%     But there is a *common* belief that low-rise building will increase the urban sprawl.\\[.5ex]\nopagebreak
+%   \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{1em}}l@{\extracolsep{\fill}}}
+%     verbreiteter Glaube & (3.00)\\
+%     \textit{allgemeiner} Glaube & (2.67)\\
+% \end{tabular*}
+% \end{myEx}
+\begin{exe}
+  \ex\label{ex:coll-incongruence}
+  Until now, he had managed that, with a *heavy* hand and crude peasant humour.\\[.5ex]%\nopagebreak
+  \begin{tabular*}{.9\textwidth}{@{}l@{\extracolsep{1em}}l@{\extracolsep{\fill}}}
+  harte Hand & (3.00)\\
+  \emph{starke} Hand & (2.50)\\
+   \end{tabular*}
+\end{exe}
+
+\noindent{}Numbers in parentheses state the average quality of the translation as
+given by our human raters. For our detailed rating guidelines see the
+appendix (Appendix~\ref{sec:kremer:qr-guidelines}).
+
+
+\subsection{Analysis and discussion}
+\label{sec:kremer:qr-analysis-discussion}
+
+%In this section, we analyse the data resulting from our quality rating
+%experiment from various perspectives and discuss the findings. 
+The basis for all analyses in this section are the experimental items
+without reaction time outliers (as described in
+\sectref{sec:kremer:analys-react-times}) and the quality ratings of
+these experimental items (as described in
+\sectref{sec:kremer:exp-qr-procedure}).
+
+%\gek{more details, as an overview?}
+% SP: redundant
+%We begin our analysis by exploring the agreement among our raters in
+%terms of their inter-rater correlation (Section~\vref{sec:kremer:irc}),
+%followed by an investigation of overall translation quality under the
+%three experimental conditions in
+%Section~\vref{sec:kremer:overall-translation-quality}.  
+
+%According to our initial hypothesis (cf.\@
+%Section~\vref{sec:kremer:trans-support}), we expect that translation quality
+%increases with more comprehensive translation support, \ie, unigram
+%support will promote higher quality translations than no support, and
+%bigram support will result in the highest quality translations. This
+%hypothesis implies that the level of detail and quality of the support
+%material being available is the main source of differences in
+%translation quality among the experimental items.
+
+Recall that in our translation experiment
+%the
+%validity of this postulate is questionable 
+translators were always free to choose a translation from the support
+items or, alternatively, choose a translation on their own. We will
+use the terms \textit{support translations} and \textit{creative
+  translations} to refer to these two options.  \textit{Support
+  suggestions} denote all support items provided in a specific
+experimental condition, irrespective of whether or not one of these
+candidates was selected by the participants as a translation.
+% Formally, support suggestions are defined as sets, while
+% support translations and creative translations are multisets.
+\tabref{tab:supp-crea-examples} illustrates these three terms by
+example for a sentence taken from the experiment data.
+
+\begin{table}%[h]
+  \begin{tabularx}{\textwidth}{Xrrrrr}
+    \lsptoprule
+%     \multicolumn{5}{@{}c@{}}{Sentence:
+%     ``In other words, it is a measure of the scale 
+%     and likelihood of a *large* accident.''
+% }\\%\addlinespace \midrule
+    & No support & Unigram support & \multicolumn{2}{r@{}}{Bigram support}\\
+    \midrule
+%$\Bigg\{$
+    \multirow{3}{*}{Support suggestions} & \multirow{3}{*}{---} & groß & großer & (Unfall)\\
+           &      & breit & großes & (Unglück)\\
+           &      & hoch & große & (Katastrophe)\\
+\midrule%\cmidrule(l){2-4}%\addlinespace\addlinespace
+    Support translations & groß (2) & groß (4) & & groß (4)\\
+\addlinespace\addlinespace%    \midrule
+%$\Bigg\{$
+     \multirow{3}{*}{Creative translations} & riesig (1) & schwer (1) & & schlimm (1)\\
+             & schwer (1) & weitreichend (1) & & \\
+             & schwerwiegend (1) & & & \\
+    \lspbottomrule
+  \end{tabularx}
+  \caption{Example translations of different types for the sentence:
+    ``In other words, it is a measure of the scale 
+    and likelihood of a *large* accident.'' Numbers in parentheses: the number of participants who produced an item.}
+  \label{tab:supp-crea-examples}
+\end{table}
+
+
+
+More specifically, for the experiment conditions ``unigram support''
+and ``bigram support'', \emph{support translations} are defined as
+those items that both appeared as \emph{support suggestions} (in the
+respective support condition) and were also selected as translations by
+participants.
+%
+Items that were produced by participants, but did not appear in the
+\emph{support suggestions}, are considered as \emph{creative translations}.
+%(We assume here that the participants read all
+%suggestions before deciding for a translation.)
+%
+% genaugenommen wissen wir gar nicht, ob die Teilnehmer sich die
+% Vorschläge angeschaut haben, oder einfach zu tippen anfingen
+% ("kreativ" waren)
+%
+
+The ``no support'' condition is a special case, as in this condition
+all translations were freely produced by the participants, \ie,
+without the possibility of relying on any support. To maintain the
+distinction between creative and support translations, we computed the
+union of all adjectives contained in the unigram support and
+bigram support and compared the freely produced translations
+against this set. Thus, the translations found in this union were
+considered as support translations, all the other translations as
+creative. Given these differences in calculation, an exact comparison 
+of the ratio of creative translations will be possible for the unigram 
+and bigram condition only. Nevertheless, we consider the proportion of
+creative translations in the ``no support'' condition as defined above
+to be meaningful in that it provides an impression of the range of 
+the spectrum of human translations that is not covered by \textsc{smt} support material.
+
+% The resulting sets of support translations and creative translations
+% in all experiment conditions are meaningful to us as their cardinality
+% sheds light on the proportion of freely produced translations that are
+% covered by the support suggestions.
+
+% SP: Redundant
+%Knowing the proportion of creative translations and the proportion of
+%support translations is crucial in order to assess the extent to which
+%the support actually influenced the translation behaviour of
+%participants. We describe a thorough analysis of these proportions in
+%Section~\vref{sec:kremer:creative-support-ratio}, including an investigation
+%of the impact of the support material on overall translation quality.
+%
+%This analysis promotes a follow-up examination directly comparing
+%creative translations and support suggestions in terms of their
+%individual quality (described in
+%Section~\vref{sec:kremer:creative-support-quality}). The background idea is to
+%carve out as to what extent the creative translations of our
+%participants were justified in the sense that they effectively
+%outperform the quality of the respective support suggestions.
+
+\subsubsection{Inter-rater correlation}
+\label{sec:kremer:irc}
+
+We started by analysing the agreement among the raters. We computed an
+inter-rater correlation coefficient using leave-one-out re-sampling
+\citep{WeissKulikowski:1991}. For this analysis, we first (manually)
+mapped all inflected word forms and incorrect spellings to the same
+adjective lemma. This should reduce the influence of morphological
+variation on the magnitude of the correlation coefficient.
+%
+Second, as proposed by \cite{MitchellLapata:2010}, we correlated the
+judgements of each rater with those of all the other raters to obtain
+an averaged individual correlation coefficient (\textsc{icc}) for each
+rater in terms of Spearman's $\rho$. This resulted in an overall
+correlation coefficient of $\rho=0.43$ for the eight raters. As we
+found substantial deviation of two raters from all
+others\footnote{Their \textsc{icc}s are the only ones below 0.4, while
+  the coefficient of their pairwise correlation is extremely low
+  ($\rho=0.24$; cf.\@ the full \textsc{irc} matrix in
+  \sectref{sec:kremer:irc-matrix}).}, we decided to discard their
+judgements. Averaging the \textsc{icc}s of the remaining six raters
+resulted in an overall inter-rater correlation of $\rho=0.47$. This
+outcome indicates that translation quality rating is a difficult task,
+but that our raters still produced reasonably consistent ratings. We
+then computed the average quality rating for each adjective instance
+by including the judgement scores of the best six raters.  We use
+these averages as the basis for analysing the overall translation
+quality between experiment conditions in the next section and for all
+subsequent analyses.
+
+% SP: redundant
+% A mixed effects model analysis on the
+%individual quality judgements of each rater as the dependent variable
+%(and including the identity of the raters as a random effect)
+%complements the overall quality analysis.
+
+\subsubsection{Overall translation quality}
+\label{sec:kremer:overall-translation-quality}
+
+We next consider the overall translation quality for the different
+support conditions. \figref{fig:q-boxplot} visualises the
+translation quality data as a boxplot (cf. \sectref{sec:kremer:react-times-results}). The medians of the quality
+ratings for no support and unigram support differ
+substantially, with non-overlapping notches, indicating a
+statistically significant difference in average quality ratings
+between these two conditions.
+%
+Comparing the conditions ``unigram support'' and ``bigram support'', their
+medians are almost identical. However, the variance is smaller in the
+bigram condition (smaller box), and there are noticeably fewer
+outliers at the lower end (shorter whisker). Thus, although there is
+no significant difference in terms of average translation quality,
+there is a tendency of bigram support to produce fewer medium and low
+quality translations. The corresponding means are shown in
+\tabref{tab:overall-quality-means}.
+
+\begin{figure}%[tb!]
+  \centering
+  \includegraphics[width=.45\textwidth]{figures/rating-boxplot}
+  \caption{Distribution of averaged translation quality
+    ratings}
+  \label{fig:q-boxplot}
+\end{figure}
+%
+\begin{table}[tb!]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{}}
+    \lsptoprule
+%     & No support & Unigram Support & Bigram Support\\
+%     \midrule
+%     Quality mean & 2.53 & 2.60 & 2.65\\
+    & Translation quality mean\\
+    \midrule
+    No support & 2.53\\
+    Unigram support & 2.60\\
+    Bigram support & 2.65\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Overall translation quality rating means for all experiment conditions}
+  \label{tab:overall-quality-means}
+\end{table}
+
+
+\largerpage
+These findings are corroborated by our mixed effects model analysis:
+analogously to the analysis of response times (see
+\sectref{sec:kremer:analys-react-times}), we assumed that the factors
+``variability class'' and ``experiment condition'' are fixed
+effects. We used the same factors as in the response time analysis as
+random effects and added rater identity. But, as in the present
+analysis the ``quality rating'' (1--3) was used as the dependent
+variable in the model, we applied a model tailored to categorial
+response variables, namely the cumulative link mixed model
+\citep{Christensen:11}, provided by the R package
+\texttt{ordinal}\footnote{\url{http://www.cran.r-project.org/web/packages/ordinal}}.
+%
+Selecting unigram support as the base level, the model yields
+significant differences both when compared to no support (p $<$ 0.001)
+and bigram support (p $<$ 0.01).
+
+
+These results suggest that the quality of our participants'
+translations, while being already rather high in the absence of any
+support, benefits from more detailed support material. Unigram and
+bigram support tend to have a slightly different influence, however:
+unigram support primarily seems to trigger better translations as
+compared to no support, while there is still a number of bad
+translations that cannot be ruled out in this condition. Admittedly,
+bigram support does not yield a further quality improvement, but
+contributes to a reduction of poor translations.
+
+
+\subsubsection{Ratio of creative to support translations}
+\label{sec:kremer:creative-support-ratio}
+
+An essential fact for interpreting the results of
+\sectref{sec:kremer:overall-translation-quality} is that participants
+were always free to forgo the support suggestions and enter their own
+translations. Thus, the analysis is still inconclusive, since it does
+not take into account how many support suggestions were actually
+accepted or overridden by the participants, and what exactly
+contributed to the augmentation in translation quality for unigram and
+bigram support. In fact, the quality gains observed under unigram and
+bigram support might be artefacts due to exhaustive use of creative
+translations (although creativity might have been triggered by
+presenting support suggestions). In that case, the direct contribution
+of the support suggestions to the participants' translation
+performance would be questionable.
+
+For this reason, we investigate the ratio of creative translations
+from different perspectives, starting from the level of
+participants. Afterwards, we broaden the scope to include the levels
+of sentences and individual translations.
+
+
+\paragraph{Analysis by Participants}
+
+%To provide a rough estimate of the participants' disposition towards 
+%creative translations, 
+We first investigated the proportion of participants who produced at
+least one creative translation. \tabref{tab:creative-participants}
+shows that in the absence of any support, more than 70\,\% of the
+participants occasionally produced a translation that is not contained
+in the unigram and bigram support suggestions. In the unigram condition,
+the proportion of creative participants amounts to 58.8\,\%, decreasing 
+with more extensive support material to 54.1\,\% in the bigram condition.
+
+% The inverse proportion -- participants who accepted at least one
+% support translation -- consistently amounts to 100\,\% in all
+% experimental conditions.
+
+%{\it How frequently did the individual participants produce creative translations?}
+
+\begin{table}%[h]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{}}
+    \lsptoprule
+%     & No support & Unigram support & Bigram support\\
+%     \midrule
+%     given $\geq 1 $ creative translation & 62 (72.9\,\%) & 50 (58.8\,\%) & 46 (54.1\,\%)\\
+    & No.\@ participants with $\geq 1 $ creative translation\\
+    \midrule
+    No support & 62\quad (72.9\,\%)\\
+    Unigram support & 50\quad (58.8\,\%)\\
+    Bigram support & 46\quad (54.1\,\%)\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Number (and rate) of creative participants in each experiment condition}
+  \label{tab:creative-participants}
+\end{table}
+
+
+\begin{table}%[h]
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{}}
+    \lsptoprule
+    & \multicolumn{8}{c}{Rate of creative translations per participant}\\
+    \cmidrule{2-9}
+    & 0\,\% & 1--10\,\% & 11--20\,\% & 21--30\,\% & 31--40\,\% & 41--50\,\% & 51--60\,\% & $>$ 60\,\%\\
+    \midrule
+    \multicolumn{1}{@{}m{2cm}}{No.\newline Participants} 
+    & 23 & 13 & 25 & 15 & 8 & 0 & 1 & 0\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Creativity rate per participant in the ``support'' conditions (unigram and bigram)}
+  \label{tab:creativity-rate-participants}
+\end{table}
+
+
+\newpage 
+To obtain a more detailed picture, we also considered the individual
+creativity rate per participant: did participants systematically
+accept (or reject) the support suggestions, or did they make use of
+them in an intelligent manner? To address this issue, the
+creativity rate was measured as the number of creative translations of
+the respective participant in relation to all their individual
+translations under unigram and bigram
+support. \tabref{tab:creativity-rate-participants} shows that 23
+(about 27\,\% of the whole group of) participants never produced a
+creative translation, but always used a translation that is included
+in the set of support suggestions. The other participants exhibit
+creativity rates that are distributed within a region of moderate
+creativity (with one outlier, a participant who came up with creative
+translations in more than half of the items she translated).
+
+Combined with the data presented in
+\tabref{tab:creative-participants}, this indicates that in both
+``support'' conditions (unigram and bigram), only little more than half of
+the participants ever decided to override the support material,
+without individually overusing this opportunity. On the other hand, we
+do not observe any participants who systematically reject the support
+material provided.
+
+
+\paragraph{Analysis by Sentences} %{\it What is the proportion of creative translations per sentence?}
+
+
+%{\it What is the distribution of creative translations over sentences?}
+
+On the sentence level, we are primarily interested in whether
+some sentences show a stronger tendency to evoke creative
+translations than others. Therefore, along the lines of our analysis
+on the level of participants, we first investigated the proportion of
+sentences with at least one creative translation, before taking a
+closer look on the creativity rate per sentence.
+
+\begin{table}%[h]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{}}
+    \lsptoprule
+\multicolumn{2}{r@{}}{Sentences with $\geq 1$ creative translation}\\
+    \midrule
+    No support & 71.7\,\% \quad (86)\\
+    Unigram support & 36.7\,\% \quad (44)\\
+    Bigram support & 39.2\,\% \quad (47)\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Proportions of sentences with creative translations in each experiment condition}
+  \label{tab:creative-sentences}
+\end{table}
+
+In the ``no support'' condition, our group of participants produced 
+translations that are neither contained in the unigram nor in the 
+bigram support in more than 70\,\% of the sentences (cf. \tabref{tab:creative-sentences}). In the ``unigram support''
+condition, 36.7\,\% of the sentences provoked a creative translation.
+Interestingly, however, this proportion is slightly higher in the 
+``bigram support'' condition. % than in the unigram support condition. 
+
+\newpage 
+We believe that this effect is not just random variation: we
+encountered 15 sentences in the data which triggered at least one
+creative translation in bigram support, but none in unigram
+support. Analysing these sentences, we discovered two major reasons
+for their higher disposition towards creative translations in bigram
+support.
+%
+First, some of the support suggestions contained in the unigram set
+are not included in the bigram set -- \REF{ex:proper}
+illustrates this phenomenon, where \emph{angemessen} would be
+categorised as a creative translation based on bigram support (on the
+right), but not based on unigram support (on the left).
+
+%\newpage%\pagebreak
+\needspace{2\baselineskip} % keep sentence and tabular on same page
+\begin{exe}
+  \ex\label{ex:proper}
+  The show was the best it had ever been , and its *proper* length , for once.\\[.5ex]
+  \begin{tabular*}{.9\textwidth}{@{\extracolsep{\fill}}ll@{\extracolsep{1em}}r@{}}
+    \emph{Unigram support:} & 
+    \emph{Bigram support:}\\
+    richtig & richtige & (Zeit) \\
+    ordnungsgemäß & richtige & (Dauer)\\
+    angemessen & ordnungsgemäße & (Länge)\\
+  \end{tabular*}
+\end{exe}
+
+\noindent{}Second, on the one hand, in the context of ambiguous or abstract nouns
+that are hard to translate when given just unigram support, some
+participants apparently tended towards accepting one of the unigram
+suggestions without reasoning too much about its collocational fit
+with the best translation of the context noun.
+%
+On the other hand, in some cases the bigram support suggestions
+include a good translation of the noun in combination with an
+incongruous adjective suggestion. Consider \REF{ex:great},
+where all participants translated \emph{great} as \emph{groß} in the
+``unigram support'' condition, while during bigram support, we also
+encountered the creative translation \emph{hoch} (high), which is a
+better collocational match for \emph{Genauigkeit} (accuracy) and
+\emph{Präzision} (precision) in German than \emph{groß}.
+
+
+\begin{exe}
+  \ex\label{ex:great}
+  Someone who hits the ball with *great* accuracy on the volley and with [\,\dots ] .\\[.5ex]%\nopagebreak
+\begin{tabular*}{.9\textwidth}{@{\extracolsep{\fill}}ll@{\extracolsep{1em}}r@{}}
+  %\begin{tabular*}{.9\textwidth}{@{\extracolsep{\fill}}lr@{\extracolsep{1em}}r@{}}
+    \emph{Unigram support:} & 
+    \emph{Bigram support:}\\
+  groß & große & (Genauigkeit)\\
+  großartig & große & (Sorgfalt)\\
+  riesig & große & (Präzision)\\
+\end{tabular*}
+\end{exe}
+
+\noindent{}The creativity rate per sentence measures the fraction of creative
+translations in all translations that were collected for the respective
+sentence in both the conditions ``unigram support'' and ``bigram
+support''. \tabref{tab:creativity-rate-sentences} summarises the
+results. For about half the sentences, no creative translation was
+produced at all, \ie, the participants were satisfied with the support
+material being provided. 75\,\% of the sentences exhibit a creativity
+rate of 25\,\% or below. For only eight sentences, the majority of
+translations ($>$~50\,\%) was found to be creative. Apparently, the
+availability of support limits the need for creative translations,
+regarding both the number of sentences that exhibit creative
+translations and the creativity rate within these sentences.
+%
+\begin{table}%[btph]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
+    \lsptoprule
+    &    \multicolumn{5}{c}{Rate of creative translations per sentence}\\
+    \cmidrule(l){2-6}
+    & 0\,\% & 1--25\,\% & 26--50\,\% & 51--75\,\% & 76--100\,\%\\
+    \midrule
+    No.\@ sentences & 61 & 28 & 23 & 6 & 2\\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Creativity rate per sentence in the ``support'' conditions (unigram and bigram)}
+  \label{tab:creativity-rate-sentences}
+\end{table}
+%
+
+
+
+%\pagebreak
+\paragraph{Analysis by Translations} %{\it What is the proportion of creative translations?}
+
+Finally, we investigated the creativity rate on the basis of
+individual translations. The results of this analysis are shown in
+\tabref{tab:creative-translations}.\footnote{Note that the
+absolute number of translations as stated in the first column of 
+the table differs across the experimental conditions due to the
+elimination of response time outliers (cf. \sectref{sec:kremer:analys-react-times}).} Comparing the creativity 
+rate across the three experimental conditions, we can observe a 
+pattern that is in line with our preceding analyses: for unigram 
+and bigram support, only 12.3\,\% and 13.4\,\% of the translations, 
+respectively, were found to be creative. Considering freely produced 
+translations, we encounter a relatively high creativity rate (41.6\,\%).
+%In line with the preceding
+%analyses, we can observe a substantial difference between the
+%creativity ratio in the no support condition compared to the two
+%support conditions. For unigram and bigram support, only 12.3\,\% and
+%13.4\,\% of the translations, respectively, were found to be creative,
+%whereas this fraction is about three times as high for freely produced
+%translations (41.6\,\%). 
+The latter percentage is also interesting
+from a different perspective, as it provides an estimate of the
+coverage of the support material: almost 60\,\% of the translations
+produced by our participants in the ``no support'' condition are covered
+either by the unigram or the bigram suggestions.
+
+\begin{table}%[tb!]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrr@{}}
+    \lsptoprule
+    & No.\@ translations & Creative translations\\
+    \midrule
+    No support & 546 & 41.6\,\% \\
+    Unigram support & 614 & 13.4\,\% \\
+    Bigram support & 624 & 12.3\,\% \\
+    \lspbottomrule
+  \end{tabular*}
+  \caption{Overall creativity ratio for experiment data without response time outliers}
+  \label{tab:creative-translations}
+\end{table}
+
+
+
+Given that the support material in the translation experiment for 
+each target adjective comprised only the three most likely translations 
+as extracted from the \textsc{smt} $n$-best list (cf. \sectref{sec:kremer:trans-support}), the question arises whether
+support coverage would improve if more suggestions from the
+\textsc{mt} system were included in the translation support.
+%, \ie, if translations
+%previously marked as ``creative'' based on the top~3 support
+%suggestions are contained in the larger set of support suggestions (an
+%thus, will be marked as ``support'' instead of ``creative''
+%translations).
+%
+To tackle this question, we also extracted the five-best and ten-best
+unigram translations for the test adjectives from the Moses
+output.\footnote{This required consulting a 50,000-best list to obtain
+  enough distinct translations for most cases. Still, for 8 items
+  ($\approx$ 6.7\,\%) we found less than five translations, and for
+  81 items (67.5\,\%) less than ten translations.}  As expected,
+the creativity rate drops from 13.4\,\% for the top~3 support to 10.4\,\%
+for the top~5 support (64 creative translations) and finally to 7.7\,\%
+for the top~10 support (47 creative translations).
+
+%In sum, we find that creativity is a rather infrequent phenomenon in
+%our data, both during unigram support and bigram support. This is
+%further evidence that the differences in overall translation quality
+%among the experimental conditions no support, unigram support and
+%bigram support (cf.\@ figure~\vref{fig:q-boxplot}) are primarily due
+%to the quality of the provided support material.
+
+
+\paragraph{Summary}
+Our creativity analysis based on participants, sentences and
+individual translations yields a coherent pattern:
+\begin{inparaenum}[(a)]
+\item translators use support translations for both unigram and
+  bigram support in a total of almost 90\,\% of the cases;
+\item translators use creative translations only for a subset of
+  sentences (less than 40\,\%) when translation support is given;
+\item about 60\,\% of the participants exhibit moderate individual
+  creativity rates of between 11\,\% and 40\,\%.
+\end{inparaenum}
+These findings suggest that creative translations, despite their
+sparsity, are used deliberately in particular cases. This leads to the
+question whether creative translations have an effect on translation
+quality, \ie, whether the quality of individual creative
+translations is higher compared to the corresponding support
+suggestions. 
+% We address this question in the next section, by analysing the
+% translation quality on basis of individual translations.
+
+
+\subsubsection{Translation quality of creative translations and support suggestions}
+\label{sec:kremer:creative-support-quality}
+
+
+%In this section, we analyse the quality of individual translations,
+%with a special focus on assessing the quality separately for creative
+%translations, support translations and support suggestions. We are
+%mainly interested in finding out whether the use of creative
+%translations by our participants was justified in terms of a higher
+%quality when compared to the support suggestions.
+
+%{\it What is the overall average quality of creative translations compared to the support translations and support suggestions?}
+
+
+\begin{table}[b]
+  \begin{tabularx}{\textwidth}{QSSS}
+    \lsptoprule
+    & Creative translations 
+    & Support translations
+    & Support suggestions\\
+    \midrule
+    %No support & (2.28) & (2.71) & (2.40)\\
+    Unigram support & 2.40 & 2.64 & 2.46\\
+    Bigram support & 2.42 & 2.68 & 2.52\\
+    \lspbottomrule
+  \end{tabularx}
+  \caption{Average quality ratings for complete data set}
+  \label{tab:creative-support-overall-quality}
+\end{table}
+
+Our latest analysis compares the overall average quality of creative
+translations, support translations and support suggestions in both
+``support'' conditions. 
+%
+The results are shown in \tabref{tab:creative-support-overall-quality}. Our first
+observation is that bigrams outperform unigrams in all the three
+categories, which is in line with the results of our overall quality
+analysis in \sectref{sec:kremer:overall-translation-quality}.
+
+Next, we compare the results for the different columns. The third
+column, ``support suggestions'', can be considered as a baseline of
+randomly picking one of the support suggestions. Such a strategy would
+achieve an average quality of 2.46 (with unigram support) or 2.52
+(with bigram support). These numbers indicate that the support
+material provided to our participants was of good average quality. In
+fact, the quality of the support suggestions is only slightly below
+the average of our human participants translating without support
+(2.53, cf. \tabref{tab:overall-quality-means}).
+
+The ``support translations'' column shows that our human translators
+did a good job picking out the best translations from all support
+suggestions, increasing the quality by %0.15 to 0.2 points.
+0.18 (unigram condition) and 0.16 points (bigram condition).  In
+contrast, and somewhat surprisingly, the average quality of all
+creative translations taken together falls slightly below the baseline
+in both the unigram (2.40) and the bigram (2.42) condition.
+Thus, it appears that creative translations cannot be assumed a priori
+to be of high quality.
+
+
+%{\it Did the creative solutions lead to an improvement in quality over the support suggestions?}
+
+\begin{table}%[h]
+%  \centering
+  \begin{tabularx}{\textwidth}{l@{}SSSS}
+    \lsptoprule
+            &  \mbox{No.\@ instances} \mbox{(creative trans.)}
+            &  {Creative translations}
+            &  {Support translations}
+            &  {Support suggestions} \\ 
+    \midrule
+    Unigram support & 82 & 2.40 & 2.17 & 1.83 \\
+    Bigram support  & 77 & 2.42 & 2.15 & 1.95 \\
+    \lspbottomrule
+  \end{tabularx}
+  \caption{Average quality for experimental items that triggered  creative translations}
+  \label{tab:creative-support-comparison}
+\end{table}
+
+\largerpage
+A possible explanation for this finding is that creative translations
+were produced in particular for difficult adjectives to be
+translated. If this were true, we would expect that the support
+translations for these sentences should perform even worse. To test
+this prediction, we repeated our analysis for the
+\emph{creativity-triggering experimental items} (\ie, the subset of
+experimental items for which at least one participant produced a
+creative translation). The results in
+\tabref{tab:creative-support-comparison} show that this is indeed
+the case: the quality of all support suggestions for these sentences
+is below 2, and even picking the best candidates (column ``support
+translations'') yields an average quality of below 2.2. The creative
+translations, with an average quality of around 2.4,\footnote{Note
+  that in our experimental setting three support suggestions were
+  provided for each experimental item. To compare the average
+  qualities of creative translations and support suggestions, we
+  triplicated the rating score for each creative translation.}
+outperform the support suggestions and translations significantly
+\citep[p $<$ 0.001 for both contrasts---as determined by an approximate
+randomisation test, cf.\@][]{Noreen:89}.\footnote{The significance
+  analysis was performed on a slightly smaller number of experimental
+  items (69 for unigram support, 71 for bigram support), as for some
+  of the items, none of the participants selected a support
+  suggestion. Average quality of the creative translations in these
+  cases: 2.38.}  This means that, overall, translators not only use
+good supports when appropriate, but they are also able to recognise
+bad supports and replace them with better suited creative
+translations.
+%
+%In line with our findings on the full set of rated adjectives (cf.\@
+%Table~\vref{tab:creative-support-overall-quality}), when limiting the
+%analysis only to the experimental items, for which at least one
+%creative translation was produced, support translations exhibit again
+%higher average quality than the support suggestions. However, they are
+%still outperformed by the creative translations, and this difference
+%is statistically highly significant ($p<0.001$) as well.
+%
+%
+%
+For illustration, consider the following two examples where creative
+translations outperform the support translations (\ie, support
+suggestions that were actually selected by at least one participant):
+
+%
+\begin{exe}
+  \ex\label{ex:creative-vs-support-1}
+   What does a *large* attendance at Easter communion
+imply?\\[.5ex]%\nopagebreak
+\begin{tabular*}{.9\textwidth}{@{}l@{\extracolsep{1em}}r@{\extracolsep{\fill}}r@{\extracolsep{1em}}r@{}}
+    \multicolumn{2}{@{}l@{}}{\emph{Support translations:}} &
+    \multicolumn{2}{@{}l@{}}{\emph{Creative translations:}}\\
+  groß & (2.00) & zahlreich & (2.17) \\
+  hoch & (1.83) & & \\
+  breit & (1.83)  & & \\
+  \end{tabular*}
+\end{exe}
+
+\begin{exe}
+  \ex\label{ex:creative-vs-support-2}
+   He delivered a *great* kick backwards at Terry's shins, the
+edge of his boots like iron.\\[.5ex]
+\begin{tabular*}{.9\textwidth}{@{}l@{\extracolsep{1em}}r@{\extracolsep{\fill}}l@{\extracolsep{1em}}r@{}}
+    \multicolumn{2}{@{}l@{}}{\emph{Support translations:}} &
+    \multicolumn{2}{@{}l@{}}{\emph{Creative translations:}}\\
+  groß & (1.5)  & kräftig & (2.67) \\
+    & & heftig & (2.50) \\
+    & &   großartig &(2.33) \\
+    & &   gut & (2.33) \\
+    & &   gut gelungen & (2.33) \\
+    & &   fest &(2.33) \\
+    & & schwer & (2.17) \\
+  \end{tabular*}
+\end{exe}
+
+\noindent{}These examples show all support translations (left column) and creative
+translations (right column) for the respective sentence in all
+conditions (and their average qualities).
+
+% Alternative zur Studie unten:
+%
+% Welche Kandidaten waren beteiligt an creative translations?
+% Wie viele? (Meist dieselben?)
+%
+% Upon closer examination, we found that participants can be split into
+% two groups, though: one group that tends to produce creative
+% translations for creativity-triggering experimental items (the
+% ``creatives'') and one group which still tends to return support
+% suggestions (the ``supporters''). \marginpar{wieviele supporter und
+%   creatives haben wir? wie definiert?}
+% %
+% % (note
+% %that the quality ratings of our judges as shown in
+% %Table~\vref{tab:creative-support-comparison} clearly favour creative
+% %translations in these cases, though). 
+% %
+% We observe that the ``supporters'' show a general tendency towards
+% lower creativity: In the unigram support condition, they produced a
+% creative translation in only 10.1\,\% of all cases; in the bigram
+% support condition, this ratio further decreases to 8.4\,\%. For
+% comparison, the creativity rate of the ``creatives'' is 28.3\,\% and
+% 28.7\,\%, respectively.
+
+% These numbers show that even though the difference in quality we found
+% between creative translations and the corresponding support
+% translations does not originate from a subgroup of participants who
+% \emph{always} chooses a support translation, the ``supporter''s' lower
+% rate of creativity is accompanied with a lower translation quality on
+% creativity-triggering experimental items. What is more, this
+% correlation scales up to all instances: The average quality of the
+% ``creatives'' on the complete data set is 2.59 (unigrams) and 2.61
+% (bigrams) respectively, while the ``supporters'' just achieve an
+% average of 2.56 on both conditions. It seems that the ``supporters''
+% are not capable, or not motivated, to override the support suggestions
+% when appropriate.
+
+%recognize the appropriateness of
+%overriding the support suggestions. Given that they consistently
+%perform slightly lower than the participants from the CC group, we
+%conjecture that deciding when to accept and when to override the
+%support material is a hard task that can only be solved by
+%high-performing translators.
+
+
+ 
+\subsubsection{Summary}
+
+Across all analyses, we clearly see a positive effect of \textsc{smt}
+support on human translation performance. Our initial hypothesis is
+largely confirmed, as we found a significant gain in translation
+quality for unigram support compared to the ``no support''
+condition. Beyond that, bigram support does not yield a further
+increase in translation quality, but still tends to help excluding poor
+translations.\footnote{Translating text segments of more than one word
+  as natural ``translation units'' is exactly what is proposed in
+  translation studies \citep[see, \eg,][]{Toury}, and which our study
+  corroborates.} %
+We found that the generally high quality of the \textsc{smt}
+suggestions is the primary source of this effect, as our participants
+relied on the provided support suggestions in almost 90\,\% of the
+cases.
+
+However, high quality support material is not sufficient on its own to
+explain the improvement in translation quality in the two ``support''
+conditions. We found that the human translators need to review the
+support suggestions to 
+\begin{inparaenum}[(a)]
+\item \label{case-a}
+  pick the most appropriate of the suggestions and
+\item \label{case-b} 
+  if there are no appropriate ones, suggest a creative translation.
+\end{inparaenum}
+Even though the latter case occurred only for a relatively small
+subset of the data, in these cases the participants' creative
+translations turned out to be significantly superior to the support
+suggestions. At the same time, (\ref{case-b}) appears to be a
+difficult task, given that a fraction of about a third of our
+participants never produced any creative translations at all.
+%, we assume that this
+%subgroup experienced difficulties in recognising the need for
+%creativity (\ie, identifying the suboptimality of the support
+%suggestions) and/or coming up with alternative translations. 
+It seems, therefore, that the decision when to accept and when to
+override the support suggestions is the most challenging task for many
+participants in computer-aided
+translation. 
+% \matthias{vermutlich ist das nicht ganz neu -- any refs?}
+In contrast, (\ref{case-a}) appears quite feasible, as the quality of
+our participants' selections is well beyond a ``random selection''
+baseline and consistently so across participants.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+%%%%%%%%%%%%%%%%%%%%%%
+Nevertheless, our findings are clearly in favour of supporting human translators by
+phrase table data. Even if the participants In the large majority of cases, the phrase table support is highly 
+reliable and very beneficent for human translators. ; on the other hand, our data 
+clearly shows that human translators are even capable of recovering from the infrequent
+situation of less-than-optimal support, rather than being set on the wrong track.
+
+\paragraph{Creative Translations.} We first investigated the frequency
+and the quality of of creative translations, as presented in 
+Table~\vref{tab:creative-translations}. The number of experimental items 
+in each experimental condition is displayed in the first column, 
+followed by the proportion of creative translations among them in the second column. 
+The last column shows the average quality of the creative translations, 
+relative to the overall average quality of all support translations. The latter 
+figure is given in brackets.
+
+As can be seen from the table, in the absence of any support,
+the proportion of creative translations amounts to more than
+40\,\%.\footnote{In the no support condition, creative translations
+  for each item were established by counting all translations that
+  were neither contained in the unigram nor in the bigram support for
+  the same item, whereas in the unigram and bigram condition, only
+  those translations not contained in the unigram and bigram support,
+  respectively, were considered as creative.} Under unigram and
+bigram support, this proportion narrows down considerably to 13\,\%
+and 12\,\%, respectively. At the same time, the quality of creative
+translations slightly increases with additional support, while still
+remaining below the overall translation quality means we established
+above (cf.\@ Figure~\vref{fig:q-boxplot}) in all support
+conditions. 
+
+This brings an interesting aspect to light: Support 
+material might also turn out to have a ``negative'' impact in that it
+triggers the need for creative translations. Interestingly, our data
+shows (cf.\@ last column of Table~\vref{tab:creative-translations})
+that creative translations triggered by such suboptimal support are of
+better quality than freely produced creative translations (\ie, under
+no support). We hypothesise that phrase table support generally
+contributes to a reduction of the search space for the translator and
+thus to a simplification of the translation task. 
+%[[GK: ref sent by Biemann]] 
+\matthias{Gerhard, you wanted to look for some examples...}
+
+\paragraph{Support Translations.} As can be seen from the last column of 
+Table~\ref{tab:creative-translations}, we observe a high overall
+quality of the the support suggestions, regardless of whether they were
+effectively chosen as translations or not. These figures indicate that
+arbitrarily selecting one of the support items extracted from phrase
+table data already has a good chance to result in high translation
+quality. In fact, our data suggests that there is no substantial
+difference in performance between lay human translators acting without
+any support (cf.\@ figure~\ref{fig:q-boxplot}; no support condition)
+and an automatic system that always picks one support translation at
+random. Note, however, that neither of these strategies can meet with
+the translation quality achieved when human translators are provided
+with phrase table support (cf.\@ figure~\ref{fig:q-boxplot};
+unigram/bigram conditions). We suppose that this is due to the human
+translators' capability of overriding suboptimal support suggestions
+with a more appropriate creative translation if they feel the need. A
+more thorough analysis of this aspect will be presented in the
+following. %Altogether, these figures reveal that the high quality of phrase table support is indeed the main source for the gain in translation quality we observed in our experiments under the unigram and bigram condition.
+
+%%%%%%%%%%%%%%%%
+\end{comment}
+%%%%%%%%%%%%%%%%
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper-GSCL11"
+%%% End: 
+
+
+\section{General discussion and conclusion}
+\label{sec:kremer:conlu}
+
+
+In this study, our goal was to investigate the usefulness of
+adjective--noun translations generated by \textsc{mt} systems and
+presented to non-professional human translators as unigram or bigram
+suggestions during the translation of individual adjectives in
+sentence context. This choice makes for an interesting translation
+task, due to the meaning variation of adjectives in context, while
+allowing us to control translation variability fairly strongly.
+%An analysis of a
+%judgement experiment on these collected human translations and the MT
+%system's support suggestions assessed the translation quality.
+
+The first variable we measured was translation time. In presenting
+three suggestions in both the unigram and bigram conditions, we found
+a statistically significant increase in response times for the bigram
+support condition but not the unigram support condition. Even for the
+bigram condition, however, the mean response time increased only by
+around 0.6 seconds (\ie, by $\approx$ 10\,\%) compared to no
+support. Contrary to our intuitions, the level of translation
+variability as defined by phrase table counts had no statistically
+significant influence on response times. However, in interaction with
+the support condition ``unigram'' we partly observed an effect we had
+predicted: highly variable adjectives were translated faster than
+low-variability adjectives in the unigram condition.
+
+The second variable of interest in the translation process was
+translation quality. We elicited judgements on a three-point scale from
+human annotators.
+% The reason for not simply performing an automatic evaluation or
+% using a parallel corpus for evaluating translation quality is that
+% instead of evaluating the quality based on a particular word, also
+% synonyms are acceptable in our task.
+Although the inter-rater correlation in the judgement experiment was
+ mediocre,
+% (both in the unigram condition and in the bigram condition)
+the average quality ratings in the two support conditions were
+statistically significantly higher than without support. Furthermore,
+in the bigram condition, participants produced the least amount of
+low-quality translations. Further analysis established that the
+\textsc{smt}-produced support suggestions were generally of high
+quality, and were accepted well by human translators, who were
+consistently able to pick the best translations from among the
+candidates. 
+%
+% Within translators, however, we found a split between
+% those that relied exclusively on the support translations when they
+% were available, and those that were able to recognise bad suggestions
+% and provided creative translations. This last group, which found an
+% ideal way to combine the \textsc{mt} assistance with their own
+% translation skills, produces the overall highest-quality
+% translations. However, even for those translators which relied on
+% choosing among the \textsc{smt} suggestions, the resulting
+% translations are better in quality than if they had been translated
+% without computer help.
+
+
+%
+%Next, we assessed how extensively participants used the suggestions in
+%the support conditions to check whether higher quality levels can in
+%fact be ascribed to the SMT system's translations. To do that, we
+%compared the ratio of support translations to ``creative''
+%translations (defined as translations not contained in the unigram and
+%bigram support lists).  We observed that participants tended to
+%produce less ``creative'' translations when being provided with
+%translation suggestions. That is, they indeed made use of the provided
+%support, %leading to higher quality scores.
+%which resulted in better translation quality.
+%
+%\matthias{ab hier nochmal überarbeiten}
+%However, in the rare cases where human translators did not accept the
+%adjective suggestions, the support had lower average quality, \ie,
+%participants seemed (at least in these cases) to sense when overriding
+%suggestions was justified for giving a better translation (affirmed by
+%the fact that only some of the sentences had at least one creative
+%translation). Note that this is not valid for all human translators in
+%the experiment: around 27\,\% of the participants never produced a
+%creative translation at all in the support conditions.  Furthermore,
+%in those cases when participants did not choose a translation from one
+%of the support suggestions, creative translations had higher average
+%quality than in general without any support. This indicates that human
+%translators still did a better job when being provided with
+%suggestions---even though they did not use them---than when having no
+%support at all.
+%
+
+In summary, we found a strong case in favour of supporting
+non-professional translators with \textsc{smt} support, provided that
+the quality of the support material is high enough that just choosing
+between support suggestions is a reasonable strategy. In terms of the
+choice between unigram and bigram support, there is a substantial
+improvement in quality already for unigram support without a
+significant accompanying translation delay. For bigram support, the time to read
+through the suggestions becomes a significant (although still small)
+factor, but pays off with a further reduction in poor translations.
+
+Recall that we obtained these results by presenting three support
+candidates for each adjective to be translated. This is of course not
+the only possible choice. We found that longer $n$-best lists will
+cover a larger fraction of translations (90\,\% for 5 suggestions), but we
+would expect that more suggestions will slow down the translation
+process considerably, clutter the translation interface, and make
+translators even more reluctant to dismiss poor suggestions.
+
+Machine-supported human translation is an open field with ample
+potential for creative strategies to combine the complementary
+strengths of man and machine. In future work, we would like to explore
+ways to generalise our experimental setup to larger phrases without
+giving up the control over translation complexity that we have
+utilised in this experiment.
+
+%In general, human and machine translation and, specifically, their
+%performance evaluation is a gripping endeavour, for which there is
+%still potential to explore . We
+%believe to have contributed in this respect with our study on a
+%focused component in machine translation in combination with human
+%capability of gainfully utilising it.
+
+
+%An additional technical problem is that the n-best lists
+%for many sentences do not contain more than ive 
+%
+%because of longer reading times, translations will be
+%slower. Moreover, many more than five suggestions for an adjective to
+%be translated do not seem to be easily extractable from phrase tables.
+
+
+%translation quality in our experiments improved
+%significantly when human translators were given support suggestions
+%(additionally, when presenting bigrams, less poor translations were
+%produced). This effect was found to be directly caused by the quality
+%of the support material. In terms of response times (defined as the
+%time to decide for a translation), only bigram support resulted in
+%significantly slower translations (although not unbearably slower),
+%but not unigram support. Thus, presenting unigrams in fact helps in
+%terms of quality (without performance decrease in terms of length of
+%time needed to translate), whereas for bigrams, 
+%However, a clear advantage of bigrams over unigrams is the elevated
+%quality for some experimental items in the translation experiment,
+%which we assume to partly be caused by the collocational congruence of
+%the adjective candidate with its head noun. \matthias{mir nicht ganz
+%  klar}
+%
+
+
+% einfache Anwendung unseres Erkenntnisgewinns in dieser Studie:...
+
+% bigram support:
+% nicht alle Adjektive (weil Kombi mit nouns)
+% aber eher gute noun-kollokative Adj 
+% (gegen mgl. Einwand: 
+% *versch.* Nouns werden angeboten - 
+% wir haben fürs Judgem.Exp nur 1 bestimmtes benutzt)
+
+% obwohl interrater corr. niedrig: Unterschiede bi/uni 
+% (also konform in terms of positive/negative? overall?)
+
+
+
+
+
+
+% letzten Abschnitt aus 5.2.4 einbinden ?
+
+% table 13: quality
+% creative translations vs. support sugggestions/translations
+% auch bei no support?
+
+% quality creative translations unigram vs. bigram:
+% wird die Kreativität angeregt? 
+% bringen die Kandidaten bessere Vorschläge?
+% tendenziell ja, s. table 2.40 vs. 2.42
+% signifikant?
+
+
+% offen:
+% wie ist die Abdeckung (Top5/10) bei no support?
+% (d.h. werden auch alle/die meisten Adj. abgedeckt,
+% wenn Teilnehmer frei produzieren?)
+
+
+%\paragraph{Acknowledgements.} 
+%\matthias{reviewers ?}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper-GSCL11"
+%%% End: 
+
+ 
+
+
+\clearpage
+\appendix
+\section*{Appendix}
+\label{sec:kremer:appendix}
+\renewcommand{\thesection}{\Alph{section}} 
+% \subsection*{Adjective stimuli set}
+\section{Adjective stimuli set}
+\label{sec:kremer:adj-stimuli}
+\begin{table}[hbp]
+%  \centering
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lr@{}}
+\lsptoprule
+%\multicolumn{2}{c}{Variability class}\\
+%\midrule
+Low variability & High variability\\
+\midrule
+%\cmidrule(r){1-1}
+%\cmidrule(l){2-2}
+lovely    & final     \\     
+bright    & essential \\ 
+formal    & hard      \\      
+dark      & large     \\     
+complex   & common    \\    
+fresh     & proper    \\    
+ordinary  & real      \\      
+rich      & main      \\      
+deep      & present   \\   
+recent    & strong    \\    
+heavy     & serious   \\   
+immediate & major     \\      
+domestic  & clear     \\      
+separate  & great     \\      
+likely    & good      \\       
+\lspbottomrule
+\end{tabular*}
+  \caption{The set of 30 adjectives used as stimuli in the translation support experiment}
+  \label{tab:adjset}
+\end{table}
+
+% \subsection*{Guidelines for quality rating}
+\section{Guidelines for quality rating}
+\label{sec:kremer:qr-guidelines}
+
+\begin{itemize}
+\item If more than one inflected form of the same adjective lemma
+  occurs as a translation in the same sentence:
+  assign the same rating.
+\item In case of spelling mistakes: rate the adjective as if it was
+  spelled correctly.
+\item If more than one word has been produced as a translation:
+  consider only the (first) adjective.
+\item If the only translation produced is not an adjective, but a
+  noun: rate the appropriateness of the noun as a translation for the
+  adjective in the given context (\eg: {\it major} $\to$ {\it
+    Haupt-}).
+\item Rate the appropriateness of each adjective only in combination
+  with the translation given for its head noun.
+\item Try to use the full scale (1--3) to rate the quality of all
+  adjective translations per sentence. However, in case of sentences
+  with only a few different adjective translations: if all of them are
+  bad, it is not necessary to exhaust the full scale.
+\item Try to work swiftly.
+\end{itemize}
+ 
+% \subsection*{Quality rating: inter-rater correlation matrix}
+\section{Quality rating: inter-rater correlation matrix}
+\label{sec:kremer:irc-matrix}
+
+%\matthias{weglassen ?}
+
+\begin{table}[h]
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccccc@{\qquad}c}
+   \lsptoprule
+           & R1 & R2 & R3 & R4 & R5 & R6 & R7 & R8 & \textsc{icc}\\\midrule
+\addlinespace
+  R1 & 1.00 & 0.40 & 0.36 & 0.24 & 0.38 & 0.38 & 0.36 & 0.41 & 0.36\\
+  R2 & 0.40 & 1.00 & 0.49 & 0.42 & 0.50 & 0.47 & 0.41 & 0.48 & 0.45\\
+  R3 & 0.36 & 0.49 & 1.00 & 0.38 & 0.44 & 0.47 & 0.51 & 0.45 & 0.44\\
+  R4 & 0.24 & 0.42 & 0.38 & 1.00 & 0.41 & 0.42 & 0.37 & 0.43 & 0.38\\
+  R5 & 0.38 & 0.50 & 0.44 & 0.41 & 1.00 & 0.50 & 0.39 & 0.49 & 0.44\\
+  R6 & 0.38 & 0.47 & 0.47 & 0.42 & 0.50 & 1.00 & 0.49 & 0.49 & 0.46\\
+  R7 & 0.36 & 0.41 & 0.51 & 0.37 & 0.39 & 0.49 & 1.00 & 0.47 & 0.43\\
+  R8 & 0.41 & 0.48 & 0.45 & 0.43 & 0.49 & 0.49 & 0.47 & 1.00 & 0.46\\
+   \lspbottomrule
+  \end{tabular*}
+  \caption{Inter-rater correlation matrix for our full set of raters in the judgement experiment}
+  \label{tab:irc-matrix}
+\end{table}
+
+
+\renewcommand{\thesection}{\arabic{section}} 
+\renewcommand{\thechapter}{\arabic{chapter}} 
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "paper-GSCL11"
+%%% End: 
+
+\section*{Acknowledgements}
+
+Credit for the implementation of the experiment \textsc{gui} goes to Samuel Broscheit. We are grateful to our significant others for participating in the quality ratings.
+
+\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this] 
+\end{document}

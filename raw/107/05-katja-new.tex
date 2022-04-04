@@ -1,0 +1,642 @@
+\documentclass[output=paper]{langsci/langscibook.cls}
+\author{Ekaterina Lapshinova-Koltunski \affiliation{Saarland University}}
+\title{Cohesion and translation variation:
+	Corpus-based analysis of translation varieties}
+\shorttitlerunninghead{Corpus-based analysis of translation varieties}
+% \lehead{Ekaterina Lapshinova-Koltunski}
+%\epigram{Change epigram in chapters/01.tex or remove it there }
+\abstract{In this study, we analyse cohesion in human and machine translations that we call `translation varieties' as defined by \cite{LapshinovaForthcoming} -- translation types differing in the translation methods involved. We expect variation in the distribution of different cohesive devices which occur in translations. Variation in translation can be caused by different factors, e.g. by systemic contrasts or ambiguities in both source and target languages. It is known that variation in English-to-German translations depends on devices of cohesion involved. We extract quantitative evidence for cohesive devices from a corpus and analyse them with descriptive techniques to see where the differences lie. We include not only English-German translation into our analyses, but also also English and German non-translated texts, representing the source and the target language. Similarities and differences between translated and non-translated texts could provide us with the information on the original of this variation, which might be caused by translationese features.}
+\ChapterDOI{10.5281/zenodo.814468}
+\maketitle
+
+
+%\usepackage{linguex}
+%\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+%\noindent\keywordname\enspace\ignorespaces#1}
+
+\begin{document}
+
+\section{Introduction}
+This contribution is aimed at the analysis of \isi{cohesion} in multilingual texts, focussing on variation of cohesive features influenced by different dimensions, i.e. text production type (original vs. translation), translation method involved (manual vs. automatic), as well as systemic contrasts between source and target languages. We know from various studies that translations differ from originals, if various linguistic properties are taken into account \citep[and others]{Baker1995,Teich2003,Croco2012}. These properties of translations distinguishing them from non-translated texts are called \textsl{translationese}\footnote{The term was invoked by \citet{Gellerstam:1986}.}. In our own studies, i.e. \citet{Lapshinova2015EST} and \citet{Lapshinova2015Disco}, we have shown that translations, regardless of the method they were produced with, are different from their source texts and from the comparable originals in the \isi{target language}. In the latter work \citep{Lapshinova2015Disco}, we used a set of cohesive features and explorative statistical techniques (automatic classification and correspondence analysis) to discover these differences. In this work, we are using the same set of features, applying descriptive methods which are appropriate for a detailed analysis, zooming into concrete features, such as reference, conjunctive relations and general nouns, as well as their subtypes. This method is supposed to help us to directly compare the differences that we discovered in our previous analyses, and to possibly find out the reasons for the observed variation. Thus, we explicitly compare the feature values and their frequency changes in \isi{German} and English non-translated texts, as well as human and machine translations from English into \isi{German}. 
+%measuring the differences directly
+%cohesive features are chosen to be the approximations of the expected differences. 
+%the features are obtained automatically. 
+%explicitly compare these feature values and their frequency changes between \isi{German} and English, human and \isi{machine translation}
+%why are they instead used to train classifiers to get implicit remote abstract info about the differences
+%the classification precision also depends on the performance of the \isi{classifier}, so better/worse \isi{classifier} performance does not directly indicate the similarity of the training material and the evaluated text in terms of these features
+
+%Nevertheless, the justification for this approach is not entirely transparent and should be made somewhat clearer.
+%What exactly was missing/was unexplained in previous studies and how exactly does the present paper overcome these shortcomings?
+%Also, why should univariate techniques overcome the problem of having identified a confounding factor, viz. \isi{register}, which might rather be assessed in its role with the help of multivariate stats?
+%How exactly was \isi{register} controlled for?
+%It didn't become entirely clear to me how the author made sure that \isi{register} variation is not an unwanted interfering factor that could still explain some of the variation in the data.
+
+Our previous results have also shown that we are not able to discover considerable differences between human and \isi{machine translation} (MT) in terms of cohesive features if we look at the entire set of features at once. However, we are not convinced that the quality of machine-translated texts can be comparable to that of human-translated ones. For instance, as shown in the examples (\ref{ex-monk1}), (\ref{ex-monk2}) and (\ref{ex-monk3}) ((\ref{ex-monk2}) was translated with \textsl{Google translate} and (\ref{ex-monk3}) was translated by a human), ambiguities cannot be resolved. And in general, translation of \isi{coreference} and other cohesive devices is poor.
+
+
+\ea
+\label{ex-monk1}
+ \textsl{Alte M\"onchsregel: Wenn deine Augen eine Frau erblicken, schlage sie nieder.}
+\z
+
+\ea
+\label{ex-monk2}
+ \textsl{Ancient monastic rule: When your eyes behold a woman, beat \underline{her} down.}
+\z
+
+\ea
+\label{ex-monk3}
+ \textsl{Ancient monastic rule: When your eyes behold a woman, cast \underline{them} down.}
+\z
+
+Although considerable research aimed at enhancing machine-translated texts with textual properties achieved positive results in the recent years, see \citet{DiscoMT2013}, \citet{Hardmeier2014} or \citet{MeyerHajlaouiPopescu2015}, document-wide properties of automatically translated texts in terms of \isi{coherence} still require improvement, as translation models are induced from stand-alone pairs of sentences. Moreover, \isi{target language} models approximate the \isi{target language} on the string level only, whereas target texts have properties that go beyond those of their individual sentences and that reveal themselves in the frequency and distribution of more abstract categories. Here we mean a certain type of a pronoun or its function instead of the pronoun itself. A more abstract category of the pronouns  \textsl{he} and  \textsl{his} would be {\sc personal head} or {\sc personal modifier}, and for the pronoun  \textsl{this} -- {\sc demonstrative head} or {\sc demonstrative modifier}, depending on the context of its occurrence. 
+
+We apply corpus-based methods to analyse frequencies and distributions of such cohesive categories in a \isi{multilingual corpus} that contains English and \isi{German} originals, as well as multiple translations into \isi{German} produced with se\-ve\-ral methods, including manual and automatic ones. Frequencies of cohesive devices will be automatically extracted from the corpus on the basis of automatic pre-processing with a \isi{part-of-speech} tagger. We are aware of possible errors caused by erroneous tagger output. However, the decision for automatic identification of categories is justified by the fact that we would like to use the knowledge for \isi{machine translation}, which requires categories that can be annotated automatically with reasonable accuracy. So, we rely on the accuracies of the state-of-the-art tools at hand. % The fact that the TreeTagger is trained on the Penn Tagset for English which, in turn, for instance does not distinguish between prepositions and subordinating conjunctions might seriously distort the results concerning conjunction. 
+The distributions of these categories will then be analysed in originals and translations, as well as in human and machine translations. We will also pay attention to differences between original English and \isi{German}, as they will serve as a kind of baseline for identifying {\sc shining through} and {\sc normalisation} -- \isi{translationese} features resulting from the language contrast between source and target languages.
+
+The obtained information on the differences will be valuable for translation and language contrast studies, and may also find application in multilingual natural language processing (NLP), especially in MT. 
+
+
+\section{Theoretical issues and related work}\label{sec:theory}
+
+\subsection{Cohesion and cohesive devices}\label{sec:cohesion}
+
+{\sc Cohesion} refers to the text-internal relationship of linguistic elements that are overtly linked via lexico-grammatical devices across sentences to be understood as a text, and occurs where the interpretation of some element in the text is dependent on that of another \citep{HallidayHasan1976}. Cohesion is related to \isi{coherence}, whose recognition in a text is more subjective. It involves text- and reader-based features, and refers to illocutionary relations within a discourse. Coherence is the \isi{logical flow} of interrelated ideas in a text. According to \citet{HallidayHasan1976}, what distinguishes cohesive relations from other semantic relations is that the lexico-grammatical resources trigger relations that transcend the boundaries of the clause.
+
+The lexico-grammatical devices linking elements in a text and triggering semantic relationships are called {\sc cohesive devices}. They include personal and demonstrative pronouns and modifiers, substitute forms, elliptical constructions and conjunctions, or lexical devices such as nouns, adjectives and verbs. We will concentrate on two main types of devices: \isi{coreference} and conjunction, which represent explicit linguistic devices signalling particular conceptual relations to linguistic elements in other text parts \citep[see][]{HallidayHasan1976, HallidayMatthiessen2013}. These devices are grammar-driven, as most of their items belong to a closed class of functional items.
+
+Coreference and conjunction differ in the conceptual relations that they trigger. Whereas \isi{coreference} expresses identity to a referent mentioned in another textual part, conjunctions indicate logico-semantic relations between referents, and do not have antecedents, as they do not refer themselves \citep[see][]{LapshinovaKunz2014,KunzLapshinova2015}.
+
+\citet{HallidayHasan1976} distinguish three types of \isi{coreference}: {\sc personal}, expressed with personal pronouns, possessives and modifiers, as in example (\ref{ex-tou1}), {\sc demonstrative}, expressed by demonstrative pronouns, definite articles, local and temporal adverbs, as well as pronominal adverbs, see example (\ref{ex-tou2}), and {\sc comparative}, expressed by adjectives and adverbs of comparison, as in (\ref{ex-tou3}). 
+
+\ea
+\label{ex-tou1}
+ \textsl{\underline{Young men} on the roof tops changed their tune; spit and fiddled with the mouthpiece for a while and when [they] put it back in and blew out their cheeks it was just like the light of that day, pure and steady and kind of kind.}
+\z
+
+\ea
+\label{ex-tou2}
+ \textsl{\underline{But no woman ever tried to humiliate him before, to his knowledge, and}\\ \underline{Fevvers has both tried and succeeded}. [This] has set up a conflict between his own hitherto impregnable sense of self-esteem and the lack of esteem with which the woman treats him.}
+\z
+
+\ea
+\label{ex-tou3}
+ \textsl{Sandy beaches, water sports and activities, evening entertainment and a \isi{variety} of restaurants make this an ideal base for \underline{an active holiday}. For a [quieter] and [more relaxing] time or perhaps a walking holiday, go further west...} 
+\z
+
+As the category of comparative reference is semantically distinct from the first two types (it evokes the relation of similarity or comparison, and not identity, cf. \citet{HallidayMatthiessen2004}), we will exclude it from our analysis. Yet, we include another device related to \isi{coreference} -- {\sc general nouns}. This category is mostly referred to as lexical \isi{cohesion}, as general nouns are lexical items. However, most of them are cases of abstract \isi{anaphora} \citep[see][]{ZinsmeisterEtAl2012}, or extended reference, and should be, therefore, classified as \isi{coreference}. In example (\ref{ex-gen}),  \textsl{this assumption} does not refer to a nominal phrase, but to a clause in the previous sentence. This noun conceptually outlines complex pieces of information, and could also be replaced by the \isi{demonstrative pronoun}  \textsl{this}.
+ 
+\ea
+%\textit{Because we share common values -- and perhaps equally important -- common objectives -- with the nations of Europe, I am confident that we can meet \textbf{this challenge}.}
+\label{ex-gen}
+\textit{It is only logical to think that \underline{if some choice is good, more is better; people} \underline{who care about having infinite options will benefit from them, and those} \underline{who do not always  just ignore the 273 versions of cereal they have never} \underline{tried}. Yet recent research strongly suggests that, psychologically, [this  assumption] is wrong.}
+\z
+%General or  \textsl{shell} nouns provide nominal conceptual shells for complex chunks of information representing abstract concepts such as  \textsl{fact, proposition} and  \textsl{event} \cite{Schmid2000}.
+
+Following \citet{HallidayHasan1976}, we also distinguish five categories of conjunctive devices classified according to the semantic relations they convey: 1) additive -- relation of addition, e.g.  \textsl{and, in addition, furthermore}; 2) adversative -- relation of contrast/alternative, such as  \textsl{but, by contrast, though}; 3) causal -- relation of causality or dependence, such as  \textsl{because, that is why, therefore}; 4) temporal -- temporal relation (\textsl{afterwards, at the same time}); and 5) modal -- interpersonal and pragmatic relation (\textsl{unfortunately, surely, of course}). Most grammars do not include devices of the latter category, which is, however, an important component of a meaningful discourse, as events are connected by speaker's \isi{evaluation}. \citet{HallidayHasan1976} call them `continuatives'.
+
+\subsection{Cohesion in contrastive studies and translation}\label{sec:discourseEnDe}
+Cohesion and \isi{coherence} have been analysed in a number of works on language contrasts dealing with English and \isi{German}, in which corpus-based methods have become increasingly popular in recent years. However, most multilingual studies are still concerned with individual cohesive devices in particular registers, see \citet{BuehrigHouse2004}
+for selected cohesive conjunctions or adverbs in prepared speeches, \citet{ZinsmeisterEtAl2012} for abstract \isi{anaphora} in parliament debates, and \citet{TaboadaGomezGonzalez2012} for particular \isi{coherence} relations in a number of different registers. The latter, however, considers also variation in spoken and written language. The authors state that the differences between spoken and written dimensions are more prominent than between languages. \citet{KunzLapshinova2015} and \citet{SleGeccoForthcoming} also show discrepancy between spoken and written texts, and demonstrate that the distributions of different cohesive devices are register-dependent. The authors show this for a number of cohesive phenomena, analysing structural and functional subtypes of \isi{coreference}, substitution, discourse connectives, and ellipsis. Their dataset includes several registers, and they are able to identify contrasts and commonalities across languages and registers with respect to the subtypes of all cohesive devices under analysis, showing that these languages differ in the degree of variation between individual registers. Moreover, there is more variation in the realisation of cohesive devices in \isi{German} than in English. The authors attested the main differences in terms of preferred meaning relations: a preference for explicitly realising logico-semantic relations by conjunctions and a tendency to realise relations of identity by \isi{coreference}. Interestingly, similar meaning relations are realised by different subtypes of discourse phenomena in different languages and registers.
+
+Cross-lingual contrasts stated on the basis of non-translated data are also of great importance for translation. \citet{SleGeccoForthcoming} suggest preferred translation strategies on the basis of contrastive interpretations for the results of their quantitative analysis, which show that language contrasts are even more pronounced if we compare languages within each \isi{register}. These contrasts exist in the features used for creating cohesive relations. Therefore, they suggest that, when translating popular science texts from English into \isi{German}, translators should use linguistic means expressing cohesive relations more extensively. Overall, they claim that translators should use more explicit devices translating from English into \isi{German}. For instance, demonstrative pronouns should be used more often instead of personal pronouns:  \textsl{dies/das} (``this'') instead of  \textsl{es} (``it''). The opposite translation strategies are used when translating from \isi{German} to English.
+\largerpage
+However, studies of translated language show that translators do not necessarily apply such strategies.  \citet{ZinsmeisterEtAl2012} demonstrate that translations in general tend to preserve the categories, functions and positions of the \isi{source language} anaphoras, which results in {\sc shining through} of the \isi{source language} preferences \citep{Teich2003} -- in both translation directions. Additionally, due to the tendency to explicate textual relations, translators tend to use more nominal \isi{coreference} instead of pronominal \isi{coreference}. {\sc Explicitation} -- the tendency of translations to be more explicit than their sources \citep{VinayDarbelnet58,BlumKulka1986} -- along with  \textsl{shining through}, belong to the characteristics of translated texts caused by peculiarities of translation process. This translation property forms the focus of studies on the \isi{usage} of discourse connectives in both manual and automatic translation \citep[see][]{Becher2011,Bisiada2014,MeyerWebber2013,LiEtAl2014COLING}. %A number of works on discourse connectives , show implicit/\isi{explicit discourse} expression divergence in both human and \isi{machine translation}. 
+\citet{Becher2011} analyses additions (\isi{explicitation}) and omissions ({\sc implicitation}) of conjunctive adverbials in business texts, focussing on both English-to-\isi{German} and German-to-English translations. The author observes more \isi{explicitation} in the translation direction English-to-\isi{German} than in the other direction. On the one hand, this is caused by the fact that \isi{German} has a richer inventory of linguistic triggers for this type of relations \citep[see][]{Becher2011,KunzLapshinova2014}. But on the other, this is also due to translation properties: they tend towards splitting up information that is presented in one sentence in the
+\isi{source text} into two sentences in the \isi{target text}. This was confirmed by a number of studies \citep[such as][]{fabricius1999information,Doherty2004,Bisiada2014}. The latter demonstrates that sentence-splitting is a frequent strategy when translating from English into \isi{German}. 
+
+We show that both human and machine translations from English into \isi{German} differ from their source texts, and also from the comparable \isi{German} originals, if \isi{cohesion} and other discourse features are considered \citep{Lapshinova2015Disco} . This coincides with one of the features defined within the studies of \isi{translationese} \citep[see][]{Gellerstam:1986,Baker1993}. According to these studies, translations have their own specific features distinguishing them from the source texts and comparable originals in the \isi{target language}. One of the features distinguishing them from non-translated texts is {\sc levelling out} or {\sc convergence} \citep{Laviosa:2002} -- individual translated texts are more alike than individual non-translated texts. According to \citet{Laviosa:2002}, this implies a relatively higher level of homogeneity of translated texts with regard to their own scores in contrast to originals, which would also mean that variation across these texts should be lower than across non-translated ones.
+As already mentioned above, we believe that translation features are partly effected by the source or the \isi{target language} involved. Shining through, which was mentioned earlier in this section, is one of these features, and means that we can observe certain features of the source texts in translations. At the same time, we can have an opposite effect, called (over-){\sc normalisation} -- a tendency to exaggerate features of the \isi{target language} and to conform to its typical patterns.
+
+\subsection{Cohesion in human and machine translations}\label{sec:cohesionHTMT}
+\largerpage
+Differences between human and \isi{machine translation} in terms of cohesive features have been demonstrated in a number of studies that try to incorporate cohesion-related properties into MT, or use them for MT \isi{evaluation}.
+ 
+ \newpage 
+\citet{LiEtAl2014ACL} show in their experiments that discourse \isi{usage} may affect \isi{machine translation} between some language pairs for particular logico-semantic relations. \citet{MascarellEtAl2014} compare translations of \isi{German} nominal compounds into English, presenting a system that helps to consistently translate \isi{coreference} via compounds.  \citet{Guillou2013} compares lexical \isi{consistency} (as a part of lexical \isi{cohesion}) in human and \isi{machine translation}. \citet{MeyerWebber2013} analyse \isi{explicitation} and implicitation of discourse connectives in translation, comparing the occurrence of these phenomena in human and machine translations. \citet{Hardmeier2012discourse}, \citet{Guillou2012} and \citet{Hardmeier2014} analyse translation of pronominal \isi{anaphora} in statistical \isi{machine translation}, trying to improve performance of their systems.
+
+Most of these studies use human translations as references for evaluating machine ones, whereas direct comparison is carried out in a few cases only. In our own study \citep{Lapshinova2015Disco}, we compare human and machine translations with each other, and also with comparable source and target texts, analysing a set of cohesive features and their distributions across texts. However, we were not able to show where the differences between human- and machine-translated texts lie, as the observed variation seemed to be more influenced by \isi{register} than by translation method.
+
+Therefore, in this study, we do not pay attention to the registers that a given text belongs to, and analyse translations applying univariate techniques, assuming that this would allow us to directly observe differences between not only translated and non-translated texts, but also between manual and automatic translations.
+
+
+\largerpage[1]
+\section{Methodology}\label{sec:methodology}
+\subsection{Research questions}\label{sec:researchquestions}
+In our analysis we will address several questions related to cohesive devices in English-to-\isi{German} translations, involving contrastive aspects. These questions are based on the assumptions discussed in relevant works that we described in Section \ref{sec:theory} above. We group these questions into three groups: cohesiveness (overall degree of cohesive elements), semantic relations (type of relation used) and variation (variance in data distributions), structuring our analysis (Section \ref{sec:analyses}) according to these. 
+
+\begin{enumerate}
+%\item Do we observe any variation across languages?
+\item Cohesiveness
+\begin{enumerate}
+\item How cohesive are the texts in our data?
+\item Are there any differences in the degree of \isi{cohesion} between translated and non-translated texts, and between different translation methods?
+\end{enumerate}
+\item Semantic relations
+\begin{enumerate}
+\item Which semantic relations are preferred over others?
+\item Are these preferences language- or production-type-related?
+%\item What is the \isi{overall cohesiveness} of 
+\end{enumerate}
+\item Variation
+\begin{enumerate}
+\item Is there any influence of language variation onto translations resulting in Shining through/Normalisation?
+\item What are the differences between languages, and between translated and non-translated texts in terms of cohesive devices?
+\end{enumerate}
+\end{enumerate}
+
+%We apply several statistical methods to analyse our corpus data in terms of the formulated questions.
+
+%Main question: Are contrasts more pronounced between different
+%registers independent of language or are more differences
+%identified in one and the same \isi{register} between English and
+%\isi{German}?
+%b) Which \isi{register}(s) are more similar to each other and which
+%registers are more different?
+%c) Which \isi{register}(s) is (/are) most pronounced in the realization of
+%particular features, across English and \isi{German}?
+%d) Which features contribute to the observed differences/
+%commonalities?
+
+\subsection{Data}\label{sec:data}
+
+Our corpus  data contains both English-\isi{German} translations texts and non-trans\-lat\-ed comparable texts in English and \isi{German}. English originals (EO, source texts) and \isi{German} originals (GO, comparable texts in the \isi{target language}) were extracted from CroCo \citep{Croco2012}. \isi{German} translations represent multiple translations of EO, and originate from the VARTRA corpus \citep{LapshinovaKoltunski:2013:BUCC}. They were produced both manually (human translations) and automatically (machine translations). Human translations were produced by both novice and professional translators. Machine-translated texts were produced with different systems: one trained on a small \isi{parallel corpus} within a restricted domain, and the other one was trained with a huge amount of unknown data\footnote{See details on the corpus in \citet{LapshinovaKoltunski:2013:BUCC}.}.
+
+The whole dataset totals 406 texts which cover seven registers: political essays, fictional texts, instruction manuals, popular-scientific articles, letters to share-holders, prepared political speeches, and tourism leaflets. The decision to include this wide range of registers is justified by the need for heterogeneous data for our \isi{experiment} (as variation is often register-dependent, see Section \ref{sec:discourseEnDe} above). However, in this study, we do not take \isi{register} variation into account. The total number of words comprises ca. 800.000 tokens. We annotate all texts in the corpus with information on word, lemma, \isi{part-of-speech}, chunk and sentence boundaries with the help of the TreeTagger tools \citep{Schmid1994}.
+
+\largerpage
+\subsection{Feature extraction}\label{sec:features}
+As already mentioned in Section \ref{sec:cohesion} above, we concentrate on the analysis of two major categories of cohesive devices: \isi{coreference} and conjunction. We present these categories in \tabref{Table:features}.
+
+\begin{table}
+
+ 
+    \begin{tabularx}{\textwidth}{llQ}
+    \lsptoprule
+{\bf device}&{\bf type} & {\bf realisation}  \\
+ 
+\midrule
+& pers.pronoun   &  \textsl{he/er, she/sie, they/sie, her/ihr, his/sein, their/ihr, it/es} \\
+\tablevspace
+% \cline{2-3}
+\isi{coreference}& dem.pron &  \textsl{this/dies/das, that/jenes, this/diese(r/s), that/jene(r/s)},\\
+            &         &  \textsl{here/hier, there/da, now/jetzt, then/dann, dagegen, damit}\\
+\tablevspace
+% \cline{2-3}
+& gen.nouns &  \textsl{problem/Problem, situation/Situation, position/Position}\\
+
+% conjunction\\
+\midrule 
+& additive&  \textsl{and/und, for example/zum Beispiel}\\
+% \cline{2-3} 
+\tablevspace
+& adversative&  \textsl{however/allerdings, in contrast/im Gegensatz}\\
+% \cline{2-3}
+\tablevspace
+conjunction  & causal&  \textsl{that is why/weshalb, therefore/deswegen}\\
+% \cline{2-3}
+\tablevspace
+& temporal&  \textsl{then/dann, first/erstens}\\
+% \cline{2-3}
+\tablevspace
+& modal&  \textsl{interestingly/interessanterweise, of course/ nat\"urlich}\\
+\lspbottomrule
+\end{tabularx}
+  \caption{Features under analysis}
+  \label{Table:features}
+\end{table}
+
+The first column denotes the category, the second represents their subtypes, and the third illustrates their linguistic realisations  (operationalisations) in both English and \isi{German}. For the \isi{extraction} of the frequencies of these feature patterns, we use CQP, a corpus query tool \citep{Evert2005}, allowing definition of language patterns in form of regular expressions. These expressions can integrate string, \isi{part-of-speech} and chunk tags, as well as further constraints, e.g. position in a sentence.
+ 
+In \tabref{Table:queries1}, we show examples of the queries for the \isi{extraction} of personal pronouns (query 1), demonstratives (query 2) and conjunctions (query 3). Queries 1 and 2 contain \isi{part-of-speech} restrictions only. To further classify them according to their functions (\isi{modifier} vs. head), we use additional queries with such restrictions as
+\largerpage
+(a) position: before a noun phrase $\Rightarrow$ \isi{modifier} vs. no noun phrase following $\Rightarrow$ head (b) lexical restrictions, especially in case of personal pronouns ( \textsl{he/him} vs.  \textsl{his}). Query 3 directly includes lexical restrictions -- extracted items should be members of the predefined lists, i.e. additive or adversative conjunctions. An example of the lists is given in \tabref{Table:conjlist}.
+ 
+
+\begin{table} 
+	
+	 
+	\begin{tabularx}{\textwidth}{llX}
+		\lsptoprule
+		& {\bf QP query} & {\bf example of extracted pattern}\\
+		\midrule
+		1& [pos=''PP.*''] &   \textsl{sie, ihr, es...}\\ 
+	     2&[pos=''PD.*''] &   \textsl{dies/das, jenes, diese(r/s)...}\\
+		 
+				3  & [lemma=RE(\$additive)]&  \textsl{dar\"uber hinaus, im Weiteren...} \\
+				\lspbottomrule
+	\end{tabularx}
+	\caption{Examples of queries and extracted examples}
+	\label{Table:queries1}
+\end{table}
+
+\begin{table} 
+	
+	
+	\begin{tabular}{ll}
+		\lsptoprule
+		&\bf	lexical restrictions \\
+		\midrule
+		%		MACRO conj-additive-eo(0)&\\
+		&(\\
+		&("(A$|$a)nd" "also")$|$\\
+		&("(A$|$a)nd" "yet")$|$\\
+		&("(F$|$f)urther")$|$\\
+		additive&("(F$|$f)urthermore")$|$\\
+		&("(M$|$m)oreover")$|$\\
+		&("(I$|$i)n" "addition")$|$\\
+		&("(B$|$b)esides" "that")$|$\\
+		&...)\\
+		\midrule
+		%		MACRO conj-adversative-eo(0)&\\
+		&(\\
+		&	("(A$|$a)lthough")$|$\\
+		&	("(H$|$h)owever")$|$\\
+		&	("(N$|$n)evertheless")$|$\\
+		adversative	&	("(D$|$d)espite" "this")$|$\\
+		&	("(O$|$o)n" "the" "other" "hand")$|$\\
+		&	("(I$|$i)nstead")$|$\\
+		&	("(O$|$o)n" "the" "contrary")$|$\\
+		&...)\\
+		\lspbottomrule
+	\end{tabular}
+	\caption{Examples of a lists for conjunctions expressing specific relations}
+	\label{Table:conjlist}
+\end{table}
+
+\clearpage 
+
+For the \isi{extraction} of general nouns, we use queries containing morpho-syn\-tac\-tic restriction such as the one shown in \tabref{Table:queries2}. We assume that only general nouns within definite noun phrases are cohesive (cf.  \textsl{this assumption} in example \ref{ex-gen} above). Line 1 in \tabref{Table:queries2} allows for a definite article. Alternatively, it can be a demonstrative \isi{modifier} (defined in line 2). The noun itself is defined with lines 3 and 4, where line 3 specifies the part of speech of the searched element, and line 4 redirects the query to the list of predefined lexical items. 
+
+\begin{table}
+	\fittable{
+	\begin{tabular}{lll}
+		\lsptoprule
+		& {\bf QP query} & explanation \\
+		\midrule
+
+1 & [pos="ART"\&lemma="d$\_$art"]$|$& a definite article OR \\
+2 & [pos="PDS$|$PDA.*"] & a demonstrative \isi{modifier} \\
+3 & [pos="NN.*"\& & followed by a noun  \\
+4 & lemma=RE(\$general)] & whose lemma is a member of predefined list \\
+\lspbottomrule
+	\end{tabular}
+	}
+	\caption{Example of a query for general nouns}
+	\label{Table:queries2}
+\end{table}
+
+We illustrate the list of predefined general nouns with an excerpt in \tabref{Table:gennoun}.
+
+\begin{table}
+	
+\begin{tabular}{l}
+		\lsptoprule	
+%	\begin{tabularx}{\textwidth}{X}
+	{\bf Part of QP query} \\ 
+    	\midrule
+%\fbox{\parbox{.97\textwidth}{
+$[$pos="ART"\&lemma="account(.*$|$s)$|$
+action(.*$|$s)$|$
+advantag(e$|$es)$|$
+advice$|$\\
+debate(.*$|$s)$|$
+decision(.*$|$s)$|$
+definition(.*$|$s)$|$
+description(.*$|$s)$|$
+discussion(.*$|$s)$|$\\
+hypothes(i$|$e)s$|$
+idea(.*$|$s)$|$
+issue(.*$|$s)$|$
+matter(.*$|$s)$|$
+message(.*$|$s)$|$
+method(.*$|$s)$|$\\
+notion(.*$|$s)$|$
+object(.*$|$s)$|$
+observation(.*$|$s)$|$
+opinion(.*$|$s)$|$
+possibilit(y$|$ies)$|$\\
+problem(.*$|$s)$|$
+scenario(.*$|$s)$|$...\\
+%}
+%	\end{tabularx}
+\lspbottomrule
+\end{tabular}
+	\caption{An excerpt from a query containing a list of general nouns}
+%	\todo[inline]{is this really a table?}
+	\label{Table:gennoun}
+\end{table}
+
+
+With the help of such queries, we collect distributional information on frequencies of cohesive devices per text, and also per subcorpus (e.g. representing a translation \isi{variety}).
+
+
+%HERE: exact queries etc.
+%HERE: more detail on working definitions, 
+
+\subsection{Methods}\label{sec:method}
+\largerpage
+For our analysis, a number of \isi{visualisation} and statistical techniques are applied to investigate the dis\-tri\-bu\-tional characteristics of subcorpora in terms of occurrences of cohesive devices, described in Section \ref{sec:features} above. These descriptive techniques will allow us to observe and explore differences between groups of texts and subcorpora under analysis.
+%HERE: Please discuss in more detail why you need a non-parametric and a parametric test.
+
+We use both parametric and non-parametric tests. The latter, also called dis\-tri\-bu\-tion-free tests, do not assume that your data follow a specific distribution. We use box plots, which are non-parametric, to see if there are any differences between the subcorpora under analysis in terms of the \isi{overall cohesiveness} (Section \ref{sec:cohesiveness}). They display variation in samples of a statistical population without making any assumptions about the underlying distributed data (e.g. that it is normally distributed). Box plots are median-oriented graphics used to visualise a summary of the distribution underlying a particular sample. They conveniently depict groups of numerical data through their quartiles (the three points that divide the data set into four equal groups, each group comprising a quarter of the data). Box plots have lines extending vertically from the boxes (\textsl{whiskers}), which indicate variability outside the upper and lower quartiles. We use notched box plots to reveal if the differences between variables under analysis are significant. According to \citet{ChambersEtAl1983}, if two boxes' notches overlap in the box plot, then there is no `strong evidence' that their medians differ. %, p. 62).
+Alternatively, the difference between the medians could be described as statistically significant at the 0.05 level\footnote{p-value of 0.05, which is commonly used as a bias for significance measure.}.
+ 
+Turning to the analysis of concrete features, i.e. semantic relations and those of identity, we use bar plots and line charts for \isi{visualisation}.
+
+Bar plots present grouped data with rectangular bars to show comparisons among categories. The lengths of the bars is proportional to the values that they represent. One axis of the chart shows the specific categories being compared, and the other axis represents a discrete value. We use bar plots for the \isi{visualisation}, when not more than two features are involved, e.g. relations of identity vs. logico-semantic ones (Section \ref{section:relations}), or for the subcategories of the identity relations (Section \ref{sec:identity}).
+
+Line plots are used to show frequency of data along a number line. They connect data points of a continuous dependent variable across the levels of an independent variable, illustrating differences across the subcorpora. If the lines are horizontal, there is no difference between the measures compared. Conversely, if there is a slope in the shape of the lines, the subcorpora under analysis show a difference. We use line charts for the analysis of differences based on the distribution of logico-semantic relations, since we have more than two variables at once.
+
+In addition, we apply significance tests to test if the observed differences are significant. For this, we calculate the {\sc p-value}, which indicates the probability of error or chance in the \isi{correlation} in our data. The default p-value for the difference to be seen as significant is 0.05. So, if the p-value is lower than or equals to 0.05, the probability that the difference between our variables is due to error or chance is lower than or equals to 0.05, so the difference is significant. For the calculation of p-value, we use Pearson's chi-square test and Student's t-test \citep{Baayen2008} depending on the number of variables in the test set under analysis.
+
+In the following section, we discuss the findings for each of the questions raised at the beginning of Section \ref{sec:methodology} above.
+
+\section{Analyses}\label{sec:analyses}
+
+\subsection{Overall cohesiveness}\label{sec:cohesiveness}
+
+We measure the \isi{overall cohesiveness} of the text in our data as the proportion of cohesive tokens (within cohesive features described in \ref{sec:features} above) in the total number of tokens per text. \tabref{table:cohesiveness} gives an overview of the minimum, maximum and median values in the four subcorpora under analysis. 
+
+\begin{table}
+
+\begin{tabular}{lrrrr}
+\lsptoprule
+	&	\bf HU &\bf MT &\bf EO &\bf GO\\
+\midrule
+min.    &       9.78  & 10.05 & 9.86  & 7.95 \\
+max.    &       28.96 & 27.94 & 27.57 & 24.94 \\
+median	&	16.33&	15.85 & 17.44 &	17.42\\
+%average &       16.54 & 16.17 & 17.61 & 17.22\\
+\lspbottomrule
+\end{tabular}
+\caption{Overall cohesiveness of EO, GO and translations}
+\label{table:cohesiveness}
+\end{table}
+
+%range: difference betwenn min. and max.
+%19.18
+%17.89
+%17.71
+%16.99
+As seen from the table, the English and \isi{German} originals seem to be similar (if the median values are taken into account) in terms of the \isi{overall cohesiveness}. This contradicts the findings by \citep[22]{SleGeccoForthcoming}, who observe more cohesive devices in the \isi{German} texts than in the English ones in their data. 
+On the one hand, the discrepancy in the results can be explained by the definition of the features under analysis. While we use automatically induced cohesive devices, Kunz et al. (\textsl{forthcoming}) operate with manually annotated data. On the other hand, we believe that the cohesiveness values can strongly depend on the texts in a dataset, i.e. cross-lingual cohesiveness in Kunz et al. (\textsl{forthcoming}) varies depending on the text registers involved: it is higher for English, if fictional texts and those published on corporate websites are considered. %However, the difference of 0.89 in the reported numbers is not big and needs to be proved with a significance test. However,  So, we 
+The influence of text variability is also reflected in the minimum and maximum values in the subcorpora, see \tabref{table:cohesiveness}, with \isi{German} originals revealing the lowest ones. The highest maximum value and the lowest minimum value are observed in both translation varieties. However, they also demonstrate a lower proportion of cohesive items in terms of the median value, which means that in general, we observe a reduction of cohesiveness in translation, with \isi{machine translation} showing the lowest values. %On the one hand, this could be a sign of \isi{normalisation} -- our \isi{German} translations from English tend to conform to the typical patterns of the \isi{target language}. On the other hand, 
+This contradicts the phenomenon of \isi{explicitation} -- tendency to spell things out rather than leave them implicit. Assuming that cohesive devices help to explicate \isi{coherence} relations in a text, we would expect translated texts to be more cohesive than non-translated ones. However, we believe that in this case, we would not need to pay attention to all devices taken together, but to distributions of individual phenomena, e.g. conjunctions expressing logico-semantic relations, or proportion of head vs. \isi{modifier} functions of pronouns. Moreover, a direct comparison of concrete source texts vs. target texts is also required.
+
+Overall, the median values in \tabref{table:cohesiveness} suggest that the difference between the four subcorpora in our data is not big. We test its significance producing boxplots illustrated in Figure \ref{fig:eogo}. As explained in Section \ref{sec:method} above, if two boxes’ notches do not overlap, we can observe a significant difference between their medians. 
+
+\begin{figure}
+
+\includegraphics[trim={0.5cm 5.5cm 0.3cm 5.2cm}, clip, scale=0.45]{figures/cohesiveness-eogotrans.pdf}
+\caption{Overall cohesiveness of EO, GO and translations}
+\label{fig:eogo}
+\end{figure}
+
+\newpage 
+Analysing notches for the four subcorpora in our data, we see that there is no significant difference between EO and GO, as well as between HT and MT in terms of cohesiveness. Translations (especially machine ones) do differ from non-translated texts, which conforms to the insights from other studies on \isi{translationese}.  
+
+
+%\begin{figure}
+%
+%\includegraphics[scale=0.45,page=3]{/home/katja/saar/server/results/vartra/iatis/cohesiveness-eogotrans.pdf}
+%\caption{Variation measured per text in translation}
+%\label{fig:trans}
+%\end{figure}
+
+
+\subsection{Semantic relations}\label{section:relations}
+%HERE: I didn't really see why the chi square test can't be used on the findings for logico-semantic relations.
+
+In this section, we analyse the distribution of cohesive relations in our data. We start by looking at the distributions for the two main categories: devices signaling identity and devices signaling all types of logico-semantic relations taken together, see Figure \ref{fig:relations}. %We start with cohesive devices grouped according to logico-semantic relations taken together, as well as those \isi{expressing identity}, see Figure \ref{fig:relations}.
+
+\begin{figure}
+
+\includegraphics[trim={0.5cm 5.5cm 0.3cm 5.2cm}, clip, scale=0.45]{figures/relations.pdf}
+\caption{Logico-semantic and identity relations in EO, GO and translations}
+\label{fig:relations}
+\end{figure}
+
+Figure \ref{fig:relations} shows that most of the extracted cohesive data in our corpus is represented by items expressing logico-semantic relations. %While demonstrating the highest number of logico-semantic relations, English texts seem to contain the lowest number of linguistic means \isi{expressing identity}. 
+English texts are characterised by the highest number of logico-semantic devices and the lowest number of linguistic means \isi{expressing identity}. This contradicts again the results by \citep[25]{SleGeccoForthcoming}. This discrepancy can be explained by the difference in the definition of conjunctive devices. Ours also include subjuncts which were excluded from the analysis described by \citep{SleGeccoForthcoming}. %Moreover, Phrasenkonnektoren:) 
+
+Both translation varieties tend to be similar to \isi{German} texts. Significance analysis with Pearson's Chi-squared test confirms this observation. The only significant differences (p < 0.05) are observed for the pairs EO vs. HT (p=0.01) and EO vs. MT (p=0.004).
+
+ %\begin{figure}
+ %\includegraphics[scale=0.45,page=5]{/home/katja/saar/server/results/vartra/iatis/relations.pdf}
+% \caption{Types of logico-semantic relations in EO, GO and translations}
+% \label{fig:logsem}
+% \end{figure}
+
+In terms of specific logico-semantic relations, we observe a preference for additive and causal relations in English texts, and for additive and temporal relations for all texts in \isi{German} (including translations and originals). %, see Figure \ref{fig:logsem}. 
+In this way, our results show that preferences for semantic relations observed in our data are rather language-specific, as translated texts show similarities to comparable non-translated originals in \isi{German}.
+
+%Einzelboxplot for reference types and general nouns,
+%Einzelboxplots for conj.relations
+%For them taken together: total of \isi{coreference} (pers+dem+gennoun) and total for conj(add+adv+...)
+
+\subsection{Variation}
+
+In the following, we concentrate on linguistic means expressing \isi{cohesion}, and their variation across subcorpora under analysis.
+
+\subsubsection{Logico-semantic relations}
+
+We calculate type-token-ratio (\isi{TTR}) for cohesive expressions of logico-semantic relations (note that we understand a single occurrence of a conjunctive phrase as a token in this case), see \tabref{table:ttrlogsem}.
+
+\begin{table}
+
+\begin{tabular}{lrrr}
+\lsptoprule
+	&	types&tokens&\isi{TTR}\\
+\midrule
+HU	&	340&29669&1.15\\
+MT	&	266&27411&0.97\\
+EO	&	180&36904&0.49\\
+GO	&	592&32709&1.81\\
+\lspbottomrule
+\end{tabular}
+\caption{Cohesive types expressing logico-semantic relations}
+\label{table:ttrlogsem}
+\end{table}
+
+Although English texts demonstrate the highest number of cohesive items expressing logico-semantic relations, they do not contain many types of conjunctive words. This coincides with general observations on English and \isi{German} vocabulary, as well as our previous findings \citep{KunzLapshinova2014}, where we also show that the \isi{TTR} in the \isi{German} originals exceeds that of the English ones, thus finding a higher degree of variation in the \isi{German} data. %\isi{German} utilizes more types of conjunctions than English  
+Not surprisingly, both translation varieties reveal a lower degree of variation with a lower \isi{TTR}. Significance analysis with the help of Student's t-Test shows that the difference between the four subcorpora in terms of \isi{TTR} is not significant.
+
+\begin{table}
+
+\begin{tabular}{rlrlrlrl}
+\lsptoprule
+\multicolumn{2}{c}{\bf HT}&\multicolumn{2}{c}{\bf MT}&\multicolumn{2}{c}{\bf GO}&\multicolumn{2}{c}{\bf EO\hspace*{.5cm}}\\
+\midrule
+7601&und & 7939&und & 7601&und &  12031&as \\
+
+1225&um & 1100&oder & 1317&auch & 898&because\\
+
+1162&als & 1097&um & 1120&als & 575&since\\
+
+995&oder & 1004&als & 942&oder & 459&although\\
+
+844&wie & 879&wie & 849&wie & 237&but\\
+\lspbottomrule
+\end{tabular}
+\caption{Ranking of frequent cohesive conjunctions}
+\label{table:freqconj}
+\end{table}
+
+If we take a look at the five most
+frequent types (see \tabref{table:freqconj}), we can see that one main cause for the variance between English and \isi{German} texts is the high number of occurrences of  \textsl{as} in EO\footnote{Please note that our list can also contain cases of non-cohesive  \textsl{as}, since all features are extracted with automatic procedures.}. Interestingly, the \isi{German} lists of conjunctions demonstrate discrepancy between non-translated and translated \isi{German} (\textsl{um} in translations, and  \textsl{auch} in the original \isi{German} texts). The top three conjunctions in English also explain the preferences for causal relations that we observed in Section \ref{section:relations} above. 
+
+We must admit that application of fully automatic procedures to extract the data leaves us at the mercy of the tool and the tag set. The TreeTagger does not distinguish between prepositions and subordinating conjunctions which might seriously distort the results concerning conjunction. However, we have to accept these results provided the fact that extractions from all subcorpora under analysis were performed automatically. % automatic extractions were applied on all the subcorpora under analysis, 
+
+ 
+\subsubsection{Identity via coreference}\label{sec:identity}
+
+For identity relations via pronouns, we compare the distributions of their grammatical functions (as a \isi{modifier} or a head) in all subcorpora under analysis. Figure \ref{fig:demfunc} illustrates functional preferences for \isi{coreference} with demonstrative pronouns in English, \isi{German}, and both translation varieties\footnote{The numbers are given in \% normalised per total number of tokens.}. 
+
+%\begin{table}
+%
+%\begin{tabular}{lr|r|r|r|}
+%\midrule
+%        &\bf HT&\bf MT &\bf GO &\bf EO \\	
+%\midrule
+%demmod	&0.66  & 0.61 & 0.43 & 0.60 \\
+%demhead	&0.29  & 0.24 & 0.32 & 0.36 \\
+%\midrule
+%\end{tabular}
+%\caption{Functional preferences of demonstrative reference}
+%\label{table:demfunc}
+%\end{table}
+
+\begin{figure}
+
+\includegraphics[trim={0.5cm 5.5cm 0.3cm 5.2cm}, clip, scale=0.45]{figures/relations-dem.pdf}
+\caption{Functional preferences of demonstrative reference}
+\label{fig:demfunc}
+\end{figure}
+
+\isi{German} texts show the lowest number of modifiers out of all analysed subcorpora, whereas both translation varieties demonstrate a declining number of heads\footnote{Note that we did not take into account pronominal adverbs, e.g.  \textsl{dar\"uber}, which also function as heads, as well as definite articles functioning as modifiers.}. At the same time, we find the highest number of modifiers in translations (with human translation on the top). We assume that this tendency in translation follows from the process of \isi{explicitation} (see Section \ref{sec:cohesiveness}): modifiers that precede a noun or a noun phrase are more explicit means for \isi{expressing identity} relations than demonstrative pronouns as heads, compare (\ref{ex-beweg1}) and (\ref{ex-beweg2}).
+
+\ea
+\label{ex-beweg1}
+ \textsl{Etwas ger\"at in Bewegung, und \underline{diese} Bewegung h\"alt an.} (``Something gets set in motion and this motion continues'').
+\z
+
+\ea 
+\label{ex-beweg2}
+ \textsl{Etwas ger\"at in Bewegung, und \underline{diese} h\"alt an.}  (``Something gets set in motion and this continues'').
+\z
+
+At the same time, it is surprising that translations in our data also demonstrate the highest number of personal heads, as seen in Figure \ref{fig:persfunc}.
+
+\begin{figure}
+
+\includegraphics[trim={0.5cm 5.5cm 0.3cm 5.2cm}, clip, scale=0.45]{figures/relations-pers.pdf}
+\caption{Functional preferences of personal reference}
+\label{fig:persfunc}
+\end{figure}
+
+Analysing variation in the subcorpora with Pearson's Chi-squared test, we find a significant difference between all subcorpora in terms of both personal and demonstrative reference. The only exception is the distribution of demonstrative modifiers and heads in both translation varieties: human and \isi{machine translation} apparently do not differ significantly.
+
+In the last step, we compare the type-token-ratio of general nouns. The values for both translation types turn out to be higher than for non-translated subcorpora. 
+
+\begin{table}
+\begin{tabular}{lrrr}
+\lsptoprule
+	&	types&tokens&\isi{TTR}\\
+\midrule
+HT & 65  & 280 & 23.21\\
+MT & 55    & 191 & 28.80\\
+GO & 99  & 601 & 16.47\\
+EO & 122 & 575 & 21.22\\
+\lspbottomrule
+\end{tabular}
+\caption{General nouns expressing identity relations}
+\label{table:ttrgennoun}
+\end{table}
+
+This is surprising, as translations are supposed to have lower \isi{TTR} than originals \citep[as stated by][]{Croco2012}. Apart from that, general nouns belong to the most frequent words of the vocabulary. Thus, their higher number in translations might be an indicator of simplification (tendency to simplify the language used in translation).
+
+In \tabref{table:gennoun}, we present the most frequent general nouns occurring in our data. It is interesting to see that translations share the most frequent general nouns with both source texts 
+% (marked with turquoise)
+(marked with light blue)
+and comparable texts in the \isi{target language} 
+% (marked with yellow).
+(marked with dark blue). 
+We also observe some cases that are common in both English and \isi{German} texts 
+% (marked with brown), 
+(marked with light green), 
+as well as words shared by translations only 
+% (marked with purple).
+(marked with dark green).
+% \todo{changed colors to LangSci color scheme. Please check text} %Ekaterina Lapshinova: Punkt and point have slightly different colour than the others light blue - they should have the same one.
+
+\newcommand{\colorone}{yellow}
+\newcommand{\colortwo}{purple!30}
+\newcommand{\colorthree}{brown!60}
+\newcommand{\colorfour}{cyan!40} 
+
+\renewcommand{\colorone}{lsMidDarkBlue}
+\renewcommand{\colortwo}{lsDarkGreen1}
+\renewcommand{\colorthree}{lsLightGreen}
+\renewcommand{\colorfour}{lsLightBlue}
+\begin{table}
+\begin{tabularx}{\textwidth}{XXXX}
+\lsptoprule
+\bf HT & \bf MT & \bf GO & \bf EO \\
+\midrule
+{\cellcolor{\colorone}Ziel} &{\cellcolor{\colorone} Ziel} & {\cellcolor{\colorone}Frage} & {\cellcolor{\colorfour}system} \\
+{\cellcolor{\colortwo}Weise} & {\cellcolor{\colorthree}Bereich} & {\cellcolor{\colorone}Ziel} & {\cellcolor{\colorthree}area} \\
+{\cellcolor{\colorthree}Bereich} & {\cellcolor{\colorfour}Problem} & Entwicklung & information \\ 
+Grund & {\cellcolor{\colorfour}System} & M\"oglichkeit & {\cellcolor{\colorthree}case} \\
+{\cellcolor{\colorfour}Problem} & {\cellcolor{\colorfour}Ergebnis} & {\cellcolor{\colorone}Weg} & {\cellcolor{\colorfour}result} \\
+{\cellcolor{\colorfour}System} & {\cellcolor{\colorone}Frage} & {\cellcolor{\colorthree}Fall} & message \\
+Ver\"anderung & {\cellcolor{\colortwo}Weise} & {\cellcolor{\colorthree}Geschichte} & {\cellcolor{\colorthree}story} \\
+{\cellcolor{\colorone}Weg} & Schritt & {\cellcolor{\colorthree}Bereich} & {\cellcolor{\colorfour}problem} \\
+{\cellcolor{\colorfour}Ding} & Bericht & Prozess & {\cellcolor{\colorfour}thing} \\
+{\cellcolor{\colorone}Frage} & {\cellcolor{\colorfour}Punkt} & Art & {\cellcolor{\colorfour}point} \\
+\lspbottomrule
+\end{tabularx}
+\caption{Most frequent general nouns}
+\label{table:gennoun}
+\end{table}
+
+Interestingly, human translations share the same number of frequent general nouns with both English and \isi{German}, whereas machine translations contain more nouns occurring in the English source texts. This is interpreted as a sign of stronger shining through in MT. The word  \textsl{Weise} shared by both translation varieties is semantically related to  \textsl{Art} (\textsl{Weise} and  \textsl{Art} are synonyms), one of the most frequent general nouns in \isi{German} originals texts.
+
+%a first indication of the topics in
+
+
+\section{Conclusion and discussion}
+In this paper, we have analysed cohesive properties of multilingual texts that contain both translated and non-translated texts using descriptive techniques. The results show that these properties vary depending on the languages and text production types involved. Languages, even such closely related ones as English and \isi{German}, have different preferences in the \isi{usage} of cohesive devices. The observed variation in translations is also influenced by the method involved. Both human and machine translations have constellations of cohesive devices different from those of their underlying originals, and from comparable non-translated texts in the \isi{target language}. Comparing texts in two translation varieties with original texts in the source or the \isi{target language}, we found that differences between the two translation varieties are smaller than between translated and original texts. This is not surprising, as parallel data used in the MT development contains human translations. This intensifies levelling out or convergence. We observed this tendency for various features, e.g. for the \isi{overall cohesiveness} of texts, logico-semantic relations and partly for the relations of identity.
+
+Translations seem to demonstrate \isi{explicitation} as well, for instance in terms of grammatical functions of cohesive reference via demonstrative pronouns. At the same time, we could not find this for all cohesive devices under analysis taken together. Here, we observed signs of \isi{normalisation} instead. We could also detect shining through effects, i.e. in terms of general nouns, especially in \isi{machine translation}.
+
+Overall, our results partly coincide with the observation in our previous analyses: for instance, in our study on shallow features \citep{Lapshinova2015EST}, in the one on register-based features \citep{LapshinovaForthcoming} or the study in which we used discourse-related feature set \citep{Lapshinova2015Disco} but applied automatic classification techniques.
+
+At the same time, we realise that there are some limitations of our approach, especially in terms of features under analysis. The frequencies of the cohesive devices were obtained in a completely automatic annotation and query approach. Therefore, on the basis of our findings, we cannot conclude that the processes observed are specific for English and \isi{German} in general. However, this approach is sufficient for the analysis of differences between the subcorpora at hand, since the features were automatically extracted from all of them.
+
+%HERE: In sum, my main concerns are about the chosen method: the fully automatic approach without manual inspection of query output (not even to verify in which contexts the extremely frequent "as" in EO occurs; couldn't these be in contexts such as "as X as possible"?) makes the results rather unspecific.
+%HERE: The decision to include all kinds of conjunctions regardless of whether they are actually cohesive in the strict sense of linking clauses rather than smaller entities within phrases doesn't appear entirely convincing and would definitely deserve being discussed as a limitation of the study.
+
+In the future, it would be interesting to see if the differences between translated and original texts affect perception of the quality of the text as received by humans, for which experiments involving human judgements are required. Moreover, we would like to apply the knowledge on the discrepancies in cohesive devices between human and machine translations, as well as between English and \isi{German} texts to \isi{machine translation}, including both MT development and MT \isi{evaluation}.
+
+
+%The contrasts between translated and non-translated texts suggest that we need more research on how to incorporate discourse-based language models induced from comparable and not parallel data. In this way, we might achieve a closer approximation of \isi{machine translation} to non-translated texts in a \isi{target language}. This is relevant not only for the development of \isi{machine translation} systems but also for their \isi{evaluation}, as the similarities between a reference and an MT output might be confounding in the quality judgement, if discourse phenomena are concerned. 
+
+\section*{Acknowledgments}
+%The acknowledgments should go immediately before the references.  Do
+%not number the acknowledgments section. Do not include this section
+%when submitting your paper for review.
+
+This paper is based on corpus resources built up in the framework of the VARTRA project\footnote{\url{http://fedora.clarin-d.uni-saarland.de/vartra/}} which was funded through  \textsl{Anschubfinanzierung} of Saarland University. We thank our anonymous reviewers for their constructive comments. We also gratefully acknowledge the help of editors in preparing the final version of this article. All remaining errors and misconceptions are our own.
+
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this] 
+}
+%\isi{prolegomena}
+%\printbibliography[heading=subbibliography,notkeyword=this]
+
+%\bibliographystyle{splncs}
+%\bibliography{lapshinova,linguistics,discourse,experience}
+%{\sloppy
+%\printbibliography[heading=subbibliography,notkeyword=this] }
+\end{document}

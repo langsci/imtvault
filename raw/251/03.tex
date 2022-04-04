@@ -1,0 +1,280 @@
+\chapter{The linguistic phenomena}\label{ch:The-Linguistic-Phenomena}
+
+The general context-free and context-dependent processes modeled in
+the previous chapter will now be mapped to specific linguistic phenomena.
+This chapter will show more concretely what the implementational and
+conceptual issues are in developing \isi{exemplar} models based on tokens
+of experienced speech. I will also begin to examine the proper interpretation
+of model results with respect to existing theories and, conversely,
+the proper implementation of specific theoretical hypotheses within
+an \isi{exemplar} framework. 
+
+\section{\label{subsec:Word-Frequency}Model 1: Word frequency}
+
+In laboratory speech, as well as spoken corpora, it has been repeatedly
+demonstrated that words that are more commonly used are shorter in
+duration than comparable words that are less common (e.g., \citealt{Bybee2001,Bybee2002,Bybee2006}).
+Furthermore, it has been shown that as \isi{frequency} increases, the average
+duration of a given word monotonically decreases (controlling for
+other factors). The diachronic counterpart of this phenomenon is the
+observation that more frequent words tend to “lead",
+meaning that a change that will later spread throughout all, or most,
+words of a language is first observed to take place in high-\isi{frequency}
+words (e.g., \citealt{Phillips1984}). Such changes are often themselves
+reductive in nature, either being the direct result of, or influenced
+by, a reduction in the temporal, and/or spatial, extent of the articulation
+of the given sounds (such as segment shortening, segment loss, assimilatory
+feature changes, or feature centralization).
+
+Competing explanations for frequency-based reduction can be separated
+into listener-based and speaker-based approaches. In the former, more
+reduced forms are assumed to be easier/more efficient for speakers
+to produce, and are thus hypothesized to be the default \isi{production}
+mode. However, in the case where the meaning is unclear, or there
+is greater than normal ambiguity, the speaker exerts more effort in
+articulation, \isi{lengthening} and strengthening speech sounds in order
+to facilitate speech recognition for the listener (e.g., \citealp{Aylett2004}).
+Because words that are highly predictable in context are easier to
+recover, such words can be safely reduced, whereas less predictable
+words must be produced more carefully. In the absence of other factors,
+the marginal probability of a given word provides an estimate of its
+likelihood; thus low-\isi{frequency} words will be produced with less reduction
+in order to facilitate their recovery relative to high-\isi{frequency} words.
+A speaker-based approach, on the other hand, attributes \isi{frequency}
+effects to automatic consequences of speech \isi{production}. Either high-\isi{frequency}
+words have higher \isi{resting activation} levels on average, leading to
+faster retrieval, and thus more rapid articulation (e.g., \citealt{gahl2012reduce}),
+or increased practice with higher-\isi{frequency} words leads to greater
+\isi{fluency}, resulting in shorter, more efficient articulation (e.g.,
+\citealt{Bybee2002}).
+
+\citet{Pierrehumbert2000} adopts a speaker-based motivation for reduction,
+modeling the effect as a \isi{production} \isi{bias} that shortens each token
+by the same small fixed amount whenever it is produced. Although a
+model containing both high and low \isi{frequency} categories was not actually
+implemented in \citet{Pierrehumbert2000}, the paper suggests that
+this simple \isi{bias} can account both for \isi{synchronic} differences in word
+duration, as well as reductive changes, over time. 
+
+The more often tokens are produced from a given category, the more
+chances there will be for initially unreduced tokens to be reduced
+multiple times. Thus, it might seem to follow that higher-\isi{frequency}
+categories will shift further leftward than lower-\isi{frequency} categories
+over the same period of time. However, as we saw in Section \ref{subsec:Model-1:-Context-Free},
+the relative average durations of a lower- and higher- \isi{frequency} word
+category depend on whether the \isi{frequency} difference is implemented as a difference in token numbers, or a difference in average activation. Furthermore, given
+enough time (= number of productions), all categories will end up
+at the same minimum duration. In other words, the model will converge
+on this one stable state from any starting point. This is the inevitable
+result of a model with an unopposed force acting, and thus is not
+particularly surprising (\citealt{Baker2011} make a similar observation
+about gradual-accumulation theories of change in general). However,
+it raises an important issue regarding the determination of \isi{synchronic}
+versus diachronic time in \isi{exemplar} models. 
+
+Computational models are typically only evaluated at convergence.
+This is in part because there is usually no explicit theory about
+how time within a model corresponds to real time (or to time in some
+other model). Exemplar models, however, explicitly map iterations
+to real-world events, namely, the \isi{perception} and storage of speech
+tokens. This requires that literally any stage of the model be a possible
+\isi{synchronic} state – at least an instantaneous one. This property also
+makes it possible, in principle, that the state of the model at convergence
+(or the fact that the model fails to converge) is irrelevant to evaluation.
+This is the case if it can be shown that convergence does not occur
+within the lifetime of the speaker. If the model parameters are chosen
+in a specific way, collapse may be avoidable within whatever is taken
+to be an average lifetime. An illustration of what is required to
+determine these parameters is provided in Appendix \ref{chap:Appendix B}.
+This line of enquiry uncovers a further prediction of this general
+model. It must be the case that all words become more reduced over
+time, regardless of the specific parameter values. 
+
+The \isi{iterative model} strongly implies that the \isi{frequency} effect must
+arise in the lifetime of the speaker, and only after they have had
+sufficient exposure to a given (high \isi{frequency}) category. I will
+define this timespan as the time it takes a category of some \isi{frequency}
+\emph{f,} with a reduction \isi{bias} of $\alpha$, to reach a degree of
+reduction, $\delta_{n_{f}}$, that is expressed as a proportion of
+the original duration. I will call this amount of real time an epoch,
+and I will define the number of productions of category \emph{f}
+during an epoch as $n_{f}$. Then, by definition: \[\overline{d_{n_{f}}}=\overline{d_{0}}-\delta_{n_{f}}\overline{d_{0}}\text{.}\]
+Since we know that a \isi{frequency} effect is observable, at minimum, in
+young adults, this epoch cannot be longer than around 20 years. Unless
+\emph{f }decreases drastically (in fact, we might expect it to increase
+at this life stage), then multiple epochs remain in the lives of these
+speakers, and a decrease comparable to the original \isi{frequency} effect
+should be expected to occur in each one of them. Thus, we should find
+that word durations should get steadily shorter over the lifetime.
+Of course, there is a hard limit on how much a word can be reduced.
+If I predict that some words will hit this limit within the given
+time frame then the \isi{frequency} effect should actually be lost in the
+subset of words that have reached this limit. I am not aware of any evidence
+that \isi{frequency} effects vary over time, but this lack may be due to the fact that
+previous studies have not specifically looked for such effects.
+
+
+\section{\label{subsec:Model-2:-Lengthening}Model 2: Vowel lengthening}
+
+Context-dependence is the norm in language, especially in the domain
+of sound structure. Speech sounds exist in a high-dimensional space,
+and almost any\linebreak change in context produces some measurable difference
+in a sound's pronunciation along one of those dimensions. These effects,
+however, are usually predictable, and so can be modeled using a fixed
+\isi{bias}. Vowel \isi{lengthening} before \isi{voiced} obstruents in word-final position
+provides a simple instantiation of a context-dependent phenomenon
+that applies to the duration dimension. It has been noted for well
+over a 100 years that vowels before final \isi{voiced} obstruents in English
+are “very long” \citep[59]{Sweet1880}, and laboratory
+studies have consistently found significant vowel duration differences
+between voiced-\isi{voiceless} minimal pairs like \textit{bad} and \textit{bat}
+(e.g., \citealt{peterson1960duration,chen1970vowel}). Furthermore,
+perceptual experiments find that vowel duration is a sufficient cue
+to the “voicing” on the final obstruent, whether that segment
+is actually \isi{voiced} or not (e.g., \citealt{raphael1972preceding,Klatt1976}).
+As it is conventionally described, vowel \isi{lengthening} is an \isi{allophonic}
+process whereby vowels produced in the \isi{lengthening} context (before
+\isi{voiced} obstruents) are lengthened by some degree, while vowels not
+produced in the \isi{lengthening} context remain unchanged.
+
+However, the results of the Model 2 simulation show that, over time,
+“short” tokens get longer, and “long” tokens get even
+longer, and eventually all tokens are maximally long whether they're
+produced in pre-\isi{voiced} or pre-\isi{voiceless} contexts. Furthermore, it
+is not possible to guarantee, at any intermediate stage, that tokens
+produced in the biasing (\isi{voiced}) context will be consistently longer
+than tokens produced in the non-biasing (\isi{voiceless}) context. Because
+of the different possible histories of each token, the single category
+contains both tokens that are very long (all ancestors produced in
+biasing context), and very short (all ancestors produced in non-biasing
+contexts). If a particularly short token is chosen (at random) for
+\isi{production} in a \isi{voiced} context it won't be as long, even after \isi{lengthening},
+as other tokens in that context have been in the past (on previous
+iterations). Likewise, if a particularly long token is chosen to be
+produced in a \isi{voiceless} context it will be longer than other tokens
+in that context have tended to be. We know that listeners develop
+expectations about what they should be hearing based on context, and
+can detect when the variant differs from expectation (e.g., \citealp{krakow1988coarticulatory,gaskell1996phonological}).
+This mismatch between token and context is therefore a problem for
+the basic \isi{exemplar} model. 
+
+However, all these effects can be seen to arise out of the fact that
+all tokens are taken from, and added back to, the same undifferentiated
+cloud. If tokens of the two allophones were stored separately, then
+these problems could presumably be eliminated. Let us consider what
+that would entail. From the perspective of theoretical linguistics,
+allophones, by definition, have no independent representational status.
+They exist only at the surface, only as the realization of a \isi{phoneme}
+to which some rule, or process, has applied.\footnote{Note that this model is entirely implemented at the \isi{phoneme} level,
+allowing the presumed forces to act directly on their targets. Although
+\isi{exemplar} models often assume a word-level representation (explicitly
+or implicitly), most are actually implemented at the \isi{phoneme} level,
+and lack explicit mechanisms for connecting the two (although see
+\citet{Wedel2008} for a model of an indirect biasing relationship).
+Mechanisms such as frequency-based reduction and \isi{contrast maintenance}
+are defined with respect to the word level. Implementing them at the
+\isi{sub-lexical} level not only obscures the fact that a mapping between
+the levels is necessary, but eliminates a fundamental property of
+abstraction: the more abstract the unit, the larger the category,
+and the more, and more varied, the tokens. The \isi{phoneme} category {/æ/}
+encompasses more than just tokens extracted from the words \textit{tag}
+and \textit{tack}, but from a large number of words, such as \textit{cat},
+\textit{lack}, \textit{sag}, \textit{package}, etc. Any changes at the
+level of the individual word are only one small part of what affects
+the realization of a given \isi{phoneme}. Thus, establishing that a phoneme-level
+effect follows from a word-level interaction requires a significantly
+more complex model than is usually implemented. } We are perfectly free to adopt the hypothesis that allophones do,
+in fact, have separate representational status, and create a model
+in which “lengthened” allophones are only selected from the
+“lengthened” (sub) category, and only “unlengthened” allophones
+from the “unlengthened” (sub) category.\footnote{This is implemented as the State Model in \chapref{ch:Models-of-Change}.}
+This would eliminate the context-mismatch problem. A paradox arises,
+however, if we continue to apply the \isi{lengthening} \isi{bias} to the lengthened
+tokens. By creating a category for these allophones we are effectively
+encoding their context: this category consists of tokens that occur
+before \isi{voiced} obstruents. Applying \isi{lengthening} to such a token implies
+that the token was originally unlengthened (non-biased). It also implies
+that the contextual information was discarded when the token was stored,
+and so must be added during \isi{production}. A model with both explicit
+representational structure incorporating a biasing context, and an
+actual biasing process, is a strange hybrid. This incompatibility
+between modeling a phenomenon as both stored \emph{and} generated
+will be discussed in more depth in \chapref{ch:Models-of-Change}. 
+
+\section{\label{subsec:Model-3:-Nasalization}Model 3: Vowel nasalization}
+
+While phonemes are taken to be the basic \isi{phonological} unit for many
+purposes, most \isi{phonological} rules that operate at the level of individual
+phonemes, in fact, affect only a subset of that \isi{phoneme}'s features.
+Classically, phonemes are taken to be decomposable into a universal
+set of discrete features, and can be uniquely defined by a specific
+matrix of values over those features. These features are usually assumed
+not just to be discrete, but to be binary in nature, taking on only
+one of two possible values, {[}+{]} or {[}\textminus{]}. Thus a partial
+feature matrix might consist of 
+\[\left[\begin{array}{c}
+-\textit{nasal}\\
++\textit{coronal}\\
+-\textit{del.rel}
+\end{array}\right]\text{ ,}\]
+for example, which matches the phonemes /\emph{t}/, /\emph{d}/\emph{
+}and /\emph{s}/, among others.\linebreak Whether considered to be \isi{phonetic} or
+\isi{phonological}, \isi{nasalization} is a process that changes the $\left[-\textit{nasal}\right]$
+specification to $\left[+\textit{nasal}\right]$. In English this rule applies
+to all vowels occurring in the context of a following nasal consonant
+(e.g., {[læb]} vs. {[læ̃m]}). Thus it is analogous,
+in all respects other than binarity, to the vowel \isi{lengthening} example
+simulated in Model 2, and similarly results in \isi{context mismatch}. What
+Model 3 demonstrates more transparently, however, is that the eventual
+outcome is neutralization of the distinction between the two allophones.
+Once a given token is produced in a nasal context for the first time,
+all its daughter tokens will also be nasal, even when produced in
+an oral context ({[læ̃b]}). Neutralization occurs because
+the process of \isi{nasalization} is uni-directional; nasalized tokens produced
+in oral contexts are not ``oralized''. In other words, there is only
+one \isi{bias}, and only one biasing context, and under those circumstances
+the basic \isi{exemplar} model will result in biased variants in all contexts.
+
+The \isi{nasalization} rule, in addition to illustrating a binary process,
+introduces a biasing dimension other then duration. This is important
+because duration is significantly simpler than most \isi{phonetic} variables.
+Additionally, duration possesses what may be a unique property: it
+is invariant under the transformation from \isi{production} to \isi{perception}
+(in the absence of error).\footnote{There is, however, potential ambiguity in attributing duration differences
+to inherent duration, versus differences in \isi{speaking rate} or prosodic
+contexts. See \chapref{ch:Summary}. } Thus, an architecture that can derive the correct results for \isi{phonological}
+processes acting on duration is not guaranteed to do the same for
+other \isi{phonological} dimensions. 
+
+Vowel \isi{nasalization} seems to be quite well-understood, and to have
+a straightforward explanation. It arises through an inherent property
+of normally produced speech: coarticulation. The articulation for
+the nasal consonant, which involves lowering the \isi{velum} so that air
+can flow through the nasal cavity, is initiated before the articulation
+of the preceding vowel is fully completed. As a result, the \isi{velum}
+is open for some portion of the end of the vowel, meaning that nasal
+airflow occurs, which, by definition, means that the vowel is partially
+nasalized. The evolution from partial to full \isi{nasalization} seems to
+be exactly what the basic \isi{exemplar} model should account for: a gradual
+increase of \isi{nasalization} through an iterative process in which already
+nasalized (biased) tokens are subject to additional \isi{nasalization} (biasing)
+as produced tokens are converted into stored tokens, which are once
+again converted into \isi{production} tokens. Yet we have already seen that
+the context-dependent version of the basic \isi{exemplar} model results
+in a single degenerate outcome. 
+
+In fact, there is a deeper representational problem related to the
+source of the \isi{bias}. The degree of \isi{vowel nasalization} corresponds more
+or less directly to the extent of the vowel during which nasal airflow
+is present. Thus, it is a question only of how early the \isi{velum} is
+lowered. For \isi{nasalization} to increase incrementally, the \isi{velum} lowering
+must occur earlier and earlier. There is, however, no mechanism in
+the basic \isi{exemplar} model to accomplish this. The root of the problem
+is the lack of an explicit \isi{production} to \isi{perception} mapping. That
+mapping will be the focus of \chapref{ch:Perception-Production}.
+For now the focus will be on the \isi{production} side, and the argument
+will be that, on empirical grounds, \isi{articulatory} parameters cannot
+depend solely on the free evolution of perceptual categories. 
+\chapref{ch:Models-of-Change} will also show that explicit \isi{articulatory}
+targets can be used to prevent the collapse and merger problem shared
+by Models 1--3.

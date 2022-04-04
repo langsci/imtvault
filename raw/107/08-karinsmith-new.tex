@@ -1,0 +1,353 @@
+\documentclass[output=paper]{langsci/langscibook.cls} 
+\author{Karin Sim Smith \affiliation{The University of Sheffield}\lastand Lucia Specia\affiliation{The University of Sheffield} 
+}
+\title{Examining lexical coherence in a multilingual setting} 
+
+\abstract{	This paper presents a preliminary study of lexical coherence and cohesion in the context of multiple languages. 
+	We explore two entity-based frameworks in a multilingual setting in an attempt to understand how lexical coherence is realised across different languages. These frameworks (an entity-grid model and an entity graph metric) have previously been used for assessing coherence in a monolingual setting. We apply them to a multilingual setting for the first time, assessing whether entity based coherence frameworks could help ensure lexical coherence in a Machine Translation context. } %\lipsum[1]}
+\maketitle
+
+\ChapterDOI{10.5281/zenodo.814470}
+\newcommand{\fixme}[1]{{\bf \color{red} [*FIXME* }{\em #1}{\bf ]}}
+\newcommand{\fixed}[1]{{\bf \color{blue} [*FIXED?* }{\em #1}{\bf ]}}
+\newcommand{\refix}[1]{{\bf \color{green} [*REFIX* }{\em #1}{\bf ]}}
+
+
+\begin{document}
+%\input{chapters/acronyms}	
+%\acresetall
+%\include{chapters/acronyms}
+\section{Introduction}\label{intro}
+
+We present an exploratory study which represents our early research on how lexical \isi{coherence} is realised in a \isi{multilingual context}, with a view to identifying patterns that could be later used to improve overall \isi{translation quality} in Machine Translation (MT) models. 
+ 
+Ideally a coherent source document when translated properly should result in a coherent target document. Coherence does vary in how it is achieved in different languages. 
+Moreover, unlike a human translator, who translates the document as a whole, in context, ensuring that the translated document is as coherent as the source document, most MT systems, and particularly Statistical Machine Translation (SMT) systems, translate each sentence in isolation, and have no notion of discourse principles such as \isi{coherence} and \isi{cohesion}.
+ 
+ While some research has indicated that MT frameworks are good at lexical \isi{cohesion} \citep{CarpuatSimard}, in that they are consistent, others have reported different results \citep{WongKit}, since MT systems can persist using with a particular translation which is incorrect. We believe that investigating entity-based frameworks in a \isi{multilingual setting} may shed some light on the issue. 
+ In particular, we also hope to ascertain whether they help in the disambiguation of lexical entities, where in an MT setting the translation of a particular source word, e.g. `bank' in English, could be translated as either `la rive' or `la banque' in \isi{French}, depending on the context. Currently most SMT systems determine which word to use purely based on the probabilities established at training time (i.e. how frequently `bank' equated to `la rive' and how frequently it equated to `la banque'). While, this should be determined by context, the problem is that most systems translate one sentence at a time, disregarding the wider context. 
+ 
+ Greater insight into how multilingual lexical \isi{coherence} is achieved could lead to improvements in current translation approaches. This improvement could take the form of features based on the entity transitions, guiding the lexical choice. Alternatively, we could use \isi{coherence} models to select the option which leads to a higher translation score when reranking results from a decoder.
+
+In the following (Section \ref{entity}) we describe entity based \isi{coherence}. We briefly explain the grid model (Section \ref{entity_grid}) and the graph one (Section \ref{entity_graph}). Then we detail our experimental settings (Section \ref{multi:exp}) for the two main parts of this research.
+Firstly (Section \ref{multigrids}), we constructed a multilingual comparative entity-based {\sc grid} for a corpus comprising various documents covering three different languages. We examine whether similar patterns of entity transitions are exhibited, or whether they varied markedly across languages. Secondly (Section \ref{multigraphs}), we applied an entity {\bf graph} in a \isi{multilingual context}, using the same corpus. 
+We assess whether this different perspective offers more insight into crosslingual \isi{coherence} patterns.   
+Our conclusions are set out in Section \ref{conclusions}.
+Our goals are to understand differences in lexical \isi{coherence} across languages so that in the future we can establish whether this can be used as a means of ensuring that the appropriate level of lexical \isi{coherence} is transferred from source to machine translated documents. 
+
+\section{Entity-based coherence}\label{entity}
+
+%\section{Related work}\label{related}
+There has been recent work in the area of lexical \isi{cohesion} in MT \citep{Xiong:2013b,Xiong:2013,Tiedemann:2010,Hardmeier:2012,CarpuatSimard,WongKit}, as a sub category of \isi{coherence}, looking at the linguistic elements which hold a text together. However, there seems to be little work in the wider area of \isi{coherence} as a whole. Coherence is indeed a more complex discourse element to define in the first place. While it does include \isi{cohesion}, it is wider in terms of also describing how a text becomes semantically meaningful overall, and how easy it is for the reader to follow. 
+
+\citet{Xiong:2013} focus on ensuring lexical \isi{cohesion} by reinforcing the choice of lexical items during decoding. They subsequently compute lexical chains in the \isi{source text} \citep{Xiong:2013b}, project these onto the \isi{target text}, and integrate these into the decoding process with different strategies. This is to try and ensure that the lexical \isi{cohesion}, as represented through the choice of lexical items, is transferred from the source to \isi{target text}. 
+\citet{Tiedemann:2010} attempts to improve lexical \isi{consistency} and to adapt statistical models to be more linguistically sensitive, integrating contextual dependencies by means of a dynamic cache model. 
+\citet{Hardmeier:2012} suggests there is not much to be gained by just enforcing consistent vocabulary choice in SMT, since the vocabulary is already fairly consistent.
+  While there is indeed a case for arguing that MT systems can be more consistent than human translators for using a set \isi{terminology} \citep{CarpuatSimard}, that would only be valid for a very narrow field, perhaps a highly technical domain, and an SMT system trained on exact data.  
+~\citet{WongKit} study lexical \isi{cohesion} as a means of evaluating the quality of MT output at document level, but in their case the focus is on it as an \isi{evaluation} metric. Their research supports the intuition we found, i.e. that human translators intuitively ensure \isi{cohesion}, which in MT output often is represented as direct translations of \isi{source text} items that may be inappropriate in the target context. They conclude that MT needs to learn to use lexical \isi{cohesion} devices appropriately. 
+
+Lexical \isi{cohesion} is only one aspect of \isi{coherence}, however much of the work on computationally determining how lexical \isi{cohesion} is indicative of \isi{coherence} refers to `\isi{coherence}', therefore we retain the term `\isi{coherence}' here, as we are looking at how lexical \isi{cohesion} contributes to \isi{coherence} as a whole. In particular, the focus, or the `attentional state' \citep{Grosz:1986} in a discourse is one major aspect of \isi{coherence}. 
+Entity-based \isi{coherence} aims to measure the attentional state, formalised via Centering Theory \citep{Grosz:1995} (more below).
+
+The entity-based approach was first proposed by \citet{barzilay-lapata:2005:ACL} with the aim of measuring local \isi{coherence} in a \isi{monolingual setting}, focusing on applications where multiple alternatives of a system output are available, such as the ranking of alternative automatic text summaries by their \isi{coherence} degree. 
+As detailed by \citet{Barzilay:2008}, the entity-based approach derives from the theory that entities in a coherent text are distributed in a certain manner, as identified in various discourse theories, in particular in Centering Theory \citep{Grosz:1995}. This theory holds that coherent texts are characterised by salient entities in strong grammatical roles, such as subject or object.
+The focus of their work \citep{Barzilay:2008} was in using this knowledge, via patterns in terms of prominent syntactic constructions, to distinguish coherent from non-coherent texts. In our research the focus is on differences in the general patterns, particularly across languages.
+As long as a syntactic parser is available, this approach is fully automatic and avoids human annotation effort. We see it as a means of extracting additional linguistic information for use in rich features to guide lexical selection in MT, as well as potentially in the problem of MT \isi{evaluation}. 
+
+Previous computational models for assessing \isi{coherence} have been deployed in a \isi{monolingual setting} \citep{Lapata:2005,Barzilay:2008,Elsner:2007,Elsner:2011,Burstein,Guinaudeau}. We report on our findings for applying the \isi{entity grid} (Section  \ref{multigrids}) and entity graph (Section \ref{multigraphs}) to a \isi{multilingual setting}, using data and settings as described in Section \ref{multi:exp}.
+
+Our initial experiments will take all nouns in the document as discourse entities, as recommended by \citet{Elsner:2011}, and investigate how they are realised crosslingually.
+The distribution of entities over sentences may vary from language to language (more on this below). The challenge from an MT point of view would be to ensure that an entity chain is carried over to from source to \isi{target text}, despite differences in syntax and sentence structure, and taking account of linguistic variations.
+ 
+\section{Entity grid}\label{entity_grid}
+\largerpage
+Entity distribution patterns vary according to text domain, style and \isi{genre}, which are all valuable characteristics to capture, and attempt to transfer from source to \isi{target text} languages where appropriate. 
+They are constructed by identifying the discourse entities in the documents under consideration and representing them in 2D grids whereby each column corresponds to the entity, i.e. noun, being tracked, and each row represents a particular sentence in the document in order. An example can be seen in Table \ref{grid-table}, where the lines represent consecutive sentences, and the columns ('e1', etc.) represent different entities. In this example, 'e7' represents 'Kosovo', which was repeated in sentences 's2', 's3' and 's4', in the roles of {\em subject} (S), {\em other} (X), and {\em subject} (S), respectively.
+
+\begin{table}
+\footnotesize
+
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline \bf & \bf e1 & \bf e2 & \bf e3 & \bf e4 & \bf e5 & \bf e6 & \bf e7 \\  
+s1&-&-&-&-&-&-&- \\
+s2&-&-&-&-&-&-&S \\
+s3&-&-&-&-&-&-&X \\
+s4&-&-&O&-&-&-&S \\
+s5&S&-&-&-&-&-&- \\
+s6&-&-&-&X&-&-&- \\ \hline
+\end{tabular}
+
+\caption{\label{grid-table} Example of entity grid}
+\end{table}
+
+
+\newpage 
+Once all occurrences of nouns and the syntactic roles they represent in each sentence (Subject (S), Object (O), or other (X)) are extracted, an {\sc entity transition} is defined as a consecutive occurrence of an entity, with given syntactic roles. These are computed by examining the grid vertically for each entity. For example, an 'SS', a 'Subject-to-Subject' transition, indicates that an entity occurs in a subject position in two consecutive sentences. An 'SO', on the other hand, indicates that while the entity was in a subject role in one sentence, it became the object in the subsequent sentence.
+Probabilities for these transitions can be easily derived by calculating the frequency of a particular transition divided by the total number of transitions which occur in that document. 
+
+
+\section{Entity graph}\label{entity_graph}
+
+\citet{Guinaudeau} projected the \isi{entity grid} into a graph format, using a bipartite graph which they claim had the advantage both of avoiding the data sparsity issues encountered by \citet{Barzilay:2008} and of achieving equal performance on measuring overall document \isi{coherence} without the need for training. They use it to capture the same \isi{entity transition} information as the \isi{entity grid} \isi{experiment}, although they only track the occurrence of entities, avoiding the nulls or absences of the other (tracked as '-' in the \isi{entity grid} framework). Additionally, the graph representation can track cross-sentential references, instead of only those in adjacent sentences \citep{Guinaudeau}.
+
+The graph tracks the presence of all entities, taking all nouns in the document as discourse entities, as recommended by \citet{Elsner:2011}, and connections to the sentences they occur in. 
+The general form of the \isi{coherence} score assigned to a document in this approach is shown in Equation \ref{eq:graph}.
+This is a centrality measure based on the average outdegree across the $N$ sentences represented in the document graph. 
+The outdegree of a sentence $s_i$, denoted $o(s_i)$, is the total weight leaving that sentence, a notion of how connected (or how central) it is.
+This weight is the sum of the contributions of all edges connecting $s_i$ to any $s_j \in D$.
+
+
+\vspace{-3mm}
+\begin{align}\label{eq:graph}
+ 	s(D) &=  \frac{1}{N} \sum_{i=1}^N o(s_i) \\ \nonumber
+	&= \frac{1}{N} \sum_{i=1}^N \sum_{j=i+1}^N W_{i,j} 
+\end{align}
+
+The \isi{coherence} of a text in this model is measured by calculating the average outdegree of a projection, so by summing the shared edges (i.e. of entities leaving a sentence) between two sentences.
+
+They define three types of graph projections: {\em binary}, {\em weighted} and {\em syntactic}. 
+Binary projections simply record whether two sentences have any entities in common. Weighted projections take the number of shared entities into account, rating the projections higher for more shared entities. A syntactic projection includes syntax information, where syntactic information is used to weight the importance of the link by calculating an entity in role of subject ($S$) as a 3, an entity in role of object ($O$) as a 2, and other ($X$) as a 1. These are projected between any two sentences in the text, as sets of shared entities. 
+
+We projected the entity relationships onto a graph-based representation, as per \citet{Guinaudeau}, experimenting in various settings. Our objective was to assess whether the graph gives us a better appreciation of differences in entity-based \isi{coherence} across languages.
+This representation can encode more information than the entity-grid as it spans connections not just between adjacent sentences, but among all sentences in the document. 
+
+
+\section{Experimental settings}\label{multi:exp}
+
+For our multilingual experiments, the \isi{entity grid} approach was applied to parallel texts from the \isi{WMT} corpus,\footnote{\url{http://www.statmt.org/wmt10/}} with three languages: English, \isi{French}, and \isi{German}. In particular, we used the test data, comprising news excerpts extracted over various years. The direction of translation varies for different documents, as discussed in Section \ref{multigrids}. 
+For comparison, we also take the \isi{French} and English documents from the {\bf LIG} corpus \citep{Potet:2012} of \isi{French} into English translations. These form a concatenated group of $361$ documents, which are news excerpts drawn from various \isi{WMT} years. In all these corpora, translations are provided by human, professional translators. 
+
+\isi{French} to English is generally regarded as a well performing language pair in MT, whereas \isi{German} to English is more error-prone due to compounding, word order and morphological variations in \isi{German}. Of particular interest here are the \isi{compound} words prevalent in \isi{German}, and how these affect the \isi{entity grid}. 
+To establish general tendencies, entity grids were compiled for three different sources: 
+\begin{compactitem}
+ \item The {\bf newstest2008} datasets in each language comprising $90$ parallel documents. 
+
+  \item The {\bf LIG} corpus in \isi{French} and English comprising $361$ parallel documents.
+\end{compactitem}
+
+In our experiments we used version 3.3.0 of the Stanford Parser\footnote{\url{http://nlp.stanford.edu/software/corenlp.shtml}} to identify the noun phrases in each language. 
+We set the salience at 2, i.e. recording only entities which occurred more than twice, and derived models with transitions of length %$2$ and 
+$3$ (i.e. over %2 and 
+3 adjacent sentences).
+We computed the mean of the transition probabilities, i.e. the probability of a particular transition occurring, over all the documents.
+
+While previous work for English, a language with a relatively fixed word order, has found
+factors such as the grammatical roles associated with the entities affect local \isi{coherence}, this varies across languages \citep{Cheung}.
+\citet{Cheung} further suggest that
+topological fields (identifying clausal structure in terms of the positions of different constituents) are an alternative to grammatical roles in local \isi{coherence} modelling, for languages such as \isi{German}, and show that they are superior to grammatical roles in an ordering \isi{experiment}.
+
+ For this set of experiments we therefore apply a slightly simplified version of the grid, recording the presence or absence of particular (salient) entities over a \isi{sequence} of sentences. In addition to being the first cross-lingual study of the grid approach, this \isi{experiment} also aims at examining the robustness of this approach without a syntactic parser. While the grammatical function may have been useful as an indicator in the aforementioned work, this does not necessarily hold in a \isi{multilingual context}. 
+Simply tracking the existence or absence of entities allows for direct comparison across languages. Indeed, as \citet{Filippova:2007} reported when applying the \isi{entity grid} approach to group related entities and incorporate semantic relatedness, ``syntactic information turned out to have a negative impact on the results''. 
+While \citet{Barzilay:2008} argued  that ``the proposed representation reveals \isi{entity transition} patterns characteristic of coherent texts'', we would also suggest that these patterns potentially vary from language to language to some extent, while retaining an overall degree of \isi{coherence}. 
+
+\section{Multilingual grids}\label{multigrids}
+
+\subsection{In-depth analysis}
+
+In order to illustrate the differences between the distributions of entity transitions over the different languages, we computed Jensen-Shannon divergence scores for \isi{French} and English, and then \isi{German} and English, both displayed in Figure \ref{fig:FrEnDeJSD}. 
+
+Paying attention to the scale, it is clear that the \isi{German} and English divergence is greater overall than the divergence for \isi{French} and English. For example the entity transitions which showed the highest variation were $XX-$, which was 0.045 for the difference between \isi{French} and English over 0.1 for \isi{German} and English, also transition $XXX$ where the difference over the same was 0.02 and 0.08. This indicates that for the German-English pair it was less likely that the same entity showed up in 3 consecutive sentences than for the French-English pair.
+	
+\begin{figure}
+\includegraphics[width=\textwidth]{figures/JSD.pdf}
+% \includegraphics[width=\textwidth]{figures/JSD.png}
+	\caption{Jensen-Shannon divergence over distribution of entity transitions (length 3) for German-English and French-English (WMT news\-test2008)}\label{fig:FrEnDeJSD}
+\end{figure}
+
+\begin{table}
+	 
+	
+		\begin{tabular}{cccc}
+			\lsptoprule
+			\bf Transition & \bf \isi{German} & \bf \isi{French} & \bf English  \\  
+			\midrule
+			'XXX' & 0.001445 &	0.002382 & 0.000441 \\
+			'X-X' &  0.006240 & 0.006917 & 0.003184 \\
+			'XX-' & 0.005905 &  0.008853 & 0.003130 \\
+			'-XX' & 0.004142 & 0.006155 & 0.001672 \\
+			\lspbottomrule
+		\end{tabular}
+	
+	\caption{\label{table:multi}Multilingual entity transitions (mean of 90 documents) }
+\end{table}
+
+While \isi{German} is more nominal in structure, and one might expect higher \isi{entity transition} probabilities in general, these are often \isi{compound} nouns, which are then counted separately in our setup. This variance merits more investigation to gain a fuller picture of the reasons behind it.
+
+There is a clear pattern across the entity transitions over the three languages studied. 
+In this instance we are comparing the same texts, on a document by document basis, so the same \isi{genre} and style, yet there is a consistent difference in the probabilities. This would appear to indicate, amongst other things, that the manner in which lexical \isi{coherence} is achieved varies from language to language. While this is just a preliminary study with a small dataset, this is supported by other research findings \citep{lapshinova2015variation}.
+
+On closer analysis, it would appear that there are various issues at play. Firstly, there is the matter of sentence boundaries, which affects the transition probabilities. Across many of the documents in the {\bf newstest2008}, the \isi{French} version had fewer sentences within segments than the corresponding segments in \isi{German} or English. This potentially increases the number of transitions from sentence to sentence. \isi{French} also exhibited on average fewer entities per document. So the transitions are more concentrated. Both of these factors potentially account for some of the higher levels of entity transitions in \isi{French} over English and \isi{German} in the \isi{WMT} {\bf newstest2008} documents.
+
+The tendency in the \isi{WMT} {\bf newstest2008} documents was for English and \isi{German} to have more, shorter sentences. So elements of discourse which were in one sentence in \isi{French} were occasionally split over two sentences in \isi{German} or English, and thus an \isi{entity transition} was over two consecutive sentences in \isi{French}, but had a sentence between them in the other two languages. As a result, the $XXX$ transition count was typically higher for \isi{French}. 
+Interestingly, \isi{French} also exhibited a higher count of $XX-$ transitions, often over sentences 1 and 2. Of course, we can enforce the constraint of strictly parallel sentences, but it is interesting to see the natural linguistic variation.
+
+\subsection{Linguistic trends}
+Interestingly, another reason for the variation across languages may be the fact that in \isi{French} there is a tendency to use a noun in the plural as well as singular. For example, in document 37 of the {\bf LIG} corpus the \isi{French} used 2 separate entities where the English had one: `inequality', which occurred at positions:
+0, 1, 2, 3, 4, 12, 13, 14, 17, 18, 19, 21, 31, was rendered in \isi{French} by 2 separate entities:
+'in\'{e}galit\'{e}s' at 0, 1, 2, 4, 12, 14, 17, 18, 19, 31
+'l'in\'{e}galit\'{e}' at 2, 3, 13.
+
+This phenomenon occurred elsewhere too: `effort' in English occurred in the following sentences of document 24: 8, 9, 10, 11. In \isi{French} we actually find 3 separate entities used, due to the way the parser dealt with the definite article:
+`l'effort' at 8, `effort' at 9, 11 and `efforts' at 9, 10. While we can adapt our models (via lemmatisation) to account for the linguistic variation, it is important that we appreciate the linguistic variation in the first place, if we are to ensure {\bf appropriate} lexical \isi{coherence}.
+
+In addition, sometimes an entity in English is actually rendered as an adjective in \isi{French}, and therefore not tracked in the grid, such as document 5, where the \isi{source text}, i.e. \isi{French}, has `crises cambiaires' rendered in the English as `currency crises', and while `currency' is identified as an entity in English, it is an adjective in \isi{French}, thus not identified as an entity. Apart from affecting the transition probabilities, it would seem that some form of lexical chains is necessary to fully capture all the necessary lexical information in this \isi{multilingual setting}.
+In the same document, `currency' occurs 8 times as an entity in the English, yet in the \isi{French} besides being rendered as an adjective twice, is rendered 4 times as `caisse d'\'{e}mission' and only once as `monnaie'. This is reflected in the fact that for this document the English had 127 entities where the \isi{French} had 152.
+
+Another interesting point to note is that in general \isi{German} exhibited a higher entity count. This is to be expected, as \isi{German} is more nominal in structure than, for example, \isi{French}. This count is also affected by the amount of \isi{compound} verbs in \isi{German}, and how we decide to model them. Thus, for example, from a document on cars, the word `car' features as a main entity, but whereas it appears 4 and 6 times in \isi{French} [`voiture' at sentences 6, 8, 23, 31, 32, 33] and  English [`car' at sentences 5, 7, 22, 31, 32, 33] respectively, in \isi{German} it only appears twice [`Auto' at sentences 7, 22].
+However, `car' is part of a collection of \isi{compound} words in \isi{German}, such as `High-end-auto' at sentence 31 in the document, [{31=X}] and `Luxusauto' at sentence [{32=X}]. As it occurs in a different form, it is, in this instance, tracked as a different entity altogether.
+
+Similarly, \isi{German} exhibited a high ratio of $X-X$ transitions, where an entity skips a sentence, then reoccurs. This is explained by the occurrence of more, shorter sentences, as described above, and also by the compounding factor. With shorter sentences there is a greater chance that entities are split between two sentences, where the \isi{French} may have had one. This also leads to lower likelihood of a transition to the next sentence; the transition would instead skip one sentence (appear as $X-X$ transition instead of $XX-$ or $XXX$). Plus a particular entity may not appear in three consecutive sentences, as it may have done in the \isi{French} or English versions, because in the middle sentence it is part of a \isi{compound} verb. 
+
+This illustrates the linguistic differences that need to be taken into account when examining comparative \isi{coherence} in a \isi{multilingual context}. This could lead to a decision to lemmatise before extracting grids or graphs, but in that case they are no longer strictly {\bf entity} grids. We can apply linguistic processing to make the different grids comparable, but that should be sensitive to the linguistic variation, as overly processing to make them comparable will lose the natural expression in a particular language.
+
+\subsection{Source language implications}
+In some cases the quality of the text was also an issue. \isi{WMT} data (from which the {\bf LIG} corpus was also derived) is generated both from texts originally in a given language, e.g. English, and texts manually translated from other languages (e.g. \isi{Czech}) into that language (say English). And in some cases the human translation of the documents was not particularly good. This was the case for some of the English documents translated from \isi{Czech} in the {\bf newstest2008} corpus. This has a direct influence on the \isi{coherence} of the text, yet as noted by \citet{Cartoni}, often those using this \isi{WMT} corpus fail to realise the significance of whether a text is an original or a translation.
+
+What also has to be taken into account is the language of the \isi{source text}, and the tendency for it to affect the \isi{target text} in style, depending on how literal the translation is. 
+
+\subsection{Entity realisations}
+It is interesting to trace how the main entities in a given text are realised across the languages. See Table \ref{table:Brown} where each numbered column represents a sentence in that parallel document. We have cut the last few sentences from the table, in order to fit it in.
+
+\begin{comment}
+\begin{table*}
+\tiny
+
+\begin{tabular}{|c|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|p{0.01cm}|}
+\hline  \bf &\bf 0 &\bf 1& \bf 2& \bf 3& \bf 4& \bf 5 & \bf 6 & \bf 7 & \bf 8 & \bf 9 & \bf 10 & \bf 11 & \bf 12& \bf 13 & \bf 14 & \bf 15 & \bf 16 & \bf 17 & \bf 18 & \bf 19 & \bf 20 & \bf 21 & \bf 22 & \bf 23 & \bf 24 & \bf 25 & \bf 26 & \bf 27 & \bf 28 & \bf 29 & \bf 30 & \bf 31 & \bf 32 & \bf 33 & \bf 34  \\   \hline
+DE &x&-&-&x&x&x&-&-&-&-&-&x&-&-&-&x&-&x&-&x&-&x&-&-&-&-&-&x&-&-&-&-&x&x&-  \\
+FR &x&-&-&x&x&x&-&-&-&-&-&x&-&-&-&x&-&x&-&x&-&-&x&-&-&-&-&-&x&-&-&-&-&x&x  \\
+EN &x&-&x&-&x&-&-&-&-&-&x&-&-&-&x&-&x&-&x&-&-&x&-&-&-&-&-&x&-&-&-&-&&x&-  \\ \hline
+\end{tabular}
+
+\caption{\label{table:Brownbig}Occurrences of 'Brown' in various sentences of parallel document}
+\end{table*}
+\end{comment}
+
+\begin{table*}
+% 	\footnotesize
+% 	
+		\begin{tabular}{|c|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|}
+			\hline  \bf &\bf 0 &\bf 1& \bf 2& \bf 3& \bf 4& \bf 5 & \bf 6 & \bf 7 & \bf 8 & \bf 9 & \bf 10 & \bf 11 & \bf 12& \bf 13 & \bf 14 & \bf 15 & \bf 16 &\bf 17 \\   \hline
+			DE &x&-&-&x&x&x&-&-&-&-&-&x&-&-&-&x&-&x \\
+			FR &x&-&-&x&x&x&-&-&-&-&-&x&-&-&-&x&-&x \\
+			EN &x&-&x&-&x&-&-&-&-&-&x&-&-&-&x&-&x&- \\ \hline
+			\end{tabular}
+% 		
+%	\end{table*}
+	
+			
+%\begin{table*}
+% 	\footnotesize
+% 	
+		\begin{tabular}{|c|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|p{0.15cm}|}
+			\hline  \bf  & \bf 18 & \bf 19 & \bf 20 & \bf 21 & \bf 22 & \bf 23 & \bf 24 & \bf 25 & \bf 26 & \bf 27 & \bf 28 & \bf 29 & \bf 30 & \bf 31 & \bf 32 & \bf 33 & \bf 34 & \bf 35 \\   \hline
+			DE &-&x&-&x&-&-&-&-&-&x&-&-&-&-&x&x&-&-   \\
+			FR &-&x&-&-&x&-&-&-&-&-&x&-&-&-&-&x&x&-   \\
+			EN &x&-&-&x&-&-&-&-&-&x&-&-&-&-&&x&-&-   \\ \hline
+		\end{tabular}
+% 	
+	\caption{\label{table:Brown}Occurrences of 'Brown' in various sentences of parallel document (dropping last sentences of document due to spacing)}
+\end{table*}
+
+We can clearly see how the main subject is realised through the document, albeit not at identical positions. On occasion, this is affected by differences in sentence breaks. In this case the \isi{French} and \isi{German} entities were closely matched in position at the start of the document, and then the English and \isi{German} by the end. However, the point is that in general, there are the same number of occurrences, as the thread of discourse is traced through each document with exact positions dependent on sentence breaks. This pattern of occurrences is valuable information which among other things can potentially be used to improve \isi{anaphora} resolution in the \isi{target text}. Centering Theory has been used \citep{Kehler} to resolve referents by working out the backward looking centre for a sentence. Thus one of the entities referred to in one sentence may well be referred to in a subsequent sentence by a reference~\citep{Clarke}. This study in entity grids has the potential to be useful in this domain too.
+
+\section{Multilingual graphs}\label{multigraphs}
+
+\subsection{Compound splitting}
+
+We also analyse the graph framework in a \isi{multilingual setting} to try and garner additional insight into variations in \isi{coherence} patterns in different languages.  The intuition is that this framework could be more informative than the grid as it spans connections between not just adjacent sentences, but any subsequent ones. 
+
+\largerpage
+Our initial experiments take all nouns in the document as discourse entities, as recommended by~\citet{Elsner:2011}, and investigate how the projections are realised by lexical items. As discovered during experiments for the \isi{entity grid}, the entity spread over sentences may vary from language to language (more on this below). 
+
+We used the weighted projection, which considers the frequencies of the various entities in the documents, which we determined was more appropriate than syntax in a comparative \isi{multilingual context}. As regards incorporating syntax for other models,~\citet{Strube:1999} suggests that for freer word-order languages, ``We claim that grammatical role criteria should be replaced by criteria that reflect the functional \isi{information structure} of the utterances''. This is particularly relevant for \isi{German}. Our intuition is that the weighted projection gives the best appreciation of the cohesive links between sentences, as it gives a higher weighting where they are more frequent, unlike the unweighted one which simply logs the sentences which an entity occurs in.
+
+We used the same \isi{WMT} dataset as for the grid experiments. The graph \isi{coherence} scores were computed for all parallel multilingual documents and results are displayed in Table \ref{table:results}.
+
+\begin{table}
+ 
+\begin{tabular}{lrr}
+\lsptoprule 
+\bf  & \bf \isi{coherence} score  & \bf \isi{coherence} score without \isi{compound splitter}  \\  
+\midrule 
+\isi{French} & 26 & 30  \\  
+English & 47 & 56  \\
+\isi{German} & 17 & 4  \\
+\lspbottomrule
+\end{tabular} 
+ \caption{\label{table:results}Number of documents (out of 90) for a given language which scored the highest among the 3 languages}
+\end{table}
+
+%\paragraph{}
+On closer analysis we encountered the same issue with \isi{German} compounds as for the grid, whereby the entities in the \isi{German} grid were more sparse, and more discontinuous in nature, due to the fact that \isi{compound} words accounted for several entities. To establish just how much difference this was making, we also tried applying a \isi{compound splitter} for \isi{German}\footnote{http://www.danielnaber.de/jwordsplitter, Licensed under the Apache License}. So for a given entity, we check if it decomposes into several entities, and if so each is entered separately in the graph. This resulted in a more uniform \isi{coherence} score over the 3 languages. Whereas \isi{German} had the highest \isi{coherence} score for only 4 out of the 90 documents when no \isi{compound splitter} was applied, this figure rose to 17 with a \isi{compound splitter}. This is perhaps more meaningful when doing crosslingual comparisons. 
+
+\subsection{Crosslingual similarity}
+Interestingly, looking at the \isi{coherence} scores for all 3 languages, they exhibit remarkably similar graph profiles (Figure \ref{fig:FrDeEnGraph}). As in the documents which result in a low score for English are similarly low for \isi{French} and \isi{German}. So it would seem that it is possible to assess lexical \isi{coherence} as judged by this metric in a crosslingual manner, albeit as one aspect of \isi{coherence}, not as sufficient to alone judge the overall \isi{coherence} of the document.
+As \citet{tanskanen2006collaborating} %p38
+point out, ``\isi{cohesion} may not work in absolutely identical ways in all languages, but the strategies of forming cohesive relations seem to display considerable similarity across languages". 
+
+
+\begin{figure}
+\includegraphics[angle=90 , height=.9\textheight]{figures/FrDeEnGraph.pdf}
+% \includegraphics[angle=90 , height=.9\textheight]{figures/FrDeEnGraph.png}
+\caption{Multilingual graph coherence scores, displaying the score (y-axis) for each document (x-axis)}\label{fig:FrDeEnGraph}
+\end{figure}
+%\FloatBarrier
+
+The English documents had the largest proportion of high \isi{coherence} scores, scoring highest more often than \isi{French} or \isi{German}. 
+This could be a general characteristic that English involves more \isi{coherence} as expressed via simple entity-based \isi{coherence} and that in \isi{German} \isi{coherence} is possibly achieved through other means.
+\citet{lapshinova2015exploration} illustrate, that languages tend to vary in the way they use discourse features.
+
+It certainly supports our findings in the grid experiments, where English had the highest number of entity transitions.
+From this it would seem that out of these three languages, \isi{German} exhibits the least entity based \isi{coherence}, while the highest scores are exhibited by English, followed by \isi{French}. 
+As \citet{WongKit} note, the lexical \isi{cohesion} devices have to not only be recognised, but used appropriately. And this may differ from the \isi{source text} to the \isi{target text}. 
+
+\subsection{Source language implications}
+As mentioned already, it is important for this data set to realise what the \isi{source language} is, and this is marked up on the documents within the \isi{WMT} data set. This is relevant because it indicates which languages are original texts and which are translations. The first 30 documents are originally Hungarian and \isi{Czech} (so documents 0-29 in our code). The subsequent 15 ones are originally \isi{French} (docs 30-44), the next 15 are Spanish (45-59), the next 15 are English (60-74) then \isi{German} (75-90). This is interesting, as we can then see patterns emerging of naturally coherent texts. It also means that for a number of documents, our \isi{French}, \isi{German} and English versions are all translations. One point to note is that ideally this should be extended over an additional corpus, to gain more data, as otherwise we just have 15 texts of each original language. In the meantime, we can see from Table \ref{table:languagebreakdown} how these affect the scores assigned under this metric. While it is tempting to consider whether 
+having an original \isi{German} text means that the \isi{coherence} is higher for \isi{German} and more evenly scoring in general, or whether an English \isi{source text} results in less \isi{coherence} for the \isi{German}, the number of documents in this preliminary work are not representative enough. This could be worthwhile pursuing as a corpus study, however.
+
+
+\begin{table}
+\fittable{
+\begin{tabular}{cccc}
+\lsptoprule 
+\bf  & \bf \isi{French} highest  & \bf English highest & \bf \isi{German} highest  \\  
+\midrule 
+\isi{French} original (docs 30-44) & 3 & 8 & 4 \\  
+English original (docs 60-74)  & 6 & 8 & 1  \\
+\isi{German} original (docs 75-90) & 4 & 6  & 5 \\
+\lspbottomrule
+\end{tabular}
+}
+\caption{\label{table:languagebreakdown}Breakdown of highest scoring documents}
+\end{table}
+
+
+Although the projection score is normalised in that the sum of projections is multiplied by 1/N where N is the number of sentences, there is an inevitable bias in favour of longer documents, for example, document 65 in our \isi{experiment} using the \isi{WMT} data has only 3 sentences, and reads as a coherent one, yet due to the shortness has a low score.
+ 	
+Yet document 29, by comparison, scores a high score yet reads incoherently - it is originally \isi{Czech}, and the translation is clumsy in parts. The high score is due to repetition of words like `millions', `krona' or `year' or their equivalent in \isi{French} and \isi{German}. \isi{French} scores the highest, but seems to also be poor quality.
+
+\subsection{Lexical coherence}
+Intuitively, it would seem that this different perspective, i.e. the graph model, offers more insight into crosslingual \isi{coherence} patterns, in that it captures all the connections between entities throughout the entire document.
+
+\section{Conclusions}\label{conclusions}
+We observed distinct patterns in a comparative multilingual approach: the probabilities for different types of \isi{entity grid} transitions varied, and were generally lower in \isi{French} than English, with \isi{German} behind the two, indicating a different \isi{coherence} structure in the different languages.  
+
+The standard format of the grid does, however, need to be modified for a \isi{multilingual context}. It is clear that there are divergences between languages, as regards entity based \isi{coherence}. As before, \isi{French} will still have multiple representations for what would potentially be one entity in English: the use of singular and plural forms of the noun as noticed in \isi{French}, or adjectival forms representing the entity. We have also detected differences in implementation due to the \isi{compound} structure of \isi{German}; in \isi{German} while \isi{compound} nouns affect the \isi{coherence} score considerably, even with a \isi{compound splitter} (as for the graph) the \isi{coherence} score is still generally lower. 
+Possible extensions to this research include expanding the grid to include lexical chains, in place of simple entities, or incorporating a vector of similar terms which would potentially take account of these issues and allow for crosslingual variance in the semantic coverage of an individual lexical item. This would potentially better account for the \isi{compound} structure of \isi{German}, and the use of singular and plural forms of the noun as noticed in \isi{French}, or adjectival forms representing the entity. 
+It is valuable to \isi{register} and identify the differences and bear them in mind for future development, particularly for crosslingual transfer. 
+
+We have seen that the graph leads to a clear picture of entity-based \isi{coherence} scores. This is perhaps more useful than the grid for comparative studies. We can also see better how entity-based \isi{coherence} is achieved in different languages. Here the exact sentence breaks do not matter so much, and the score is based on how cohesive the document is as a whole. 
+In future research we will note the significance of whether a text is an original or a translation, filtering our data based on the original language. 
+
+Our next step will be to use the graph metric as part of the reranking process within an MT system, to try and assess its ability to  disambiguate entities. 
+
+The challenge from an MT point of view would be to ensure that the correspondences are maintained, so an entity chain is carried over from source to \isi{target text}, despite differences in syntax and sentence structure. However, this is insufficient to ensure that the document is fully coherent -- more linguistically based elements are necessary to do that. 
+
+% \bibliographystyle{plainnat}
+%\bibliographystyle{abbrv}
+%\bibliography{Karin}
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this] 
+}
+\end{document}

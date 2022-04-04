@@ -1,0 +1,547 @@
+\documentclass[output=paper]{langsci/langscibook}
+
+\ChapterDOI{10.5281/zenodo.2579033}
+
+\author{Timm Lichte\affiliation{University of Düsseldorf}\and Simon Petitjean\affiliation{University of Düsseldorf}\and Agata Savary\affiliation{University of Tours}\lastand Jakub Waszczuk\affiliation{Université of Tours\\University of Orléans}}
+\title{Lexical encoding formats for multi-word expressions: The challenge of ``irregular'' regularities}
+
+%\lehead{}
+\shorttitlerunninghead{Lexical encoding formats for multi-word expressions}
+
+\abstract{This chapter contributes a general overview and discussion of lexical encoding formats for multi-word expressions (MWEs) that can be used in NLP systems, in particular with large-scale grammars. The presentation is kept general in the sense that we will try to elicit basic aspects of lexical encoding and then elaborate on the specific sorts of challenges encountered when dealing with MWEs, especially the ``irregular'' regularities mentioned in the title. These insights will eventually be used to classify and evaluate different approaches to encoding. Even though this kind of evaluation cannot be conclusive given the diversity of languages and tastes, we will nevertheless argue in favor of fully flexible encoding formats exemplified with PATR-II and XMG, as opposed to the fixed encoding formats of DuELME and Walenty.}
+
+ 
+\begin{document}
+
+\maketitle
+
+
+%\input{01-intro}
+\section{Introduction}
+
+In this chapter, we seek to answer a seemingly simple question: what is it that makes an encoding format suitable for encoding multi-word expressions (MWEs) as part of an electronic resource? One quick answer could be: the encoding must be both machine- and human- readable, it must be factorized, and, last but not least, it must be able to cope with the specific irregularities of these objects. But what does this exactly mean? In fact, we claim that the casual use of ``irregularity'' actually threatens to cover a great deal of regularity, even though it is often a regularity that might look uncommon. In this chapter, we therefore aim to provide a more precise understanding of the underlying notions and concepts, and to apply this to a selection of formats which have a potential of encoding large classes of MWEs, including notably verbal ones, namely DuELME, Walenty, PATR-II and XMG. Thus, we are not aiming at the presentation of a comprehensive list of encoding formats ever proposed for MWEs, but rather want to elicit general aspects and typical examples thereof. 
+
+The chapter is structured as follows. We will first sort out general notions and principles of lexical encoding, starting with the notion of regularity in Section~\ref{lic:sec:notion-regularity} and the notion of encoding in Section~\ref{lic:sec:simplest-encoding}, and then turn to general virtues of lexical encoding formats in Section~\ref{lic:sec:general-virtues}. Following this, in Section~\ref{lic:sec:challenges}, we will go into more specific aspects, or rather challenges, that are to be dealt with when encoding MWEs. With this in view, we will then analyze existing formats by dividing them into two groups: fixed encoding formats will be treated in Section~\ref{lic:sec:fixed}, and fully flexible ones in Section~\ref{lic:sec:fullyflexible}. In Section~\ref{lic:sec:summary}, we will finally compare the encoding formats and summarize the chapter.
+
+\section{ On the notion of regularity}\largerpage
+\label{lic:sec:notion-regularity}
+
+Regularity in the sense we are concerned with refers to the way properties are shared between the members of a set of objects. For now, we take a property to be just some atomic name and assume that every object is assigned exactly one subset of a given set of properties. We then say that a property $p$  is \textsc{regular} with respect to a set of objects $E$, iff $p$ is shared by at least two members in $E$. Otherwise $p$ is \textsc{irregular} (or \textsc{idiosyncratic}). If $p$ is regular but is shared only by a proper subset of $E$, we call $p$ \textsc{non-trivially regular}. By contrast, in the \textsc{trivially regular} case, $p$ is regular and shared by all the objects in $E$. Here, $p$ can be removed without harm because it does not distinguish any two objects in $E$. Sets of properties can be treated accordingly, hence a property set $P$ is regular, if it is a subset of property sets of at least two objects in $E$. We then extend the notion of regularity to objects by calling an object regular, if it only has regular properties and property sets, and otherwise irregular. Finally, this simplistic formalization allows for a straightforward characterization of the \textsc{degree of regularity}, for example, in terms of likelihood (how likely is the property set of an object given a property distribution in the underlying object set) and diversity (how many property sets are found in an object set).
+
+This notion of (ir)regularity implies that it is impossible to determine once and for all whether the properties of certain objects are regular or irregular, simply because the set of conceivable properties and objects is unbounded. In other words, the whole business of telling apart regularity from irregularity hinges on the selection of properties along with a specific set of objects. 
+
+Applying this to linguistics, the traditional view on the division of labor between syntax and lexicon is only valid for a specific set of linguistic objects, namely words, phrases and sentences, and a specific set of ``syntactic'' properties. Only on these premises is it valid to say that syntax is the realm of regularity whereas the lexicon is the collecting point for  irregular aspects. To give an example, one could consider \isi{phrase} structure rules as properties of words, phrases and sentences, depending on whether the \isi{phrase} structure rules can be used to derive them. According to this set of properties, the words would be derived only by idiosyncratic rules that cannot be used to derive any other word. Hence, the set of words (= the lexicon) would not be fully regular, other than the sets of phrases and sentences (= the syntax). However, when taking other properties into account such as semantic, morphological and phonological ones, this division becomes blurred quite easily.
+
+Similarly, if an MWE (or some property of it) is called ``irregular'', this can have at least one of three possible reasons: (i) the set of objects is sufficiently restricted (e.g., by contrasting the MWE with non-MWEs only), or (ii) the set of properties is sufficiently extended (e.g., by taking into account very specific properties of the MWE), or (iii) the property set of the  MWE is relatively unlikely and ``irregular'' is assigned a likelihood related meaning. 
+In all three cases, there is actually a high risk of overlooking or neglecting some regularities, even more since we are dealing with objects that have not been in the center of interest in most of the mainstream \isi{grammar} theories. This gives a hint of how we want ``irregular regularities'' from the title to be understood: as regularities that concern unusual properties. The assumption throughout this chapter will be that the irregularity of MWEs can be attributed to very few properties concerning the syntax-semantics interface, while there is a great deal of non-trivially regular properties that are shared across MWEs and permeate all levels of linguistic descriptions.
+ 
+
+\section{The most basic encoding format}
+\label{lic:sec:simplest-encoding}
+
+Given what has been said in the last section, it should be fairly easy to see  that the most basic encoding format of the properties of an MWE is via \textsc{property name sets}. Two examples for \textit{kick the bucket} and \textit{spill beans} are shown in (\ref{lic:ex:property:sets}):
+
+\eal \label{lic:ex:property:sets}
+\ex[]{ \label{lic:ex:property:sets:a}kick-the-bucket $:=$ \\ $\{$NP$_0$ V NP$_1$, NP$_1$.Det.the,  NP$_1$.N.bucket, V.kick, meaning=die$\}$ }
+\ex[]{ \label{lic:ex:property:sets:b}spill-beans $:=$ \\  $\{$NP$_0$ V NP$_1$,  NP$_1$.N.beans, V.spill, passive, meaning=divulge$\}$ }
+\zl
+
+Even if the property names seem to have some compositional structure (NP$_1$. Det.the means that the determiner of the object NP is \textit{the}), they are chosen here for purely mnemonic reasons -- one could have equally written something alphabetically innocent like $p_{23}$. So, in order to proceed, what is needed is an \textsc{interpretation function} from property names to objects of whatever target formalism is chosen. Essentially, this is the characteristic of any encoding format, even the more sophisticated ones. Of course, there is some variance as to how close the encoding format is related to the target formalism. \cite{daelemans:vanderlinden:92} refer to this aspect as notational adequacy. But be aware that, in our view, the adequacy of a lexical encoding format is multi-aspectual (see Figure~\ref{lic:fig:encoding-aspects} on page~\pageref{lic:fig:encoding-aspects}) and ultimately \textit{user-oriented}. We will elaborate more on this in Section~\ref{lic:sec:general-virtues}.
+
+Speaking of the adequacy of property name sets, there are, in fact, some attractive properties of this very simple way of encoding: (i) it is very flexible in terms of adding and removing property names and adapting the interpretation function to some target formalism; (ii) it makes empirically largely neutral descriptions available; (iii) it is conceptually lean and inviting for formal novices because the main data structures are just ordinary sets. On the other hand, it is obvious that nobody would seriously make use of property name sets when encoding a large electronic lexicon -- at least not without a tool that helps to ensure correctness by accounting for, and therefore encoding underlying generalizations, that is, patterns of co-occurrence among properties. Furthermore, one would need tools to specify and carry out the interpretation function. In our view, this does not only hold for pure property name sets; the actual encoding format is \textit{always} surrounded by tools mediating towards the human user, the target formalism or the electronic resource -- to what degree depends on the encoding format in question (see Section~\ref{lic:sec:general-virtues}).
+
+A closely related but more transparent encoding format is based on tables in which the rows correspond to lexical entries, or any other sort of object, and the columns to properties. Binary cell values then indicate whether a property holds for an object or not. This format has gained some popularity, for example, through the extensive work of Maurice Gross (and colleagues) within his lexicon-\isi{grammar} framework \citep{gross:94}. While lexicon-\isi{grammar} matrices are binary, at least for the most part, a larger range of cell values helps to yield a more succinct matrix. This is shown in Table~\ref{lic:tab:table-encoding} which translates the property sets from (\ref{lic:ex:property:sets}). 
+\begin{table}[tp]
+  \small
+  \begin{tabular}{lcccccc}
+    \lsptoprule
+    ID              & NP$_{\text{0}}$ V NP$_{\text{1}}$ & NP$_{\text{1}}$.det & NP$_{\text{1}}$.N & V     & passive & meaning \\  
+    %\hline
+    \midrule
+    kick-the-bucket & $+$                                 & the                 & bucket            & kick  & $-$       & die     \\
+    spill-beans     & $+$                                 &                     & bean              & spill & $+$       & divulge \tabularnewline %\\
+    \lspbottomrule
+  \end{tabular}
+  \caption{Table encoding of the property name sets in (\ref{lic:ex:property:sets})}
+  \label{lic:tab:table-encoding}
+\end{table}
+Needless to say, for any such non-binary matrix, there is an equivalent binary one with a larger number of columns or properties.
+
+The table format makes the presentation of property name sets more readable, but apart from this, it comes with very similar methodological implications: it is suitable for collecting observations, but it cannot express recurring patterns within these observations, that is, a theory. For this, and thus also for ensuring correctness and completeness, additional tools are needed.
+
+
+%\input{02-virtues}
+\section{General virtues of lexical encoding formats}
+\label{lic:sec:general-virtues}
+
+The preceding section showed that certain encoding formats stand out in terms of simplicity and accessibility, but also manifest critical drawbacks as to usability and expressivity. This section tries to sort out more systematically the diverse and sometimes contradicting virtues an encoding format can have. The cause of diversity is not hard to pinpoint: it is the interface status of encoding formats, as illustrated in Figure~\ref{lic:fig:encoding-aspects}, with similarly diverse conjugates, namely a human user, a lexical object and a lexical resource.
+\begin{figure}[tp]
+  \centering 
+  \begin{tikzpicture}
+    \draw 
+    (0.2,0) node[align=center] {lexical\\object}
+    (3.8,0) node[align=center] {human\\user}
+    (2,-0.5) node[regular polygon, regular polygon sides=3,draw=black,align=center,inner sep=-5pt] {lexical\\encoding}
+    (2,-2) node[align=center] {lexical\\resource};
+  \end{tikzpicture}
+  \caption{Interface aspects of lexical encoding}
+  \label{lic:fig:encoding-aspects}
+\end{figure}
+
+\subsection{Encoding virtues with respect to a lexical object}
+\label{lic:sec:virtues-object}
+
+We already learned in Sections~\ref{lic:sec:notion-regularity} and ~\ref{lic:sec:simplest-encoding} that the simplest conception of a lexical object and an encoding format is a set of properties or property names. Let $P_i$ be the property set of a lexical object. An encoding of $P_i$ is a property name set $P^e_i$ together with an encoding function which maps $P_i$ onto $P^e_i$. Hence, the encoding examples given in (\ref{lic:ex:property:sets}) on page~\pageref{lic:ex:property:sets} are actually accompanied by an imagined lexical object and an encoding function. It is furthermore important to keep in mind that, for now, we ignore inferential means of encoding formats that help to express generalizations, that is, we assume that encodings are fully resolved.
+
+Based on this understanding of encoding, the encoding virtues are easy to see and capture, namely, the encoding of a property set $P_i$ should be complete and concise. An encoding (function) is \textsc{complete} \textit{iff} every property of $P_i$ is mapped onto a property name of $P^e_i$. Thus the encoding function is injective. On the other hand, an encoding is \textsc{concise} \textit{iff} for every encoding property $p^e_i$ there is a source property $p_i$ such that $p^e_i$ is the encoding of $p_i$. Here, the encoding is surjective. In other words, no property name is added unmotivatedly. Of course, an encoding should be both complete and concise, and consequently the encoding function should be bijective. This implies that distinctions made in $P_i$ are minimally preserved in the encoding of $P_i$.
+
+To give an example, Table~\ref{lic:tab:table-encoding} is a complete encoding of the property sets in (\ref{lic:ex:property:sets}). Yet it is not perfectly concise: the property set of \textit{kick-the-bucket} does not have a passive feature, while there is a passive cell in the table encoding. Similarly, the NP$_1$.det cell in the encoding of \textit{spill-beans} does not have a corresponding property in the source set. Still, the encoding in Table~\ref{lic:tab:table-encoding} appears to be only slightly less concise than the original property sets in (\ref{lic:ex:property:sets}), and moreover the table encoding is (in most cases) more accessible for the human eye. This teaches us two things: (i) the validity of some encoding virtues can be a matter of degree, and (ii) they may conflict with other encoding virtues.
+
+But before turning to possibly conflicting encoding virtues having to do with other aspects of encoding, let us finally have a look at the encoding of \textit{sets} of lexical objects. Here, it is clearly desirable for an encoding to be \textsc{consistent}, simply meaning that the relation between the properties appearing in all the lexical objects under consideration and the target properties of the encoding is functional as well. This clearly holds for the encoding in Table~\ref{lic:tab:table-encoding} where identical properties are encoded as identical cell values within the same row.
+
+  
+\subsection{Encoding virtues with respect to a human user}
+\label{lic:sec:virtues-human}
+
+When it comes to the human user, a lexical encoding should be transparent, flexible and sufficiently powerful to capture generalizations.
+
+By \textsc{transparent} we mean that the human user should be able to map the encoding back to the source set of lexical properties. Needless to say, the degree of \isi{transparency} very much depends on the taste and reading habits of the user in question. It could well be, although it is rather unlikely, that some users will feel more comfortable with plain property sets also when dealing with larger lexicons. Depending on the degree of training, it is even imaginable that users become fluent in rather opaque encoding languages that make use of property names such as $p_{23}$. This is, of course, not what we consider desirable: lexical encodings should not come with notational idiosyncrasies that keep novices away or are prone to lead to encoding errors (e.g., by misremembering $p_{23}$). Thus, since we are dealing with computational lexicons, we conceive an encoding language as transparent \textit{iff} it is (i) mnemonic as to the property names and their denoted properties and (ii) precise by means of a rigorous denotational semantics to avoid vagueness and thus inconsistencies. 
+
+Since \isi{transparency} is so important to the human user, but at the same time human users and also lexical objects can differ to a great deal, another crucial virtue of encoding formats is \textsc{flexibility}. Lexical encoding usually is an incremental process where unforeseen properties can be encountered or the denotation of a property may change over time. A flexible encoding format allows the user to freely choose property names and to include new properties on the fly.\footnote{Of course, \isi{flexibility} also helps to keep the encoding complete in the sense of Section~\ref{lic:sec:virtues-object}.} 
+
+Closely related to \isi{flexibility} is the \textsc{power to generalize}. With an increasing number of lexical objects that are encoded in a lexicon, usually also the desire to factorize the property sets increases in order to avoid redundancy. In other words, one would like to group properties and assign them collectively. Again, the human encoder should be free to choose the content and name of property subsets, or, more technically speaking, the parts of encodings should be reusable at any level of representation and detail. What may sound like a nice add-on is in fact a necessary prerequisite to express any non-trivial lexical generalization, such as that a passive construction does not include an accusative object.
+
+Finally, we can consider an encoding format to be \textsc{implementation-friendly} \textit{iff} the\-re exist tools that assist a human user with encoding large sets of lexical objects, or with verifying these encodings. This virtue already touches upon one aspect that will be also dealt with in the next section, which is the existence of software tools that help to convert lexical encodings into a lexical resource. 
+
+\subsection{Encoding virtues with respect to a lexical resource}
+\label{lic:sec:virtues-resource}
+
+  A lexical resource is an electronic representation of lexical encodings that can be (more or less) directly used in NLP applications. Accordingly, the virtue of \textsc{electronic versatility} assigned to lexical encoding formats describes the relative ease with which a corresponding lexical encoding can be converted into a lexical resource. This easiness can allude to at least two different aspects; either the properties of existing conversion tools or the engineering task to produce them. Ultimately, what really matters when mapping a lexical encoding to an electronic resource is the mere existence of software tools to achieve this. Obviously, this is not a property of the encoding format itself, but a property of its interface with the specific format of an intended lexical resource. Thus, in this view, an encoding format would be electronically versatile whenever there exist many (and among them the desired) conversion tools. From the perspective of the programmer, however, electronic versatility has a different implication: it is rather related to the efforts it takes to implement such a conversion tool from scratch.
+
+  Even worse, it's certainly hard to say something conclusive about electronic versatility in global terms, as there is no true one-to-one relation. NLP applications can vary distinctively in their interface specifications, and therefore there is rather a one-to-many relation between a particular lexical encoding and the lexical resources that one might wish to derive from it. In the simplest case, the lexical encoding can act as the lexical resource proper. Yet, presumably in the majority of cases, the lexical encoding will be preprocessed and converted into something \textit{less} user-friendly. This is most obvious in graphically enhanced encoding methods where the lexical resource is derived from the underlying, non-graphical representation. But, of course, this also holds for interchange formats such as LMF \citep{francopoulo:etal:06}, which are meant to provide a mediating standard and rely on cumbersome XML or the like. 
+
+Another relevant property of the interface between the lexical encoding and the lexical resource seems to be whether the generalizations expressed in the lexical encoding are preserved during conversion, or whether only fully resolved entries are included. From the point of view of the encoder, the availability of generalizations seems to be preferred, but this is a virtue of the lexical resource proper, and also depends on the targeted NLP application.
+
+Summing up, electronic versatility is an important but also complex virtue that covers orthogonal, or even conflicting, aspects of the interface between lexical encodings and lexical resources. Moreover, given the heterogeneity of the latter ones, a general verdict is often difficult to obtain.    
+
+
+%\input{03-challenges}
+
+\section{Challenges posed by MWEs}
+\label{lic:sec:challenges}
+
+From a general point of view, MWEs are in no way different from any other lexical object: they can be encoded using property name sets as in (\ref{lic:ex:property:sets}) or using the table format from Table~\ref{lic:tab:table-encoding}. But what is then so challenging about MWEs? On the one hand, it is the peculiarity of the affected properties, for example, the property \textit{NP$_1$.Det.the} in the property set of \textit{kick the bucket}. This is challenging with respect to the \isi{flexibility} of an encoding format. On the other hand, the interactions between these and other properties pose a challenge to the power of an encoding format to generalize. In this section, we will go through some of these challenging properties and interactions,  confining ourselves mainly to syntax and morphology.
+
+Let us first examine a multilingual set of MWE examples\footnote{Each example is preceded by its language code in parentheses. The hash (\#) character signals the loss of the idiomatic reading due to a missing property, while the asterisk (*) means ungrammaticality.} together with their peculiarities, which the MWE-related literature often calls irregularities or idiosyncrasies. In what follows, each property is either \textsc{defective} or \textsc{restrictive}. In the former case, it excludes a literal interpretation of a given object. In the latter, it reduces the number of possible surface realizations of a given object with respect to the corresponding literal interpretation. 
+
+\begin{enumerate}
+\item\label{lic:def-agr} defective agreement, e.g. in (FR) \ilet{grands-mères}{grand\-mothers} the adjective does not agree with the noun in gender, unlike most regular adjectival modifiers;
+\item\label{lic:restr-agr} restrictive agreement, e.g. (EN) \ile{to cross one's fingers} imposes agreement in person, number and gender between the possessive pronoun and the subject: \#\ile{I cross his fingers}
+\item\label{lic:restr-par} restrictive paradigm, e.g. (PL) \ilelt{zjadłbym konia z kopytami}{I would eat a horse with its hooves}{I am very hungry} can only occur in conditional mood: \#\ilet{zjem konia z kopytami}{I will eat a horse with its hooves};
+\item\label{lic:def-subcat} defective \isi{subcategorization}, i.e. imposing a \isi{subcategorization} frame which the MWE headword does not admit outside MWEs, e.g. (PL) \ilelt{dobrze mu z oczy patrzy}{well him looks from eyes}{he looks like a good person} prohibits a subject: *\ilel{uczciwość dobrze mu z oczy patrzy}{honesty well him looks from eyes}, while \ilet{patrzy}{looks} as a standalone verb always requires one; 
+\item\label{lic:restr-dia} restrictive diathesis, e.g. (EN) \ile{to kick the bucket} does not allow \isi{passivization}: \ile{\#the bucket was kicked}, while (FR) \ilelt{les carottes sont cuites}{the carrots are cooked}{the situation is hopeless} only allows passive voice: \#\ilelt{on cuit les carottes}{one cooks the carrots};
+\item\label{lic:restr-det-mod} restrictive choice of determiners and modifiers, e.g. (FR) \ilelt{avoir raison}{to have reason}{to be right} allows neither a determiner nor a  modifier of the nominal component: \ilet{\#avoir (une) raison évidente}{to have an obvious reason};
+\item\label{lic:restr-det-mod-comb} restrictive dependencies  between determiners and modifiers: (FR) \ilelt{avoir envie}{to have desire}{to feel like} admits no determiner for the predicative noun \ilet{envie}{desire}, if it takes no argument or modifier, or if it takes an infinitival argument governed by the preposition \ilet{de}{of}: \ilelt{j'ai envie de le faire}{I have desire of to do it}{I feel like doing it}; but if the noun is modified by an adjective, the determiner is compulsory: \ilelt{j'ai \ule{une} envie folle de le faire}{I have a crazy desire of to do it}{I feel a lot like doing it};
+\item\label{lic:restr-modif} restrictive modification, e.g. (FR) \ilet{mener une vie (de riche)}{to live a life (of a rich)} imposes an adjectival or a prepositional modifier on the nominal: \#\ilet{il mène une vie}{he leads a life};
+\item\label{lic:restr-linear} restrictive linearization, e.g. (EN) \ile{drink and drive} requires the strict order of its coordinated verbs, violating this \isi{constraint} leads to the loss of the idiomatic reading: \#\ile{drive and drink};
+\item\label{lic:restr-lex-select} restrictive lexical selection, i.e. imposing particular lexical realizations of certain syntactic arguments, e.g. (EN) \ile{to pull someone's leg} requires the head verb \ile{pull} with a direct object headed by \ile{leg}: \#\ile{to pull one's arm/member}. 
+\end{enumerate}
+
+\noindent Note that while the above properties are perceived as unexpected or unpredict\-able, they are most often shared with other MWEs, therefore, in our understanding (cf. Section~\ref{lic:sec:notion-regularity}), they are regular. To make this more precise, recall that regularity of a property is not absolute but relative to a given set of objects $E$. In linguistic modeling, we tend to group objects into sets based on their similarities rather than their discrepancies. For instance, in valence-oriented modeling (such as Walenty or PART-II described in Sections~\ref{lic:sec:walenty} and~\ref{lic:sec:patr-datr}, respectively, or IDION and the MWE lexicon of NorGram discussed in \citetv{chapters/markantonatou} and \citetv{chapters/dyviketal} respectively), verbal constructions are grouped according to the lemma of their head verb, whereas in more constructionist approaches (like DUELME and XMG, introduced in Sections~\ref{lic:sec:duelme} and~\ref{lic:sec:xmg}), they are grouped by the \isi{syntactic structure} of their \isi{subcategorization} frames. Such properties used to group objects become trivially regular properties of these groups (since they are shared by all objects of a group). Most other properties have a varying degree of regularity and are only rarely truly idiosyncratic. 
+
+As an example, let us consider a set of \ili{English} verbal expressions, each of which is headed by a verb, taking a subject and a direct object, and admitting modifiers, e.g. (EN) \ile{John pulled the heavy door}. In this set, the property of allowing any head verb with the proper \isi{subcategorization} frame is much more regular than restricting it to the verb \ile{kick}. Furthermore, the property of allowing \isi{passivization} is more regular than prohibiting passive voice, like in \ilet{John kicked the bucket}{John died}. Also, allowing a possessive determiner of the object, as in \ile{John pushed the/my door} is more regular than imposing it, as in \ilet{John broke his/her/our fall}{John made his/her/our fall less forceful}, which itself is more regular than imposing a possessive which agrees with the subject, as in \ile{John crossed his fingers}. This last property is, however, still regular. In order for it to be idiosyncratic, \ilet{John crossed his fingers}{John wished luck} and \ilet{John held his tongue}{John refrained from expressing his view} could not co-occur in the same object set, which would hinder the usability of such a set for linguistic modeling. Without resorting to such artificial choice of object sets, Property~\ref{lic:restr-lex-select} is one of the rare truly idiosyncratic properties, since it is usually specific to one MWE only, except in case of truly ambiguous MWEs like \ilet{to go on}{to continue, to happen}.
+
+Note finally that one MWE usually exhibits different properties of varying degrees of regularity. For instance, while the components of (FR) \ilet{grands-mères}{grandmothers} do not agree in gender, they do agree in number. While (PL) \ilelt{zjadłbym konia z kopytami}{I would eat a horse with its hooves}{I am very hungry} requires conditional mood, it has a highly regular inflection for person and number. While the object in (EN) \ile{to pull someone's leg} is partly lexicalized, the subject is not. While (EN) \ile{to kick the bucket} cannot be passivized, it does admit a restricted number of internal modifiers as in \ile{to kick the proverbial bucket}, etc.
+
+As a conclusion, the challenging nature of MWE is manyfold: (i) regularity of properties of MWEs is scale-wise, (ii) properties of different degrees of regularity co-occur in each MWE, (iii) truly idiosyncratic properties are rare (under the usual similarity-oriented grouping strategies), (iv) shared properties can be unforeseen (cf. Property~\ref{lic:restr-det-mod-comb}), so listing them all in advance is hard. A general-purpose encoding format should possibly face all these challenges simultaneously. Note also the similarity of observations (i) and (ii) with the notion of a \emph{\isi{flexibility} continuum} in \isi{idioms}, discussed in \citetv{chapters/sheinfux}.
+
+%\input{04-formats}
+\section{Fixed MWE encoding formats}
+\label{lic:sec:fixed}
+
+
+While lexical approaches dedicated to a large variety of MWEs have a relatively long linguistic tradition, notably with \cite{gross:86} and \cite{melcuketal:88}, NLP-oriented work on lexical encoding of MWEs has mainly dealt with continuous instances \citep{savary:08}. More recently, proposals have been put forward which also take \isi{verbal MWEs} into account whose components are discontinuously linearized. Here, we study two instances of such approaches tailored to specific languages: DuELME \citep{gregoire:10} for \ili{Dutch} and Walenty \citep{prz:etal:14b} for Polish. They stand out as: (i) having been designed with a (relative) theory-neutrality in mind, (ii) having resulted in MWE lexicons of several thousands of entries, (iii) having been coupled with real-size grammars, so as to test their usability for parsing. At the same time, DueLME and Walenty can be characterized as fixed encoding formats in the sense that their encoding language (basically the set of property names and their interpretation) cannot be freely chosen or extended.
+
+\subsection{DuELME}
+\label{lic:sec:duelme}
+
+DuELME (\ili{Dutch} Electronic Lexicon of \isi{Multiword Expressions}, \citealt{gregoire:10}) is an electronic lexicon comprising roughly 5,000 \ili{Dutch} multiword expressions.\footnote{\url{http://duelme.clarin.inl.nl/}} It distinguishes two sorts of descriptions, pattern descriptions and MWE descriptions, which are composed of non-intersecting sets of predefined fields. Patterns, also called \textit{parameterized equivalence classes}, represent mainly the syntactic structures of MWEs and the part-of-speech tags of their leaves. MWE descriptions express MWE-specific lexical and morpho-syntactic constraints.
+
+Figure~\ref{lic:fig:duelme} shows a sample pattern (Lines 1--5), called \texttt{ec1}, and a MWE entry (Lines 7--11) assigned to it: (NL) \ilelt{zijn kansen waarnemen}{one's chances perceive}{to seize the opportunity}.
+\begin{figure}[h]
+\begin{duelme}
+% Pattern description
+PATTERN|%\_%|NAME ec1
+POS d n v
+PATTERN  [.VP [.obj1:NP [.det:D (1) ] [.hd:N1 (2) ]] [.hd:V (3) ]]
+DESCRIPTION Expressions headed by a verb, taking a direct object consisting of a fixed determiner and a modifiable noun.
+
+% |%\textrm{\texttt{MWE}}%| description
+EXPRESSION zijn kansen waarnemen
+CL zijn kans[pl] waar_nemen[part]
+PATTERN|%\_%|NAME ec1
+EXAMPLE hij heeft zijn kansen waargenomen
+\end{duelme}
+  \caption{DuELME pattern description ec1 (from \citealt{gregoire:07}) and MWE description of (NL) \ilelt{zijn kansen waarnemen}{one's chances perceive}{to seize the opportunity} (from \citealt{gregoire:10})}
+  \label{lic:fig:duelme}   
+\end{figure}
+
+The pattern describes expressions headed by a verb, taking a direct object consisting of a fixed determiner and a modifiable noun. The POS-entitled Line 3 lists the parts of speech of MWE components. The PATTERN-entitled Line 4 shows the \isi{syntactic structure}, roughly, as a dependency tree where syntactic categories (\texttt{VP}, \texttt{NP}, \texttt{D}, \texttt{N1}\footnote{The \texttt{N1} category denotes an NP of which some elements are lexically fixed, but which is still subject to standard \isi{grammar} rules such as agreement}, \texttt{V}) and dependency labels (\texttt{obj1}, \texttt{det}, \texttt{hd}) are marked explicitly, and some of the leaves are indexed (\texttt{1}, \texttt{2}, \texttt{3}) so as to be matched with components of a particular MWE. Thus, the components \ilet{zijn}{one's}, \ilet{kansen}{chances} and \ilet{waarnemen}{perceive} of the MWE in Lines 8--9 are implicitly co-indexed with the \texttt{det:D}, \texttt{hd:N1} and \texttt{hd:V} nodes in the \texttt{ec1} pattern. Moreover, the component list (CL) in Line 9 lists the MWE-specific values of the ``parameters'' for the pattern, i.e. the lemmas of all components, as well as some morphosyntactic constraints, here: \ilet{kans}{chance} must be in plural (\texttt{pl}), and \ilet{waarnemen}{perceive} is a separable particle verb (\texttt{part}). 
+
+This approach is constructionist in the sense that MWEs are grouped into sets based on their structure (rather than their headword). While the syntax of patterns seems theory-specific, they might be seen rather as identifiers of equivalence classes, allowing to group MWEs of the same structure, whatever the syntactic formalism used to express this structure.\footnote{Jan Odijk, personal communication 21 September 2015.{Odijk, Jan@Odijk, Jan}} DuELME's view of the regularity is binary, which is reflected by its two-level description paradigm. Namely, it is assumed that each type of a \isi{syntactic structure} has some ``generally regular'' properties covered by general \isi{grammar} rules. These properties are not described in the lexicon but symbolized by patterns. Conversely, the MWE-specific properties are described in MWE entries. For instance, while the number of \ilet{kans}{chance} is restricted to plural in Line 9, its other grammatical features are not specified since they are supposedly governed by \isi{grammar} rules. This principle avoids some \isi{grammar} vs. lexicon redundancy. Note, however, that the choice of properties to be included in patterns is rather arbitrary and in most cases leads to partly redundant descriptions. For instance, the \texttt{part} property in Line 9 is shared with other MWEs containing separable particle verbs, and has to be specified for each of them. This redundancy at the level of MWE descriptions could be avoided, if the \texttt{ec1} pattern were restricted to \texttt{d-n-v} constructions containing separable particle verbs only. This would, however, require a new pattern with the same structure but a different verb type selection, in order to cover e.g. (NL) \ilel{zijn debuut maken}{to make one's debut}, which would lead to redundancy at the level of patterns. Since there is no notion of reference, or reuse, among the 141 pattern descriptions that DuELME comprises \citep{gregoire:07}, such redundancy could not be avoided.
+
+As a conclusion, the distinction between patterns and MWE descriptions introduces a limited degree of factorization. While some syntactic constraints, e.g. dependencies, are mentioned more or less explicitly in patterns, some other syntactic properties are implicit (supposed to be covered by the \isi{grammar} and known to the NLP system). Some specific constraints, e.g. restrictive agreement, diathesis, determination, modification and linearization, discussed in Points~\ref{lic:restr-agr} and~\ref{lic:restr-dia}--\ref{lic:restr-linear} in Section~\ref{lic:sec:challenges}, seem not possible to express. The interpretation of the encoding is led partly by the syntax of patterns and entries, and partly by textual documentation \citep{gregoire:07c}, where it is sometimes hard to distinguish formal properties and inference rules from methodological strategies and recommendations, i.e. the \isi{transparency} level of the format is relatively low. Lastly, the format is not flexible, i.e. extending the set of describable properties can only be done ad hoc rather than within an established framework with a clear denotational semantic.
+
+It is worth noting that DuELME benefits from a standard LMF format \citep{odijk:13}, which makes it more electronically versatile, even if it does not seem implementation friendly in the sense that tools supporting lexicographic encoding in this format do not seem publicly available.
+
+\subsection{Walenty}
+\label{lic:sec:walenty}
+
+A quite different encoding style is found in Walenty, a Polish large-scale valence dictionary that includes an elaborate phraseological component \citep{prz:etal:14b,prz:etal:16}. It contains over 100,000 syntactic frames, 14,000 of which are verbal frames with lexicalized arguments, i.e. \isi{verbal MWEs}. An entry in Walenty contains a headword (here a verb), followed by a list of argument descriptions (separated by \texttt{+}).
+
+\begin{figure}[th]
+\begin{duelme}
+patrze|%\'c%|: np(dat)+advp(misc)+lex(prepnp(z,gen),pl,'oko',natr)
+\end{duelme}
+  \caption{Description of \ilelt{dobrze [KOMUŚ] z oczu patrzy}{well someone\textsc{.dat} from eyes looks}{someone looks like a good person} in Walenty}
+  \label{lic:fig:patrzy:walenty}
+\end{figure}
+
+Figure~\ref{lic:fig:patrzy:walenty} shows a (slightly simplified) sample MWE entry of (PL) \ilelt{dobrze [KOMUŚ] z oczu patrzy}{well someone\textsc{.dat} from eyes looks}{someone looks like a good person}, which exhibits several interesting constraints. Firstly, the syntactic subject is prohibited here, which is expressed simply by omitting the \texttt{subj} argument in the valence frame. Secondly, the indirect object in dative is compulsory (\texttt{np(dat)}). These two properties are unusual, since \ilet{patrzeć}{look}, as a stand-alone verb, does take a subject and it only admits an indirect object with prepositional complements headed by \ilet{na}{on} and \ilet{w}{in}. Thirdly, the adverb \ilet{dobrze}{well} can have some \isi{variations}, e.g. \ilelt{źle [KOMUŚ] z oczu patrzy}{evilly someone\textsc{.dat} from eyes looks}{someone looks like an evil person}, therefore it is encoded by a more generic, non lexicalized, \texttt{advp(misc)} requirement of a ``true'' adverbial clause.\footnote{A ``true'' adverbial clause cannot be realized by a prepositional nominal group.} 
+Finally, within the lexicalized prepositional group (\texttt{lex(prepnp(\ldots)}), which does not admit modification (\texttt{natr}), the preposition \ilet{z}{from} governing the genitive case (\texttt{(z,gen)}) requires its nominal complement to be a plural form of the lemma \ilet{oko}{eye} (\texttt{pl,'oko'}).
+
+This approach is valence-based, i.e. MWEs are seen as particular syntactic frames of their head verbs, in which some arguments happen to be (at least partly) lexicalized. Regularity is implicit: ``generally regular'' properties are supposed to be covered by \isi{grammar} rules and only MWE-specific properties are expressed in lexicon entries. E.g., while the plural number of \ilet{oko}{eye} is specified, its case is not, since it is supposed to regularly agree with its governing preposition (which requires genitive case). This principle is similar to the one admitted in DuELME (cf. Section~\ref{lic:sec:duelme}), here however, no equivalence classes are used, so the \isi{syntactic structure}, understood as the list of arguments (possibly structured themselves) required by the head verb, is encoded in each entry (similarly to the IDON lexicon discussed in \citetv{chapters/markantonatou}), which leads to redundancy in the lexicon. For instance, entries for all MWEs taking a non-lexicalized subject, direct object and indirect object, and a partly lexicalized prepositional complement, contain the same sequence: \texttt{subj\{np(str)\} + obj\{np(str)\} + \{np(inst)\} + \{lex(prepnp(\ldots)\}}\footnote{The \texttt{str} feature stands for a structural case. For the subject, it is usually nominative, but it turns to genitive when the expression is nominalized. For the direct object, it is accusative but it turns to genitive when it occurs under the scope of negation.}. Some redundancy can, however, be avoided due to macros which encode some repetitive substructures. For instance, the \texttt{possp} macro encodes all possible realization of a possessive \isi{phrase}, including nominal phrases with genitive and possessive determiners like \ilet{mój, czyjś, własny, \ldots}{my, one's, one's own, \ldots}.
+
+Some additional syntactic properties can be expressed on the level of the whole MWE, e.g. the fact that the head verb is perfective or imperfective, that the MWE must always contain negation, or that it can or cannot be passivized. Some other types of constraints, e.g. restrictive agreement, paradigm, determination, or linearization (cf. Points~\ref{lic:restr-agr}--\ref{lic:restr-par},~\ref{lic:restr-det-mod}--\ref{lic:restr-det-mod-comb} and~\ref{lic:restr-linear} in Section~\ref{lic:sec:challenges}), exceed Walenty's expressive power. Therefore, one cannot express the fact that, in (PL) \ilelt{dobrze [KOMUŚ] z oczu patrzy}{well someone\textsc{.dat} from eyes looks}{someone looks like a good person}, the head verb \ilet{patrzeć}{look} is always in the 3rd person singular (any tense or mood), although it has a complete inflection paradigm as a stand-alone verb.\footnote{Impersonal (i.e. allowing no subject) finite verbs typically occur in the 3rd person singular in Polish, so the expression of this fact is probably left to the \isi{grammar}. If so, then this fact seems implicit.} 
+Also, there is no means to specify that the adverb \ilet{dobrze}{well} should usually precede the prepositional complement and the verb.\footnote{A different word order would be considered as marked.} 
+Note, however, that a conservative extension of the formalism to include some of these constraints was proposed by \cite{prz:etal:16}.
+
+The interpretation of the encoding is led partly by the syntax of entries and explicit macro extensions, and partly by the accompanying textual documentation. Some inferences remain unclear, e.g., some macros contain non-documented shortcuts, and some codes have no clear denotational semantics. The format is rather inflexible, that is, extending the set of describable properties can only be done ad hoc. Walenty does benefit from a standard interchange XML metaformat, namely TEI\footnote{Text Encoding Initiative: \url{http://www.tei-c.org/Guidelines/P5/}}, but does not provide its precise instantiation in terms of a DTD, RelaxNG or XML schema. Finally, it has a rather elaborate lexicographical support, with several user roles, where the existing entries can be browsed together with their corpus examples, and new entries can be added, corrected, compared, assigned to users, etc. \citep{nit:etal:16}. Recent developments couple Walenty with a Polish wordnet so as to enrich valency data with semantic frames. 
+
+%\input{05-patr}
+\section{Fully flexible encoding formats}
+\label{lic:sec:fullyflexible}
+
+What we mean by fully flexible is that properties, property names and inference rules (or macros) can
+be freely chosen -- one consequence being that there are usually many ways to implement an object within such an encoding format. In this section, we will show two exemplars of fully flexible encoding formats: the venerable PATR-II and  the more recent XMG. The motivation for choosing these two encoding formats is twofold. On the one hand, both engage different notational means with a different denotational semantics; on the other hand, two extremes of modeling argument structure can be covered that were the focus of some debate recently, namely the lexical versus the phrasal approach \citep{mueller:wechsler:14}. In doing so, we will again, as in the preceding section, restrict ourselves to the tentative encoding of (NL) \ilet{zijn kansen waarnemen}{to seize the opportunity} and (PL) \ilet{dobrze [KOMUŚ] z oczu patrzy}{someone looks like a good person}. The presentation will, we think, strengthen the view that MWEs should be better encoded with fully flexible encoding formats in order to obtain and maintain the virtues mentioned in Section~\ref{lic:sec:general-virtues}.   
+
+\subsection{PATR-II}
+\label{lic:sec:patr-datr}
+
+A true classic, PATR-II \citep{shieber:84,shieber:86} dates back to the early 80s and has greatly influenced the development of later encoding formats, for example LKB \citep[6]{lkb-book}, thanks to its notational \isi{transparency} and conceptual rigor.\footnote{A superficially similar encoding framework is DATR \citep{evans:gazdar:96}. See \cite{kilbury:etal:91} for a comparison with PATR-II that also highlights the considerable differences between the two.} The basic idea is simple: to enhance CFG rules with descriptions of untyped feature structures, which are then unified during rule applications. Hence, the models of PATR-II descriptions are just directed acyclic graphs with labeled nodes and edges.  But the means of description are more elaborate and do also include templates, lexical rules and sometimes -- depending on the PATR-II implementation -- default inheritance.\footnote{Default inheritance is available, for example, in PC-PATR \citep{pc-patr:manual:97}, which is a parser for PATR-II grammars developed at the Summer Institute of Linguistics (SIL).} The encoding examples that we will give do not, however, make use of the full non-monotonic power of PATR-II, as lexical rules and default inheritance will be left out. On the other hand, we will follow the head-driven perspective of PATR-II in that MWEs will be encoded in their head only, that is, MWEs headed by a verb will essentially emerge from the encoding of their verbal component.\footnote{The only previous work on encoding MWEs with PATR-II that we are aware of is found in \cite{habert:jaquemin:95}. There, the focus is on \ili{French} nominal compunds like \textit{verre à vin}
+ (`wineglass').}\pagebreak 
+
+All this is exemplified for (NL) \ile{zijn kansen waarnemen} in Figure~\ref{lic:fig:patr:dutch}.
+\begin{figure}[p]
+  \begin{patr-listing}
+Define Verb as
+    [cat: v]
+
+Define Subject as
+    [subject: [cat: np]]
+
+Define Object as
+    [object: [cat: np]]
+    
+Define Intransitive as
+    Verb
+    Subject
+    
+Define Transitive as
+    Intransitive
+    Object
+
+Define SubjectPossObjectAgreement as
+    [subject: [agr: $1]
+    object: [poss: [agr: $1]]]
+
+Define ZijnKansenWaarnemen as
+    Transitive
+    SubjectPossObjectAgreement
+    [lex: waarnemen
+     object: [lex: kans
+              agr: [num: pl]
+              modifiable: -]
+    sem: [paraphrase: seize_the_opportunity]]
+
+Word waarnemen:
+    Verb
+    {[WaarnemenLiteral] [ZijnKansenWaarnemen]}
+    [lex: waarnemen]
+  \end{patr-listing}
+  \caption{PATR-II description (with PC-PATR notation) of (NL) \ilet{zijn kansen waarnemen}{to seize the opportunity}}
+  \label{lic:fig:patr:dutch}
+\end{figure}
+Templates are headed by \texttt{Define-as} constructs. The body of a \isi{template} may either contain \isi{template} names (or disjunctions thereof as in Line 33), from which the \isi{template} inherits, or feature structure descriptions. Word entries such as the one of \textit{waarnemen} at the bottom are similiar to templates but define the terminals of CFG rules. Keep in mind that \textit{waarnemen} acts as the verbal head of the MWE, hence the templates in this example all describe the feature structure of \textit{waarnemen} only. Also note that the features are chosen to keep the example as simple as possible -- typically one would find \isi{subcategorization} lists in PATR-II implementations.
+
+In Figure~\ref{lic:fig:patr:dutch}, the first five templates (\texttt{Verb}, \texttt{Subject}, \texttt{Object}, \texttt{Intransitive}, and \texttt{Transitive}) just act as an example of how general properties, like being a transitive verb, \textit{could} be factorized into even more general properties. Finally, the sixth \isi{template}, \texttt{SubjectPossObjectAgreement}, is more immediately relevant to the MWE (NL) \ile{zijn kansen waarnemen} since it captures the agreement of the subject with the possessive pronoun at the object. This is achieved by using the shared variable \texttt{\$1}. Crucially, this \isi{template} could be reused in many other MWEs such as (EN) \ile{to do one's best}. Again, this is not to say that this sort of agreement should be treated in this way, but that it is \textit{possible} to do so, choosing here just one of the many available options. In other words, the \isi{template} \texttt{SubjectPossObjectAgreement} is an instance of one of such MWE-specific regularity that PATR-II is flexible enough to encode directly. Finally, in Figure~\ref{lic:fig:patr:dutch}, the \isi{template} \texttt{ZijnKansenWaarnemen} inherits from the templates \texttt{Transitive} and \texttt{SubjectPossObjectAgreement}, and it adds further information on the shape and modifiability of the object and on the idiomatic semantics of the whole MWE.
+
+Comparing the PATR-II encoding with the DuELME encoding from Figure~\ref{lic:fig:duelme}, it becomes evident that PATR-II is more flexible at defining properties or factorizing what are called ``patterns'' in DuELME. The reason for this divergence of \isi{flexibility} also lies in the fact that PATR-II descriptions come with a clear denotational semantics, which does not seem to be fixed for DuELME encodings. In fact, one could see this as an advantage of DuELME, taking it as a sign of desired neutrality. But then one must also accept intransparency and inflexibility, at least to some degree.
+
+A tentative PATR-II encoding of (PL) \ile{dobrze [KOMUŚ] z oczu patrzy} is presented in Figure~\ref{lic:fig:patr:polish}.
+\begin{figure}[p]
+  \begin{patr-listing}
+Define ImpersIntransitive as
+    [cat: v
+     pers: 3 
+     num: sg
+     subject: -
+     object: -]
+
+Define IndirectObject as
+    [iobject: [cat: np
+               case: dat]]
+
+Define PrepositionalObject as
+    [pobject: [cat: pp]]
+    
+Define DobrzeZOczuPatrzy as
+    ImpersIntransitive
+    IndirectObject
+    PrepositionalObject
+    Adverb
+    [pobject: [lex: z
+               object: [cat:np
+                        case: gen
+                        num: pl
+                        lex: oko
+                        modifiable: -]]
+     adverb: [word: dobrze
+              position: initial]]
+     sem: [paraphrase: someone_looks_like_a_good_person]
+    
+Word patrzy:
+    Verb
+    {[PatrzecLiteral] [DobrzeZOczuPatrzy]}
+    [lex: patrze|%\'{c}%|]
+  \end{patr-listing}
+  \caption{PATR-II description (with PC-PATR notation) of (PL) \ilet{dobrze [KOMUŚ] z oczu patrzy}{someone looks like a good person}}
+  \label{lic:fig:patr:polish}
+\end{figure}
+As explained in Section~\ref{lic:sec:challenges}, the challenge with this MWE is a mixture of particular constraints regarding the \isi{subcategorization} frame of the verb (\ilet{patrzy}{looks} is used as an impersonal transitive) and the sentence initial linearization of the adverb. The encoding example in Figure~\ref{lic:fig:patr:polish} takes care of this by stipulating special features that would trigger the right CFG rules at the right time. Remember that the constraints on the occurrence of certain arguments can be encoded by using \isi{subcategorization} lists in the usual way. This is left out in the example. Now, compared to the  Walenty encoding in Figure~\ref{lic:fig:patrzy:walenty}, the corresponding PART-II \isi{template} \texttt{DobrzeZOczuPatrzy} is much more verbose, not only because it contains more information. But this should not be taken as a general disadvantage, as it can help to promote \isi{transparency}.  
+
+Summing up, the examples provided here demonstrate that PATR-II does many important things right: it makes available a transparent, flexible enough encoding language; it has a well-defined denotational semantics; it includes means to arbitrarily factorize properties and to express generalizations even beyond strict monotonicity. In our view, this makes PATR-II better suited to encode MWEs than DuELME and Walenty \textit{in the long run}, since it can integrate unforeseeable properties, regularities or encoding styles much easier.
+
+Yet at the same time, encoding with PATR-II is subject to some severe restrictions:
+\begin{itemize}
+\item PATR-II does not seem to allow for templates to be embedded. Hence, templates can only be applied to the root of a feature structure description. 
+\item Feature structures are untyped in PATR-II which makes them harder to be checked for consistency or to encode representations that rely on types. 
+\item PATR-II allows one to describe full word forms as terminals of CFG rules, but it is not possible to analyze them further, that is, describe the underlying morphemes and how they combine. Consequently, it is at least tedious to describe morphological paradigms. This is something that, for example, DATR \citep{evans:gazdar:96} is better suited for.
+\item In PATR-II, word order constraints are accounted for by filtering CFG rules via features. Thus, it is not possible to state these constraints in just one place, but one has to think of which features prohibit or trigger the application of which CFG rules in which situation of a derivation.
+\end{itemize}
+Furthermore, as we said before, PATR-II chooses a lexical approach to argument structure in the sense of \cite{mueller:wechsler:14} where the argument structure emerges from lexical units and crucially determines the syntax. The other extreme, namely the phrasal approach to argument structure, rather puts emphasis on the syntactic side, assuming phrasal representations of argument structure that exist independently of lexical anchors. This latter approach better fits into the encoding format of XMG, which will be presented next. 
+
+
+%\input{05-xmg}
+\subsection{eXtensible MetaGrammar}
+\label{lic:sec:xmg}
+
+The framework of eXtensible MetaGrammar (XMG, \citealt{crabbe:etal:13} and XMG2, \citealt{petitjean2016}) most obviously differs from the ones of PATR-II, DuELME and Walenty in that it can be used to generate a wide range of linguistic resources. The variety of these resources is made possible by XMG's modularity and extensibility, allowing to create new dedicated compilers using adapted description languages. XMG is a multi paradigm language, as it manipulates programs (metagrammars) which make intensive use of logic (such as Prolog programs) and constraints. XMG also borrows some aspects from object-oriented programming, whose advantages in the context of linguistic knowledge description are discussed in \cite{daelemans:desmedt:94}. The most obvious example of such an aspect is that XMG descriptions are organized into \textsc{classes}, which have encapsulated name spaces. Inheritance relations may hold between classes, and the scope of the identifiers is explicitly controlled, thanks to \texttt{export} statements. The crucial elements of a class are \textsc{dimensions}. Each of them is equipped with a description language, which is specifically adapted to the kind of structures needed in the dimension (trees, predicates, \ldots). Dimensions are compiled independently, thereby enabling the \isi{grammar} writer to treat the levels of linguistic information separately. In the following, we will be using the dimension \texttt{<syn>} for the syntax and the more recent \texttt{<frame>} dimension for frame-semantic descriptions, skipping over other available dimensions. Note that \texttt{<syn>} contains tree descriptions where nodes may carry untyped feature structures, while \texttt{<frame>} comprises \textit{typed} feature structure descriptions \citep{lichte:petitjean:15}.
+
+Figure~\ref{lic:fig:waarnemen:xmg} shows a part of a tentative XMG encoding of (NL) \ile{zijn kansen waarnemen}.%, namely the idiosyncratic part. 
+\begin{figure}[h]
+\begin{xmg}
+class intransitive
+import subject[] verb[]
+{ <syn> { ?Subj >>+ ?V }}
+
+class transitive
+import intransitive[] object[]
+{ <syn> { ?Subj >>+ ?Obj;
+          ?Obj >>+ ?V } }
+
+class subject_poss_object_agreement
+declare ?Subj ?Obj ?NUM ?PERS ?GEND
+export ?Subj ?Obj
+{ <syn> {
+    ?Subj[num=?NUM,pers=?PERS,gend=?GEND];
+    ?Obj [] {
+      [cat=d,num=pl,possnum=?NUM,pers=?PERS,gend=?GEND] "zijn"}}}
+
+class zijn_kansen_waarnemen 
+import transitive[] subject_poss_object_agreement[]
+declare ?I
+{ <syn> {
+    ?Subj[i=?I];
+    ?Obj [] {
+      [cat=n,modifiable=-,num=pl] "kans"};
+    ?V[] "waar_nehmen" };
+  <frame> {
+     [using-event,
+      actor:?I,
+      theme:chance]}}
+\end{xmg}
+  \caption{XMG encoding of \textit{zijn kansen waarnemen} (`to seize the opportunity')}
+  \label{lic:fig:waarnemen:xmg}
+\end{figure}
+The first thing to notice when comparing the XMG description to the DuELME counterpart in Figure~\ref{lic:fig:duelme} is that there is no principled distinction between ``patterns'' and ``MWE descriptions'' (similarly to the PATR-II encoding in Figure~\ref{lic:fig:patr:dutch}). Rather, they are equally represented as classes, yet of varying specificity. Crucially, the classes stand in inheritance relations, here marked with the \texttt{import} statement. For example, the most basic class shown in Figure~\ref{lic:fig:waarnemen:xmg}, \texttt{intransitive[]}, imports two other classes, \texttt{subject[]} and \texttt{verb[]} (cf. Line 2). On the other hand, \texttt{intransitive[]} is further handed down to \texttt{transitive[]}, just adding \texttt{object[]}. Finally, \texttt{transitive[]} is imported into \texttt{subject\_poss\_object\_agreement[]} to add the compulsory agreement between the subject and the possessive pronoun of the object, and, in turn, this class is further imported into \texttt{zijn\_kansen\_waarnemen[]}, which is the class of the MWE proper. Hence, \texttt{subject\_poss\_object\_agreement[]} contains the more regular properties of the MWE, and \texttt{zijn\_kansen\_waarnemen[]} the less regular ones. The corresponding inheritance hierarchy of the used classes is shown in Figure~\ref{lic:fig:waarnemen:xmg:hierarchy}, in which the MWE shows up as leaf, i.e. as the most specific class. Note that this inheritance hierarchy mirrors the one of the PATR-II encoding in Figure~\ref{lic:fig:patr:dutch}. 
+\begin{figure}
+  \centering
+  %%\scalebox{0.76}{
+    \Forest{
+      for tree={
+        grow=north,
+        parent anchor=north, 
+        child anchor=south,
+        % fit=rectangle,
+        l sep=5ex,
+        font=\ttfamily,
+      }
+      [{zijn\_kansen\_waarnemen[]}
+      [{subject\_poss\_object\_agreement[]}
+      [{transitive[]}
+      [{object[]}]
+      [{intransitive[]}
+      [{verb[]}]
+      [{subject[]}]]]]
+      ]
+    }%%}
+  \caption{Inheritance hierarchy of XMG classes according to the code in Figure~\ref{lic:fig:waarnemen:xmg}}
+  \label{lic:fig:waarnemen:xmg:hierarchy}
+\end{figure} 
+
+In general, classes that correspond to irregular or weakly regular properties of lexical entries appear as leaves, whereas more regular aspects are assigned to dominating classes. Hence, ``patterns'' can be arbitrarily factorized, which is in sharp contrast to the DuELME encoding format. Another difference is the general availability of variables in XMG, which are commonly prefixed with a question mark. This is exploited in \texttt{subject\_poss\_object\_agreement[]} when expressing agreement between the subject and the possessive determiner using the variables \texttt{?NUM}, \texttt{?PERS}, and \texttt{?GEND} (cf. Lines 14 and 16). Variables are also used for sharing information between dimensions, for example between \texttt{<syn>} and \texttt{<frame>}, which holds the idiomatic meaning of the MWE, in class \texttt{zijn\_kansen\_waarnemen[]}: the unification variable \texttt{?I} here is the frame referent of the subject, and consequently appears both in the syntactic node \texttt{?Subj} and as the value of the feature \texttt{actor} in the semantic frame. Finally, features and variables can be freely added to XMG, for example, features to indicate constraints on modification (\texttt{modifiable}) or \isi{passivization}.
+
+Remember that the descriptions in \texttt{<syn>} are tree descriptions, which are able to express the usual, potentially underspecified node relations regarding dominance and precedence. For example, \texttt{>{}>+} (cf. Lines 3, 7 and 8 in Figure~\ref{lic:fig:waarnemen:xmg}) expresses the transitive, non-reflexive precedence relation between two nodes of a tree. As the tree descriptions can be underspecified in this way, the denotation can be a set of trees. XMG comes with a solver for these descriptions, and a viewer, both of which are available online.\footnote{\url{http://xmg.phil.hhu.de/}} Hence, the solutions can be inspected independently of a specific application belonging to some specific framework.
+
+The preliminary XMG encoding of (PL) \ile{dobrze [KOMUS] z oczu patrzy} is presented in Figure~\ref{lic:fig:dobrze:xmg}.\footnote{We owe the frame semantic representation in Figure~\ref{lic:fig:dobrze:xmg} to Rainer Osswald.\ia{Osswald, Rainer@Osswald, Rainer}}
+
+\begin{figure}[H]
+\begin{xmg}
+class impers_intransitive
+export ?VP ?V
+declare ?VP ?V
+{ <syn>{
+    ?VP [cat=vp] { ?V [cat=v,pers=3,num=sg] }}}
+
+class dobrze_z_oczu_patrzy
+declare ?I ?A ?P
+import impers_intransitive[] ind_object[] pp_object[] adverb[] 
+{ <syn> {
+    ?IndObj [i=?I];
+    ?AdvP [] { ?A [] "dobrze"};
+    ?PP [] { [case=gen] "z"
+      [] { 
+        [num=pl,modifiable=-] "oko"}};   
+    ?V "patrze|%\'{c}%|";
+    ?VP -> ?PP;
+    ?VP -> ?IndObj;
+    ?AdvP >>+ ?PP;
+    ?AdvP >>+ ?V };
+  <frame> {
+    [impression-about,
+     perceiver: ?P,
+     theme: ?I,
+     content:[has-prop,
+              theme: ?I,
+              prop: good]
+    ]} 
+}
+\end{xmg}
+  \caption{XMG encoding of \textit{dobrze} [KOMUŚ] \textit{z oczu patrzy} (`someone looks like a good person') }
+  \label{lic:fig:dobrze:xmg} 
+\end{figure}
+
+Again, the class that corresponds to the MWE, \texttt{dobrze\_z\_oczu\_patrzy[]}, inherits from more abstract (and ``regular'') classes, which can be also seen from the inheritance hierarchy in Figure~\ref{lic:fig:dobrze:xmg:hierarchy}.
+
+\begin{figure}[t]
+  \centering
+  \setlength{\tabcolsep}{2mm}
+      \Forest{
+      for tree={
+      grow=north,
+      parent anchor=north, 
+      child anchor=south,
+      % fit=rectangle,
+      l sep=5ex,
+      font=\ttfamily,
+      }
+      [{dobrze\_z\_oczu\_patrzy[]}
+      [{adverb[]}]
+      [{pp\_object[]}]
+      [{ind\_object[]}]
+      [{impers\_intransitive[]}]
+      ]
+      }
+  \caption{Inheritance hierarchy of XMG classes according to the code in Figure~\ref{lic:fig:dobrze:xmg}}
+  \label{lic:fig:dobrze:xmg:hierarchy}
+\end{figure}
+Here, the \texttt{impers\_intransitive[]} class encodes the fact that the subject is absent (as only the verb \isi{phrase} and its subordinate verb are listed), and that the (impersonal) verb must occur in the third person singular. Finally, the \texttt{dobrze\_z\_oczu\_patrzy[]} class reuses the previous class and adds the compulsory adverb. Moreover, certain  nodes, identified by shared variables, are further specified for lemmas (in double quotes) and all weakly regular morphological constraints are listed. Notably, the noun governed by the preposition \textit{z} `from' is restricted to the lemma \texttt{oko} `eye' and to plural, and its modification is prohibited. Note that the genitive case of \textit{oko} is not specified in this class, as it is already part of the agreement rules which were inherited from the \texttt{pp\_object[]} class. Linearization constraints on the adverb appear in Lines 19--20. The example also includes dominance constraints in Lines 17--18 that use \texttt{->} to describe an immediate dominance relation. Finally, we use unification variable once again to express the fact that the semantic referent of the syntactic subject (\texttt{?I}) is the theme of the semantic frame of the MWE. This frame can be read as follows: a perceiver \texttt{?P}, left unspecified, has an impression about \texttt{?I}, and this impression is that \texttt{?I} has the property of being a good person. Thus, all the necessary constraints imposed on this MWE can be covered at various abstraction levels, while factorizing information in such a way that the \texttt{dobrze\_z\_oczu\_patrzy[]} class only contains the constraints which are specific to the MWE or at least weakly regular.
+
+By way of conclusion, let us compare the presented encoding examples for PA\-TR-II and XMG in more detail. Despite their large  commonalities when contrasting them with fixed encoding formats such as DuELME and Walenty, PATR-II and XMG can differ considerably in some of their properties.
+\begin{itemize}
+\item In the given examples, XMG is constructionist in the sense that it models phrasal units, whereas PATR-II assumes a head-driven (or ``lexicalist'', \citealt{mueller:wechsler:14}) approach to representing argument structure. However, this is not to say that XMG cannot be also used in a head-driven way. 
+\item XMG supports type inferences, hence the unification of typed feature structures. In PATR-II, feature structures are strictly untyped.
+\item XMG comes with different description languages as well as different types of models, namely trees, typed feature structures, expressions of predicate logic and even strings. PATR-II is restricted to the description of feature structures and CFG rules.   
+\item XMG allows for directed inheritance in the sense that inherited descriptions can be added to any part of the description, not just the root part as with PATR-II.
+\item XMG is more verbose than PATR-II because it is designed to implement a truly object-oriented programming style with encapsulated namespaces etc. When considering just toy examples, it is admittedly just a matter of taste whether this is something worthwhile. In large-scale grammars and lexicons, however, the advantage can be more substantial by helping to ensure consistency due to the extra checking done by the solver.
+\end{itemize}
+In sum, XMG seems to be generally more powerful than PATR-II, but also more cumbersome in the way of encoding. 
+
+
+\section{Summary}
+%\input{06-summary}
+\label{lic:sec:summary}
+
+Table~\ref{lic:tab:comparison} shows a comparison of the encoding formalisms presented in Sections~\ref{lic:sec:fixed} and~\ref{lic:sec:fullyflexible} with respect to the encoding virtues described in Sections~\ref{lic:sec:virtues-human} and~\ref{lic:sec:virtues-resource}. We omit the encoding virtues with respect to a lexical object (cf. Section~\ref{lic:sec:virtues-object}). They are mostly related to a particular lexical encoding and not to the underlying formalism.
+
+\begin{table}[ht]\scriptsize 
+  \begin{center}
+    % \setlength{\tabcolsep}{2ex}
+    \fittable{%
+    \begin{tabular}{rccccc}
+      % \hline
+      \lsptoprule
+      & \multicolumn{4}{c}{human user oriented}
+      & \multicolumn{1}{c}{lexical resource oriented}\\\cmidrule(lr){2-5}
+      %\cline{2-6}
+
+      & \textsc{transpar-}       & \textsc{flexi-}       & \textsc{power to}       & \textsc{implementation}       & \textsc{electronic} \\
+      & \textsc{ency} &  \textsc{bility}     & \multicolumn{1}{c}{\textsc{generalize}}       & \multicolumn{1}{c}{\textsc{friendliness}}       & \multicolumn{1}{c}{\textsc{versatility}} \\
+      %\cline{2-6}
+      %\hline
+      \midrule
+      
+      DuELME & 4 & 4 & 3 & 2 & 1  \\ 
+      Walenty & 3 & 3 & 3 & 1 & 1 \\ 
+      PATR-II & 1 & 2 & 2 & 4 & 4 \\ 
+      XMG  & 1 & 1 & 1 & 3 & 3  %\\\hline
+      \tabularnewline
+      \lspbottomrule
+    \end{tabular}
+    }
+    \caption{Ranking of encoding formats in different categories -- lexical
+      encoding virtues -- with special focus on MWEs.
+      The range of values is from 1 to 4, where 1 means that we judge the
+      corresponding format as relatively the best in the given category.
+    }
+    \label{lic:tab:comparison}
+  \end{center}
+\end{table}
+
+
+Descriptions in PATR-II and XMG come with clear denotational semantics, which makes these two formalisms stand out as highly transparent in comparison with their less flexible counterparts. Transparency of the Walenty's encoding format is relatively high. Due to its conciseness, it is possible to read, analyze and write new entries relatively quickly. However, this requires some experience, since interpretation of certain syntactic constructions (e.g., positions in lexically restricted \isi{phrase} descriptions) is implicit. More importantly, interpretation of the meaning of symbols used in Walenty descriptions is often implicit as well. Certain patterns -- for instance, a prepositional noun \isi{phrase} (\textsc{prepnp}) -- are defined as atomic constructions, and the recommended way to model new phenomena -- for instance, agreement between the subject and the possessive determiner of the direct object -- is to add new symbols to the alphabet of the formalism.\footnote{In fully flexible formalisms such new syntactic phenomena can be factored through the use of dedicated classes whose semantics remains explicit.} This can be seen as a flexible solution, but it may also lead to proliferation of atomic symbols with encoding-specific semantics, not defined within the formalism itself. This in turn may harm \isi{transparency} of the individual Walenty-based encodings and decrease its overall electronic versatility. Finally, there seems to be no clear denotational semantics defined for DuELME descriptions (except, maybe, in its LMF standard export format). Their interpretation is based partially on formal properties and inference rules, partially on methodological recommendations, and the borderline between the two is hard to determine, which severely harms the clarity of the format. 
+
+Not very surprisingly, XMG and PATR-II are also more flexible than Walenty or DuELME. In comparison to XMG, PATR-II exhibits certain restrictions (see Section~\ref{lic:sec:patr-datr} for details) which limit, among others, its power to express word order constraints.\footnote{Note, however, that while word order constraints are supposed to be expressed in PATR-II through filtering CFG rules via features, these constraints could be also expressed directly as feature structure values.} Walenty is flexible enough to account for most of the MWE-related properties. Yet, the need to introduce new symbols to express previously unforeseen phenomena (already mentioned w.r.t. the virtue of \isi{transparency}) may stem from the insufficient \isi{flexibility} of the formalism. As for DuELME, we see its relatively low \isi{transparency} as the main cause of its relatively low \isi{flexibility} -- it is hard to define complex constructions when clear foundations are not established.
+
+The restrictions enforced by PATR-II diminish also its power to express certain factorizations -- notably, by not allowing templates to apply to feature structure nodes other than roots. Due to the untyped nature of feature structures, representation of certain properties based on types -- and, therefore, the related generalizations -- may be hindered as well. The power to generalize of DuELME is limited by the distinction between patterns and MWE descriptions. Moreover, DuELME provides no way to express any kind of sharing between the individual patterns. As to Walenty, a hierarchy of macros (in the sense that a macro can refer to other macros) can be used to account for repeating patterns. However, it is not clear to what extent macros constitute a part of the formalism itself and it seems that the mechanism of macros is too simple to account for more complex patterns (for example, the abovementioned subject/possessive agreement restriction).
+ 
+Both DuELME and Walenty seem to be more electronically versatile than XMG. DuELME supports the standard LMF format, while one of the formats supported by Walenty is TEI -- based on XML, less concise than the default Walenty's format but more explicit and application-friendly. While XMG encodings can be compiled and stored in an XML format which directly represents all the resolved property names, it does not necessarily contain all the underlying generalizations (i.e., those encoded in the class inheritance hierarchy). One could imagine parsing and interpreting XMG descriptions themselves, and not the resulting compiled encodings, as a first step of converting XMG descriptions to a particular lexical resource. However, this solution would require certain knowledge about the formal principles and mechanisms underlying XMG. Thus the additional \isi{flexibility} and power to generalize of XMG come with additional cost in terms of the preprocessing work that needs to be done to obtain a particular resource from XMG descriptions. As to PATR-II, there seem to be very few actively maintained software tools for it. While a parser of this formalism can still be downloaded, its further development has been discontinued as of 2006.\footnote{\url{http://software.sil.org/pc-patr/}} We therefore estimate the electronic versatility of PATR-II as being rather low due to the current unavailability of dedicated software tools. 
+
+Implementation friendliness of DuELME and Walenty has been already confirmed in practice. DuELME has been used to encode a lexicon of 5,000 \ili{Dutch} MWEs, while Walenty underlies The Polish Valence Dictionary which, in particular, contains around 8,000 MWE entries. Moreover, a dedicated tool Slowal (\url{http://zil.ipipan.waw.pl/Slowal}) has been designed for creating, editing and browsing Walenty dictionaries. Thus, Walenty comes with an implementation friendly environment, editing tools and, on top of that, provides conversion between several dictionary formats adapted for different needs. In XMG, MWEs are defined as terminal classes and are encoded directly in the source code. At the moment, there is no dedicated tool which would assist a human user with encoding large sets of MWEs. At the same time, encoding MWEs directly in the source code can be seen as a flexible solution which allows the user to adopt his or her own organization of MWE-related classes. High factorization capabilities of XMG should also facilitate handling large sets of lexical objects, heterogeneous yet often showing common patterns. On top of that, the process of compiling XMG descriptions provides a verification mechanism which allows to check the correctness of the individual XMG-based lexical entries. For PART-II, again, we found no readily available software tool that is designed to support the implementation process. 
+
+As a general conclusion, lexical encoding of MWEs is a highly challenging task, as also stressed in \citetv{chapters/dyviketal,chapters/markantonatou}, due to the complexity and versatility of the regular and idiosyncratic phenomena exhibited by the linguistic objects. The four encoding formats examined here show complementary strengths and weaknesses. We believe that \isi{transparency}, \isi{flexibility} and the power to generalize\footnote{We believe that the latter property -- the power to generalize -- should be particularly helpful in modeling the varying degrees of \isi{flexibility} exhibited by MWEs, discussed in \citetv{chapters/sheinfux}.} are the fundamental virtues to promote in lexical encoding of MWEs, and in this respect XMG seems to stand out as a particularly appropriate framework. These qualities have to be confirmed, however, in large-scale lexicographic efforts, which call for enhancing its implementation friendliness via developing a lexicographic framework to automate the encoding and validation process. Note finally that relatively few considerations have been made here on semantic properties of MWEs. Maybe the most outstanding feature of many MWEs is their semantic non-compositionality, and addressing it in a lexical encoding framework remains one of the most challenging perspectives.
+ 
+\section*{Acknowledgements}\largerpage
+This work has been supported by the IC1207 PARSEME COST action, by the Deutsche Forschungsgemeinschaft
+(DFG) within the CRC 991 ``The Structure of Representations in Language, Cognition, and Science'', and by a doctoral grant from the \ili{French} Ministry of Higher Education and Research.
+
+{\sloppy\printbibliography[heading=subbibliography,notkeyword=this]}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-engine: xetex
+%%% TeX-master: "../main"
+%%% End:

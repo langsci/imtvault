@@ -1,0 +1,536 @@
+\documentclass[output=paper,colorlinks,citecolor=brown]{langscibook} 
+\ChapterDOI{10.5281/zenodo.4450095}
+
+\author{Ekaterina Lapshinova-Koltunski\affiliation{Universität des Saarlandes}}
+\title{Analysing the dimension of mode in translation}
+\abstract{The present chapter applies text classification to test how well we can distinguish between texts along two dimensions: a text-production dimension that dis\-tin\-gui\-shes between translations and non-translations (where translations also include interpreted texts); and a mode dimension that distinguishes between and spoken and written texts.  The chapter also aims to investigate the relationship between these two dimensions. Moreover, it investigates whether the same linguistic features that are derived from variational linguistics contribute to the prediction of mode in both translations and non-translations. The distributional information about these features was used to statistically model variation along the two dimensions. The results show that the same feature set can be used to automatically differentiate translations from non-translations, as well as
+spoken texts from the written texts. However, language variation along the dimension of mode is stronger than that along the dimension of text production, as classification into spoken and written texts delivers better results. Besides, linguistic features that contribute to the distinction between spoken and written mode are similar in both translated and non-translated language.
+}
+%The abstract would then normally end with a brief statement of what the research finds to be the case.
+%A standard abstract that depicts aims, methods and results in that order would be better.
+
+%Old abstract:
+%\abstract{In the present contribution, we analyse English-to-German translations and interpretations. They both possess a number of linguistic characteristics, i.e. linguistic features that make them look different from other language products. These linguistic features mostly reflect language variation in translation. Translation variation is influenced by various dimensions, i.e. language, register, text production or expertise. The focus of this paper is on the variation in English-to-German translation that involves the dimension of mode, i.e. variation between spoken and written language production. We believe that the resulting variation is reflected in the linguistic features of written and spoken translations (translations and interpretations), e.g. preferences for modality meanings, proportion of nominal or verbal phrases and others. These features should allow us to analyse and model the dimensions involved. Methodologically, we focus on quantitative distributions of these linguistic features reflected in the lexico-grammar of texts. In our approach, we use a set of features known to be good at automatically differentiating translations from non-translations in German. These features are based on variational linguistics.}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+In the present contribution, we analyse translation as a product which possesses a number of linguistic characteristics expressed in its linguistic features. These linguistic features make translation look different from other language products. % and they mostly reflect language variation in translation. 
+Translation variation is influenced by various dimensions such as language, register, text production and expertise~\citep{Lapshinova2017Sle}. They are related to the constraint dimensions as defined by~\citet[p. 346]{Kruger2019} who sees translation as a constrained language variety. These varieties are probabilistically conditioned by various interacting  dimensions that allow for modelling their variation. %of simi-larities and differences between varieties
+%communicative constraints.    Kruger  &  Van  Rooy  (2016  )  adopt  the  term  “constrained language” to refer to language produced in situations where one or more of the constraints play an especially pertinent role in affect-ing communication . Constrained varieties may be seen as probabilistically conditioned by (at  least)  five  overarching  and  interacting  constraint  dimensions  (con-ceived as continua rather than binaries), enabling the modelling of simi-larities and differences between varieties: 
+Mode\footnote{\citet[p. 346]{Kruger2019} calls this constraint `Modality and register'.} and text production are amongst the five dimensions described by~\citet[p. 346]{Kruger2019}.
+%1. Language activation (monolingual–bilingual) During  language  production,  is  only  one  language  cognitively  activated,  or  more  than  one?  Bilingual  language  activation  is  assumed  to  lead  to  higher  cognitive  demand,  thus  imposing  a  processing  constraint.  The  typological  relation  of  the  two  lan-guages in question, as well as the directionality of the influence, also obviously plays a role in this respect.  2.    Modality and register (spoken–written–multimodal) Is  the  language  production  spoken,  written  or  multimodal?  Within each of these categories, are there particular constraints in respect of processing (i.e. time constraints) or in terms of genre and stylistic expectations?  3.    Text production (independent/unmediated–dependent/mediated) Is the text production independent or dependent, derivative or medi-ated, in the sense that a prior text delimits and shapes the production? 4.    Proficiency    (proficient–learner)    Is the text producer a proficient and fluent user of the language or a learner?  5.    Task expertise (expert–non-expert) For the specific language production task (e.g. writing an essay, translation,  interpreting,  editing)  in  question,  is  the  user  an  expert or a learner? 
+%The definition of these dimensions can be related to what is also called constrains as defined by~\citet{Kruger2018}: language activation (monolingual -- bilingual), modality and register (spoken -- written -- multimodal), text production (independent/~unmediated -- dependent/~mediated), proficiency (native/~proficient -- non-native/~learner) and ask expertise (expert -- non-expert). 
+The focus of this paper is on the variation in English-to-German translation that
+involves the dimension of mode, i.e. variation between spoken and written language production. We believe that %the resulting 
+such variation is %reflected in 
+manifested by the linguistic features of written and spoken translations (also referred to as `translations' and `interpretations', respectively), % (translations and interpretations), 
+e.g. preferences for modality meanings, proportion of nominal or verbal phrases and others. These features should allow us to analyse and model the dimensions involved. Methodologically, we focus on the quantitative distributions of these linguistic features reflected in the lexico-grammar of texts.
+
+In the following, we analyse language variation in translation products that include both translations and interpretations. %\footnote{Please note that for convenience, we use the term 'translation' for both translation (written) and interpreting (spoken).}. 
+Our focus is on \textbf{mode} in translation products -- differences between English-to-German translations vs. interpretations. We also analyse differences between translated and non-translated texts in German. These differences correspond to the variation along the dimension of \textbf{text production}. Based on %the 
+existing studies in the area of translationese, interpretese and variational linguistics (see \sectref{sec:relatedwork}) we expect that the variation along the dimension of mode should be stronger than that along the dimension of text production. %Besides that, w
+We are interested in the linguistic features that contribute to the distinction between spoken and written mode in both translated and non-translated language.
+
+The remainder of the paper is organised as follows: \sectref{sec:relatedwork} provides an overview of the related work and theoretical background; we give details on the data and methods used in our analyses in \sectref{sec:datamethods}; \sectref{sec:results} is dedicated to our results and analysis; we conclude and point to some issues for discussion and future work in \sectref{sec:concdisc}.
+
+\largerpage
+\section{Related work and theoretical background}\label{sec:relatedwork}
+\subsection{Translationese}\label{ssec:translationese}
+We rely on studies on translationese~\citep[among numerous others]{baker93,Toury1995,BernardiniFerraresi2011,Teich2003} showing that
+translated texts have certain linguistic characteristics in common which differentiate them from original, non-translated texts. These differences, however, do not point to the quality of the texts, as claimed by~\citet{Gellerstam1986} and empirically shown by~\citet{KunilovskayaLapshinova2019}. Translationese is rather a statistical phenomenon, and the differences are reflected in the distribution of lexico-gram\-mat\-i\-cal, morpho-syntactic and textual language patterns that can be organised in terms of more abstract categories often called features of translations. %ese features.
+These include \textit{simplification}~\citep{Toury1995}, \textit{explicitation}~\citep{OlohanBaker2000,Oeveras1998}, \textit{normalisation} and \textit{shining-through}~\citep{BernardiniFerraresi2011,Teich2003,Scott1998} and \textit{convergence}~\citep{Laviosa2002}. Since the differences between translated and non-translated texts are %rather 
+of statistical character, they can be uncovered automatically. Recent studies on translationese employ automatic detection techniques using various feature constellations. One of the first works in this area is~\citep{baroni2006mltranslationese}. They use n-grams for word forms, lemmas and parts-of-speech (POS) which represent %in a way 
+lexical and grammatical features in a supervised scenario\footnote{Supervised machine learning, also referred to as text classification, is an approach for discovering groupings in multivariate data sets. In a supervised scenario, we know what groupings we can expect in the data, and the question is whether the data
+under analysis support these groupings~\citep[see][p. 118]{Baayen2008}. In an unsupervised scenario, we do not know what groupings exist in the data and an algorithm tries to identify any groupings by extracting features and patterns on its own.} to differentiate between translated and non-translated texts. \citet{IliseiEtAl2010} use a number of simplification-related features to successfully differentiate between translated and non-translated texts with machine-learning algorithms. A number of translationese indicators have been applied in an unsupervised approach to automatic classification between translations and originals by~\citet{Volansky2015features}. Linguistically interpretable features were used by~\citet{KunilovskayaLapshinova2020}, who automatically differentiate translated Russian and German from originals in both languages. They proceed bottom-up in their feature definition and try to identify translationese effects based on the results of corpus analysis.
+
+%weiter: paar studien, features, aber nicht alle schauen in die features - wir tun es mit maria, dann mit mihaela in register studien.
+\subsection{Variational linguistics}\label{ssec:variationalinguistics}
+\largerpage
+%On the other hand, w
+We refer to studies in variational linguistics, such as Systemic Functional Linguistics~\citep[SFL,][]{Halliday2004,HallidayMatthiessen2014} and genre or register studies~\citep{Biber1995,neumann2013contrastive}. Following these studies, language varies according to the context of use. To account for a functional organisation of language, the framework offers contextual configurations, i.e. three
+variables characterising the level of context: \textit{Field, Tenor} and \textit{Mode} of discourse.\footnote{Note that Mode of discourse does not correspond to mode of production that we use to differentiate between spoken and written text. Mode of discourse is related the role of the language in the interaction.} These variables correspond to sets
+of specific lexico-grammatical features. Field of discourse is realised in term patterns or functional verb classes. Tenor of discourse is realised in stance used by speakers or modality expressed by modal verbs. Mode of discourse relates to Theme-Rheme structure and cohesive relations.
+Linguistic features inspired by SFL and genre or register studies have been used in the analysis of contextual variation of translated texts. For instance, \citet{EvertNeumann2017} apply them for intralingual %(within English and within German) 
+and cross-lingual variation in both translated and non-translated text. %\citet{SleGecco} use 
+%mention my work with jose on spoken and written.
+\citet{LapshinovaMartinez2017} use various categories of cohesive relations (related to the parameter of Mode) to automatically differentiate between spoken and written texts in English and German. This is one of the few works known to us that analyses differences between spoken and written texts with machine learning techniques. The authors succeed in automatically identifying the dimension of mode in non-translated texts.
+
+\subsection{Interpretese}\label{ssec:interpretese}
+In terms of the dimension of mode  in translation, there are fewer studies on
+interpretese~\citep{KajzerWietrzny2012,DefrancqEtAl2015,HeEtAl2016,BernardiniEtAl2016,FerraresiMilicevic2017,Dayter2018,BizzoniTeich2019}. They show that interpreted texts possess linguistic features that differentiate them not only from translated texts but also from other language products. In our work, we aim to analyse the differences not only between interpreted and translated texts, but also between interpreted, non-interpreted and non-translated texts. With this goal in mind, we follow work by~\citet{ShlesingerOrdan2012} who claim that modality (corresponding to our notion of mode dimension) exerts a stronger effect than ontology (corresponding to our notion of text production). %This means that the difference between spoken and written texts, i.e. being oral vs. written (interpreted vs. translated in our case) has more powerful influence than being translated vs. original (non-translated). 
+This means that the dimension of mode (i.e. whether a text is spoken or written) has more influence than the dimension of text production (whether a text is a translation or an original).
+%He: We investigate the difference between Translationese
+%and Interpretese by creating a text classifier to dis-
+%tinguish between them and then examining the most
+%useful features.
+
+\largerpage
+\section{Methodology}\label{sec:datamethods}
+\subsection{Hypotheses and research questions}\label{sec:hypotheses}
+Our research questions are based on our assumptions given in \sectref{sec:intro} above.
+
+\paragraph*{Research Question 1 (RQ1)} First of all, we are interested in language variation along the dimension of text production. So, we would like to find out if we can automatically differentiate between translations and non-translations independently of %not regarding 
+the mode production (whether spoken or written).
+%Here 'translations' and 'non-translations' can be written or spoken texts.
+
+\paragraph*{Research Question 2 (RQ2)} This research question is related to the analysis of mode in translation -- differences between written and spoken translations. We aim to find out if we can automatically detect mode in translation.
+
+\paragraph*{Research Question 3 (RQ3)} %As we expect the variation along the dimension of mode to be stronger than that along the dimension of text production, w
+We would like to know if it is easier to automatically detect text production (differentiate between translations and non-trans\-la\-tion) or mode (spoken and written translation) with an assumption that variation along the dimension of mode is stronger than that along the dimension of text production.
+
+\paragraph*{Research Question 4 (RQ4)} %Besides that, w
+We are also interested in the linguistic features that contribute to the distinction between spoken and written mode. Specifically, we want to find out if the same features are responsible for the variation between translations and interpretations and between written and spoken texts.
+
+\subsection{Corpus resources}\label{ssec:corpora}
+For our analyses, we use written and spoken data that is derived from the European Parliament, so that all the subcorpora belong to the same register.  %transcriptions of speeches, written prepared speeches in English %(EO-SP, EO-WR) and their corresponding 
+We include transcribed interpretations and translations (spoken and written translations) from English into German (INTER and TRANS) and comparable German originals -- transcriptions of European Parliament speeches by native speakers of German and published written speeches in German (GO-SP and GO-WR). The spoken part (transcribed speeches in German and interpretations from English into German) is taken from EPIC-UdS~\citep{KarakantaEtAl2019}, whereas the written part (published written speeches in German and official translations from English into German) is taken from Europarl-UdS~\citep{KarakantaEtAl2018}. We provide details on the size of the subcorpora in terms of number of texts (txt), sentences (sent) and tokens (token) in \tabref{tab:corpus}.
+As seen in the table, the `spoken' subcorpora %is strictly comparable to the translation corpus in terms of register and domain but contains much less material (568.230 characters and 3.397 sentences per language).
+are much smaller.
+
+%For interpreting, we select speeches by English native speakers in EPICG (Defrancq, 2015) and TIC (Kajzer-Wietrzny, 2012) and transcribe their interpreted versions into German in order to create a parallel corpus of interpreted speech.
+%several corpora depending on the task. 
+%English-German corpus that includes English
+%originals (EO), professional translations of these English texts into German and comparable
+%(containing the same registers) German originals (GO) exported from CroCo
+%EPIC-UdS: Simultaneous interpretations
+%(the European Parliament
+%Interpretation Corpus (EPIC)
+%Automatic annotations
+%Total of ca. 14.000 tokens
+%(extended to 51.600 tokens)
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{XYYr}
+    \lsptoprule
+    \bf subcorpus & \bf txt &\bf sent &\bf  token  \\
+    \midrule
+%\bf EO-SP &137 &3,622&71,146\\
+\bf TRANS & 575 & 169,016 & 3,994,177\\
+%\bf EO-WR     & &&\\
+\bf INTER & 137 & 3,409 &61,631\\
+\bf GO-SP & 165 & 4,076 & 59,896 \\
+\bf GO-WR & 1072 & 427,775 & 8,954,768\\
+\midrule
+\bf TOTAL & 1,949 & 604,276 &13,070,472\\
+\lspbottomrule
+    \end{tabularx}
+    \caption{Size of the subcorpora under anaylsis}
+    \label{tab:corpus}
+\end{table}{}
+
+%GECCo: Original German
+%2 Spoken and 8 written registers
+%Total of ca. 370.000 tokens
+
+%EPIC-UdS: sent  ws
+%SI EN DE 4,080 58,371
+%%SI DE EN 3,622 29,281
+%SP ORG DE 3,408 57,227
+%%SP ORG EN 3,623 68,712
+%EUROPARL-UdS: sent ws
+%TR EN DE 137,813 3,100,647
+%%TR DE EN 262,904 6,260,869
+%WR ORG DE 427,779 7,869,289
+%%WR ORG EN 372,5470 8,693,135
+
+All the texts in the subcorpora at hand were automatically annotated with information on token, lemma and part-of-speech based on the Universal Dependency framework~\citep{NivreEtAl2017,StrakaStrakova2017}. The texts are encoded in CWB and can be queried with the help of Corpus Query Processor~\citep[CQP,][]{CQP}, which is a part of the Corpus Workbench~\citep[CWB,][]{EvertHardie2011}. % (CQP, Evert and the CWB Development Team, 2016).
+They are also available in CQPWeb\footnote{\url{http://corpora.clarin-d.uni-saarland.de/cqpweb}} supported by CLARIN-D. These annotations facilitated the extraction of features for our analysis as %lexico-grammatical patterns that we describe 
+described in \sectref{ssec:features}. % queries are based on the
+%automatic annotated structures which facilitate extraction of lexico-grammatical patterns
+%described in Section 3.1 above.
+The accuracy of our feature extraction is thus dependent on the accuracy of the automatic annotation. The respective model performance is 99.9\% for words, 80.9\% for sentence borders, 91.7\% for universal parts-of-speech and 95.4\% for lemmas.\footnote{See \url{http://ufal.mff.cuni.cz/udpipe/models\#universal\_dependencies\_20\_models} for details.}
+
+\largerpage
+\subsection{Features}\label{ssec:features}
+In our approach, we use a set of features derived from variational linguistics (see \sectref{ssec:variationalinguistics} above). As already mentioned above, the frameworks offer three context parameters for language variation that correspond to various lexico-~grammatical patterns. \tabref{tab:features} illustrates the features used, as well as the language
+patterns they represent within a text. The first column in the table contains the corresponding contextual parameter of variation, the second column includes examples of features formulated in abstract categories, and the third column shows examples of language patterns serving as operationalisations for the features.
+
+\begin{table}
+\begin{tabularx}{\textwidth}{lp{2.2cm}Q@{}}
+\lsptoprule
+{\bf parameter}& {\bf feature}& {\bf language pattern}\\
+							\midrule
+	{{\textsc FIELD} }	&  participants and processes& nominal and verbal parts-of-speech, content words, \textit{ung}-nominalisations\\%, grammatical words \\            
+				%\cline{2-3}
+	%			& vocabulary     &   \\
+	%			\cline{2-3}
+		%		& \color{black} voice               & \color{black} verbs in active/ passive: V.* / AUX V.*\\                                                    
+				\midrule
+				& {modality}	 		&  modal meanings: obligation, permission, volition\\
+				\cline{2-3}
+			{{\textsc TENOR}}	& evaluation                         & evaluative patterns (\textit{more importantly/ it is important to say})\\%: it AUX JJ TO V.*INF)\\
+				\midrule
+				{{\textsc MODE}} & {textual\newline cohesion} 	& personal and demonstrative pronouns; general nouns (\textit{fact, plan}); conjunctions; logico-semantic relations: additive, adversative, causal, temporal, modal \\
+\lspbottomrule
+			\end{tabularx}
+    \caption{Features under analysis}
+    \label{tab:features}
+\end{table}{}
+
+Overall, we use 17 lexico-grammatical patterns. Four of those are patterns related to the Field of discourse (see \tabref{tab:features}). They are associated with the abstract categories of processes and participants and are linguistically realised in nouns and verbs, the distribution of content words and also \textit{ung}-nominalisations. The next four patterns are included within the parameter of Tenor. They are related to the roles and attitudes of participants, and are realised linguistically in modality expressed by modal verbs such as \textit{can, may, must} that we group according to their meanings (3 patterns). Tenor is also related to evaluation used by speakers to convey personal attitude to the given information, e.g. evaluative patterns like \textit{very important, it is important to say}. They represent the fourth patterns in this parameter. The final nine patterns are related to Mode of discourse, i.e. the %role of the language in the interaction. the
+role and function of language in a particular situation, %which includes not only the difference between spoke and written texts. 
+%to what part language is playing, what it is that the participants are expecting the language to do for them in the situation: 
+the symbolic organisation of a text. 
+They are realised as cohesive relations at the textual level, for instance coreference via pronouns (2 patterns) or general nouns (1 pattern), distribution of conjunctions (1 pattern) or discourse relations via conjunctions (5 patterns). All these features were used in previous works on translationese~\citep[see e.g.][]{Lapshinova2019TT3,Lapshinova2017Sle}.
+
+The frequencies of these features are automatically extracted from the corpora. We use the functionality of Corpus Query Processor mentioned above.  %(CQP, Evert and the CWB Development Team, 2016. 
+%The CQP facilitates extraction of various lexico-grammatical patterns on the basis of the
+%annotated structures contained in the corpora.  
+This query tool allows definition of language patterns in the form of complex regular expressions based on string and part-of-speech restrictions. %Therefore, the accuracy of the feature extraction relies on the automatic annotation. 
+The query tool delivers text instances along with their frequencies in the texts and subcorpora in which they occur. %The information on the frequency distributions are extracted for particular patterns. We saved t
+The extracted distributional information is saved in matrices for further use for statistical analysis.
+
+\subsection{Methods}\label{ssec:methods}
+We use Weka~\citep{WittenEtAl2011}, an open
+source tool for statistical analysis and visualisation for our analyses. To answer the first two research questions (RQ1 and RQ2), we apply text classification using Support Vector Machines~\citep[SVM,][]{VapnikChervonenkis1974,Joachims1998} with a linear kernel. Classification with SVM is a supervised scenario in machine learning. We label our data with the information on classes represented in our case by text production (translations vs. non-translations) and mode (spoken vs. written), collect the information on the language patterns outlined in \sectref{ssec:features} from the corpora described in \sectref{ssec:corpora}, and see if our corpus data support the predefined classes.
+
+We apply separate binary classification tasks for text production (RQ1)  and mode (RQ2). The result of a linear SVM is a hyperplane (a line separating two classes) that separates the classes as best as possible, and allows a clear interpretation of the results. The classes defined in this study include translations and non-translations in the first classification task, and spoken and written modes in the second. The
+performance scores of classifiers are judged in terms of precision, recall and F-measure%accuracy?
+. They are class-specific and indicate the results of automatic assignment of class labels to certain texts.
+
+To answer the third research question (RQ3), we compare the scores resulting from the two classifications in RQ1 and RQ2. If the scores are higher in the second classification task, %the 
+variation along the dimension of mode is stronger than the variation along the dimension of text production (in line with our assumption).
+
+We use methods of feature selection to answer the fourth question (RQ4). Attribute selection derived from machine learning is used to automatically select attributes (the language patterns we use) that are most relevant to the predictive modeling problem (prediction of a class membership). In the data, there is always a mixture of attributes with some being more relevant for making predictions and the others being less relevant. The process of selecting attributes in the data helps to reduce their number to those relevant for the specific prediction task. The attribute evaluator is the technique by which each attribute in the dataset is evaluated in the context of the output class (mode in our case). We use the best-first strategy (the best attribute is added at each round) which uses an iterative algorithm (starts with an arbitrary solution to a problem and attempts to find a better solution at every step). This is a correlation-based technique that evaluates the value of a subset of attributes by considering the individual predictive ability of each of these attributes along with the degree of redundancy between them. Subsets of language patterns that are highly correlated with the class (mode) and at the same time have low intercorrelation are preferred over others~\citep[see][for more details]{Hall1998}. We then compare the lists of resulting language patterns for the class in the two data subsets (mode in non-translation and mode in translation). Our assumption is that if there are any overlaps in the lists, this would indicate that the same/similar linguistic features are responsible for the prediction of mode in both translated and non-translated texts.
+%translated/interpreted vs. original texts
+%Using the features in a supervised text classification in WEKA~\citep{FrankEtAl2016}.
+%\begin{table}
+%\caption{Frequencies of word classes}
+%\label{tab:1:frequencies}
+% \begin{tabular}{lllll} 
+%  \lsptoprule
+%            & nouns & verbs & adjectives & adverbs\\ 
+%  \midrule
+%  absolute  &   12 &    34  &    23     & 13\\
+%  relative  &   3.1 &   8.9 &    5.7    & 3.2\\
+%  \lspbottomrule
+% \end{tabular}
+%\end{table}
+
+
+
+%\ea
+%\gll cogito                           ergo      sum\\  
+%     think.\textsc{1sg}.\textsc{pres} therefore \textsc{cop}.\textsc{1sg}.\textsc{pres}\\ 
+%\glt `I think therefore I am.'
+%\z
+
+\section{Results}\label{sec:results}
+\largerpage[-1]
+\subsection{RQ1}\label{ssec:rq1}
+In the RQ1 analyses, we define three classification tasks. All classes are defined on the basis of the two text production types under analysis -- translations/~interpretations and non-translations/-interpretations in German. In the first classification task, we automatically separate written translations (TRANS) from written non-translations (GO-WR). In the second classification task, we automatically separate spoken translations (INTER) from spoken originals (GO-SP). And finally, in the third classification task, we do not differentiate the mode but attempt to assign both translations and interpretations one class (TRANS+INTER) and both written and spoken originals (GO-WR+GO-SP) -- the other. The performance of the classifier that automatically separates two juxtaposed classes is evaluated with a 10-fold cross-validation step. We judge the performance scores in terms of precision, recall and F-measure. These scores are specific for each class (text production type) and indicate the results of automatic assignment of production type labels to certain texts in our data. In the case of precision, we measure how many cases in the data correspond with the positive labels given by the classifier. For example, there are 137 spoken translations in our data. If the classifier assigns INTER labels to 137 texts, and all of them really belong to the subcorpus of spoken translations, then we will achieve a precision of 100\%. If 37 texts turned out to be non-translations in German and were wrongly classified into the INTER class, we would have a precision of 73\% only. With recall, we measure if all translated texts were actually assigned to the INTER class. So, if we have 137 translated texts, we would have the highest recall if all of them are assigned the INTER label. If only 100 out of 137 available in the data were assigned to the INTER class (and the rest to the GO-SP class), we would have a recall score of 73\% of. F-measure combines both precision and recall and is given by their harmonic mean. The results of the classification performance (in terms of precision, recall and F-measure) are presented in Tables~\ref{tab:rq1-1}--\ref{tab:rq1-3} below. Figure~\ref{fig:rq1average} provides bar plots of the weighted average of the F-Measure for the three classification tasks.
+
+\begin{table}
+    \centering
+    \begin{tabularx}{\textwidth}{XYYr}
+\lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+\midrule
+TRANS &   97.3   &  63.1  &    76.6    \\  
+GO-WR &   83.4  &   99.1  &   90.5    \\
+Weighted average & 88.2 &  86.5 & 85.7 \\
+\lspbottomrule
+%Weighted average
+    \end{tabularx}
+    \caption{Classification results for the first text production type distinction in \%}
+    \label{tab:rq1-1}
+\end{table}
+
+   
+Overall, we achieve an accuracy of 86.5\%, with an average F-measure of 85.7\% in the first classification task for translations and non-translations. As seen from \tabref{tab:rq1-1}, non-translated texts are better identified by the classifier than the translated ones (F-measure of 90.5\% vs. 76.6\%). However, translations are identified with better precision (97.3\% vs. 83.4\%), whereas the texts originally written in German achieve higher recall (99.1\% vs. 63.1\%).  This means that more texts in the dataset were labelled by the model as originals, with more translations being wrongly recognised as originals than originals being wrongly recognised as translations. The Weka output data show that 212 translations (out of 575) were labeled as non-translations. According to the Weka output data, around 5.4\% of the translations were erroneously labelled as interpretations.
+
+%confusion matrix:
+%    a    b   <-- classified as
+%  363  212 |    a = TR
+%   10 1062 |    b = GO
+%accuracy: TP+TN/TP+TN+FP+FN
+ %TRANS: 363+1062/363+1062+10+212=1425/1647=0.865209472
+ %GO-WR: 1062+363/1062+363+212+10=1425/1647=0.865209472
+
+ \begin{table}[b]
+    \begin{tabularx}{\textwidth}{XYYr}
+\lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+\midrule
+INTER &    77.8   &  61.3   &  68.6    \\    
+GO-SP   &    72.7   &  85.5   &  78.6   \\
+Weighted average & 75.0 & 74.5 & 74.0 \\
+ \lspbottomrule
+    \end{tabularx}
+    \caption{Classification results for the second text production type distinction in \%}
+    \label{tab:rq1-2}
+\end{table}
+
+%The classification into translations and non-translations in the spoken setting (INTER vs. GO-SP) delivers  an overall F-Measure of 73.3\%. 
+In the second text production classification task (interpretations vs. speeches originally produced in German), we achieve an accuracy of 74.5\% with the average F-measure of 74.0\%, pointing to the fact that text production distinction in the spoken texts is harder to make than in the written ones in the dataset at hand.  The scores in \tabref{tab:rq1-2} reveal that again, translations are recognised with better precision than non-translations (77.8\% vs. 72.7\%), but recall is higher for non-translations: 85.5\% vs. 61.3\%. %This means that %more interpretations are recognised as original speeches by natives. In general,
+This means that more texts in the dataset were recognised by the model as original speeches, and thus, more translations were wrongly recognised as originals than originals were wrongly recognised as translations, as we also observed in the first case. %We look into the confusion matrix available in the Weka output to see that 54 spoken translations (out of 137) were labeled as non-translations. At the same time, 25 non-translations were wrongly assigned with the INTER label. 
+%confusion matrix:
+%  a   b   <-- classified as
+%  84  53 |   a = INTER
+%  24 141 |   b = GO-SP
+  
+ %accuracy: TP+TN/TP+TN+FP+FN
+ %INT: 84+141/84+141+24+53=225/302=74.50
+ %GO: 141+84/141+84+53+24=225/302=74.50
+ 
+\begin{table}
+    \begin{tabularx}{\textwidth}{XYYr}
+\lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+\midrule
+TRANS+INTER &   98.5 & 46.1  & 62.8    \\
+GO-WR+GO-SP &   76.2   & 99.6  & 86.4    \\
+Weighted average &  84.4 & 80.0 & 77.7 \\
+\lspbottomrule
+%Weighted average
+    \end{tabularx}
+    \caption{Classification results for the third text production type distinction in \%}
+    \label{tab:rq1-3}
+\end{table}
+
+If we combine the spoken and the written data to differentiate between translations and non-translations, we achieve an accuracy of 80.04\% and an average F-measure of 77.7\% (see \tabref{tab:rq1-3}).  These overall scores are lower than in the first task (distinction between written translations and non-translations) and higher than in the second one (distinction between spoken translations and non-translations), which was foreseeable as the data in this task is a mixture of the first two. However, we observe an overall increase in the precision for translations along with an overall increase of recall for non-translations. The analysis of the confusion matrix shows that only five non-translations were erroneously classified into the class of translations, whereas more than a half of translations (53.9\%) were erroneously labelled as non-translations.
+%For the non-translation class, translations look like non-translations, But for the translation class, non-translations do not look like translations.
+%Does this mean that translations are seen as a subset of non-translations? 
+In other words, the translations in our data seem to be readily but inappropriately recognised as non-translations by the non-translation class, whereas non-translations are not accepted as translations by the modelled translation class. This indicates that non-translations represent a more diverse class, displaying more variation than translated texts, with the latter being a subset of non-translations in terms of the features underlying classification. In terms of translationese, this points to convergence of translations.
+
+The results in \tabref{tab:rq1-3} suggest that it is easier to model non-translated texts regardless of the mode they belong to (F-measure of 86.4\%). Although written originals achieve the best result (F-measure of 90.5\%), mixing them with spoken non-translations (whose F-measure equals 78.6\%) results in a drop of 4.1\% against the result for the written mode and an increase of 7.8\% against the spoken mode. For translations, mixing both modes results in an F-measure of 62.8\% with a drop of 13.8\% against the written mode (76.6\%) and a drop of 5.8\% against the spoken mode (68.6\%).
+%do we have more variation in translations then? than we have in the originals? That would speak against convergence...
+%confusion matrix:
+%    a    b   <-- classified as
+%  328  384 |    a = TR
+ %   5 1232 |    b = OR
+     %accuracy: TP+TN/TP+TN+FP+FN
+ %TRANS+INTER: 328+1232/328+1232+384+5=1560/1949=0.800410467
+ %GO-WR+GO-SP: 1232+328/1232+328+5+384=1560/1949=0.800410467
+
+The results of the three classifications %tasks that we summarise in terms of F-measure in Figure\ref{fig:rq1average} 
+suggest that we can automatically tease apart translations from non-translations  regardless of the mode production. At the same time, the task is easier when only written texts are involved.
+
+%\begin{figure}
+%    \centering
+ %   \includegraphics[scale=0.85]{graphs/tr-vs-nontr.png}
+ %   \caption{Classification results for text production distinction in \% (weighted average)}
+  %  \label{fig:rq1average}
+%\end{figure}
+
+%Overall, we achieve ... of F-measure. Is it good or not?
+
+\subsection{RQ2}\label{ssec:rq2}
+We perform the same analysis steps for the differentiation between spoken and written modes as we did for translation and non-translation in \sectref{ssec:rq1}. We again decide for a three-fold task in the mode analysis: (1) classification of non-translated spoken and written texts (GO-SP vs. GO-WR); (2) classification of translated spoken and written texts (INTER vs. TRANS) and (3) classification of spoken and written texts with both translations and non-translations taken together (GO-SP+INTER vs. GO-WR+TRANS). In the last task, we do not sort texts according to the text production type, defining the task as one of finding the overall variation along the dimension of mode.
+
+%first task
+\begin{table}[t]
+    \begin{tabularx}{\textwidth}{XYYr}
+\lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+\midrule
+GO-SP &   80.5 &   100.0  &   89.2    \\
+GO-WR &   100.0 &  96.3  &  98.1   \\
+Weighted average &  97.4 & 96.8  & 96.9  \\
+\lspbottomrule
+%Weighted average
+    \end{tabularx}
+    \caption{Classification results for the first mode distinction in \%}
+    \label{tab:rq2-1}
+\end{table}
+
+We achieve an overall accuracy of 96.77\% with an average F-measure of 96.9\% in the classification into spoken and written non-translations (see \tabref{tab:rq2-1}). Interestingly, written texts are better classified than the spoken ones (98.1\% vs. 89.2\% of F-measure). At the same time, we observe asymmetries in precision and recall: the classification of spoken texts delivers 80.5\% for precision with 100\% recall, whereas the classification of written texts works with perfect precision (100\%) but with lower recall (96.3\%). This means that some written originals were erroneously recognised as spoken texts, but none of the spoken texts were recognised as written texts. This indicates that some written texts in our data may contain features considered specific to  spoken language.
+%confusion matrix
+%    a    b   <-- classified as
+%  165    0 |    a = SP
+%   40 1032 |    b = WR
+    %accuracy: TP+TN/TP+TN+FP+FN
+ %GO-SP: 165+1032/165+1032+40+0=1197/1237=0.967663703
+ %GO-WR: 1032+165/1032+165+0+40=1197/1237=0.967663703
+
+%second task
+\begin{table}[b]
+    \begin{tabularx}{\textwidth}{XYYr}
+\lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+\midrule
+INTER&    81.5  &   100.0 & 89.8     \\
+TRANS &   100.0 &   94.6  & 97.2      \\
+Weighted average &  96.4 & 95.6  & 95.8 \\
+\lspbottomrule
+%Weighted average
+    \end{tabularx}
+    \caption{Classification results for the second mode distinction in \%}
+    \label{tab:rq2-2}
+\end{table}
+
+The mode distinction in translations also achieves high accuracy (95.7\%) with an average F-measure of 95.8\% (See \tabref{tab:rq2-2}). %The result is slightly worse than in the first task, but it is comparable.
+Again, we observe a higher F-measure for the written translations than for the spoken ones (97.2\% vs. 89.8\%). Similarly to the first classification task, interpretations are recognised with better recall (100\% vs. 94.6\%) and translations are identified with better precision (100\% vs. 81.5\%). The confusion matrix shows that around 5.4\% of the translations were erroneously labelled as interpretations.
+
+%confusion matrix
+%   a   b   <-- classified as
+% 137   0 |   a = SP
+%  31 544 |   b = WR
+    %accuracy: TP+TN/TP+TN+FP+FN
+ %INTER: 137+544/137+544+31+0=681/712=0.956460674
+ %TRANS: 544+137/544+137+0+31=681/712=0.956460674
+ 
+ %third task
+\begin{table}[t]
+    \begin{tabularx}{\textwidth}{XYYr}
+    \lsptoprule
+ &\bf Precision & \bf Recall & \bf F-Measure\\
+ \midrule
+GO-SP+INTER &   81.6  & 99.7  & 89.7   \\
+GO-WR+TRANS &   99.9   & 95.9  & 97.9    \\
+Weighted average &  97.1  &   96.5   &  96.6  \\
+\lspbottomrule
+%Weighted average
+    \end{tabularx}
+    \caption{Classification results for the third mode distinction in \%}
+    \label{tab:rq2-3}
+\end{table}
+
+In the third classification task, we achieve 96.5\% of accuracy and an F-measure of 96.6\%. % of F-measure. %also very good.
+Similarly to the other mode distinction tasks, written texts, regardless of their text production type, achieve a better F-measure than the spoken ones (97.9\% vs. 89.7\%), with  higher precision observed for the written texts (99.9\% vs. 81.6\%) and a higher recall for the spoken ones (99.7\% vs. 95.9\%), see \tabref{tab:rq2-3}. Mixing both text production types for the mode distinction task results in an intuitively insignificant %non-meaningful
+drop in the observed scores.
+
+The results show that we can automatically detect mode in translation, and the results of such a classification are comparable with the results on mode distinction in non-translated German. We achieve very good classification results in all tasks on mode distinction.
+
+%confusion matrix
+%a    b   <-- classified as
+%  301    1 |    a = SP
+%   68 1579 |    b = WR
+    %accuracy: TP+TN/TP+TN+FP+FN
+ %GO-SP+INTER: 301+1579/301+1579+68+1=1880/1949=0.964597229
+ %GO-WR+TRANS: 1579+301/1579+301+1+68=1880/1949=0.964597229
+ 
+%\begin{figure}
+%    \centering
+%    \includegraphics[scale=0.65]{graphs/f-score-wr-sp-trans.png}
+%    \caption{Trans}
+%    \label{fig:wr-sp-trans}
+%\end{figure}
+
+\subsection{RQ3}\label{ssec:rq3}
+%To answer the third research question, w
+We compare the three F-measure scores resulting from the three classification tasks within RQ1 -- differentiation between translation and non-translation\footnote{We use the weighted average F-measure from Tables~\ref{tab:rq1-1},~\ref{tab:rq1-2},~\ref{tab:rq1-3}.} with the three F-measure scores from the three classification tasks within RQ2 -- differentiation between spoken and written texts.\footnote{We use the weighted average F-measure from Tables~\ref{tab:rq2-1},~\ref{tab:rq2-2},~\ref{tab:rq2-3}.} For this, we summarise the results of all these classification tasks in Figures~\ref{fig:rq1average} and~\ref{fig:rq2average}. The first figure contains average F-measure scores for the text production type distinction, whereas the second figure illustrates the F-measure scores for the mode distinction. % The results of the three classification %tasks that we summarise in terms of F-measure in Figure
+%Figure~\ref{fig:rq2average} provides bar plots of the weighted average of the F-Measure of the three classification tasks.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.55]{figures/lapshinova/trnontr.png}
+    \caption{Classification results for text production distinction in \% (weighted average)}
+    \label{fig:rq1average}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.55]{figures/lapshinova/spwr.png}
+    \caption{Classification results for mode distinction in \% (weighted average)}
+    \label{fig:rq2average}
+\end{figure}
+
+
+
+As seen from the graphs, it is easier to detect mode than text production type in our dataset given the same feature set. These results confirm our assumption that variation along the dimension of mode is stronger than that along the dimension of text production. 
+%We are able to tease apart non-translated spoken vs. written texts with ca. 92.61\% accuracy. We achieve 92.74\% of accuracy in classification between translated and interpreted texts using the same set of features. 
+
+\subsection{RQ4}\label{ssec:rq4}
+As explained in \sectref{ssec:methods}, we use automatic attribute selection to test if the same language patterns are responsible for prediction of mode in both translated and non-translated texts. %The results show that the features partly overlap: (for instance, modal verbs with the meaning of obligation, pronouns and abstract nouns occur in both lists).
+In both cases, the language patterns should contribute to the classification of the two classes: spoken and written.
+
+%This technique helps us to select the features in our data that are most relevant to the prediction of either language (English vs. German) or mode (spoken vs. written) under analysis.
+We start with the evaluation of the language patterns relevant for the mode prediction task in non-translations. %In this task,  The algorithm evaluates 135 subsets. % with the best merit 3 of 50.8\%. 
+%The final list of selected features contains six categories. 
+We use cross-validation with 10 folds which records in how many folds each of the attributes (our language patterns) appeared in the best subset found. We select attributes that appeared in at least one fold, which results in a list containing 10 language patterns:\footnote{The figure in brackets indicates the number of folds the feature appears in.}  content words (10), nominal parts-of-speech (10), verbal parts-of-speech (9), \emph{ung}-nominalisations (10), obligation (7), additive relations (2), adversative relations (7), modal relations (2), personal pronouns (10) and demonstratives (9).
+
+
+The same procedure is applied on the dataset of translations. The list of language patterns contributing to the mode distinction here contains seven items: content words (4), nominal parts-of-speech (10), verbal parts-of-speech (3), \emph{ung}-nominalisations (10), temporal relations (10), personal pronouns (4) and demonstratives (2).
+
+%In the selection of features relevant for the mode distinction in the translated data (translations vs. interpretations), the algorithm evaluates 124 subsets. % with the best merit of 29.4\%. 
+%The total number of selected features in the list constitutes five categories.
+For a better visualisation, we outline the language patterns selected for the mode distinction in both non-translated and translated texts in \tabref{tab:rq4}. We also relate them to the more abstract feature categories as well as contextual parameters introduced earlier (see \tabref{tab:features} in \sectref{ssec:features} for an overview).
+
+\begin{table}
+    \small
+\begin{tabular}{l@{~}p{1.75cm}p{1.95cm}@{\qquad}p{1.95cm}p{1.75cm}p{1cm}}
+\lsptoprule
+\multicolumn{3}{c}{\bf	non-translated} & \multicolumn{3}{c}{\bf translated}\\
+\cmidrule(r){2-3}
+\cmidrule(l){4-6}
+\bf par. &\bf feat.&\bf lang.pattern &\bf lang.pattern &\bf feat. & \bf par.\\
+\midrule
+Field & participants, processes & content words &content words& participants, processes&Field\\
+Field & participants & nominal pos & nominal pos & participants & Field\\
+Field & processes & verbal pos & verbal pos & processes & Field\\
+Field & processes & \textit{ung}-nom. & \textit{ung}-nom. & processes & Field\\
+\rowcolor{gray!50}
+Tenor &  modality& obligation&&&\\
+Tenor & cohesion & pers. pron.&pers. pron.&cohesion &Mode\\
+Mode & cohesion & dem. pron. &dem. pron.&cohesion &Mode \\  
+\rowcolor{gray!50}
+Mode & cohesion & additive&  & & \\
+\rowcolor{gray!50}
+Mode & cohesion & adversative &&&\\
+\rowcolor{gray!30}
+ &  & &temporal &cohesion&Mode\\
+%FIELD & processes & verbal pos & \textit{ung}-nominal. & processes & FIELD\\
+%TENOR & modality & obligation & obligation & modality & TENOR\\
+%MODE & cohesion & pers. {pron.} & dem. {pron.} & cohesion & MODE\\
+%MODE & cohesion & general nouns & general nouns & cohesion & MODE \\
+%MODE & cohesion & causal conj. & conj. &cohesion &  MODE\\
+%MODE & cohesion & modal particles & & & \\
+%%%%%%%%%%%%%%%%%%%
+%%MODE & conjunctions & verbal parts-of-speech & FIELD\\ %%&\multirow{3}{*}{MODE} \\ 
+%%FIELD & \textit{ung}-nominalisations & causal conjunctions & MODE \\ %&FIELD\\
+%%MODE & demonstrative {pronouns} & modal particles & MODE \\ %& \\
+%%FIELD & general nouns &personal pronouns & MODE\\ %&  \\
+%%TENOR & modal verbs of obligation & general nouns & FIELD \\
+%%                                  &    &modal verbs of obligation & TENOR\\ %&TENOR \\
+                                      \lspbottomrule
+\end{tabular}
+    \caption{Features contributing to the mode distinction}
+    \label{tab:rq4}
+\end{table}{}
+
+As seen in \tabref{tab:rq4}, the two lists have an overlap of six language patterns, while the first list contains three language patterns not included in the second list (modal verbs of obligation, additive and adversative relations). However, the second list is not entirely a subset of the first one, as it contains one language pattern which is not included in the first list (temporal relations). We mark the non-overlaps in grey in the table. In terms of abstract linguistic features, participants, processes and cohesion contribute to the mode distinction in both translated and non-translated texts, which corresponds to the contextual parameters of Field and Mode. However, in the texts originally produced in German, there is also modality corresponding to Tenor, which is not distinctive for mode in the translations. It is also interesting to see that although discourse relations contribute to the mode distinction in both translations and non-translations, they differ in the logico-semantic types in each list.
+
+Since the majority of the features overlap (6/10 and 6/7), we suggest that the same features (especially if interpreted in terms of abstract categories) are responsible for the variation between translations and interpretations and between written and spoken texts. The overlap in the features common for the distinction of mode may be traced back to the register the texts in the dataset belong to -- they are all speeches from the parliamentary debates. 
+
+%temporal:
+%trans 0,026111762
+%or wr 0,028122448
+%inter 0,034511853
+%or sp 0,032155737
+
+\section{Conclusion and discussion}\label{sec:concdisc}
+
+The present study focuses on the variation in English-to-German translation along the mode dimension. Translation variation is reflected in the linguistic features that we were able to analyse with language patterns derived from variational linguistics. We extracted the distribution of these patterns in spoken and written texts that included both texts originally spoken or written in German, and translations and interpretations. This distributional information was used to statistically model variation along the text production dimension (translations vs. non-translation) and the mode dimension (spoken vs. written). Our results show that we are able to automatically tease apart translation from non-translations, as well as spoken texts from the written texts using the same feature set. However, it turned out to be easier to automatically differentiate between spoken and written texts regardless of their production type, which confirms our assumption that language variation along the dimension of mode is stronger than that along the dimension of text production. We are also able to find out which linguistic features contribute to the distinction between spoken and written mode in both translated and non-translated language.
+
+This brings our findings in accordance with \citet{ShlesingerOrdan2012}'s claim that mode exerts a stronger effect than text production. This means that the difference between spoken and written texts %, i.e. being oral vs. written (interpreted vs. translated in our case) 
+is stronger than that between translations and non-translations. In this way, the interpretations in our dataset show more similarities to the speeches originally spoken in German than to the written translation, making interpretations more `spoken' than `translated'. 
+
+At the same time, we realise that our study also has a number of limitations. First of all, we use a feature set inspired by variational linguistics. Although it has been applied in the analysis of translationese in a number of previous studies, it was originally developed for the analysis of register variation that also includes variation along the dimension of mode. However, many of the language patterns in our set are extensively applied in the analysis of translationese (e.g. cohesive markers) as well. 
+
+Another drawback of the present study is the limitation of the corpus data -- it includes political speeches only. Yet, whereas there are many translation corpora which could be used for such an analysis, it is hard to find comparable interpreted data.
+
+In the future, we should extend the features and the data to further investigate the specifics of translated and interpreted texts. It will also be interesting to have a closer look at the features contributing to the mode distinction and perform a qualitative analysis of these features.
+
+\section*{Abbreviations}
+\begin{tabularx}{.54\textwidth}{lQ}
+RQ & research question\\
+pos & part-of-speech\\
+pers. pron. & personal pronoun\\
+dem pron. & demonstrative pronoun\\
+\end{tabularx}%
+\begin{tabularx}{.45\textwidth}{ll}
+\emph{ung}-nom. & \emph{ung}-nominalisation\\
+par. & parameter\\
+feat. & feature\\
+lang.pattern & language pattern\\
+\end{tabularx}
+
+\sloppy
+
+\printbibliography[heading=subbibliography,notkeyword=this]
+
+\end{document}

@@ -1,0 +1,959 @@
+\chapter{XMG Implementation}\label{AppendixB}
+\section{Current analysis}\label{B:me}
+\begin{lstlisting}[style=AppendixStyle]
+use unicity with (mark=anchor) dims (syn)
+use unicity with (mark=nounacc) dims (syn)
+use unicity with (iteration=yes) dims (syn)
+
+type CAT={np, vp, s, n, v, det, pref, prep, suf, pp, pisat, zapisat,
+				  rasskazy, vse, po-,pere-, do-, za-, iva-, vpfull}
+type MARK={lex,anchor,coanchor,flex,nounacc}
+type CASE={acc,gen,nom,inst}
+type NUMBER={sg, pl}
+type AGR !
+type LABEL!
+type ASP={perf, imperf}
+type YES={yes,no}
+
+feature cat: CAT
+feature e: LABEL
+feature i: LABEL
+feature agr: AGR
+feature case: CASE
+feature gcase: CASE
+feature num: NUMBER
+feature aspect:ASP
+feature bounded:YES
+feature limited: YES
+feature iteration: YES
+property mark: MARK
+
+
+frame-types = {event, scale, write, entity, object, story, bounded-event,
+     					length, measure-of-change, proper-scale, iteration, 
+     					property-scale, stage, cardinality, closed-scale, zero, 
+     					process, record, progression, non-eventive}
+    
+frame-constraints = {
+    event entity -> -,
+    object -> entity,
+    stage -> entity,
+    story -> object,
+    event zero -> -,
+    zero entity -> -,
+    scale entity -> -,
+    scale zero -> -,
+
+    bounded-event -> event,
+    process -> event,
+    iteration -> event,
+    progression -> event,
+    record -> event,
+
+    closed-scale -> scale,
+    measure-of-change -> closed-scale,
+    cardinality -> closed-scale,
+    proper-scale -> scale,
+    proper-scale measure-of-change -> -,
+    
+    event cardinality -> iteration,
+    length -> property-scale,
+    cardinality property-scale -> -,
+    property-scale -> scale,
+    event property-scale -> -,
+    property-scale proper-scale -> -,
+    non-eventive event -> -,
+    non-eventive -> scale,
+    progression iteration -> -  
+}
+
+%%Lexical entries for the object 
+class Story
+export ?Length ?Card ?N
+declare ?N ?Story ?X0 ?Length ?Card
+{
+  <syn>{
+    node ?N (mark=coanchor) [cat=n, num = pl, i=?X0];
+    node ?Story (mark=nounacc) [cat=rasskazy, num = pl, i=?X0];
+    ?N -> ?Story
+  };
+  <frame>{
+    ?X0[story,
+        length: ?Length,
+        cardinality: ?Card]
+  }
+}
+
+%%Dimension constructors
+class NounLength
+export ?N ?NP ?VP
+declare ?NLength ?X0 ?Length ?N ?NP ?VP ?Dim ?Theme ?Case ?Num
+{
+  ?NLength=Story[];
+  ?NLength.?Length = ?Length;
+  ?N=?NLength.?N;
+  <syn>{
+    node ?NP [cat=np, case=?Case, num = ?Num, i=?Theme];
+    node ?VP [cat=vp, e=?X0];
+    node ?N (mark=coanchor) [cat=n, case = ?Case, num = ?Num, i=?Theme];
+    ?VP >>+ ?NP;
+    ?NP -> ?N
+  };
+  <frame>{
+    ?X0[event,
+        theme:?Theme,
+        noun-dim:[length,
+                min:[zero],
+                max:?Length]
+    ]
+  }
+}
+
+%% Plural nouns can be interpreted as introducing a cardinality scale
+class NounCardinal
+export ?N ?NP ?VP
+declare ?NCard ?X0 ?Card ?N ?NP ?VP ?Dim ?Theme ?Case ?Num 
+{
+  ?NCard=Story[];
+  ?NCard.?Card = ?Card;
+  ?N=?NCard.?N;
+    <syn>{
+    node ?NP [cat=np, case=?Case, num = pl, i=?Theme];
+    node ?VP [cat=vp, e=?X0, iteration = yes];
+    node ?N (mark=coanchor) [cat=n, case = ?Case, num = pl, i=?Theme];
+    ?VP >>+ ?NP;
+    ?NP -> ?N
+  };
+  <frame>{
+    ?X0[iteration,
+        theme:?Theme,
+        m-dim:[cardinality,
+                min:[zero],
+                max:?Card]
+    ]
+  }
+}
+
+%% NP -> m-dim
+class NDim
+export ?NP ?N ?VP
+declare ?VP ?NP ?N ?Noun
+{
+  {?Noun=NounCardinal[] | ?Noun=NounLength[]};
+  ?N=?Noun.?N;
+  ?NP = ?Noun.?NP;
+  ?VP = ?Noun.?VP
+}
+
+%Lexical entries for verbs
+class Zapisat
+export ?VP ?VPInt ?VPBase
+declare ?V ?Pisat ?Za ?ZaLex ?X0 ?Actor ?Theme ?ScMin ?ScMax 
+?AGR ?VP ?VPInt ?VPBase ?MDim
+{
+   ?VPBase = ?VPInt;
+   <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, bounded = yes, 
+    				limited = yes, aspect = perf];
+    node ?V (mark=anchor) [cat=v, agr=?AGR, bounded = no, 
+    				limited = no, aspect = imperf];
+    node ?Pisat (mark=flex) [cat=pisat, agr=?AGR, bounded = no, 
+    				limited = no, aspect = imperf];
+    node ?Za [cat=pref];
+    node ?ZaLex (mark=flex) [cat=za-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, aspect = perf, bounded = yes];
+    ?VP -> ?VPInt;
+    ?VPInt -> ?V;
+    ?VP -> ?Za;
+    ?Za -> ?ZaLex;
+    ?Za >> ?VPInt;
+    ?V -> ?Pisat
+  };
+  <frame>{
+    ?X0[bounded-event & process,
+        actor:?Actor,
+        theme:?Theme,
+        manner:[record],
+        verb-dim:?X0,
+        noun-dim:?MDim [property-scale,
+          min: ?ScMin,
+          max: ?ScMax],
+        m-dim:?MDim,
+        init: [stage, 
+          scale-deg:?ScMin],
+        fin: [stage, 
+          scale-deg:?ScMax]
+    ]
+  }
+}
+
+class Pisat
+export ?V
+declare ?V ?Pisat ?X0 ?Actor ?Theme
+{
+  <syn>{
+    node ?V (mark=anchor) [cat=v, e=?X0, bounded = no, 
+    		limited = no, aspect = imperf];
+    node ?Pisat (mark=flex) [cat=pisat, e=?X0, bounded = no, 
+    		limited = no, aspect = imperf];
+    ?V -> ?Pisat
+  };
+  <frame>{
+    ?X0[event & process,
+        actor:?Actor,
+        theme:?Theme,
+        manner:[write],
+        verb-dim:?X0[scale]
+    ]
+  }
+}
+
+%Creating the minimal VP and filling the verbal slot
+class VSpine
+export ?VP ?VPInt
+declare ?VP ?V ?AGR ?X0 ?K ?VPInt ?Asp ?VLex ?A ?Lim 
+{
+  ?VPInt = ?VP;
+  ?VLex = Pisat[];
+  ?V = ?VLex.?V;
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, bounded = ?Asp, aspect = ?A, 
+    		limited = ?Lim];
+    node ?V (mark=anchor) [cat=v, agr=?AGR, e=?X0, bounded = ?Asp, 
+    		aspect = ?A, limited = ?Lim];
+    ?VP -> ?V
+  } 
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Constructions associated with prefixes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%"Delimitative" and distributive po-
+class PoVerb
+export ?VP ?VPInt
+declare ?VP ?VPInt ?Po ?PoLex ?AGR ?X0 ?Init ?Fin ?VDim
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, limited = yes, 
+    		bounded = no, aspect = perf];
+    node ?Po [cat=pref];
+    node ?PoLex (mark=flex) [cat=po-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, bounded = no];
+    ?VP -> ?VPInt;
+    ?VP -> ?Po;
+    ?Po -> ?PoLex;
+    ?Po >> ?VPInt
+  };
+  <frame>{
+    ?X0[bounded-event,
+       m-dim:?VDim[scale],
+       verb-dim: ?VDim,
+       init: [stage, 
+          scale-deg:?Init],
+       fin: [stage, 
+          scale-deg:?Fin]
+    ]
+  }
+}
+
+class PereVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Pere ?PereLex ?AGR ?X0 ?ScMin ?ScMax ?MDim
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, bounded = yes, 
+    				 limited = yes, aspect = perf];
+    node ?Pere [cat=pref];
+    node ?PereLex (mark=flex) [cat=pere-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, bounded = no];
+    ?VP -> ?VPInt;
+    ?VP -> ?Pere;
+    ?Pere -> ?PereLex;
+    ?Pere >> ?VPInt
+  };
+  <frame>{
+    ?X0[bounded-event,
+       m-dim: ?MDim[proper-scale,
+          min: ?ScMin,
+          max: ?ScMax],
+       init: [stage, 
+          scale-deg:?ScMin],
+       fin: [stage, 
+          scale-deg:?ScMax],
+       noun-dim:?MDim
+    ]
+  }
+}
+
+%% Repetitive pere- 
+class PereIterVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Pere ?PereLex ?AGR ?X0 ?X1 ?Deg1 ?Deg2 
+			?Scale ?NounDim ?Aspect ?EventType ?Init ?Fin ?Asp
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, bounded = ?Asp, 
+    	limited = yes, aspect = ?Aspect];
+    node ?Pere [cat=pref];
+    node ?PereLex (mark=flex) [cat=pere-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, bounded = ?Asp, 
+    	limited = yes, aspect = ?Aspect];
+    ?VP -> ?VPInt;
+    ?VP -> ?Pere;
+    ?Pere -> ?PereLex;
+    ?Pere >> ?VPInt
+  };
+  <frame>{
+    ?X1[?EventType,
+       m-dim:?Scale[property-scale],
+       noun-dim:?NounDim,
+       init: ?Init,
+       fin: ?Fin,
+       prep:?X0[?EventType,
+          m-dim:?Scale,
+          noun-dim:?NounDim,
+          init: ?Init,
+          fin: ?Fin]
+    ]
+  }
+}
+
+class DoVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Do ?DoLex ?AGR ?X0 ?X1 ?Deg1 ?Deg2 ?Deg3 
+			?NDimType ?VDimType ?NDim ?VDim ?MDim
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, bounded = yes, 
+    			limited = yes, aspect = perf];
+    node ?Do [cat=pref];
+    node ?DoLex (mark=flex) [cat=do-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, limited = yes];
+    ?VP -> ?VPInt;
+    ?VP -> ?Do;
+    ?Do -> ?DoLex;
+    ?Do >> ?VPInt
+  };
+  <frame>{
+    ?X1[bounded-event,
+       m-dim:[closed-scale,
+          min: ?Deg1,
+          max: ?Deg2],
+      fin:[stage, 
+          scale-deg:?Deg2],
+      init: [stage,
+        scale-deg:?Deg3],
+      part-of: ?X0
+    ];
+    ?X0[bounded-event,
+       init: [stage, 
+          scale-deg:?Deg1],
+       fin: [stage, 
+          scale-deg:?Deg2],
+       m-dim: [non-eventive]
+     ]
+  }
+}
+    
+    
+%% Coersion: allows to create bounded events out of unbounded events
+class NDimCoercedVerb
+export ?VP ?VPInt
+declare ?VP ?AGR ?X0 ?ScMin ?ScMax ?NounDim ?VPInt
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, bounded = yes,
+    				 limited = yes, aspect = perf];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, limited = no, aspect = imperf];
+    ?VP -> ?VPInt
+  };
+  <frame>{
+    ?X0[bounded-event,
+       m-dim: ?NounDim[property-scale & closed-scale,
+          min: ?ScMin,
+          max: ?ScMax],
+       noun-dim:?NounDim,
+       init:[stage, 
+          scale-deg:?ScMin],
+       fin:[stage, 
+          scale-deg:?ScMax]
+    ]
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Imperfective suffix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%With iterative meaning
+class IterVerb
+export ?VP ?VPInt
+declare ?VP ?VPInt ?Suf ?Iva ?AGR ?X0 ?X1 ?VDim
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, bounded = no, limited = no, 
+    	aspect = imperf, iteration = yes];
+    node ?Suf [cat=suf];
+    node ?Iva (mark=flex) [cat=iva-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, limited = yes];
+    ?VP -> ?VPInt;
+    ?VP -> ?Suf;
+    ?Suf -> ?Iva;
+    ?VPInt >> ?Suf
+  };
+  <frame>{
+    ?X1[event & iteration,
+       segment:?X0[bounded-event,
+         noun-dim:[property-scale],
+         verb-dim: ?VDim],
+       verb-dim: ?VDim,
+       noun-dim:[cardinality]
+    ]
+  }
+}
+
+%With progressive meaning
+class ProgrVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Suf ?Iva ?AGR ?X0 ?X1 ?NounDim ?VDim
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, bounded = no, 
+    				 limited = yes, aspect = imperf];
+    node ?Suf [cat=suf];
+    node ?Iva (mark=flex) [cat=iva-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, bounded = yes];
+    ?VP -> ?VPInt;
+    ?VP -> ?Suf;
+    ?Suf -> ?Iva;
+    ?VPInt >> ?Suf
+  };
+  <frame>{
+  ?X1 [event & progression,
+    part-of:?X0[bounded-event,
+            noun-dim: ?NounDim,
+            verb-dim: ?VDim],
+    noun-dim: ?NounDim,
+    verb-dim: ?VDim
+    ]
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%Gathering verbs with one prefix
+
+class OneBasePrefixedVerb
+export ?VP ?VPInt ?VPBase
+declare ?VP ?VPpref ?VSp ?VPInt ?VP ?AGR ?X0 ?VPBase
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereVerb[] | 
+   ?VPpref = PereIterVerb[] | ?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = VSpine[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt;
+  ?VPBase = ?VPInt
+}
+
+class OneCoercedPrefixedVerb
+export ?VP ?VPInt ?VPBase
+declare ?VP ?VPpref ?VSp ?VPInt ?AGR ?X0 ?VPBase ?VCoerce 
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereIterVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = VSpine[];
+  ?VCoerce = NDimCoercedVerb[];
+  ?VPInt = ?VCoerce.?VP;
+  ?VPInt = ?VPpref.?VPInt;
+  ?VCoerce.?VPInt = ?VSp.?VP;
+  ?VPBase = ?VPInt
+}
+
+class VerbWithOnePrefix
+export ?VP ?VPInt ?VPBase
+declare ?Verb ?VP ?VPInt ?VPBase
+{
+    {?Verb = OneBasePrefixedVerb[] | ?Verb = OneCoercedPrefixedVerb[] 
+     | ?Verb = Zapisat[]};
+    ?VP = ?Verb.?VP;
+    ?VPInt = ?Verb.?VPInt;
+    ?VPBase = ?Verb.?VPBase
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Assembling multiply prefixed-suffixed verbs
+
+%Stacking the second prefix above the first
+class TwoPrefixedVerb
+export ?VP ?VPInt ?VPBase
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?VPBase
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereVerb[] | 
+  	?VPpref = PereIterVerb[] | ?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = VerbWithOnePrefix[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt;
+  ?VPBase = ?VSp.?VPBase
+}
+
+%Adding imperfective suffix
+class SuffVerb
+export ?VP ?VPInt ?VPBase ?NP ?VPFin ?VPBaseOld
+declare ?VP ?VPInt ?Suf ?VPBaseOld ?VPBase ?Verb ?NP ?Noun ?VPFin 
+{
+  {?Verb = VerbWithOnePrefix[] | ?Verb = TwoPrefixedVerb[]};
+  ?VPInt = ?Verb.?VP;
+  ?VPBaseOld = ?Verb.?VPBase;
+  {?Suf =  ProgrVerb[] | ?Suf = IterVerb[]};
+  ?VP = ?Suf.?VP;
+  ?VPInt = ?Suf.?VPInt;
+  ?VPBase = ?VP;
+  ?Noun = NDim[];
+  ?NP = ?Noun.?NP;
+  ?VPBaseOld = ?Noun.?VP;
+  <syn>{
+    node ?VPFin [cat = vpfull];
+    ?VPFin ->+ ?VP;
+    ?VPFin -> ?NP
+    }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%Checking that types are inherited
+class TypeMatcher
+export ?VPOut ?VPInt
+declare ?VPInt ?X0 ?X1 ?NDimType ?VDimType ?MDim ?VPOut
+{
+<syn>{
+    node ?VPOut [e=?X1];
+    node ?VPInt [e=?X0]
+    };
+  <frame>{
+    ?X1[event,
+       m-dim: [?MDim],
+       noun-dim: [?NDimType],
+       verb-dim: [?VDimType]
+    ];
+    ?X0[event,
+       m-dim: [?MDim],
+       noun-dim: [?NDimType],
+       verb-dim: [?VDimType]
+     ]
+  }
+}
+
+class SuffTyped
+export ?VP ?VPBase ?NP ?VPFin 
+declare ?VP ?VPInt ?Suf ?VPBaseOld ?VPBase ?NP ?Verb ?VPFin 
+		?X0 ?X1 ?NDimType ?VDimType ?MDim ?Typing ?VPOut
+{
+    ?Verb = SuffVerb[];
+    ?Typing = TypeMatcher[];
+    ?VPInt = ?Verb.?VPInt;
+    ?VPInt = ?Typing.?VPInt;
+    ?VPOut = ?Verb.?VPBaseOld;
+    ?VPOut = ?Typing.?VPOut;
+    ?VPBase = ?Verb.?VPBase;
+    ?NP = ?Verb.?NP;
+    ?VPFin = ?Verb.?VPFin;
+    ?VP = ?Verb.?VP
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Stacking the another prefix above the suffix
+
+class TwoPrefixedSuffixedVerb
+export ?VP ?VPInt ?VPBase ?NP ?VPFin
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0 ?VPBase ?NP ?VPFin
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereVerb[] 
+  | ?VPpref = PereIterVerb[] | ?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = SuffTyped[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt;
+  ?VPBase = ?VSp.?VPBase;
+  ?VPFin = ?VSp.?VPFin;
+  ?NP = ?VSp.?NP
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Assembling the direct object 
+
+class PrefixedVerbDirObj
+export ?VPFin ?NP ?VPBase
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0 ?X1 ?NP 
+			?VPFin ?Noun ?VPBase ?ASP ?NDimType ?VDimType ?MDim
+{
+  ?Noun = NDim[];
+  ?NP = ?Noun.?NP;
+  {?VPpref = VerbWithOnePrefix[]| ?VPpref = TwoPrefixedVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VPBase = ?Noun.?VP;
+  ?VPBase = ?VPpref.?VPBase;
+  ?VPInt = ?VPpref.?VPInt;
+  <syn>{
+  node ?VPFin [cat = vpfull, agr = ?AGR, aspect = ?ASP, e = ?X1];
+  node ?VP [cat = vp, agr = ?AGR, aspect = ?ASP, e = ?X1];
+  node ?VPBase [e=?X0];
+  node ?NP [case = acc];
+  ?VPFin -> ?VP;
+  ?VPFin -> ?NP
+  }
+}
+
+class PrefixedSuffixedVerbDirObj
+export ?VPFin ?NP ?VPBase
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0 
+			?NP ?VPFin ?Noun ?VPBase ?ASP ?X0 
+{
+  ?Noun = NDim[];
+  ?NP = ?Noun.?NP;
+  ?VPpref = TwoPrefixedSuffixedVerb[];
+  ?VP = ?VPpref.?VP;
+  ?VPBase = ?Noun.?VP;
+  ?VPBase = ?VPpref.?VPBase;
+  ?VPInt = ?VPpref.?VPInt;
+  ?NP = ?VPpref.?NP;
+  ?VPFin = ?VPpref.?VPFin;
+  <syn>{
+  node ?VPFin [cat = vpfull, agr = ?AGR, aspect = ?ASP, e = ?X0];
+  node ?VP [cat = vp, agr = ?AGR, aspect = ?ASP, e = ?X0];
+  node ?NP [case = acc];
+  ?VPFin -> ?VP;
+  ?VPFin -> ?NP
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Matching types again
+class PrefTyped
+export ?NP ?VPFin ?VPBase ?VP
+declare ?VP ?VPInt ?VPBase ?NP ?Verb ?VPFin ?X0 ?X1 
+			?NDimType ?VDimType ?MDim ?Typing ?VPOut
+{
+    {?Verb = PrefixedVerbDirObj[]|?Verb = PrefixedSuffixedVerbDirObj[]};
+    ?Typing = TypeMatcher[];
+    ?VPInt = ?Verb.?VPBase;
+    ?VPInt = ?Typing.?VPInt;
+    ?VPOut = ?Verb.?VPFin;
+    ?VPOut = ?Typing.?VPOut;
+    ?NP = ?Verb.?NP;
+    ?VPFin = ?Verb.?VPFin;
+    ?VPBase = ?Verb.?VPBase;
+    ?VP = ?VPFin
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Assembling the results in one class
+class AllVerbs
+declare ?Verb
+{
+    {?Verb = PrefTyped[] | ?Verb = SuffTyped[]}
+}
+
+value AllVerbs
+
+\end{lstlisting}
+
+\section{Analysis proposed by \citet{Tatevosov:09}}\label{B:Tat}
+\begin{lstlisting}[style=AppendixStyle]
+use unicity with (mark=anchor) dims (syn)
+
+type CAT={vp,v,det,pref,suf,pisat,zapisat, po-,pere-,do-,za-,iva-}
+type MARK={lex,anchor, flex}
+type CASE={acc,gen,nom,inst}
+type AGR !
+type LABEL!
+type A={perf, imperf}
+
+feature cat: CAT
+feature e: LABEL
+feature agr: AGR
+feature gcase: CASE
+feature aspect:A
+property mark: MARK
+
+frame-types = {write, write-down, distributive, delimitative, 
+	completive, iteration, imperfective, repetitive}
+frame-constraints = {
+write write-down -> -,
+distributive delimitative -> -,
+completive delimitative -> -,
+distributive iteration -> -,
+distributive repetitive -> -
+}
+
+%%Lexical entries for verbs
+class Zapisat
+export ?VP ?VPInt
+declare ?V ?Pisat ?Za ?ZaLex ?X0 ?AGR ?VP ?VPInt
+{
+   <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0, aspect = perf];
+    node ?V (mark=anchor) [cat=v, agr=?AGR, aspect = imperf];
+    node ?Pisat (mark=flex) [cat=pisat, agr=?AGR, aspect = imperf];
+    node ?Za [cat=pref];
+    node ?ZaLex (mark=flex) [cat=za-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, aspect = perf];
+    ?VP -> ?VPInt;
+    ?VPInt -> ?V;
+    ?VP -> ?Za;
+    ?Za -> ?ZaLex;
+    ?Za >> ?VPInt;
+    ?V -> ?Pisat
+  };
+  <frame>{
+    ?X0[write-down]
+  }
+}
+
+class Pisat
+export ?V
+declare ?V ?Pisat ?X0
+{
+  <syn>{
+    node ?V (mark=anchor) [cat=v, e=?X0, aspect = imperf];
+    node ?Pisat (mark=flex) [cat=pisat, e=?X0,  aspect = imperf];
+    ?V -> ?Pisat
+  };
+  <frame>{
+    ?X0[write]
+  }
+}
+
+%Creating the minimal VP and filling the verbal slot
+class VSpine
+export ?VP ?VPInt
+declare ?VP ?V ?AGR ?X0 ?K ?VPInt ?Asp ?VLex ?A
+{
+  ?VPInt = ?VP;
+  ?VLex = Pisat[];
+  ?V = ?VLex.?V;
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X0,  aspect = ?A];
+    node ?V (mark=anchor) [cat=v, agr=?AGR, e=?X0,  aspect = ?A];
+    ?VP -> ?V
+  } 
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Constructions associated with prefixes
+%%"Delimitative" po-
+class PoVerb
+export ?VP ?VPInt
+declare ?VP ?VPInt ?Po ?PoLex ?AGR ?X0 ?X1
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = perf];
+    node ?Po [cat=pref];
+    node ?PoLex (mark=flex) [cat=po-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, aspect=imperf];
+    ?VP -> ?VPInt;
+    ?VP -> ?Po;
+    ?Po -> ?PoLex;
+    ?Po >> ?VPInt
+  };
+  <frame>{
+    ?X1[delimitative,
+       of: ?X0]
+  }
+}
+
+class PoDistrVerb
+export ?VP ?VPInt
+declare ?VP ?VPInt ?Po ?PoLex ?AGR ?X0 ?X1
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = perf];
+    node ?Po [cat=pref];
+    node ?PoLex (mark=flex) [cat=po-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0];
+    ?VP -> ?VPInt;
+    ?VP -> ?Po;
+    ?Po -> ?PoLex;
+    ?Po >> ?VPInt
+  };
+  <frame>{
+    ?X1[distributive,
+       of: ?X0]
+  }
+}
+
+class PereVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Pere ?PereLex ?AGR ?X0 ?X1 
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = perf];
+    node ?Pere [cat=pref];
+    node ?PereLex (mark=flex) [cat=pere-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0, aspect = imperf];
+    ?VP -> ?VPInt;
+    ?VP -> ?Pere;
+    ?Pere -> ?PereLex;
+    ?Pere >> ?VPInt
+  };
+  <frame>{
+    ?X1[distributive,
+       of: ?X0]
+  }
+}
+
+%% Repetitive pere- 
+class PereIterVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Pere ?PereLex ?AGR ?X0 ?X1 
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = perf];
+    node ?Pere [cat=pref];
+    node ?PereLex (mark=flex) [cat=pere-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0];
+    ?VP -> ?VPInt;
+    ?VP -> ?Pere;
+    ?Pere -> ?PereLex;
+    ?Pere >> ?VPInt
+  };
+  <frame>{
+    ?X1[repetitive,
+        of: ?X0]
+  }
+}
+
+class DoVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Do ?DoLex ?AGR ?X0 ?X1 
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = perf];
+    node ?Do [cat=pref];
+    node ?DoLex (mark=flex) [cat=do-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0];
+    ?VP -> ?VPInt;
+    ?VP -> ?Do;
+    ?Do -> ?DoLex;
+    ?Do >> ?VPInt
+  };
+  <frame>{
+    ?X1[completive,
+      of:?X0]
+  }
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Gathering verbs with one prefix
+class OneBasePrefixedVerb
+export ?VP ?VPInt
+declare ?VP ?VPpref ?VSp ?VPInt ?VP ?AGR ?X0
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereVerb[] | ?VPpref = PereIterVerb[] | 
+  		?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = VSpine[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt
+}
+
+class VerbWithOnePrefix
+export ?VP ?VPInt
+declare ?Verb ?VP ?VPInt
+{
+    {?Verb = OneBasePrefixedVerb[] | ?Verb = Zapisat[]};
+    ?VP = ?Verb.?VP;
+    ?VPInt = ?Verb.?VPInt
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%Assembling multiply prefixed-suffixed verbs
+%%Stacking the second prefix above the first
+
+class TwoPrefixedVerb
+export ?VP ?VPInt
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0
+{
+  {?VPpref = DoVerb[] | ?VPpref = PereVerb[] | 
+  	?VPpref = PereIterVerb[] | ?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = VerbWithOnePrefix[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt
+}
+
+%%Adding imperfective suffix
+class ImpVerb
+export ?VP ?VPInt
+declare ?VP ?VPInt ?Suf ?Iva ?AGR ?X0 ?X1
+{
+  <syn>{
+    node ?VP [cat=vp, agr=?AGR, e=?X1, aspect = imperf];
+    node ?Suf [cat=suf];
+    node ?Iva (mark=flex) [cat=iva-];
+    node ?VPInt [cat=vp, agr=?AGR, e=?X0];
+    ?VP -> ?VPInt;
+    ?VP -> ?Suf;
+    ?Suf -> ?Iva;
+    ?VPInt >> ?Suf
+  };
+  <frame>{
+    ?X1[imperfective,
+       of:?X0]
+  }
+}
+
+%%Assembling suffixed verb
+class SuffVerb
+export ?VP ?VPInt 
+declare ?VP ?VPInt ?Suf ?X0 ?X1 ?X2 ?X3 ?Verb 
+{
+  {?Verb = VerbWithOnePrefix[] | ?Verb = TwoPrefixedVerb[]};
+  ?VPInt = ?Verb.?VP;
+  ?Suf =  ImpVerb[];
+  ?VP = ?Suf.?VP;
+  ?VPInt = ?Suf.?VPInt
+}
+
+%%Stacking the another prefix above the suffix
+class PrefixedSuffixedVerb
+export ?VP ?VPInt
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0 
+{
+  {?VPpref = PereVerb[] | ?VPpref = PoVerb[]};
+  ?VP = ?VPpref.?VP;
+  ?VSp = SuffVerb[];
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt
+}
+
+class AlmostAllVerbs
+export ?VP ?VPInt
+declare ?Verb ?VP ?VPInt
+{
+  {?Verb = VerbWithOnePrefix[] | ?Verb = SuffVerb[]};
+  ?VP = ?Verb.?VP;
+  ?VPInt = ?Verb.?VPInt
+}
+
+class PoDistrPrefixedVerb
+export ?VP ?VPInt
+declare ?VP ?VPpref ?V ?VSp ?VPInt ?VP ?AGR ?X0
+{
+  ?VPpref = PoDistrVerb[];
+  ?VP = ?VPpref.?VP;
+  {?VSp = AlmostAllVerbs[] | ?VSp = VSpine[]};
+  ?VPInt = ?VSp.?VP;
+  ?VPInt = ?VPpref.?VPInt
+}
+
+class AllVerbs
+declare ?Verb
+{
+  {?Verb = AlmostAllVerbs[] | ?Verb = PoDistrPrefixedVerb[] 
+  | ?Verb = PrefixedSuffixedVerb[]  | ?Verb = TwoPrefixedVerb[]}
+}
+
+value AllVerbs
+\end{lstlisting}

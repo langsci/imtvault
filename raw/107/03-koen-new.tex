@@ -1,0 +1,988 @@
+\documentclass[output=paper]{langsci/langscibook.cls}
+\author{Koen Kerremans \affiliation{Vrije Universiteit Brussel}}
+\title{Applying computer-assisted coreferential analysis to a study of 
+	terminological variation in multilingual parallel corpora}
+\shorttitlerunninghead{Terminological variation in multilingual parallel corpora}
+% \lehead{Koen Kerremans}
+\abstract{Coreferential analysis involves identifying 
+	linguistic items (usually both lexical and grammatical items) that denote 
+	the same referent in a given text. To be able to study such coreferential items, 
+	each item first needs to be indexed or annotated according to a referent's corresponding 
+	identification code or label. Linguistic items that are identified as `coreferential' 
+	can be represented in a coreferential chain, i.e. a list of coreferential items 
+	extracted from the text in which the order of the items in the text is retained. 
+	We will discuss some of the benefits of applying coreferential analysis to a study 
+	of intra- and interlingual terminological variation in multilingual parallel corpora. 
+	Intralingual terminological variation refers to the different ways in which specialised 
+	knowledge can be expressed by means of terminological units (both single and multiword 
+	units) in a collection of source texts. Interlingual variation pertains to the 
+	different ways in which these source language terms are translated into the languages 
+	of the target texts. In this contribution, I will focus on how the method of coreferential 
+	analysis was used in a comparative study of (intra- and interlingual) terminological 
+	variation in original texts (i.e. the source texts) and their translations (i.e. 
+	the target texts). I will present a semi-automatic method to support the manual 
+	identification of intralingual terminological variants based on coreferential analysis. 
+	We will discuss how data resulting from coreferential analysis can be used to quantitatively 
+	compare terminological variation in source and target texts. Finally, I will present 
+	a new type of translation resource in which terminological variants in the source 
+	language are represented as a network of coreferential links.  } %\lipsum[1]}
+\ChapterDOI{10.5281/zenodo.814464}
+\maketitle
+
+\begin{document}
+
+\section{Introduction}\label{sec:intro}
+\largerpage
+The work presented in this contribution further builds on a research study that 
+focused on how terms and equivalents recorded in multilingual terminological databases 
+can be extended with terminological variants and their translations retrieved from 
+English source texts and their translations into \isi{French} and Dutch \citep{Kerremans2012}. 
+First, a distinction needs to be made between intralingual (terminological) variation 
+and \isi{interlingual variation}. The former refers to different ways in which specialised 
+knowledge can be expressed by means of terms in a collection of source texts. Interlingual 
+variation pertains to a study of the different ways in which these \isi{source language} 
+terms were translated into the languages of the target texts.
+
+In many \isi{terminology} approaches, terminological variants within and across languages are identified on the basis of semantic and/or linguistic criteria \citep{CarrenoCruz2008,FernandezSilva2010}. Given the fact that the general aim of the study 
+reported by~\citet{Kerremans2012} was to examine how and to what extent patterns of variation in source texts are reflected in the translations, I decided to apply 
+\isi{coreferential analysis} to the study of (intralingual) \isi{terminological variation} 
+in the source texts and contrastive analysis to the study of \isi{interlingual variation}. 
+Our approach based on these perspectives of analysis is motivated by the fact that 
+in order to acquire an understanding about the unit of specialised knowledge or 
+`unit of understanding' \citep{Temmerman2000}\footnote{ In \citep{Temmerman2000}, the term 
+`unit of understanding' is used instead of `concept' to emphasise the prototypical 
+structure of specialised knowledge.} that needs to be translated, translators first 
+analyse the different ways in which this unit is expressed in the \isi{source text}, 
+how its meaning is developed in the text (i.e. the \isi{textual perspective}) and how 
+it can be rendered in the \isi{target language} (i.e. the contrastive perspective). The 
+combination of coreferential and contrastive methods of analysis allows us to retrieve 
+a list of terminological units for a preselected set of units of understanding 
+in the source texts and to compare this list to the equivalents of each terminological 
+unit in the target texts.
+
+In text-linguistic approaches to the study of \isi{terminology} \citep{Collet2004}, it has 
+been advocated that terms function as cohesive devices in a text in the sense that 
+they contribute to the reader's general understanding of the text and, in particular, 
+of the units of understanding \citep{Temmerman2000}. As a result of this, the occurrence 
+of terminological variants in a given text is also functional in the sense that 
+these variants allow authors to express their different ways of `looking' at the 
+same units of understanding \citep{Cabre2008,FreixaEtAl2008,FernandezSilva2010}. 
+
+Within text-linguistic studies, \isi{coreferential analysis} is a method for linguistic 
+analysis that is used to study patterns of \isi{cohesion} in a text (Section \ref{sec:2}). The 
+purpose of this contribution is to discuss some of the benefits of applying coreferential 
+analysis to a study of intra- and interlingual \isi{terminological variation} in multilingual 
+parallel corpora (Section \ref{sec:3}). My focus will be on three topics in particular: 
+ 
+\begin{enumerate}
+\item  the possibility to support the process of identifying terminological variants 
+as coreferential items by means of a \isi{semi-automatic method} (see Section \ref{sec:4}); 
+
+\item the possibility to carry out quantitative comparisons of terminological variants 
+that are identified on the basis of \isi{coreferential analysis} (see Section \ref{sec:5});
+
+\item the possibility to create a new type of translation resource in which terminological 
+variants in the \isi{source language} are represented as a \isi{network} of coreferential links 
+(see Section \ref{sec:6}).
+\end{enumerate}
+
+By focusing on these three topics in particular, I hope to provide research ideas 
+for future (quantitative and qualitative) studies adopting a \isi{textual perspective} 
+to \isi{terminological variation} (see Section \ref{sec:7}).\label{HRef445070813}
+
+\section{Research background}\label{sec:2}
+
+In this section, I want to make clear how \isi{terminological variation} is defined in 
+the present study (see Section \ref{sec:2.1}). Given the fact that I adopt a \isi{textual perspective} 
+to the study of this phenomenon (see previous section), I want to briefly describe 
+what this perspective involves and how \isi{coreferential analysis} fits within this 
+perspective (see Section \ref{sec:2.2}).\label{HRef445045508}
+
+\subsection{Terminological variation as the object of study}\label{sec:2.1}
+
+A \isi{study of terminological variation} can theoretically pertain to any set of terms 
+in a domain's specialised discourse. In practice, boundaries will need to be drawn 
+in order to limit the scope of the study to a scalable subset of data. According 
+to~\citet{Daille2005}, these boundaries can be determined by the potential use of the 
+results of the study in various applications (e.g. information retrieval, machine-aided 
+text indexing, scientific and technology watch and controlled \isi{terminology} for computer-assisted 
+translation systems), the computer techniques involved in studying the phenomenon 
+and/or the types of language data (mono-/bi-/multilingual data). The application-oriented 
+view explains why a definition of the phenomenon in one study of terminological 
+variation cannot simply be applied to another study.
+
+Based on a review of earlier studies of \isi{terminological variation}, \citet{AguadoDeCeaMontielPonsoda2012} present a typology of term variants that is based on 
+a three-fold structure:
+
+\begin{enumerate}
+	
+\item The first group encompasses a group of synonyms or terminological units that 
+refer to an identical concept. The types of term variants that enter this group 
+are graphical and orthographical variants (e.g. `Kyoto-protocol' vs. `Kyoto protocol'), 
+inflectional variants (e.g. `introduction' and `introductions') or morpho-syntactic 
+variants (`greenhouse gas emissions' and `emissions of greenhouse gases'). 
+
+\item The second group of variants covers partial synonyms or terminological units 
+that highlight different aspects of the same concept. To this group belong stylistic 
+or connotative variants (e.g. `recession' vs. `r-word'), diachronic variants (e.g. 
+`tuberculosis' and `phthisis'), dialectical variants (`gasoline' vs. `petrol'), 
+pragmatic or \isi{register} variants (e.g. `swine flu' vs. `pig flu' vs `Mexican pandemic 
+flu' vs. `H1N1') and explicative variants (`immigration law' vs. `law for regulating 
+and controlling immigration'). Examples of these types have been studied in different 
+fields \citep{Temmerman1997,Resche2000,FernandezSilva2010}.
+
+\item The third group of variants covers terminological units that show formal similarities 
+but refer to different concepts \cite{DailleEtAL1996,ArlinEtAl2006,BowkerHawkins2006,Depierre2007}. Examples are terms showing lexical similarities 
+(e.g. `Kyoto-protocol' vs. `Kyoto mechanism') or morphological similarities (e.g. 
+`biodiversity' vs. `biosphere' vs. `biology'). 
+\end{enumerate}
+
+In my study, \isi{terminological variation} pertains to the first two groups of variants 
+discussed by~\citet{AguadoDeCeaMontielPonsoda2012}. It was stated earlier (see 
+Section \ref{sec:intro}) that as far as intralingual \isi{terminological variation} is concerned, 
+I applied \isi{coreferential analysis} to study this phenomenon in a collection of source texts. This implies a \isi{textual perspective} to the \isi{study of terminological variation} 
+that I want to briefly discuss in the next section before I explain how the method of \isi{coreferential analysis} was carried out in my study (see Section \ref{sec:3}). \label{HRef445046646}
+
+\subsection{A textual perspective applied to terminological variation}\label{sec:2.2}
+
+Within the \isi{textual perspective}, a distinction needs to be made between text \isi{coherence} 
+and text \isi{cohesion}. Based on an extensive review of literature addressing these 
+two topics, \citet[7]{Tanskanen2006} notes that there is a general consensus to define 
+\isi{cohesion} and \isi{coherence} as follows: 
+
+\begin{quote}
+``Cohesion refers to the grammatical and lexical elements on the surface of a text 
+which can form connections between parts of the text. Coherence, on the other hand, 
+resides not in the text, but is rather the outcome of a dialogue between the text 
+and its listener or reader. Although \isi{cohesion} and \isi{coherence} can thus be kept separate, 
+they are not mutually exclusive, since cohesive elements have a role to play in 
+the dialogue.''
+\end{quote}
+
+Cohesion and \isi{coherence} contribute to the general texture within a text. In other words, they are a 
+set of characteristics that allows the text to function as a whole. Cohesion is 
+generally regarded as a text internal property, whereas \isi{coherence} is not. The latter 
+can only be attributed to the text by the reader who is thought to use background 
+knowledge during the interpretation process of the text. This allows the reader 
+to create correlates between the text and the outside world. This knowledge ``encompasses 
+beliefs and assumptions about the world as well as language-related knowledge, 
+i.e. knowledge about grammar and about words and their meanings but also knowledge 
+about how texts function'' \citep[104]{Collet2004}. Given the fact that the focus of 
+this study is on \isi{terminological variation} in texts, I will only be concerned with 
+text \isi{cohesion}.
+
+Cohesion as a text internal property is created on the basis of connected text fragments that allow meaning to pass from one text fragment to another, thus establishing 
+cohesive chains within the text. \citet{Collet2004} describes these as ``chains of text fragments that refer to 
+the same concrete or abstract reality'' and ``which can be obtained with grammatical 
+and lexical means'' (ibid.). \citet{HallidayHasan1976} propose five types of \isi{cohesion}: 
+reference, substitution, ellipsis, conjunction and lexical \isi{cohesion}. Since my study focuses on terms as cohesive devices in texts (see Section \ref{sec:intro}), I shall only 
+focus on lexical \isi{cohesion}. 
+
+Applied to studies of \isi{terminology}, lexical \isi{cohesion} analysis is achieved by means 
+of a selection of a domain's \isi{terminology} appearing in a text. \citet{HallidayHasan1976} distinguish between two types of lexical \isi{cohesion}: reiteration and \isi{collocation}. 
+They define the former as a form of lexical \isi{cohesion} ``which involves the repetition 
+of a lexical item, at one end of the scale; the use of a general word to refer 
+back to a lexical item, at the other end of the scale; and a number of things in 
+between - the use of a synonym, near-synonym, or superordinate'' (ibid.: 278). Collocation 
+occurs between any pair of lexical items ``that stand to each other in some recognizable 
+lexico-semantic (word meaning) relation'' (ibid: 285). In other words, the `\isi{collocation}' 
+refers to ``an associative meaning relationship between regularly co-occurring 
+lexical items'' \citep[12]{Tanskanen2006}. 
+
+In the present study, \isi{terminological variation} is clearly seen as the result of 
+a process of reiteration whereby the author of a text uses the same or different 
+terminological units to express the same unit of understanding. In this perspective, 
+\isi{coreferential analysis} is a technique that is suitable for identifying those linguistic 
+items that refer to the same unit of understanding in a text. To be able to study 
+such coreferential items, each item first needs to be indexed or annotated according 
+to a referent's corresponding identification code or label. Linguistic items that 
+are identified as `coreferential' can be represented in a \isi{coreferential chain}, 
+i.e. a list of coreferential items extracted from the text in which the order of 
+the items in the text is retained.
+
+\citet{rogers_terminological_2007} shows how the technique of \isi{coreferential analysis} can be used to 
+study patterns of terminological equivalence between source and target texts. By presenting terminological variants as coreferents in lexical chains she is able to compare the use of terms in establishing cohesive ties 
+in a \isi{German} technical text and its translations into English and \isi{French}. Before I illustrate on the basis of examples from my own study how this method is carried out, I will first briefly present in the next section the research design of the 
+case study presented by \citet{Kerremans2012}, which forms the basis for the present 
+study. This will allow us to motivate the particular choices that were made with 
+respect to the method of analysis. %\label{HRef445062181}
+
+\section{Intra- and interlingual variation in parallel texts}\label{sec:3}
+ 
+The general aim of the study described in \citet{Kerremans2012} was to try to understand 
+how translators of specialised texts tend to deal with \isi{terminological variation} 
+in texts that need to be translated (i.e. source texts). For instance, a topic 
+such as the rise in the average temperature of the earth's surface can be referred 
+to in English as `global warming', `greenhouse effect' or `hothouse effect'. By 
+comparing such terms in English source texts with their translations in Dutch and 
+\isi{French} versions of these texts (i.e. target texts), the overall aim of this study 
+was to acquire a better insight into various ways of translating English environmental 
+\isi{terminology} into Dutch and \isi{French}.
+
+\newpage 
+The corpus created for this study is comprised of 43 texts. Each text is available in three language versions - English, \isi{French} and Dutch - which means that in total 129 texts were used to study patterns of intra- and \isi{interlingual variation}. All 
+the texts in the corpus were originally written in English and translated into \isi{French} and Dutch. The texts dealt with environmental topics, such as biodiversity loss, climate change, invasive species and environmental pollution. Texts were 
+collected from different organisations (mainly EU institutions) and written registers (e.g. EU directives, information brochures, etc.) in order to study variation in relation to different situational parameters, such as text source, text framework 
+(see Section 6). Figure \ref{fig:k1} shows how the texts in the corpus were classified according to different text perspectives.
+
+\begin{figure}[t]
+% \includegraphics[width=\textwidth]{figures/koen-Fig1.pdf}
+\includegraphics[width=\textwidth]{figures/koen-Fig1.png}
+% \includegraphics[width=\textwidth]{figures/Kerremans_Fig_textclass.pdf}
+\caption{Classification of texts}
+\label{fig:k1}
+\end{figure}
+
+%\begin{table}
+%\begin{tabular}{|p{0.7cm}|l|l|l|l|l|p{3cm}|}
+%\hline
+%\multicolumn{3}{|l|}\textbf{ Text dimensions} & \multicolumn{3}{l|}\textbf{ \#Texts} & \textbf{TextIDs}\\ %tabularnewline
+%\hline
+%\multirow{4}{0.7cm}{EU texts} & \multirow{2}{*}{Legal framework} & EESC\footnote{ Texts from the European Economic and 
+%Social Committee (EESC) and the Committee of the Regions (COR) were classified 
+%according to one category EESC because texts from both institutions are translated 
+%by the same translation department.} & \multicolumn{2}{l|}{\multirow{2}{*}{17}} & 6 & 9, 10, 11, 12, 31, 43\\
+%&  & EC &  \multicolumn{2}{l|}{} & 11 & 1, 2, 5, 6, 7, 8, 32, 33, 34, 35, 40\\
+%\cline{2-7}
+% & \multirow{2}{*}{Non-legal framework} & EC & \multirow{3}{*}{26} & %\multirow{2}{*}{22} & 4 & 38, 39, 41, 42\\%tabularnewline
+%\cline{3-3} \cline{6-7}
+%&  & \isi{EEA} &  &  & 18 & 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30\\%tabularnewline
+%\cline{1-3} \cline{5-7}
+%\multicolumn{2}{|l|}{Non-EU texts} & \isi{GRE} &  & \multicolumn{2}{l|}{4} & 3, 4, 36, 37\\
+%\hline
+%\end{tabular}\label{HRef445054188}
+
+%\begin{forest}
+%[Texts
+%  [EU texts
+%    [legal framework (17)
+%     [EESC (6)
+%	[\parbox{1.6cm}{9 10 11 12 31 43}]
+%     ]
+%     [EC (11)
+%	[\parbox{1.6cm}{1 2 5 6 7 8 32 33 34 35 40}]
+%     ]
+%   ]
+%   [non-legal framework (22)
+%     [EC (4)
+%	[38 39 41 42]
+%     ]
+%     [\isi{EEA} (18)
+%	[\parbox{1.6cm}{13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30}]
+%     ]
+%   ]
+%]
+% [Non-EU text
+%   [(4)
+%     [\isi{GRE}
+%	[3 4 36 37]
+%     ]
+%   ]
+% ]
+%]
+%\end{forest}
+
+%\caption{Classification of texts}
+%\label{tab:1}
+%
+%\end{table}
+
+First of all, a distinction is made between 17 texts (69,647 words in the English versions) belonging to the legal framework (e.g. EC communications, green papers and staff working documents, EESC opinions) and 26 texts (39,183 words in the English versions) that do not belong to this framework (e.g. fact sheets and booklets). Within the first category, only EU texts were added to the corpus. Within the second category, a further distinction was made between 22 EU texts and 4 non-EU texts. Apart from these two text dimensions, texts were also classified according to the institution responsible for the trans-lation and publication of the texts: the European Economic and Social Committee (EESC), the European Commission (EC), the European Environment Agency (\isi{EEA}) and, finally, Greenfacts (\isi{GRE}), a non-profit organisation that summarises and translates scientific publications on health and environmental issues for the general public. \footnote{Texts from the European Economic and Social Committee (EESC) and the Committee of the Regions (COR) were classified according to one category EESC because texts from both institutions are translated by the same translation department.}
+
+As was mentioned in the beginning (see Section \ref{sec:intro}), the research data (i.e. both intra- and \isi{interlingual variation}) were collected from this corpus by applying both coreferential and contrastive analyses. In total, approximately 9,100 terminological 
+variants were extracted from the English source texts on the basis of \isi{coreferential analysis}. By applying a contrastive perspective, the translation equivalents of these English variants were retrieved from the \isi{French} and Dutch target texts. The combination of an English term and its translation in either \isi{French} or Dutch (i.e. a Translation Unit or TU), is stored in a separate database. The result was a database of approximately 18,200 TUs (English-\isi{French}; English-Dutch).
+
+Quantitative comparisons of these translation units were carried out in subsequent phases of the project. Each TU is comprised of a term in the \isi{source language} (i.e. English), its corresponding equivalent that was retrieved from the \isi{target text} in combination with additional contextual information: i.e. a specification of the unit of understanding to which the \isi{source language} term refers as well as information about specific properties of the text from which the TU was retrieved. 
+
+Given the fact that the focus of this contribution is on \isi{coreferential analysis}, it will be briefly illustrated by means of the example in Figure \ref{fig:k2} how this particular analysis was carried out. 
+
+\begin{figure}
+\includegraphics[scale=0.7]{figures/Kerremans_Fig_annotation.pdf}
+\caption{Example illustrating coreferential analysis}
+\label{fig:k2}
+\end{figure}
+
+
+%\begin{table} 
+	 
+%\begin{tabularx}{\textwidth}{lX}
+%\lsptoprule
+%\textbf{Annotation scheme} & \textbf{Text sample}\\
+%\midrule
+%\textsc{alien\_species} & \multirow{20}{8cm}{[Invasive Alien Species]\textsubscript{\textsc{invasive\_alien\_species}}'' 
+%	are [alien species]\textsubscript{\textsc{alien\_species}} whose [introduction]\textsubscript{\textsc{introduction}} 
+%	and/or [spread]\textsubscript{\textsc{spread}} threaten [biological diversity]\textsubscript{\textsc{biodiversity}} 
+%	[...]. The [Millennium Ecosystem Assessment]\textsubscript{\textsc{mea}} revealed 
+%	that [IAS]\textsubscript{\textsc{ invasive\_alien\_species}} impact on all [ecosystems]\textsubscript{\textsc{ecosystem}} 
+%	[...]. The problem of [biological invasions]\textsubscript{\textsc{bio-invasion}} 
+%	is growing rapidly as a result of increased trade activities. [Invasive %species]\textsubscript{\textsc{ 
+%			invasive\_alien\_species}} ([IS]\textsubscript{\textsc{ %invasive\_alien\_species}}) 
+%	negatively affect [biodiversity]\textsubscript{\textsc{biodiversity}} %[...]. [IS]\textsubscript{\textsc{ 
+%			invasive\_alien\_species}} can cause congestion in waterways, %damage to [forestry]\textsubscript{\textsc{forestry}}, 
+%	crops and buildings and damage in urban areas. The costs of preventing, %controlling 
+%	and/or eradicating [IS]\textsubscript{\textsc{invasive\_alien\_species}} %and the 
+%	environmental and economic damage are significant. The costs of %[control]\textsubscript{\textsc{biocontrol}}, 
+%	although lower than the costs of continued damage by the %[invader]\textsubscript{\textsc{invasive\_alien\_species}}, 
+%	are often high.}\\
+%                    & \\
+%                    & \\
+%\textsc{biocontrol} &\\
+%\textsc{biodiversity} &\\
+%\textsc{bio-invasion} &\\
+%\textsc{ecosystem} &\\
+%\textsc{forestry} &\\
+%\textsc{introduction} &\\
+%\textsc{invasive\_alien\_species} &\\
+%\textsc{mea} &\\
+%                &\\
+%                &\\
+%                &\\
+%\textsc{spread}   &\\
+%                                &\\
+%                                &\\
+%                               & \\
+%                                &\\
+%                                &\\
+%\lspbottomrule
+%\end{tabularx} %\label{HRef424577478}\label{HRef445058961}
+%\caption{Example illustrating coreferential analysis}
+%\label{tab:2} 
+%\end{table}
+
+The figure contains an annotation scheme featuring 10 cluster labels and a \isi{text sample} taken from a European Commission Staff Working document \citep[2]{Commission2008}. Cluster labels are ad-hoc labels that were created to facilitate the annotation of English terminological variants as coreferential items. Each \isi{cluster label} represents a particular unit of understanding (see Section 1). For instance, the \isi{cluster label} \textsc{invasive\_alien\_species} represents the unit of understanding (or conceptual category) that can be described as `species 
+that enter a new habitat and threaten the endemic fauna and/or flora'. Terminological variants that are annotated according to this label will appear in the \isi{lexical chain} or `cluster' of terms denoting the same unit of understanding in the text 
+(see \tabref{tab:3}). For instance, the \isi{lexical chain} drawn from the \isi{text sample} in Figure \ref{fig:k2} for the unit of understanding \textsc{invasive\_alien\_species} is: invasive 
+alien species -- IAS -- invasive species -- IS -- IS -- IS -- invader.
+
+\begin{table} 
+ 
+\begin{tabularx}{\textwidth}{lX}
+\lsptoprule
+\textbf{Cluster label} & \textbf{Lexical chain}\\
+\midrule
+\textsc{invasive\_alien\_species} & invasive alien species - IAS - Invasive species 
+- IS - IS - IS - invader \\
+\textsc{alien\_species} & alien species\\
+\textsc{introduction} & introduction\\
+\textsc{spread} & spread\\
+\textsc{biodiversity} & biological diversity - biodiversity \\
+\textsc{mea} & Millennium Ecosystem Assessment \\
+\textsc{ecosystem} & ecosystems\\
+\textsc{bio-invasion} & biological invasions \\
+\textsc{forestry} & forestry \\
+\textsc{biocontrol} & control\\
+\lspbottomrule
+\end{tabularx} 
+\caption{Results of the coreferential analysis}
+\label{tab:3}
+\end{table}
+
+Co-referential analysis focuses on reformulation procedures, which according to 
+\citet[212]{Ciapuscio2003}, are procedures defined mainly on the basis of structural 
+criteria, such as ``the rewinding loop in speech, the resumption of an idea that 
+has already been verbalized, which is linguistically realised in the two-part structure 
+``\isi{referential expression}'' + ``treatment expression'', both expressions usually 
+being linked with markers.'' The first term ('Invasive Alien Species') which introduces the unit of understanding 
+\textsc{invasive\_alien\_species} in the \isi{text sample} (see \ref{fig:k2}) is called the 'referential 
+expression'. It represents the perspective from which the referent should be perceived. 
+This is the reason why all coreferential expressions in Figure 2 are annotated according 
+to the \isi{cluster label} \textsc{invasive\_alien\_species}. The expressions that follow 
+the \isi{referential expression} are called treatment expressions because they reveal 
+a new aspect of the referent. The choice for a particular \isi{cluster label} is determined 
+by the \isi{referential expression}, not by the treatment expression. For instance, the 
+term `alien species' may be annotated as \textsc{alien\_species} or as \textsc{invasive\_alien\_species}, 
+depending on whether the term occurs as \isi{referential expression} or treatment expression 
+(i.e. shortened form of the term invasive alien species).
+
+Coreferential analysis in my study was guided by the following rules:
+
+\begin{itemize}
+	
+\item Every \isi{term candidate} had to be a nominal pattern in order to have a common basis for comparing intralingual variants. The focus 
+on nominal patterns makes sense in the context of \isi{terminology} work, in which ``the 
+predominance of nouns is an incontestable phenomenon'' \citep[19]{Bae2006}. According 
+to \citet[404]{Lhomme2003} this focus on nominal patterns can be justified by the fact 
+that specialised knowledge is usually ``represented by terms that refer to entities 
+(concrete objects, substances, artifacts, animates, etc.), and that entities are 
+linguistically expressed by nouns.''
+
+\item Every \isi{term candidate} that is part of a linguistic construction that refers to a different unit of understanding should not be annotated. For instance, even 
+though the pattern `alien species' occurs two times in the \isi{text sample} in Figure 2, only the second occurrence is marked with the corresponding \textsc{alien\_species}. 
+This is because in the first occurrence, the term is part of the linguistic pattern `invasive alien species' which refers to the unit of understanding \textsc{invasive\_alien\_species}.
+
+\item Every \isi{term candidate} that is not part of a linguistic construction that refers to a different unit of understanding should be annotated. This rule applied to 
+term candidates that are not part of a nominal construction - such as `invasive alien species', `invasive species' or `biological diversity' (see \ref{fig:k2}) - or 
+term candidates that are part of a nominal construction that did not refer to a 
+different unit of understanding in my dataset. The \isi{term candidate} `control', for 
+instance, was annotated as `\textsc{biocontrol'}. The \isi{term candidate} appears in 
+the nominal construction `the costs of control', which did not refer to a different 
+unit of understanding in my study. 
+
+\item Every article or pronoun preceding a \isi{term candidate} should be left out. For 
+instance, in the nominal constituent `The Millennium Ecosystem Assessment' (see 
+\ref{fig:k2}), the article preceding the \isi{term candidate} was not taken up in the analysis. 
+
+\item All term candidates that are linked to one another in the same nominal pattern 
+by means of coordinating conjunctions should be annotated separately. For instance, 
+the pattern `introduction and/or spread' features two different units of understanding 
+in my dataset: resp. \textsc{introduction} and \textsc{spread}. More complex patterns 
+to annotate were conjunctive patterns featuring different modifiers linked to one 
+head. Consider for instance the text string `invasive and alien species' which 
+comprises two term variants (`invasive species' and `alien species') that 
+should be classified according to two different clusters: \textsc{invasive\_alien\_species} 
+and \textsc{alien\_species}. The second \isi{term candidate} in this pattern (i.e. `alien 
+species') does not pose any problem. The occurrence can be immediately extracted 
+from the text without any modifications required. The first \isi{term candidate} (i.e. 
+`invasive species'), however, could not be directly extracted as it is interrupted 
+by the conjunction word `and' and the adjective `alien'. To be able to annotate 
+this \isi{term candidate} as occurrence of the unit of understanding \textsc{invasive\_alien\_species} 
+and to add the correct form `invasive species' to a separate database containing 
+the research data, a distinction had to be made between occurrences and base forms. 
+The occurrence refers to the English \isi{term variant} as it appeared in the corpus. 
+The base form is a `cleaned' version of the occurrence in which possible irrelevant 
+words in \isi{multiword} terms are deleted. In the example of `invasive and alien species', 
+for instance, the base form of this pattern referring to the cluster \textsc{invasive\_alien\_species} 
+is `invasive species'. It should be noted that results derived from the quantitative 
+analyses of intra- and interlingual variants in the corpus are based on the comparisons 
+of base forms only (Section \ref{sec:5}). 
+
+\end{itemize}
+
+In Section \ref{sec:intro}, I mentioned that the purpose of this article is to discuss some of the benefits of applying the aforementioned method to a study of terminological 
+variation in multilingual parallel corpora. In the remainder of this contribution, I will focus on the possibility to support the manual effort by means of automated 
+procedures (Section 4), the possibility to carry out quantitative comparison of 
+terminological variants in lexical chains (see Section 5) and, finally, the possibility 
+to create a new type of translation resource in which terminological variants in 
+the \isi{source language} are represented as a \isi{network} of coreferential links (see Section \ref{sec:6}). %\label{HRef424732646}
+
+\section{Computer-assisted coreferential analysis}\label{sec:4}
+
+A major drawback of the method outlined above is the fact that it is very difficult 
+to apply if the work is only carried out manually. During the \isi{coreferential analysis} 
+of the source texts, 241 cluster labels needed to be taken into consideration in 
+our study. Given the fact that the process of annotating or `labeling' terminological 
+variants as `coreferential' involves performing manual actions which are to a certain 
+degree repetitive and predictable, I developed a \isi{semi-automatic method} to support 
+this labour-intensive process. 
+
+Before I outline this method, it should be noted that different approaches have 
+been proposed for automatically extracting intralingual \isi{terminological variation} 
+from texts. Some approaches are based on the search for contexts that contain predefined 
+sets of text-internal markers, called Knowledge Patterns or KPs. In literature, 
+such patterns are often used to extract two term candidates linked by a specific 
+semantic relation. For a survey of such approaches, see \citet{AugerBarriere2008}. 
+In other approaches, terminological variants are identified on the basis of distributional 
+measures. The basic idea in these approaches is that the more distributionally similar two term candidates are, the more likely that they can be used interchangeably 
+in linguistic contexts \citep{WeedsMarcu2005,RychlyKilgariff2007,ShimizuEtAL2008,KazamaEtAl2010}. A major disadvantage of approaches based on distributional measures is the difficulty to understand the types of semantic relations (e.g. 
+synonymy, hyperonymy, antonymy, etc.) that can be inferred from the resulting clusters 
+of words or terms \citep{BudanitskyHirst2006,HeylenEtAl2008,PeirsmanEtAL2008}.
+
+In order to make sure that, for the preselected set of units of understanding, 
+all English terminological variants and their translations into \isi{French} and Dutch 
+would be retrieved from the trilingual corpus (see Section \ref{sec:3}), while retaining 
+the order of appearance of each variant in the texts, I decided to support my
+manual coreferential and contrastive methods of analysis by means of automated 
+procedures. This semi-automatic approach allows us to ensure completeness, accuracy 
+and \isi{consistency} in the data obtained. The automated procedures are implemented 
+in a script that was written in the Perl programming language\footnote{ \url{https://www.perl.org/}}. 
+
+Given the scope of this study, I shall only focus on the computer-assisted method 
+supporting the manual identification of coreferential terminological variants in 
+the English source texts. The purpose of this method is threefold: (1) to support the identification 
+of terminological variants that are coreferentially linked to a common unit of 
+understanding, (2) to annotate these variants according to a common \isi{cluster label} (see 
+Section 3) and (3) to extract these variants from the text and store them as lexical chains 
+in a separate database.
+
+It should be noted that prior to this method, each \isi{source text} in the corpus needs 
+to be aligned with its corresponding text(s) in the \isi{target language}(s). After that, 
+the script developed to support \isi{coreferential analysis} reads every text \isi{segment} 
+(usually corresponding with a sentence in the text) one after the other and carries 
+out a number of tasks. For each \isi{term variant} that is manually selected 
+in a text \isi{segment}, the script will first suggest possible matching cluster labels, 
+based on term variants that were manually entered in a previous stage. 
+If no matching clusters were found, the proper \isi{cluster label} needs to be specified 
+by the user. 
+
+After that, the \isi{new term} variant and its corresponding \isi{cluster label} are stored 
+in a dataset of `Clusters'. Whenever the \isi{term variant} is found in 
+the subsequent text segments, it is automatically identified as a \isi{term candidate} 
+and its corresponding \isi{cluster label} is presented to the user. In case of term variants 
+that are already `known' to the system, the user simply needs to confirm or reject 
+the suggestions made by the system.
+
+The computer-assisted method relies on three resources during the analysis of coreferential 
+terminological variants in the source texts: i.e. `Clusters', `Filtering rules' 
+and a `Dictionary' (see Figure \ref{fig:1}).
+
+\begin{figure}
+\includegraphics[scale=0.7]{figures/IATIS2015_Panel10_Kerremans-fig001.jpg}
+\caption{Computer-assisted coreferential analysis}
+\label{fig:1}
+\end{figure}
+
+The function of each resource is explained as follows:
+
+\begin{itemize}
+
+\item `Clusters': a dataset of all the cluster labels (see above) and the term variants 
+already encountered in previous texts. The dataset is used to automatically identify 
+and cluster term variants that were previously encountered during coreferential 
+analysis. This dataset continuously grows as more variants are retrieved from texts. 
+
+\item  `Filtering rules': a list of rules comparable to a stoplist. It contains patterns 
+that should be ignored during the search for term candidates. As the search for 
+term candidates was case-insensitive, for instance, the \isi{term candidate} `IS' pointing 
+to the unit of understanding \textsc{invasive\_alien\_species}, more frequently 
+occurred in the corpus as the third person singular of the verb `to be'. Filtering 
+rules specifying common patterns in which this form appears as a verb were necessary 
+to exclude the irrelevant occurrences during the analysis of the source texts. 
+Another example is for instance the \isi{term candidate} `community' referring to the 
+unit of understanding \textsc{biological\_community}. Filtering rules were created 
+to disregard occurrences of this string in patterns like `scientific community' 
+or `economic community' which also frequently occurred in my corpus.
+
+\item `Dictionary': a resource comprised of all occurrences retrieved from the source 
+texts, together with their lemmatised forms. The distinction between lemmatised 
+forms and actual occurrences was necessary to be able to deal with frequently encountered 
+discontinuous \isi{multiword} expressions such as the term `control of invasive species' 
+in the string `control and prevention of invasive species'. Term occurrences were 
+stored in the `Clusters' dataset (see Figure \ref{fig:3}), whereas lemmatised forms were stored 
+in the dictionary.
+
+\end{itemize}
+
+The \isi{semi-automatic method} is implemented in such a way that the three aforementioned 
+resources are updated and expanded with new data, any time during the analysis. 
+As a result, the time spent on manually extracting the lexical chains from the 
+source texts is considerably reduced as the analysis proceeds.
+
+Figure \ref{fig:1} also visualises the different semi-automated steps to add term variants 
+to an index file, together with information about their position in the source 
+text and their corresponding cluster labels. This index file is used in a later 
+phase of the project to semi-automatically retrieve the translation equivalents 
+from the aligned target texts. The semi-automated steps supporting coreferential 
+analysis are:
+
+\begin{itemize}
+\item `Term addition': a \isi{semi-automated process} that can be broken down into the 
+following steps: a) in every text \isi{segment}, a \isi{new term} variant is manually highlighted, 
+b) candidates of cluster labels are automatically proposed in the `Term clustering' 
+procedure and c) the \isi{new term} variant is automatically added to the 
+`Clusters' dataset.
+
+\item `Term verification': a \isi{semi-automated process} whereby text strings corresponding 
+to term candidates in the dataset of `Clusters' are automatically selected as term 
+variants. After manual validation, potentially relevant cluster labels are looked 
+up in the dataset of clusters on the basis of the `Term clustering' procedure (see 
+the next step).
+
+\item `Term clustering': a \isi{semi-automated process} for assigning a proper cluster 
+label to an already familiar \isi{term variant}. Candidates of cluster labels are automatically 
+proposed based on fuzzy matching between the \isi{new term} variant and the variants 
+that are already present in the dataset of `Clusters'. The proper \isi{cluster label} 
+is manually selected in case more than one cluster candidate was found. In case 
+only one candidate is found, the automatically proposed cluster can either be manually 
+approved or rejected. In case the \isi{term variant} should be classified according to 
+a cluster that was not proposed as candidate, this cluster is manually selected 
+from the entire dataset of clusters, after which the `Clusters' dataset and the 
+`Dictionary' are updated. Finally, candidates of cluster labels are automatically 
+proposed based on fuzzy matching between the \isi{new term} variant and the variant clusters 
+(see the `Lemmatisation' process).
+
+\item `Lemmatisation': a \isi{semi-automated process} for assigning the correct lemmatised 
+form to a \isi{term candidate}. Candidates of lemmatised forms are automatically proposed 
+based on fuzzy matching between the \isi{new term} and the existing lemmatised forms. 
+Next, the proper lemmatised form is manually selected in case more than one candidate 
+was found. In case only one candidate is found, the automatically proposed lemma 
+can either be manually approved or rejected. A lemmatised form has to be manually 
+created in case it does not appear in the dictionary. After this, the dataset of 
+clusters and the dictionary are updated and the validated term is stored in the 
+resulting research data file (see the `Term storage' procedure).
+
+\item `Term storage': i.e. a \isi{semi-automated process} for storing the validated occurrences 
+of semantically-structured SL term variants in the aforementioned index file (see 
+above).
+
+\end{itemize}
+
+The computer-assisted approach proved to be an efficient working method for annotating 
+variants in coreferential chains, especially given the high repetition of frequently 
+occurring patterns in the corpus that needed to be marked with the same cluster 
+labels. Based on this method, it was possible to compile a dataset of approximately 
+9,100 English term variants retrieved from the corpus of source texts and classified 
+according to a predefined set of 241 cluster labels. 
+
+\section{Quantitative comparisons}\label{sec:5}
+By comparing the lexical chains in the \isi{source language} with the translations of 
+these chains in \isi{French} and Dutch that were retrieved from the target texts, it 
+was possible to draw conclusions on the occurrence of intra- and \isi{interlingual variation} 
+in the corpus. 
+
+When studied at the level of the text, \isi{interlingual variation} occurs when terms 
+appearing in the lexical chains in the \isi{source text} were not consistently translated 
+into the target texts, such as is the case in the example in \tabref{tab:4}. It can be 
+observed from this table that in the \isi{French} chain, the terminological choices that 
+were made in the English text are reflected. An exception, for instance, is the 
+translation of the English term `IAS', which appears in the \isi{French} translation 
+as the full form `espèces exotiques envahissantes'.
+
+\begin{table}
+\begin{tabularx}{\textwidth}{l@{~$\blacktriangleright$~}Q@{~\textasciitilde~}Q}
+\lsptoprule
+\multicolumn{1}{l}{\textbf{English chain}} & \multicolumn{1}{l}{\textbf{ \isi{French} translation}} & \textbf{Dutch translation}\\
+\midrule
+invasive alien species &  espèce exotique &  invasieve uitheemse soort (IUS)\\
+
+IAS &  espèces exotiques envahissantes &  IUS\\
+
+
+invasive species & espèce envahissante &  invasieve soort \\
+
+IS &  EE &  IS \\
+
+IS &  EE &  IS \\
+
+Invader &   Envahisseur &  IS \\
+
+invasive species &   espèces envahissantes &  invasieve soort\\
+\lspbottomrule
+\end{tabularx} 
+\caption{English lexical chain and its translation into French and Dutch}
+\label{tab:4}
+\end{table}
+
+Quantitative analyses were carried out on the basis of comparisons between the 
+English lexical chains and their translations into \isi{French} and Dutch. The aim of 
+the quantitative comparisons was to examine to what extent the English lexical 
+chains had an impact on the choices made in the target languages. In order to examine 
+this, I compared the transitions between consecutive lemmatised forms in the different 
+chains. The transition from one form to the other is marked as `0' to indicate 
+that no change occurred (e.g. from `IS' to `IS'). Changes in transitions (such as 
+from `invasive alien species' to `IAS') are marked by `1'. The result of this 
+analysis is a \isi{sequence} of the values `1' and `0', which allowed us to create a 
+\isi{transition profile} for each English \isi{lexical chain} and its corresponding 
+chain in \isi{French} and Dutch. 
+
+The example in \tabref{tab:5} shows part of the \isi{transition profile} for the coreferential 
+chain of \textsc{invasive\_alien\_species} in TextID 1 (see Section \ref{sec:3}). The transition 
+profile for the \isi{coreferential chain} is: 1 1 1 0 1 1.
+
+\begin{table} 
+		\begin{tabular}{p{1.5cm}lr}
+\lsptoprule
+\textbf{Order in the text} & \textbf{English base forms for} \textsc{invasive\_alien\_species} & \textbf{Transition}\\
+\midrule
+1 & invasive alien species & New\\
+2 & IAS & 1 \\
+3 & invasive species & 1\\
+4 & IS & 1 \\
+5 & IS & 0 \\
+6 & invader & 1 \\
+7 & invasive species & 1 \\
+\midrule
+ & Degree of change: & 0,83\\
+\lspbottomrule
+\end{tabular}
+\caption{Example of a transition profile}
+\label{tab:5}
+\end{table}
+
+The first occurrence `invasive alien species' is  marked as the beginning of a new \isi{lexical chain} (`New'). The 
+second occurrence `IAS' differs from the first. The first transition is therefore 
+marked as `1'. The fourth transition is marked as `0' because no change occurred 
+in the transition from occurrence 4 (`IS') to 5 (`IS').
+
+The \isi{lexical chain} features five changes in the transitions between consecutive lemmatised 
+forms on a total of six transitions. By dividing the first number by the second, 
+a degree of change can be created for each \isi{coreferential chain} separately. This 
+measure allows for a quantitative comparison of the coreferential patterns in the 
+three languages. 
+
+In the example in \tabref{tab:6}, the degrees of change for both English and \isi{French} are 
+0,83, whereas for Dutch the value is 0,67. A value close to 1 indicates a high 
+degree of change in the chain, whereas a degree of `0' indicates \isi{consistency} in the lemmatised forms\footnote{ Note that each word in a term was lemmatised. In some cases, the lemmatisation of words resulted in \isi{multiword} terms which were ungrammatical 
+(e.g. \textsuperscript{*}`espèce exotique envahissant' in \isi{French} or \textsuperscript{*}`invasief uitheems soort' in Dutch). This was necessary to make sure that variation resulting from morphological differences could be excluded from my analysis.} in the pattern.
+
+\begin{table} 
+		\begin{tabularx}{\textwidth}{XrQrXr}
+			\hline
+\multicolumn{2}{l}{\textbf{\small English lemmatised forms}} &
+\multicolumn{2}{l}{\textbf{\small \isi{French} lemmatised forms}} &
+\multicolumn{2}{l}{\textbf{\small Dutch lemmatised forms}}\\
+\midrule
+invasive alien species & New & espèce exotique & New & invasief uitheems soort (IUS) & New\\
+
+IAS & 1 & espèce exotique envahissant & 1 & IUS & 1\\
+
+invasive species& 1 & espèce envahissant & 1 & invasief soort & 1\\
+
+IS & 1 & EE & 1 & IS & 1\\
+
+IS & 0 & EE & 0 & IS & 0\\
+
+Invader & 1 & Envahisseur & 1 & IS & 0\\
+
+invasive species & 1 & espèce envahissant & 1 & invasief soort & 1\\
+\midrule
+ & 0,83 &  & 0,83 &  & 0,67\\
+\lspbottomrule
+\end{tabularx}
+\caption{Quantitative comparison between chains}
+\label{tab:6}
+\end{table}
+
+
+Once results of the coreferential profiles and the degrees of change were obtained, 
+two methods were applied for comparing variation in the different languages: one 
+method was based on comparisons of the transition patterns in the three languages, 
+the other on examining possible correlations between the degrees of change (see 
+further). 
+
+The results in the first method of comparison were classified according to two possible 
+`scenarios': either the value was `0' (indicating no change in the transition) 
+or `1' (indicating a change). General results are shown in Figure \ref{fig:2}.
+
+\begin{figure}
+	
+%E\textbf{n (0) =\texttt{>} 5359 cases}
+%E\textbf{n (1) =\texttt{>} 2087 cases}
+%\includegraphics[scale=0.2]{figures/figure2_koen.png}
+\includegraphics[scale=0.2]{figures/figure2_koen.jpg}
+
+\caption{Comparisons of transition patterns}
+\label{fig:2}
+\end{figure}
+
+In 5,359 of the English cases, no variation was encountered in the transition between 
+lemmatised forms in a chain. This corresponds to 72\% of the total cases (n=7,446). 
+A closer examination of this category shows that this pattern of \isi{consistency} is 
+also reflected in the translations. For instance, for the total set of chains, 
+78\% of the \isi{French} cases and 81\% of the Dutch cases follow the same pattern as 
+English. 
+
+
+A closer look at the cases that were marked in English as `1' (2,087 cases or 28\% 
+of the total cases) shows that the transformations between lemmatised forms in 
+Dutch and \isi{French} also tend to be marked by this value: 88\% of the \isi{French} cases 
+and 89\% of the Dutch cases correspond to the English pattern.
+
+Although these results already give an indication that variation in English coreferential 
+chains is also reflected in the target languages, these results do not show to 
+what extent the degree of variation within a \isi{coreferential chain} is also reflected 
+in the translations. In the first method, patterns of transition in the three languages 
+are compared on a case by case basis, without taking into consideration the coreferential 
+chain in which the transition takes place.
+
+For this reason, a second type of quantitative comparison was worked out in which 
+the aforementioned degree of variation within each chain was used as a basis for 
+comparison. Given the general hypothesis that the \isi{source language} has an impact 
+on the choices made in the \isi{target language}(s), it was hypothesised that the degree 
+of changes in the English coreferential chains would also have a direct impact 
+on the degree of changes in the \isi{French} and Dutch chains. A bivariate analysis was 
+conducted in PSPP\footnote{\url{http://www.gnu.org/software/pspp/}}, a free statistical software package, for all subsets in the corpus to determine possible correlations between the degrees of change in the three 
+languages. The results of this analysis are shown in \tabref{tab:7}.
+
+\begin{table}
+	
+		\begin{tabular}{lrrrr}
+		\lsptoprule
+ & \textbf{N} & \textbf{Sig. (1-~tailed)} & \textbf{En-Fr} & \textbf{En-Nl} \\
+\hline
+EC (Leg) & 456 & {0.00} & 0.66 & 0.61\\
+% \cline{1-2} \cline{4-5}
+EC (NLeg) & 110 & {0.00} & 0.69 & 0.69\\
+% \cline{1-2} \cline{4-5}
+\isi{EEA} & 256 &{0.00} & 0.80 & 0.69 \\
+% \cline{1-2} \cline{4-5}
+EESC & 106 & {0.00}& 0.80 & 0.56\\
+% \cline{1-2} \cline{4-5}
+\isi{GRE} & 106 &{0.00} & 0.63 & 0.58\\
+% \cline{1-2} \cline{4-5}
+EU & 366 &{0.00} & 0.76 & 0.69\\
+% \cline{1-2} \cline{4-5}
+Leg & 562 & {0.00}& 0.69 & 0.60\\
+% \cline{1-2} \cline{4-5}
+Nleg & 472 &{0.00} & 0.73 & 0.67\\
+% \cline{1-2} \cline{4-5}
+NLeg (EU) & 110 & {0.00}& 0.69 & 0.69\\
+\midrule
+Total & 1034 & & 0.71 & 0.63\\
+\lspbottomrule
+\end{tabular}
+
+\caption{Correlations between degrees of variation in coreferential chains}
+\label{tab:7}
+\end{table}
+
+Positive correlations can be observed in all datasets. The correlations between 
+English and \isi{French} tend to be stronger than those between English and Dutch. This 
+is particularly the case in the EESC subset which shows a strong \isi{correlation} between 
+English and \isi{French} (0,80) and a moderate \isi{correlation} between English and Dutch 
+(0,56).
+
+\section{Coreferential links in a dictionary application}\label{sec:6}
+
+In the previous section, I have shown how results that were partly derived from 
+\isi{coreferential analysis} can be used for research purposes only, i.e. to compare 
+patterns of variation between source and target texts. In this section, I briefly 
+show how coreferential links can also be used for visualising the relations between 
+intralingual variants in a dictionary application. An example of a prototype \isi{visualisation} 
+is shown in Figure \ref{fig:3}.
+
+\begin{figure}
+	
+%		\small
+%\begin{tabular}{|l|l|l|l|l|l|} 
+%\multicolumn{6}{|l|}{\darkcell \textbf{Monolingual view (\isi{source language})}}\\ 
+%\multicolumn{6}{|l|}{\darkcell} \\
+%\hline 
+%\darkcell & \multicolumn{3}{l}{\colorbox{white}{[add search term or ClusterID]}} & \blackcell {\color{white} Search} & \darkcell \\
+%\multicolumn{6}{|l|}{\darkcell} \\
+%\hline
+% {\shadecell Text options} & \shadecell Framework &\shadecell Legal status & \shadecell Source & \shadecell Intertextual ref. & \shadecell Texts\\
+%\hline
+%\shadecell & \multirow{5}{1.8cm}{EU\\Non-EU} & \multirow{5}{1.8cm}{Leg\\Non-Leg} & CoR & \multirow{2}{2.5cm}{1 (e.g. PreLex ref.)} & TextID 1\\
+%\shadecell & & & EC & & TextID 2\\
+%\shadecell & & & \isi{EEA} & 2 & \\
+%\shadecell & & & EESC & & \\
+%\shadecell & & &  \isi{GRE} &... &... \\
+%\hline
+%\shadecell IATE option(s) & \multicolumn{5}{l|}{IATE terms in SL} \\
+%\hline
+%\shadecell Cluster option(s) & \multicolumn{5}{l|}{\textsc{greenhouse\_gas\_emission\_reduction}}\\
+%\hline
+% {\shadecell Lemma option(s)} & \multicolumn{5}{l|}{Abatement}\\
+%\shadecell                        & \multicolumn{5}{l|}{}\\
+%\shadecell                          & \multicolumn{5}{l|}{cut}\\
+%\shadecell                           & \multicolumn{5}{l|}{cut in emission}\\
+%\shadecell                            & \multicolumn{5}{l|}{}\\
+%\shadecell                            & \multicolumn{5}{l|}{...}\\
+%\hline
+%{\shadecell POS option(s)} &  \multicolumn{5}{l|}{noun}\\
+%\shadecell                              &  \multicolumn{5}{l|}{}\\
+%\shadecell                              &  \multicolumn{5}{l|}{noun noun}\\
+%\shadecell                              &  \multicolumn{5}{l|}{}\\
+%\shadecell                               & \multicolumn{5}{l|}{...}\\
+%\hline
+%\end{tabular}                     
+
+\includegraphics[width=\textwidth]{figures/koen-Fig5.pdf}
+% \includegraphics[width=\textwidth]{figures/koen-Fig5.png}
+
+
+\caption{Coreferential links between terminological variants denoting \textsc{greenhouse\_gas\_emission\_reduction}}
+\label{fig:3}
+\end{figure}
+
+The model underlying the representation of variation in Figure 3 is based on the 
+Hallidayan premise that each choice (variant) in a language system acquires its 
+meaning against the background of other choices which could have been made. These 
+choices are motivated by a complex set of contextual factors which, in Systemic 
+Functional Linguistics, are classified according to the dimensions of Domain, Tenor 
+and Mode \citep{Eggins2004}.
+
+Changing the contextual conditions or options in the model leads to direct changes 
+in the \isi{network} of terminological options that are shown to the user. Figure \ref{fig:3} shows 
+a \isi{network} of linguistic (terminological) options for the unit of understanding 
+\textsc{greenhouse\_gas\_emission\_reduction} in the \isi{source language}. This 
+\isi{network} is activated by entering either a SL term appearing in the cluster or the 
+specific \isi{cluster label} in the search box (at the top). The search query will activate 
+a number of contextual options that are associated with the search. It will also 
+show the results of the search in a graph representation. 
+
+Connections in this graph represent the coreferential links between terms appearing 
+in the same texts in the corpus. Selecting or deselecting one or several contextual 
+or linguistic options in the filtering options, will immediately be reflected at 
+the \isi{visualisation} level. Examples of contextual options in Figure \ref{fig:3} are text options 
+such as those that were mentioned in Section \ref{sec:3} (e.g. text source).
+
+An additional interesting aspect of the graph representation is that it allows 
+for a prototypically-structured \isi{visualisation} of term variants referring to the 
+same unit of understanding. This means that terms that frequently occurred in all 
+texts have a lot of coreferential connections to other terms in the \isi{network}. Consequently, 
+these terms will take up a more central position in the \isi{network} whereas infrequent 
+patterns will appear more in the periphery. In this way, dictionary users will 
+immediately be able to distinguish between `core variants' (i.e. variants that 
+are frequently encountered within the selected collection of texts) and `peripheral 
+variants' (i.e. variants that were only sporadically encountered). Selecting or 
+deselecting certain contextual options can potentially cause term variants to move 
+from the centre to the periphery or vice versa, allowing for dynamic, customised 
+visualisations of semantically-structured term variants.
+
+\section{Conclusion}\label{sec:7}
+
+In this contribution, I have discussed how \isi{coreferential analysis} can be used to 
+identify term variants in a corpus of source texts, how the method can be supported 
+by implementing semi-automatic procedures, how lexical chains in the \isi{source language} 
+and their translations can form the basis for quantitative comparisons between 
+source and target texts and, finally, how coreferential links between intralingual 
+variants can be represented in a dictionary application.
+
+Coreferential chains can give us more insight in possible patterns of convergence 
+or divergence among language versions of the same document. I therefore intend 
+to further examine cohesive patterns in source and target texts for different reasons. 
+For instance, it can be expected that differences in cohesive patterns will emerge 
+if \isi{coreferential analysis} is applied to all language versions (instead of the drafted 
+versions only). By comparing the resulting coreferential chains in the different 
+languages, it should be possible to calculate to what extent the \isi{target language} 
+versions deviate from the source texts in terms of terminological \isi{consistency} and 
+coreferential patterning. This is for instance valuable information for translators 
+of EU legislation who have to see to it that no deviations occur in language versions 
+of legally-binding texts. Differences in cohesive patterns are thus a possible method for further exploring the notion of anisomorphism 
+in the context of EU translation. Anisomorphism refers to asymmetry in the interlinguistic transfer process, what \citet[215]{GonzalezJoverGomez2006}refers to as "the losses and gains that always occur in interlinguistic transfer processes, and which may be taken into account when comparing two different language systems."
+
+Focusing on the coreferential chains in the \isi{target language} versions will enable 
+us to establish a new type of connection between `linguistic options' in the source 
+text (not based on the coreferential status of terms in a text but derived from 
+translation similarities). For instance, the English expression `climate risk' 
+in TextID 6 (see Section \ref{sec:3}) was not marked as part of the cluster \textsc{climate\_impact}. 
+However, given the fact that in the \isi{French} text this term was translated as `conséquences 
+du \isi{changement climatique}' (`consequences of climate change'), which also appeared 
+in the corpus as the translation of `climate change impact', a link may be established 
+between the term `climate risk' and the English cluster of terms denoting \textsc{climate\_impact}:
+
+\begin{quote}
+\textit{English co-text: \texttt{"}[...] ensuring that long-term infrastructure 
+will be proof to future \texttt{>}\texttt{>}climate risks\texttt{<}\texttt{<} [...]\texttt{"}}
+
+\isi{French} co-text: \texttt{"}[...] soient capables de résister aux \texttt{>}\texttt{>}conséquences 
+du \isi{changement climatique}\texttt{<}\texttt{<} [...]\texttt{"}
+\end{quote}
+
+Another example in the same text is the English term `climate-resilient'. This 
+term was not taken up in the cluster \textsc{climate\_adaptation} during the source 
+text analysis but may be linked to this cluster on the basis of its \isi{French} translation 
+`s'adapter au \isi{changement climatique}' (`to adapt to climate change')
+
+\begin{quote}
+\textit{English co-text: \texttt{"}[...] targeted action is needed on building 
+codes and methods, and \texttt{>}\texttt{>}climate-resilient\texttt{<}\texttt{<} 
+crops [...]\texttt{"}}
+
+\isi{French} co-text: \texttt{"}[...] l'élaboration de codes et de méthodes ainsi que 
+la mise en place de cultures pouvant \texttt{>}\texttt{>}s'adapter au changement 
+climatique\texttt{<}\texttt{<} [...]\texttt{"}
+\end{quote}
+
+
+Although my method proved to be valid for comparing patterns of variation, the 
+time spent in this project on the method of analysis remains a major drawback. 
+Fully automated \isi{extraction} methods were not used, given the specific research requirements 
+of data accuracy and completeness to be able to compare patterns of variation between 
+the source and target texts. But since the work was characterised by a lot of repetitive 
+tasks (such as selecting and annotating term variants that were previously encountered 
+and thus already known) a combination of automatic procedures and manual verification 
+proved to be efficient. Still, further reflections are necessary to conduct coreferential 
+analyses in a way which seem more efficient and practical from a user perspective. 
+For instance, it will need to be examined how the manual analysis can benefit from 
+an automated co-referential resolution module.
+
+\section*{Acknowledgements}
+
+The author wishes to thank the reviewers for their valuable comments on an earlier 
+draft.
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this] 
+}
+\end{document}

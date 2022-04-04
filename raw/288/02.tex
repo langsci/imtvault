@@ -1,0 +1,238 @@
+\documentclass[output=paper]{langsci/langscibook} 
+\ChapterDOI{10.5281/zenodo.4545031}
+
+\author{Sergi Álvarez\affiliation{Universitat Pompeu Fabra} and Toni Badia\affiliation{Universitat Pompeu Fabra} and Antoni Oliver\affiliation{Universitat Oberta de Catalunya}}
+\title[Comparing NMT and PBSMT for post-editing in-domain formal texts]
+      {Comparing NMT and PBSMT for post-editing in-domain formal texts:\newlineCover{} A case study}
+\abstract{This paper details a comparative analysis between phrase-based statistical machine translation (PBSMT) and neural machine translation (NMT) for English-Spanish in-domain medical documents using human rankings, fluency and adequacy, and post-editing (technical and temporal) effort, performed by professional translators. When MT output is ranked against translations performed by professional translators, results show a clear preference for human translations, with NMT in the second position. Regarding MT outputs, NMT is perceived as more fluent and conveying better the meaning of the source sentence. Despite this preference, post-editing temporal effort does not improve significantly in NMT compared to PBSMT, although technical effort is reduced.}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Over the last years, post-editing of machine translation (PEMT) has become common practice in the translation industry. It has been included as part of the translation workflow because it increases productivity and reduces costs \citep{Guerberof2009a}. A recent survey showed that more than half of the language service providers (LSPs) offered PEMT as a service \citep{Lommel2016EuropesMT}. Post-editors “edit, modify and/or correct pre-translated text that has been processed by an MT system from a source language into (a) target language(s)” \citep{Allen2003}. Yet, many professional translators state that after post-editing a few MT segments, they delete the remaining segments and translate everything from scratch if they consider it will take them less time \citep{ParraEscartin2015}.
+
+Effective PE, therefore, requires sufficient quality of the MT output. The issue, then, is how to detect that a machine translation output is good enough to serve as input to PE. Very often, the usual automatic metrics do not always correlate to PE effort \citep{koponen2016machine}. Even translators' perception does not always match PE effort \citep{koponen2012comparing,Moorkens2018c}. Research in this field has mainly focused on measuring the PE effort related to MT output quality \citep{Guerberof2009a,Guerberof2009,Specia2011a,Specia2010}, productivity \citep{OBrien2011,ParraEscartin2015,Plitt2010,Sanchez-Torron}, translator’s usability \citep{Castilho2014,Moorkens2013} and perceived PE effort \citep{moorkens_correlations_2015}. 
+                            
+Statistical machine translation (SMT) has been well established as the dominant approach in machine translation for many years. However, in the last few years, research has become more interested in neural machine translation after the computational limitations have been solved \citep{Bahdanau2014NeuralTranslate,Cho2014OnApproaches}. The first results obtained have been very successful in terms of quality, for example in WMT 2016 \citep{Bojar2016}, WMT 2017 \citep{Bojar2017}, and WMT 2018 \citep{Bojar}. These promising results have driven a technological shift from (phrase-based) statistical machine translation (SMT) to neural machine translation (NMT) in many translation industry scenarios.
+
+All of the current research on post-editing machine translation output uses the division established by \citet{krings2001repairing} regarding PE effort:  temporal effort (time spent PE), technical effort (number of edits, often measured using keystroke analysis), and cognitive effort (usually measured with eye-tracking or think-aloud protocols). Even though no current measure includes all three dimensions, cognitive effort correlates with technical and temporal PE effort \citep{moorkens_correlations_2015}. In our experiments, we use automatic measures of both temporal and technical effort.
+
+As this new approach to MT becomes more popular among LSPs and translators, it is essential to test what NMT can offer for PE in terms of quality compared to the results of PBSMT. Recent studies \citep{Bentivogli2016,Castillo2017,Toral2017} have stated an improved quality of NMT for PE. In this paper, we continue in this direction, but we focus on in-domain formal documents, which are the ones usually post-edited by professional translators. 
+
+%This content has specific characteristics that present challenges for MT, such as the technical %content and terminology, but tend to have more fixed syntactic structures. 
+%We report the experiments carried out using human evaluations and automatic metrics for English to %Spanish medical documents. We use PBMT and NMT engines trained with the same data. We include %different metrics, such as side-by-side ranking, rating for accuracy and fluency, PE time and BLEU. 
+
+Our objectives with these experiments are threefold:
+\begin{itemize}
+\item Determine which MT method (PBSMT or NMT) yields better results for PE in-domain formal texts.
+\item Analyze the relation between human and automatic metrics for PE.
+\item Study translators perception as a prospective measure of PE effort.
+\end{itemize}
+
+In Section \ref{Previouswork}, we review previous work comparing SMT and NMT approaches. In Section \ref{MTsystemsandtrainingcorpus} we describe the MT systems and the training corpus used. In Section~\ref{AutomaticevaluationoftheMTsystems} we include the automatic evaluation of the MT systems used. We give details about the methodology used for our experiments in Section~\ref{Experiments}. We explain the results obtained in Section \ref{Results} and, finally, we state the main conclusions and our plans for future work in Section \ref{Conclusionsandfuturework}.
+
+\section{Previous work} \label{Previouswork}
+One of the first complete papers studying the impact of SMT and NMT in PE was Bentivogli et al. (\citeyear{Bentivogli2016}). In it, they carry out a small scale study on post-editing
+NMT and SMT outputs of English to German translated TED talks. They conclude that NMT generally decreases the PE effort, but degrades faster than SMT with sentence length. One of the main strengths of NMT is the reodering of the target sentence.
+
+Wu et al. (\citeyear{Wu2016GooglesTranslation}) evaluate the quality of NMT and SMT, in this case using BLEU \citep{Papineni2002} and human scores for machine-translated Wikipedia entries. Results show that NMT systems outperform and improve the quality of MT results. Other studies have confirmed this diagnostics \citep{Junczys,IsabelleCF17}, as have the results of the automatic PE tasks at the Conference on Machine Translation \citep{Bojar2016,Bojar2017}. 
+
+\citet{Toral2017} broaden the scope of Bentivogli et al. (\citeyear{Bentivogli2016}) adding different language combinations and metrics, and they conclude that although NMT yields better quality results in general, it is negatively affected by sentence length, and the improvement of the results is not always perceivable in all language pairs. 
+
+Castilho et al. (\citeyear{Castilho2017IsArt}) discuss three studies using automatic and human evaluation methods. One of them includes in-domain formal texts for chemical patent titles and abstracts. In addition to the automatic metrics, two reviewers assess 100 random segments to rank the translations and to identify translation errors. Automatic evaluation doesn't give clear results, but the SMT system is ranked higher than NMT in human evaluation.
+
+Castilho et al. (\citeyear{Castillo2017}) report on a comparative study of PBSMT and NMT, with four language pairs and different automatic metrics and human evaluation methods. It highlights some strengths and weaknesses of NMT, which in general yields better results. The study focuses especially on PE and uses the PET interface \citep{Aziz} to compare educational domain output from both systems using different metrics. They conclude that NMT reduces word order errors and improves fluency for certain language pairs, so fewer segments require PE, especially because there is a reduction in the number of morphological errors. However, they don't detect a decrease in PE effort nor a clear improvement in omission and mistranslation errors.
+
+%There has also been some research studying specific language combinations. Dowling et al.\textit{} %\citep{Dowling} provide a comparison of SMT and NMT for English to Irish in the public administration %domain. The results show that for languages with less resources like Irish out-of-the-box NMT systems %don't work as well as tailor-made domain-specific SMT system. Skandina et al. \citep{Skandina} %compares English to Latvian SMT and NMT for narrow domains. It shows that with a small amount of data %for training, SMT systems perform better than NMT systems. The SMT systems learn better terminology %and phrases specifics for the domain. However, in the news domain, results are better for NMT %approaches.
+
+Our experiments study the differences of post-editing NMT and SMT outputs for formal in-domain texts. We compare the usual automatic scores for MT with direct and indirect PE effort metrics. Mainly, we study translators' perception regarding quality, and fluency and accuracy, and analyze temporal and technical pot-editing effort.
+
+\section{MT systems and training corpus} \label{MTsystemsandtrainingcorpus}
+\subsection{MT systems} \label{MTsystems}
+
+In order to help contextualise the results in our experiments, we have decided to use two MT systems as references to compare their results with the ones of the systems we trained. As reference MT systems, we have chosen Apertium \citep{forcada2011apertium}, a shallow transfer MT system, and Google Translate, a neural MT system for the English-Spanish language pair, which is the one we use in our experiments.
+
+For training the PBSMT and neural MT systems we have used ModernMT \citep{germann2016modern} version 2.4. This version allows to train both statistical and neural MT systems. We have used the default options for this version. One of the salient characteristics of ModernMT is the fact that it can take into account the context of the sentence to be translated. In the evaluation results, we show figures for both cases: with and without taking the context into account. In the experiments we take context to be the previous and the next segment (except for the first and last segment, where we have taken into account the next and the previous segment only, respectively). Short contexts are usually enough to calculate the context vector used by ModernMT.
+
+\subsection{Data: Medical corpus} \label{DataMedicalCorpus}
+
+To train the system, we have compiled all of the publicly available corpora in the English-Spanish pair known to us. We have also created several corpora from websites with medical content:
+
+\begin{itemize}
+\item The EMEA\footnote{\url{http://opus.nlpl.eu/EMEA.php}} (\emph{European Medicines Agency}) corpus. 
+\item The IBECS\footnote{\url{http://ibecs.isciii.es}} (\emph{Spanish Bibliographical Index in Health Sciences}) corpus.
+\item Medline Plus:\footnote{\url{https://medlineplus.gov/}} we have compiled our own corpus from the web and we have combined this with the corpus compiled in MeSpEn\footnote{\url{http://temu.bsc.es/mespen/}}.
+\item MSDManuals\footnote{\url{https://www.msdmanuals.com/}} English-Spanish corpus, compiled for this project under permission of the copyright holders.
+\item Portal Clínic\footnote{\url{https://portal.hospitalclinic.org}} English-Spanish corpus, compiled by us for this project.
+\item The PubMed\footnote{\url{https://www.ncbi.nlm.nih.gov/pubmed/}} corpus.
+\item The UFAL Medical Corpus\footnote{\url{https://ufal.mff.cuni.cz/ufal_medical_corpus}} v1.0.
+\end{itemize}
+
+We have also treated as a corpus glossaries and glossary-like databases containing a lot of useful terms and expressions in the medical domain. Namely, we have used the English-Spanish glossary from MeSpEn, the 10th revision of the international statistical classification of ICD and SnowMedCT.
+%Diseases and Related Health Problems (ICD) and %the following:
+
+%\begin{itemize}
+%\item English-Spanish glossary from MeSpEn
+%\item ICD10-en-es: ICD10 is the 10th revision of the International Statistical Classification of %Diseases and Related Health Problems (ICD), a medical classification list by the World Health %Organization (WHO). 
+%\item SnowMedCT: SNOMED Clinical Terms is a systematically organized computer processable collection %of medical terms providing codes, terms, synonyms and definitions used in clinical documentation and %reporting. 
+%\end{itemize}
+
+With all the corpora and glossaries we have created an in-domain training corpus of 2,836,580 segments and entries. We have split the corpus in two parts: 99\% of the segments for training, and the remaining 1\% for testing.
+
+We have also used other general corpora for training the MT systems, namely the Scielo corpus, the Europarl corpus\footnote{\url{http://www.statmt.org/europarl/}} \citep{koehn2005europarl}, Global Voices corpus \footnote{\url{https://globalvoices.org/}} and News Commentary. The IBECS, Scielo, Pubmed and a part of the MedlinePlus corpus have been obtained from the MeSpEn corpus\footnote{\url{http://temu.bsc.es/mespen/}} \citep{articlev}.
+
+%\begin{itemize}
+%\item The Scielo corpus (\emph{Scientific Electronic Library Online}), that is formed by complete full text articles from scientific journals of Latin America, South Africa and Spain. As these articles are not necessarily in the area of medicine, we consider this copus as general.
+%\item Europarl corpus\footnote{\url{http://www.statmt.org/europarl/}} \citep{koehn2005europarl} and obtained from Opus Corpus
+%\item Global Voices corpus, parallel corpus of news stories from the web site Global Voices\footnote{\url{https://globalvoices.org/}}  compiled and provided by CASMACAT\footnote{\url{http://casmacat.eu/corpus/global-voices.html}} and obtained from Opus Corpus.
+%\item News Commentary: a parallel corpus of news commentaries provided by WMT for training SMT. The source is also taken from CASMACAT and downloaded from Opus Corpus.
+%\end{itemize}
+
+%We have created an out-of-domain corpus as a support for training the MT-systems.
+
+
+
+In Table \ref{size-corpora} the size of all corpora and glossaries used for training the MT systems are shown. The figures are calculated after eliminating all the repeated source segment -- target segment pairs in the corpora.
+
+\begin{table}
+\begin{tabular}{lrrr}
+\lsptoprule
+{Corpus} & {Segments/Entries} & {Tokens eng} & {Tokens spa}\\
+\midrule
+EMEA & 366,769 & 5,327,963 & 6,008,543\\
+IBECS & 628,798 & 13,432,096 & 14,879,220\\
+MedLine Plus & 15,689 & 209,074 & 234,660\\
+MSD Manuals & 241,336 & 3,719,933 & 4,467,906\\
+Portal Clinic & 8,797 & 159,717 & 169,294\\
+PubMed & 320,475 & 2,752,139 & 3,035,737\\
+UFAL & 258,701 & 3,202,162 & 3,437,936\\
+\midrule
+Glossary MeSpEn & 125,645 & 286,257 & 348,415\\
+ICD10-en-es & 5,202 & 25,460 & 30,580\\
+SnowMedCT Denom. & 887,492 & 3,509,062 & 4,457,681\\
+SnowMedCT Def. & 4,268 & 177,861 & 184,574\\
+\midrule
+{In-domain} & {2,836,580} & {32,479,955} & {36,893,257}\\
+\midrule
+Scielo & 741,407 & 17,464,256 & 19,305,165\\
+Europarl & 1,961,672 & 50,008,219 & 52,489,142\\
+Global Voices & 559,418 & 10,717,938 & 11,496,683\\
+News Commentary & 259,412 & 5,898,912 & 6,903,975\\
+\midrule
+{Out-of-domain} & {3,521,363} & {84,087,899} & {90,193,659}\\
+\lspbottomrule
+\end{tabular}
+\caption{\label{size-corpora} Size of the corpora and glossaries used to create the corpus to train the MT systems.}
+\end{table}
+
+\section{Automatic evaluation of the MT systems} \label{AutomaticevaluationoftheMTsystems}
+
+In Table \ref{eval-mteval1reference} we can observe the evaluation values of the trained systems using MTEval\footnote{\url{https://github.com/odashi/mteval}} along with Apertium and Google Translate. This software allows to calculate BLEU, NIST, RIBES and WER using only one reference. We have used all the test sets of the corpus. As shown in the table, the systems trained in the experiment obtain better results in all metrics than the reference systems used, except for the Google Translate system, which obtains a slightly better NIST result than the MMT Phrase-Based system without context and a better WER result than the two MMT Phrase-Based systems. The MMT Neural system performs consistently better than the MMT Phrase-Based system.  In the MMT Neural system, we do not see any significant difference between the results obtained when trained with or without context.   
+
+\begin{table}
+\begin{tabular}{lrrrr}
+\lsptoprule
+{MT system} & \multicolumn{1}{c}{BLEU} & \multicolumn{1}{c}{NIST} & \multicolumn{1}{c}{RIBES} & \multicolumn{1}{c}{WER}\\
+\midrule
+Apertium & 0.192577 & 6.442539 & 0.713117 & 0.702716\\
+Google T. & 0.402497 & 9.632268 & 0.809469 & 0.530053\\
+MMT P.B. no context & 0.424183 & 9.536248 & 0.814425 & 0.637821\\
+MMT P.B. context & 0.444832 & 9.801466 & 0.819303 & 0.621032\\
+MMT Neural no context & 0.503935 & 11.106222 & 0.836954 & 0.485474\\
+MMT Neural context & 0.505778 & 11.141294 & 0.836313 & 0.481039\\
+\lspbottomrule
+\end{tabular}
+\caption{\label{eval-mteval1reference}Results of the automatic evaluation using mteval.}
+\end{table}
+
+\section{Experiments} \label{Experiments}
+We carried out three different experiments with English-Spanish medical texts to assess human perception and evaluation of both PBSMT and NMT systems.
+\subsection{Translation ranking} \label{Translationranking}
+In the first part, participants had to answer some questions about their previous experience in the translation industry. The survey was open both to students and professional translators as we were mainly interested in the perception of quality. In the second part of the survey, participants had to rank the translation of 40 segments (human translation, NMT and PBSMT), which had no context and were randomized to avoid bias. They were selected so there were no repeated translations and all had a minimum length of 100 characters. Then we applied a script to ensure there was a minimum editing distance of 15\% between the human-PBSMT, human-NMT and PBSMT-NMT solutions. This reduced the number of segments from 230 to 145. We hand-picked 40 segments without typos nor any other problem. 
+\subsection{Fluency and adequacy}
+We presented a survey with the same English segments as in the previous experiment. In the first part, participants (both students and professional translators) had to answer some questions about their previous experience in the translation industry. Afterwards, they had to evaluate the fluency and adequacy of the proposed translation on a four-point Likert scale. The translation was either PBSMT or NMT chosen randomly without any knowledge of the participants. The goal was to assess fluency and adequacy for in-domain formal texts.
+\subsection{PE time and technical effort}
+Finally, in the third experiment, participants had to post-edit 41 segments from a 2018 medical paper. They had to carry out the task in PET \citep{Aziz}\footnote{\url{http://wilkeraziz.github.io/dcs-site/pet/index.html}}, a computer-assisted translation tool that supports PE. It was used with its default settings. It logged both PE time and edits (keystrokes, insertions and deletions, that is, technical effort). Four professional translators with more than two years of experience post-editing carried out the task: two of them post-edited the PBSMT output and the other two post-edited the NMT output. 
+
+
+\section{Results} \label{Results}
+\subsection{Translation ranking}
+29 people answered the survey. From those, 86.21\% had previous experience as translators and 58.62\% had worked on PE tasks. Confirming the initial hypothesis, most respondents preferred the human translation. However, this percentage was only of 60.52\%. The second most preferred translation was NMT, with 25.17\%, and PBSMT was only considered the best translation for 14.31\% of the segments. We calculated inter annotator agreement using Fleiss' kappa \citep{fleiss1971}, which showed a fair agreement among the annotators ($\kappa=0.36$). These results were statistically significant in a one-way ANOVA comparison ($p<0.05$).
+
+\begin{table}
+\begin{tabularx}{.66\textwidth}{Xrrr}
+\lsptoprule
+{Evaluation} & {Human} & {NMT} & {PBSMT}\\
+\midrule
+EN-ES (40) & 60.52\% & 25.17\% & 14.31\% \\
+\lspbottomrule
+\end{tabularx}
+\caption{\label{human-NMT-PBSMT}Results of the human-NMT-PBSMT ranking survey.}
+\end{table}
+
+Although the survey was conducted on a fairly small number of sentences, it seems to point in two directions: NMT is far from achieving the quality of human translation for medical texts, and NMT yields better translations than PBSMT. We conducted a manual analysis of the sentences in which NMT or PBSMT were selected as the best translation. It was observed the main reason for the selection was terminology precision and fluency of the MT output.
+
+\subsection{Fluency and adequacy}
+In the second experiment, eleven people answered the survey. Seven of them were translators with more than two years of experience and only four of them were students. Both fluency and adequacy obtained a higher rate for NMT after calculating the mean for both MT systems. We calculated inter annotator agreement using Fleiss' kappa \citep{fleiss1971}. For fluency, it showed poor agreement among the annotators ($\kappa=0.01$). Results were statistically significant in a one-way ANOVA comparison, with an $F$-ratio value of 2.75586 and a $p$-value of 0.04856 (significance at $p<0.05$). For adequacy, there was also poor agreement among annotators. These results weren't statistically significant, with an $F$-ratio value of 0.96767 and a $p$-value of 0.412816 ($p<0.05$). 
+
+If we take a closer look at the sentences that had to be assessed, PBSMT segments often contain morphological problems (e.g. concordance) that we cannot spot in NMT segments, as in example \REF{example1}. This way the generally higher ratings for fluency and adequacy of the NMT system are confirmed. 
+
+
+
+\ea\label{example1}
+\gll Source: Craniopharyngioma had more hormone deficiencies\\
+Gloss: \underline{Craneofaringioma tenían} más déficits hormonales\\
+\glt PBSMT: `\underline{Craneofaringioma/had (plural)}/more/deficits/hormonal'
+\z
+
+\begin{table}
+\begin{tabularx}{.66\textwidth}{Xrrr}
+\lsptoprule
+{System} & {Fluency} & {Adequacy}\\
+\midrule
+PBSMT & 2.28 & 2.24 \\
+NMT & 2.46 & 2.50 \\
+\lspbottomrule
+\end{tabularx}
+\caption{\label{eval-mteval1reference2}Results of the ranking survey.}
+\end{table}
+
+\subsection{PE time and technical effort}
+Results for the PE task by professional translators have been grouped in temporal effort and technical effort (see Tables \ref{temporal post-editing} and \ref{technical post-editing}). In both cases, the mean for PBSMT is higher, though only technical effort shows a statistically significant difference (in a $t$-test with a $p$-value of 0.002054). It is worth highlighting that there was a considerable difference in time and keylogging between the translators, especially for the two professionals who post-edited PBSMT (as indicated by the standard deviation in Tables \ref{temporal post-editing} and \ref{technical post-editing}).
+
+\begin{table}
+\begin{floatrow}\captionsetup{margin=.1\textwidth}
+\ttabbox[.5\textwidth]{%
+\begin{tabular}{lrr}
+\lsptoprule
+{System} & {Mean} & $\SD$\\
+\midrule
+PBSMT & 88.75 & 44.59\\
+NMT & 79.25 & 33.43\\
+\lspbottomrule
+\end{tabular}}{\caption{\label{temporal post-editing} Temporal PE effort (secs/segment).}}%
+\ttabbox[.5\textwidth]{%
+\begin{tabular}{lrr}
+\lsptoprule
+{System} & {Mean} & $\SD$\\
+\midrule
+PBSMT & 130.68 & 39.63\\
+NMT & 54.99 & 16.90\\
+\lspbottomrule
+\end{tabular}}
+{\caption{\label{technical post-editing} Technical effort (keystrokes/segment).}}
+\end{floatrow}
+\end{table}
+
+\section{Conclusions and future work} \label{Conclusionsandfuturework}
+Although the number of segments analyzed is quite small, for this language combination and text type, there seems to be a clear preference for human translations, which are considered better in more than half of the cases. Regarding MT engines, NMT presents more fluency and adequacy. This corresponds with the higher results in all automatic metrics. However, the results for the perception and automatic assessments do not correlate with PE time, even though there is a reduction in technical effort when post-editing NMT outputs. Thus, even though NMT produces more fluent results, this improvement does not always entail a reduction of the PE effort for professional translators, probably due to the added difficulty of error spotting in more fluent outputs.
+
+In future research, we intend to further analyze PE, increasing the number of segments and language combinations to assess the correlation between automatic metrics and PE (technical and temporal) effort.
+
+
+\section*{Acknowledgements}
+We want to thank the copyright holders for granting permission for the MSDManuals website and for using these texts to create an English-Spanish parallel corpus. The training of the neural MT systems has been possible thanks to the NVIDIA GPU grant programme.
+
+{\sloppy\printbibliography[heading=subbibliography,notkeyword=this]}
+\end{document}

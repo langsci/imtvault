@@ -1,0 +1,961 @@
+\documentclass[output=paper,modfonts,nonflat]{langsci/langscibook} 
+\ChapterDOI{10.5281/zenodo.1469553}
+
+
+
+\title{Paraphrases of verbal multiword expressions: The case of Czech light verbs and idioms} 
+\author{Petra Barančíková\affiliation{Charles University}\lastand    Václava Kettnerová\affiliation{Charles University} }
+\abstract{In this chapter, we deal with two types of \ili{Czech} verbal MWEs: light verb constructions and verbal idiomatic constructions. Many verbal MWEs are characterized by~the possibility of being paraphrased by single words. We explore paraphrasability\is{verbal multiword expression!paraphrasability} of Czech verbal MWEs by single verbs in a semiautomatic experiment using word embeddings. Further, we propose a lexicographic representation of the obtained paraphrases enriched with morphological, syntactic and semantic information. We demonstrate one of its practical application in a machine translation experiment.}
+
+\title{Paraphrases of verbal multiword expressions: the case of Czech light verbs and idioms}
+
+\begin{document}
+\shorttitlerunninghead{Paraphrases of VMWEs: the case of Czech light verbs and idioms}%Needed to make the authors' headline shorter. Always place just after \begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+Multiword expressions (MWEs) are widely acknowledged as a serious challenge for 
+both foreign speakers and many NLP tasks \citep{Sag2002a}. 
+Out of various MWEs, those that involve verbs are of great significance 
+as verbs represent the syntactic center of a sentence. \citet{baldwin2010multiword}
+distinguish the following four types of verbal MWEs:
+
+\begin{itemize}
+\item 
+verb-particle constructions (also referred to as particle verbs, or phrasal 
+verbs), e.g., \textit{catch up}, \textit{put on}, \textit{swallow down};
+\item
+prepositional verbs, e.g., \textit{come across}, \textit{refer to};
+\item
+light-verb constructions (also referred to as verb-complement pairs, or support 
+verb constructions), e.g., \textit{do a report}, \textit{give a kiss}, 
+\textit{make an attempt}; %\textit{take a bath}, \textit{have pity}, 
+\item
+verb-noun idiomatic constructions (also referred to as VP idioms), e.g., 
+\textit{spill the beans}, \textit{pull strings}, \textit{shoot the breeze}.
+\end{itemize}
+
+
+In this chapter, we focus on two particular types of \ili{Czech} verbal MWEs: 
+light-verb constructions (LVCs) and idiomatic verbal constructions (IVCs) as 
+they also represent MWEs in Czech in contrast to the first two types that are 
+primarily expressed as~single prefixed verbs. 
+
+We explore the possibility of expressing these two types of MWEs by single 
+synonymous verbs, which is considered to be one of their prototypical features, 
+see e.g. \citet{chafe-68} and \citet{fillmore-88}. The motivation for this work 
+lies in the fact that paraphrases greatly assist in a wide range of NLP 
+applications such as information retrieval \citep{wallisinformation}, 
+\isi{machine translation} \citep{Madnani:2013,Callison-Burch:2006,Marton:2009} 
+or \isi{machine translation} evaluation \citep{Kauchak:2006,Zhou:2006,BaRoImprovingEvaluation2014}. 
+
+The content of this chapter is an extended version of \citet{barancikova2017paradi}.
+In addition, it is further explored with IVCs and linguistic properties of LVCs\is{light-verb construction!linguistic properties} and IVCs\is{idiomatic verbal construction!linguistic properties}
+relevant to the paraphrasing task are discussed in detail. The 
+new version of the \isi{dictionary of paraphrases} is larger and it provides a more 
+elaborated set of morphological, syntactic and semantic features, including 
+information on aspects\is{grammatical aspect} and aspectual counterparts of verbs.
+
+This chapter is structured as follows. First, linguistic properties of LVCs and 
+IVCs\is{light-verb construction!linguistic properties}\is{idiomatic verbal construction!linguistic properties} are discussed (\sectref{liguistic}) and related work on their paraphrases is 
+introduced. Second, a \isi{paraphrasing model} is proposed, namely the 
+selection of~LVCs and IVCs\is{light-verb construction!selection}\is{idiomatic verbal construction!selection}, an automatic extraction of candidates for their 
+paraphrases and their manual evaluation are described in detail (\sectref{CPs}). 
+Third, the resulting data and their representation in a dictionary of 
+paraphrases are introduced (\sectref{results}). Finally, in order to present one 
+of the many practical applications of~this dictionary, a~random sample of 
+paraphrases of LVCs is used in~a~\isi{machine translation} experiment (\sectref{evaluation}). 
+%The results of this experiment showed that substituting LVCs for their single word paraphrases improves quality of \isi{machine translation}.
+
+\section{Linguistic properties of LVCs and IVCs}
+\label{liguistic}
+Both LVCs and IVCs represent verbal multiword units: they are composed 
+of~separate words that, however, refer to an extralinguistic reality as a whole. 
+Their linguistic properties relevant for their paraphrasability\is{verbal multiword expression!paraphrasability} by single verbs 
+are introduced below. 
+
+\subsection{Light-verb constructions}
+\label{LVCs}
+
+The theoretical research on light-verb constructions\is{light-verb construction}\is{light-verb construction!linguistic properties} is characterized by 
+an~enormous diversity in~terms and analyses used, see esp. \citet{amberber-10} 
+and \citet{alsina-97}. Here, we use the term  LVC for a~multiword unit within 
+which the verb -- not retaining its full semantic content -- provides 
+grammatical functions and to which the main predicative content is contributed 
+by a~noun; as a~result, such a multiword unit serves as~a~single predicative 
+unit, see e.g. \citet{algeo-95}, \citet{alsina-97} and 
+\citet{butt-2010}.\footnote{Besides predicative nouns, adjectives, adverbs and
+verbs can also serve as predicative elements. These cases are left aside 
+here.} In contrast to IVCs, predicative nouns in LVCs have the same meanings 
+as in nominal structures, meanings of light verbs are rather impoverished when 
+compared with their full verb counterparts, see \sectref{IVCs}. 
+
+In the \ili{Czech} language, the central type of LVCs are represented by LVCs in 
+which predicative nouns are expressed as a direct or indirect object of a 
+light verb (e.g., \exlitidio{dostat strach}{to get fear}{to become afraid}, 
+\textit{vzdát úctu} `to pay tribute', and \exlitidio{vyvolat pobouření}{to provoke indignation}{to 
+cause uproar}). 
+The LVCs in which a predicative noun occupies an adverbial of the light verb, 
+(e.g., \textit{dát do pořádku} `to put in~order', \textit{mít pod kontrolou} 
+`to have under control', \exlitidio{mít na starosti}{to 
+have on care}{to be responsible}) are more syntactically and morphologically fixed than the 
+central type of LVCs \citep{radimsky-10}.
+
+As~single predicative units, most LVCs have their single predicative 
+counterparts by~which they can be paraphrased. A single verb paraphrase can be
+either morphologically related, or non-related with the predicative noun 
+representing the nominal component of the paraphrased LVC. For example, the~LVCs 
+\textit{dát polibek} and \textit{dát pusu} `give a kiss' can be both paraphrased 
+by the verb \textit{políbit} `to kiss', which is morphologically related only 
+with the nominal component of  the first LVC. There is no synonymous verb 
+morphologically related to the nominal component of the second LVC.
+
+In~contrast to their single predicative paraphrases, LVCs manifest greater 
+flexibility in their modification, compare e.g. adjectival modifiers of~the LVC 
+\textit{dát polibek} `give a~kiss' and the corresponding adverbial modifiers 
+of~its single verb paraphrase \textit{políbit} `to kiss':  
+\textit{dát váš\-ni\-vý/něž\-ný/let\-mý/man\-žel\-ský/má\-jo\-vý/smr\-tí\-cí 
+po\-li\-bek} `give a pas\-sion\-ate/ten\-der/fleet\-ing/mar\-riage/May/fa\-tal 
+kiss' vs. \textit{váš\-ni\-vě/ něž\-ně/let\-mo/*man\-žel\-sky/*má\-jo\-vě/*smr\-tel\-ně 
+po\-lí\-bit} `to kiss pas\-sion\-ate\-ly/ten\-der\-ly/fleet\-ing\-ly/*mar\-riage\-ly/*May\-ly/?fa\-tal\-ly'.  Easier modification of LVCs is often considered a motivation for their use \citep{brinton-99}.
+
+Another motivation lies in the possibility to structure the expressed event 
+in~a~more subtle way than what single verbs allow. For example, in \ili{Czech} various 
+combinations of the \isi{grammatical aspect} of light verbs and the number of 
+predicative nouns allow for the expression of several meanings that cannot be 
+expressed with single verbs; these cases require lexical modification, see 
+\tabref{aspect}.
+
+\begin{table}[b]
+	\begin{tabularx}{\textwidth}{lp{18mm}p{20mm}Q}
+	 \lsptoprule
+	   \multirow{2}{*}{LVC} & Single verb paraphrase& Lexical\newline      modification    & \multirow{2}{*}{Example\footnote{Let us emphasize that the single verb paraphrases of 
+	the last two combinations require to be lexically modified -- by the words 
+	\textit{několikrát}  `several times' and \textit{právě} `just', respectively.}} \\
+	                     \midrule
+		\multirow{4}{*}{sg \& pf}   & \multirow{4}{*}{pf} &  \multirow{4}{*}{no} &  \textit{Petr dal Janě polibek}. \\ 
+		                            &                     &                      &  `Peter gave a~kiss to Jane.' \\
+		                            &                     &                      &   $\thicksim$ \textit{Petr Janu políbil}. \\
+		                            &                     &                      &   `Peter kissed Jane.'\\ \midrule
+ 		\multirow{4}{*}{pl \& impf} & \multirow{4}{*}{impf} & \multirow{4}{*}{no}     &  \textit{Petr dával Janě polibky.} \\
+ 		                            &                       &                         & `Peter gave kisses to Jane.' \\ 
+                                  &                       &                         & $\thicksim$ \textit{Petr Janu líbal}. \\
+                                  &                       &                         & `Peter was kissing Jane.' \\ \midrule  		                                                                                  
+		\multirow{4}{*}{pl \& pf}  & \multirow{4}{*}{pf}  & \multirow{4}{*}{yes}    &    \textit{Petr dal Janě polibky}. \\
+		                            &                       &                        &    `Peter gave several kisses to Jane.' \\ 
+                                  &                       &                        &     $\thicksim$ \textit{Petr Janu několikrát políbil.} \\
+                                  &                       &                        &     `Peter kissed Jane several times.' \\ \midrule
+		\multirow{4}{*}{sg \& impf} & \multirow{4}{*}{impf}   & \multirow{4}{*}{yes}  &   \textit{Petr Janě dával polibek.} \\
+		                            &                       &                       &   `Peter was giving a kiss to Jane.' \\ 
+		                            &                       &                       &   $\thicksim$ \textit{Petr Janu právě líbal.}  \\
+		                            &                       &                       &    `Peter was just kissing Jane.'\\    
+	\lspbottomrule       
+	\end{tabularx}
+	\caption{Possible combinations of the grammatical aspect of the light verbs 
+	\textit{dát}\textsuperscript{pf}, \textit{dávat}\textsuperscript{pf} `to give' and the number of the 
+	noun \textit{polibek} `kiss' and their paraphrasability by the perfective and 
+	imperfective single verbs \textit{políbit}\textsuperscript{pf} and \textit{líbat}\textsuperscript{impf} 
+	`to~kiss', respectively.}
+%\footnote{Let us emphasize that the single verb paraphrases of 
+%	the last two combinations require to be lexically modified -- by the words 
+%	\textit{několikrát}  `several times' and \textit{právě} `just', respectively.}}
+%\footnotemark }
+	\label{aspect}
+\end{table}
+
+	
+Finally, in many cases, the selection of~different light verbs\is{light-verb construction!selection} allows for 
+ perspectivization of the expressed event from the point of view of 
+its different participants, see 
+esp. \citet{depling-lvc-2015}. For example, besides the light verb \textit{dát} 
+`to give', the noun \textit{polibek} `kiss' can select the light verb 
+\textit{dostat} `to get' as well. The LVC \textit{dát polibek} `to give a kiss' 
+promotes a kisser in the subject position while 
+the LVC \textit{dostat polibek} `to get a kiss' puts a kissee into this position. Both these LVCs are paraphrasable\is{verbal multiword expression!paraphrasability} by a single verb \textit{políbit} `to kiss', however, with different values of the 
+grammatical voice: the LVC \textit{dát polibek} `to give a~kiss' 
+can be paraphrased by the verb \textit{políbit} `to kiss' in the active voice  
+(e.g., \textit{Petr dal Janě polibek.} `Peter gave a kiss to Jane.' $\thicksim$ 
+\textit{Petr Janu políbil.} `Peter kissed Jane.') while the LVC \textit{dostat 
+polibek} `to get a kiss' requires the passive voice of~the verb \textit{políbit} 
+`to kiss' (e.g., \textit{Jana dostala od Petra polibek.} `Jane got a kiss from 
+Peter.' $\thicksim$ \textit{Jana byla políbena od Petra.} `Jane was kissed by Peter'.)
+
+%\noindent
+%\smallskip
+%\textbf{Remarks on Idiomatic light-verb constructions.}
+%In \ili{Czech}, the borderline between LVCs and verbal idioms is represented by LVCs 
+%in which the predicative noun is expressed as an adverbial of the light verb, 
+%e.g., \textit{dát do pořádku} `to put in~order', \textit{mít pod kontrolou} 
+%`to have under control', \textit{mít na starosti} `to be responsible, lit. to 
+%have on care' referred here to as idiomatic LVCs (ILVCs). ILVCs represent an 
+%understudied language phenomenon, for \ili{Czech} see e.g., \citet{radimsky-10}. 
+
+%In comparison with LVCs with predicative nouns expressed as the direct or 
+%indirect object, idiomatic LVCs are more fixed. First, they do not allow 
+%for adjectival modifiers as easily as LVCs. For example, the noun \textit{úmysl} 
+%`intention' in the idiomatic LVC  \textit{mít v úmyslu} `to intend, lit. to 
+%have in intention' can be modified only by the adjective \textit{nejmenší} and 
+%\textit{sebemenší} `slightest' only on condition that the light verb is 
+%negated (\textit{Nemám v nejmenším úmyslu ti radit.} `I do not have the 
+%slightest intention to advise you.'). Second, the number of the predicative noun 
+%is typically limited either to the singular \textit{vzít v 
+%úvahu$^{sg}$/*úvahy$^{pl}$} `to take into consideration', or to the plural 
+%\textit{nechat na pochybách$^{pl}$/*pochybě$^{sg}$} `to leave in doubt, lit. 
+%to leave on doubts'.
+
+%Finally, a predicative noun in idiomatic LVCs usually selects a restricted set 
+%of~light verbs; thus the possibilities to perspectivize of the expressed event 
+%from the point of view of different participants are not varied with idiomatic 
+%LVCs. For~example, the noun \textit{pořádek} `order' selects only the light verb 
+%\textit{dát} `to give'; the resulting idiomatic LVC \textit{dát do pořádku} `to 
+%put in order' perspectivizes the event from the point of `Agent'.
+%Idiomatic LVCs represent an 
+%understudied language phenomenon, for \ili{Czech} see e.g., \citet{radimsky-10}.
+
+\subparagraph{LVCs in NLP.} 
+%The information on LVCs is a part of several lexical resources containing 
+%manually annotated data. For instance, LVCs are represented in syntactically 
+%rich \isi{annotated corpora} from the family of the Prague Dependency Treebanks: the 
+%Prague Dependency Treebank 3.0 (PDT)\footurl{http://ufal.mff.cuni.cz/pdt3.0} 
+%andthe Prague \ili{Czech}-\ili{English} Dependency Treebank 
+%2.0\footurl{http://ufal.mff.cuni.cz/pcedt2.0/en/index.html}, see 
+%\citet{pdt-3-0-2013} and \citet{biblio:HaHaAnnouncingPrague2012}.
+%Further, the PropBank\footurl{https://verbs.colorado.edu/~mpalmer/projects/ace.html} 
+%project has been recently enhanced with the information on LVCs; the annotation 
+%scheme of LVCs in~PropBank is thoroughly described in \citet{hwang:2010}. Finally, 
+%the \ili{Hungarian} corpus of LVCs based on~the~data from the Szeged Treebank has been 
+%built \citep{Vincze:2010}.}
+One of the trending topics concerning LVCs in the NLP community is their automatic identification\is{multiword expression!identification}. In~this task, various statistical measures often 
+combined with information on syntactic and/or semantic properties of LVCs are
+employed, see e.g. \citet{Bannard:2007} and \citet{fazly:2005}. The automatic 
+detection benefits especially from \isi{parallel corpora} representing valuable 
+sources of data in which LVCs can be automatically recognized via word alignment, 
+see e.g. \citet{Chen:2015}, \citet{Caseli2010}, \citet{Sinha:2009}, \citet{ZarrieB:2009}.     
+%\newcite{Chen:2015} presents a supervised classifier of \ili{English} light verb 
+%constructions based on \isi{dependency} \isi{parsing} and external ontologies such as WordNet.
+However, work on paraphrasing LVCs is still not extensive. For example, a 
+\isi{paraphrasing model} has been proposed within the Meaning$\leftrightarrow$Text 
+Theory \citep{ZolkovskijMelcuk65}; its representation of LVCs by means of lexical 
+functions and rules applied in the \isi{paraphrasing model} are thoroughly described in \citet{ramos-07}. 
+Further, \citet{Fujita:2004} presents a \isi{paraphrasing model} which 
+takes advantage of semantic representation of LVCs by lexical conceptual structures. 
+As with our method proposed in \sectref{CPs}, their model also takes into 
+account several morphological and syntactic features of LVCs, which have turned out 
+to be highly relevant for the paraphrasing task.   
+
+\subsection{Idiomatic Verbal Constructions}
+\label{IVCs}
+
+Despite their low frequency, IVCs form a substantial part of a lexis, see e.g. \citet{baldwin2010multiword}, \citet{Sag2002a} and \citet{cowie-01}.  Similarly to LVCs, 
+definitions of~idioms vary depending on diverse purposes of their description, see e.g. \citet{healy-68}, \citet{fraser-70}, \citet{van1992incremental} and \citet{nunberg-94}.\is{idiomatic verbal construction!linguistic properties}
+
+Here, we define an IVC as a verbal multiword unit that exhibits strong lexical 
+co-occurrence restrictions so that at least one of its parts cannot be used with 
+the same meaning outside the given multiword unit. The idiomatic meaning of 
+individual components of IVCs is reflected in the fact that they are only rarely 
+interchangeable with words of similar meanings. 
+IVCs thus represent highly conventionalized multiword units, see e.g. 
+\citet{everaert-14}, \citet{granger-08} and \citet{cowie-01}. IVCs can 
+exhibit the following specific properties, see e.g. \citet{burger-07}, 
+\citet{cermak-01} and \citet{everaert-14}:
+
+\begin{itemize}
+\item
+markedness at the syntactic and/or morphological level: e.g., \exlitidio{vzít za 
+své }{take as one's own}{to be no more} (syntactically marked as the reflexive 
+adjective \textit{své} does not modify any noun), and \exlitidio{nalít někomu 
+čistého vína}{to pour someone pure wine}{to tell someone the honest truth} 
+(morphologically marked due to the partitive genitive of the noun \textit{víno} 
+`wine', which is highly restricted in contemporary \ili{Czech});
+ 
+\item
+\isi{figuration}: e.g., \textit{vstát z mrtvých}, `raise the dead' (as it involves a 
+\isi{metaphor}), \textit{pověsit se někomu na krk} `to hang around someone's neck' 
+(as it involves a metonymy);
+
+\item
+fixedness at syntactic and/or morphological level: e.g., 
+\textit{postavit někoho na nohy} `to put someone back on his feet' 
+(syntactically fixed as it cannot be transformed into the passive structure), 
+and \exlitidio{přijít na jiné myšlenky}{to
+come to different ideas}{to find something else to think about} (morphologically fixed as the noun \textit{myšlenka} 
+`idea' can have only the plural form);
+
+\item
+proverbiality: IVCs are typically used for recurrent socially significant 
+situations, implying often their subjective evaluation (e.g., \textit{vidět 
+někomu do duše} `to see right through someone');
+
+\item
+informality: IVCs are typically of informal register (e.g., \exlitidio{strčit si 
+něco za klobouk}{to put something behind a hat}{to stick it up one's jumper}).
+\end{itemize}
+
+Some IVCs can be paraphrased\is{verbal multiword expression!paraphrasability} by a single word verb, see e.g. the IVC 
+\textit{podat někomu pomocnou ruku} `to give someone helping hand' and its 
+single verb paraphrase \textit{pomoci} `to help'. However, many IVCs are 
+paraphrasable rather by a~whole syntactic structure, see e.g. the IVC 
+\exlitidio{mít slovo}{to have a word}{to be someone's turn to speak}.
+
+ \subparagraph*{IVCs in NLP.} There is considerable work focused on automatic identification
+\is{multiword expression!identification} of idioms in the text and their extraction
+\citep{cook-07,li-2009,muzny2013,peng-15,Katz06automaticidentification}. 
+However, little attention has been paid to paraphrases of idioms. Let us 
+introduce two works focused on paraphrases of idioms. First, \citet{pershina-15} 
+identifies synonymous idioms based on their dictionary definitions  and their 
+occurrences in tweets. Similarly, \citet{liu2016phrasal} generate paraphrases 
+of idioms using  dictionary entries. However, there are no lexical
+resources available for NLP applications providing information on idioms in \ili{Czech}. 
+
+
+\section{Paraphrase model}
+\label{CPs}
+
+%\emph{ParaDi} was built on~a~semi-automatic basis. First, candidates for single 
+%verb paraphrases of selected CPs have been automatically identified in~large  
+%monolingual data using \emph{word2vec}, a shallow neural network. The list of 
+%these candidates has been then manually checked and further refined. In many  
+%cases, if CPs are to be correctly paraphrased by the identified single 
+%predicative verbs, these verbs require certain semantic and/or syntactic
+%modifications.
+
+In this section, the process of extracting paraphrases is described in detail.\is{paraphrasing model} 
+First, we present the selection of LVCs and IVCs (\sectref{sec:datasets}). For 
+their paraphrasing, we had initially intended to use some of the existing 
+resources, however, they turned out to be completely unsatisfactory for 
+our task.
+
+First, we used the \emph{ParaPhrase DataBase} (PPDB) \citep{ppdb}, 
+the largest paraphrase database available for the \ili{Czech} language. PPDB was 
+created automatically from large parallel data. Unfortunately, there were only 
+54 candidates for single verb paraphrases of LVCs present. A manual analysis of 
+these candidates showed that only 2 of them were detected correctly, the 
+rest was noise in PPDB. Similarly for idioms, PPDB contained a correct single 
+verb paraphrase for only 6 IVCs from our data (i.e. about 1\%). As this number 
+is clearly insufficient, we chose not to use parallel data for paraphrasing.
+
+%\out{To take advantage of DeriNet, a morphological database providing the 
+%information on derivational relations between \ili{Czech} words, would be another 
+%option for obtaining paraphrases, see \citet{derinet-2016}. However, this 
+%option is restricted only to those LVCs the nominal component of which is 
+%derived from the respective single verb paraphrase, see above Section 
+%\ref{LVCs}, for IVCs, it is completely excluded.} 
+
+Therefore, we adopted another approach to the paraphrasing task applying 
+\emph{word2vec} \citep{mikolov2013}, a~neural network model. \emph{Word2vec} 
+is a group of shallow neural networks generating \isi{word embeddings}, i.e. 
+representations  of words in~a~continuous vector space depending on the 
+contexts in which they appear. In line with the distributional hypothesis 
+\citep{harris54}, semantically similar words are mapped close to each other 
+(measured by the  cosine similarity) so we can expect LVCs and IVCs to~have 
+similar vector space distribution to their single verb paraphrases. 
+
+\emph{Word2vec} computes vectors for single tokens. As both LVCs and IVCs 
+represent multiword units, their preprocessing was thus necessary: each LVC 
+and IVC had to be first identified and connected into a single token 
+(\sectref{sec:preprocess}). Particular settings of our model for an automatic 
+extraction of candidates for single verb paraphrases are described in 
+\sectref{sec:word2vec}.
+
+The advantage of this approach is that only monolingual data -- generally 
+easily obtainable in a~large amount -- is necessary for \isi{word embeddings} 
+training. The disadvantage is that not only paraphrases can have similar 
+\isi{word embeddings}. Antonyms and words with more specific or even different meaning 
+can appear in similar contexts as well. Therefore, a~manual evaluation of the 
+extracted candidates is necessary (\sectref{baran:sec:annotation}).
+
+\subsection{Data selection}
+\label{sec:datasets}
+
+\subsubsection{LVCs selection}
+\label{sect:lvc-selection}
+
+Three different datasets of LVCs\is{light-verb construction!selection} -- containing together 2,389 unique LVCs\footnote{When counting aspectual counterparts separately, the number increases to 3,509 
+unique LVCs} -- were used in our experiment. As all the datasets were 
+manually created, they allow us to achieve the desired quality of the resulting 
+data. 
+
+The first dataset resulted from the experiment examining the native speakers’ 
+agreement on the interpretation of light verbs \citep{KeLoCorpusBased2013}. 
+This dataset consists of both LVCs in which predicative nouns are expressed as 
+a direct or indirect object by a~prepositionless case (e.g. \textit{položit 
+otázku} `put a~question') and LVCs in which predicative nouns are expressed 
+as an adverbial by a~simple prepositional case (e.g., \textit{dát do pořádku} 
+`put in order') or by~a~complex prepositional group (e.g., the verb 
+\textit{přejít}  `go' plus the complex prepositional group 
+\textit{ze smíchu do pláče} `from laughing to crying'). 
+
+The second dataset resulted from a project aiming to enhance the high coverage
+valency lexicon of \ili{Czech} verbs VALLEX\footnote{\url{http://ufal.mff.cuni.cz/vallex/3.0/}} 
+with the information on~LVCs \citep{KeBaLoLexicographicDescription2016}. 
+In this case, only the predicative nouns expressed as the direct object by the 
+prepositionless accusative were selected. For identification of LVCs, the 
+modified test of coreference was applied \citep{kettnerova-bejcek-2016}. As~the 
+frequency and saliency have been taken as~the main criteria for~their 
+selection, the resulting set represents a~valuable source of LVCs for \ili{Czech}. 
+
+The third small dataset is represented by LVCs in which the predicative noun is 
+expressed as an adverbial. These LVCs were obtained from the VALLEX lexicon 
+as a result of manual analysis of verbal multiword units marked as idioms. As 
+these multiword units were treated inconsistently in the annotation\is{annotation!manual}, 
+including not only IVCs but sometimes also LVCs with predicative nouns in 
+adverbial positions, the obtained dataset had to be manually selected.
+
+As in the VALLEX lexicon, information on aspectual counterparts of the given verbs is 
+available, we have used it to expand these datasets by adding missing aspectual 
+counterparts. The overall number of LVCs in the datasets is presented below in 
+\tabref{statistics}. The union of LVCs from these datasets has been used in~the 
+paraphrase candidates extraction task.
+
+\subsubsection{IVCs selection}
+
+The dataset of IVCs was extracted\is{idiomatic verbal construction!selection} from the VALLEX lexicon after the manual
+filtering of LVCs with predicative nouns in adverbial positions, see the third
+dataset in \sectref{sect:lvc-selection}. From the obtained IVCs, those IVCs 
+that include the highly polysemous pronoun \textit{to} `it' were removed 
+as their automatic identification\is{multiword expression!identification} could be unreliable. The final set consists of 
+595 IVCs (counting aspectual counterparts separately 621 IVCs), see the 
+statistics provided in \tabref{statistics}. 
+
+\begin{table}
+	
+	\begin{tabularx}{\textwidth}{XCCCr}
+	 \lsptoprule
+     Dataset  & LVCs        & IVCs    & Verbs   & Nominal components \\ 
+     \midrule
+     First    & 726/1,167   & 0/0     & 49/84   & 612   \\ %\hline
+     Second   & 1,640/2,366 & 0/0     & 126/131 & 699   \\ %\hline
+     Third    & 104/106     & 595/621 & 310/324 & 324   \\ %\hline
+     Union\footnote{The numbers do not add up due to a small 
+	overlap among the datasets.}    & 2,389/3,509 & 595/621 & 417/446 & 1444  \\ 
+	\lspbottomrule  
+	\end{tabularx} 
+	\caption{The number of LVCs and IVCs, verbs and nominal components in the 
+	three datasets described in \sectref{sect:lvc-selection}, before (first number) and after (second number) the aspectual counterparts expansion.}%\footnotemark }
+	\label{statistics}
+\end{table}
+
+% \footnotetext{The first number represents 
+%	counts in the original datasets, the second one corresponds to counts after 
+% 	aspectual counterparts expansion. 
+ 
+	
+\subsection{Data preprocessing} 
+\label{sec:preprocess}
+We used four large lemmatized and POS-tagged corpora of \ili{Czech} texts: 
+SYN2000 \citep{SYN2000}, SYN2005 \citep{SYN2005}, SYN2010 \citep{SYN2010} and 
+CzEng 1.0 \citep{czeng10}. These corpora were further extended with the 
+data from the Czech Press -- a~large collection of~contemporary news texts 
+containing more than 2,000 million lemmatized and POS-tagged tokens. The 
+overall statistics on all datasets is presented in \tabref{data}.
+
+\begin{table} 
+\begin{tabularx}{.8\textwidth}{XYr}
+\lsptoprule
+Corpus & Sentences & Tokens \\ 
+\midrule
+CNK2000 & 2.78 & 121.81 \\
+CNK2005 & 7.95 & 122.99 \\
+CNK2010 & 8.18 & 122.48 \\
+Czeng 1.0 & 14.83 & 206.05 \\
+Czech Press & 57.03 & 2447.68 \\ \midrule
+Total & 90.77 & 3021.01 \\
+\lspbottomrule
+\end{tabularx}
+\caption{Basic statistics of datasets (numbers in~millions of units).}
+\label{data}
+\end{table}
+
+To generate LVCs and IVCs paraphrases, all the selected LVCs and IVCs (\sectref{sec:datasets}) had to be automatically identified in the given corpora. 
+For their identification\is{multiword expression!identification}, we started with verbs. First, all verbs in the 
+corpora were detected. From these verbs, only those verbs that represent 
+parts of the selected LVCs and IVCs were further processed. 
+For each selected verb, each noun phrase in the context $\pm$ 4 words
+from the given verb was identified based on POS tags and extracted 
+in case the verb and the given noun phrase can combine in~some of the selected 
+LVCs or IVCs.
+
+Further, as \isi{word embeddings} are generated for single words, each detected noun 
+phrase was connected with its respective verb into a~single word unit. In cases where some verb could combine with more than one noun phrase into LVCs or IVCs, 
+or in cases where a particular noun phrase could be connected with more than one 
+verb, we followed the principle that every verb should be connected to at 
+least one noun phrase  in order to~maximize the~number of~identified LVCs and 
+IVCs. 
+For example, if there were two verbs $v_1$ and $v_2$ in a~sentence and $v_1$ 
+had a candidate noun phrase $c_1$, while $v_2$ had two candidate noun phrases 
+$c_1$ and $c_2$,  $v_1$ was connected with $c_1$ and $v_2$ with $c_2$. In~case 
+this principle was not sufficient, a verb was assigned the closest noun phrase 
+on the basis of word order. When each noun phrase was connected maximally with 
+one verb and each verb was connected maximally with one noun phrase, we have 
+joined the noun phrases to their respective verbs into single word units with 
+the underscore character and deleted the noun phrases from their original 
+positions in sentences.
+
+Further, to compensate sparsity\is{verbal multiword expression!sparsity} of LVCs and IVCs in the data, after identifying 
+a verb from the selected LVCs and IVCs in the data, its aspectual counterpart 
+-- if relevant -- has been automatically added. For example, after detecting 
+the imperfective verb \textit{vcházet}\textsuperscript{impf} `enter' in the data and the 
+prepositional noun phrase \textit{do dějin} `to history' in its context, not 
+only the given imperfective verb, but also its perfective counterpart 
+\textit{vejít}\textsuperscript{pf} have been connected with the given noun phrase into the 
+resulting unit \textit{vcházet\_vejít\_do\_dějin}. We refer to such 
+an~artificially constructed unit as an \emph{abstract unit} from now on. The 
+abstract unit \textit{vcházet\_vejít\_do\_dějin} then replaced the verb 
+\textit{vcházet} in the sentence, while the noun phrase \textit{do dějin} 
+was deleted from the sentence. Each LVC and IVC identified in the data is thus 
+represented by a single abstract unit representing also its relevant aspectual 
+counterparts. 
+
+\begin{table}[p]
+\caption{The number of LVCs and IVCs detected in the data. The first row shows 
+the total number of LVC and IVC abstract units identified in the data. The second 
+row represents the number of their unique instances. The third row provides the 
+number of those unique units with higher frequency than 100 occurrences. The 
+last row shows the number of unique LVCs and IVCs without aspectual 
+counterparts expansion, i.e. after splitting the generated abstract units back 
+to a~single verb--a~single noun phrase pairs.}
+
+\label{data_preprocessing}
+\begin{tabularx}{.8\textwidth}{XYr}
+\lsptoprule        & LVCs        & IVCs \\ 
+\midrule
+abstract units     & 6,541,394   & 374,493    \\ %\hline
+unique abstract units       & 1,776       &  211    \\ %\hline
+unique abstract units > 100 & 1,361       &  153    \\ %\hline
+unique MWEs        & 2,954       & 353    \\
+\lspbottomrule
+\end{tabularx}
+\end{table}
+
+%\footnotetext{Total number of LVC and IVC abstract units identified in the data.}
+%\footnotetext{Total number of their unique instances.}
+%\footnotetext{Number of the unique units with higher frequency than 100 occurrences.}
+%\footnotetext{Number of unique LVCs and IVCs without aspectual counterparts expansion.}
+
+\largerpage
+On this basis, almost 7 million instances of~LVC and IVC abstract units were 
+generated in~the corpora, see \tabref{data_preprocessing}. The rank and 
+frequency of the most and the least common ones are presented in 
+\tabref{lvc_frequency}.
+
+\begin{table}[p]	
+        \begin{tabularx}{\textwidth}{rlXr}
+        \lsptoprule  
+	       rank                 & type     &  abstract unit                         & frequency       \\  \midrule
+           \multirow{2}{*}{1.}  & \multirow{2}{*}{LVC}    & \textit{mít\_problém}        & \multirow{2}{*}{211,296} \\   
+	                            &                           & `have a problem'           &                         \\ 
+\tablevspace	                            
+	       \multirow{2}{*}{2.}  & \multirow{2}{*}{LVC}     & \textit{mít\_možnost}        & \multirow{2}{*}{207,330} \\   
+	            	             &                          & `have a possibility'        &                         \\ 
+	        \vdots                 & \vdots                         & \vdots                      &  \vdots \\     	              
+\tablevspace	                            
+           \multirow{2}{*}{29.} & \multirow{2}{*}{IVC} & \textit{mít\_na\_mysli}      & \multirow{2}{*}{43,521}     \\ 
+    	 	                    &                              & `have in mind'             &                          \\  
+            \vdots                 & \vdots                         & \vdots                     &  \vdots \\ 
+\tablevspace	                            
+          \multirow{2}{*}{1986.} & \multirow{2}{*}{IVC} & \textit{chytnout\_chytat\_chytit\_za\_špatný\_konec} & \multirow{2}{*}{1}    \\ 
+                                 &  & `get hold of the wrong end of the stick'     &  \\            	                   
+    	              
+\tablevspace	                            
+	       \multirow{2}{*}{1987.} & \multirow{2}{*}{LVC} & \textit{přechodit\_přecházet\_přejít\_ze\_smíchu\_do\_pláče} & \multirow{2}{*}{1}    \\ 
+           	 	                  & & `go from laughing to crying'     &  \\    \lspbottomrule       
+	\end{tabularx}
+	\caption{The ranking of LVC and IVC abstract units identified in the data, based on their frequency.}
+	\label{lvc_frequency}
+\end{table}
+\clearpage 
+
+\subsection{Word2vec model}
+\label{sec:word2vec}
+To the resulting data, we applied \emph{gensim}, a freely available 
+\emph{word2vec} implementation \citep{rehurek_lrec}. In particular, we 
+used a model of vector size 500 with continuous bag of word (CBOW) training 
+algorithm and negative sampling. 
+
+As it is impossible for the model to learn anything about a rarely seen word, we set a minimum number of~word occurrences to 100 in~order to limit the size 
+of the vocabulary to reasonable words. Even though we increased frequencies 
+of LVCs and IVCs by the unified representation for their aspectual counterparts, 
+this limit still filtered more than 300 rarely used LVC and 50 IVC abstract units; 
+the resulting number is provided in the third row of \tabref{data_preprocessing}.
+
+After training the model, for each of 1,361 LVC and 153 IVC abstract units with 
+more than 100 occurrences we extracted 30 words with the most similar vectors. 
+From these 30 words, we selected up to 15 single verbs closest to a~given 
+LVC or IVC abstract unit. These verbs were taken as candidates for single verb 
+paraphrases of LVCs or IVCs in that abstract unit. On average, there were 7 
+candidates for each LVC abstract unit and 10 candidates for each IVC abstract 
+unit.
+
+Before the manual evaluation of the candidates, the abstract units were divided 
+back to individual IVCs or LVCs and their paraphrase candidates were again 
+enriched with their aspectual counterparts from the VALLEX lexicon. This way, annotators 
+could select a paraphrase with a proper aspect for each verbal MWE.
+
+%\begin{table}
+%\centering
+%\caption{The number of paraphrase candidates extracted using the \emph{word2vec} model.}
+%\label{extracted_verbs}
+%\begin{tabular}{lcc}
+%\lsptoprule
+%                             & LVCs    & IVCs  \\ \midrule
+%paraphrase candidates   & 9,553   & 1,580 \\ 
+%unique verb paraphrase candidates & 4,391   & 1,132 \\ \lspbottomrule
+%\end{tabular}
+%\end{table}
+%
+%The resulting number of the extracted candidates for single verb paraphrases 
+%of the given 1,361 LVC and 153 IVC abstract units is presented in Table 
+%\ref{extracted_verbs}. All these verbs were subjected to a manual evaluation.
+
+
+\subsection{Annotation process}
+\label{baran:sec:annotation}
+\largerpage
+In this section, the annotation process\is{annotation!manual} of the candidates for single verb 
+paraphrases of LVCs and IVCs is thoroughly described. Let us repeat that 
+\emph{word2vec} generates semantically similar words depending on~the context 
+in which they appear. However, not only words having the same meaning can have similar space representations, but words with an opposite meaning, more specific meaning or even different meaning can be extracted as they can appear in similar contexts as well. Manual processing of the extracted single verbs 
+was thus necessary for evaluating the results of the adopted method.
+
+In the manual evaluation, two annotators were asked to indicate for each 
+instance of the unique paraphrase candidates of~an LVC or IVC whether it 
+represents a single verb paraphrase of~the given LVC or IVC, or not. For 
+example, the single word verbs \textit{upřednostňovat} and \textit{preferovat} 
+`to prefer' were indicated as paraphrases of the LVC \textit{dávat přednost} 
+`to give a~preference'. Similarly, for the IVC \exlitidio{prásknout do bot}{to bang to the shoes} 
+{to take to one's heels}, the single verbs 
+\textit{utéci} `to run away' and \textit{zdrhnout} `to make off' among others 
+were chosen as paraphrases.
+
+Moreover, single verbs antonymous to LVCs or IVCs were marked as~well 
+since they can also function as paraphrases in a~modified context. 
+For example, for the LVC \textit{vypovídat pravdu} `to tell the truth' the 
+antonymous verb \textit{lhát} `to lie' was selected as well, as the sentence  
+\textit{Nevypovídá pravdu.} `He is not telling the truth.' can be paraphrased 
+as \textit{Lže.} `He is lying.'.
+
+Further, when the annotators determined a certain candidate as a~single 
+verb paraphrase of an LVC or IVC, they took into account the following 
+four morphological, syntactic and semantic aspects. 
+
+First, they had to pay special attention to the morphosyntactic expression of 
+arguments. As \ili{Czech} encodes syntactic relations via morphological forms, 
+changes in~the morphological expression of arguments reflect different 
+perspectives from which the event denoted by an LVC or IVC on the one hand
+and its single verb paraphrase on the other hand is viewed. 
+For example, the single verb \textit{potrestat} `to punish' paraphrases 
+the LVC \textit{dostat trest} `to get a~punishment', however, 
+the morphological forms of the punisher and the punishee, two semantic roles 
+evoked by the given LVC and the single verb, differ. In the LVC \textit{dostat 
+trest} `to get punishment', the punishee (\textit{Petr} `Peter') is expressed 
+by the nominative and the punisher (\textit{otec} `father') 
+has the form of the prepositional group \textit{od}+genitive
+(e.g., \textit{Petr$_{nom}$ dostal od otce$_{od+gen}$ trest.} `Peter got punishment from his father.'), while with its single verb paraphrase \textit{potrestat} `to punish'
+the nominative encodes the punisher and the accusative expresses the punishee (e.g., \textit{Otec$_{nom}$ Petra$_{acc}$ potrestal.} `Father punished Peter.').
+
+Second, the annotators had to take into account differences between the 
+syntactic structure of a sentence created by an LVC or IVC and by its respective 
+paraphrase. 
+Particularly, the difference between sentences with a subject and subjectless 
+sentences had to be indicated. For example, the LVC \exlitidio{dojít k oddělení}{to happen to the separation}{the separation happens} is paraphrasable by 
+the single verb \textit{oddělit se} `to separate', although the LVC forms a 
+subjectless structure, the syntactic structure of its single verb paraphrase 
+needs a subject. 
+
+Third, in some cases the reflexive morpheme \textit{se/si}, marking usually 
+intransitive verbs, has to~be added to a single verb paraphrase so that its 
+meaning corresponds to a meaning of its respective multiword counterpart.
+For example, the IVC \exlitidio{vejít do dějin}{to come into history}{to go down in history} can be paraphrased by~the verb \textit{proslavit} only on~the 
+condition that the reflexive morpheme \textit{se} is attached to~the verb lemma 
+\textit{proslavit se} `to achieve fame'.
+
+Lastly, some verbs function as paraphrases of particular LVCs or IVCs only if 
+nouns in~these LVCs or IVCs have certain adjectival modifications. These 
+paraphrases were paired with appropriate adjectives during the annotation. 
+For example, if the LVC \textit{provozovat praxi} `to run a practice' is to be 
+paraphrased by the single verb \textit{ordinovat} `to see patients', 
+the adjective \textit{lékařský} `medical' has to modify the noun \textit{praxe} 
+`practice'. 
+
+The above given four features are not mutually exclusive -- they can combine. 
+For example, the verb \textit{zaměstnat} `to hire' is a paraphrase of the LVC 
+\textit{nalézt uplatnění} `to find an use' but both the reflexive morpheme 
+\textit{se} and the adjectival~modification \textit{pracovní} `working' are 
+required.
+
+To summarize, for each identified single verb paraphrase \textit{v} 
+of~an~LVC or IVC \textit{l}, the annotators have chosen from the following 
+options:
+
+\begin{itemize}
+	 \item
+	 \textit{v} is a paraphrase of \textit{l} \\
+	 e.g., \textit{m\'{i}t z\'{a}jem} `to be interested' and \textit{cht\'{i}t} `to~want';
+	 \item
+	 \textit{v} is an antonym of \textit{l} (the modification of the context is necessary) \\
+	 e.g., \textit{zaznamenat propad} `to experience a~drop' and \textit{stoupnout} `to rise';\
+	 \item
+     \textit{v} is a paraphrase of \textit{l} but changes in the morphosyntactic expression of arguments are necessary \\
+	 e.g., \textit{dostat nabídku} `to get an offer' and \textit{nabídnout} `to offer';
+	 \item
+	 \textit{v} is a paraphrase of \textit{l} but the change in a sentence structure is required \\
+	 e.g., \exlitidio{dojít k poruše}{to happen to the failure}{the failure happens} and 
+	 \textit{porouchat se} `to breakdown';
+	 \item
+	 \textit{v} is a paraphrase of \textit{l} but the modification of the verb lemma by the reflexive morpheme \textit{se}/\textit{si} is necessary \\
+	e.g., \textit{n\'{e}st n\'{a}zev} `bear a name' and \textit{naz\'{y}vat se} `to be called';
+	\item
+	\textit{v} is a paraphrase of \textit{l} only if a noun component of \textit{l} 
+	is modified by a particular adjectival modification  \\ 
+	e.g., \textit{podat oznámení} `to make an announcement' can be paraphrased as 
+	\textit{žalovat} `to sue' only if the noun \textit{oznámení} is modified with 
+	the adjective \textit{trestní} `criminal';
+	\item
+	\textit{v} is a not a paraphrase of \textit{l}. 
+\end{itemize}
+
+As a result of the annotation\is{annotation!manual}, for 1,421 of 2,954 LVCs identified in the data 
+(48,1\%) and for 200 of 353 IVCs (56,6\%) at~least one single verb paraphrase 
+was found. The highest number of single verb paraphrases indicated for one 
+multiword unit was nine and that was the LVC \textit{provést řez} `to make 
+an~incision' and the LVC \textit{dát do pořádku} `to put in~order'. The total 
+number of the indicated single verb paraphrases of LVCs and IVCs was 2,912 and 
+498, respectively, see \tabref{fig:annotation} providing results of the annotation 
+including the frequency of the additional morphological, syntactic and semantic 
+features used in the annotation.
+
+\begin{table}
+	
+	\begin{tabular}{lcc}
+		\lsptoprule
+		                       & LVC   & IVC \\ \midrule
+		no constraints         & 2063  &  336 \\ \midrule
+		 + antonymous          &  115  &     47 \\
+		 + reflexive morpheme  &  473  &     85 \\ 
+		 + morphosyntactic change      &  270  &  38 \\ 
+		 + syntactic change      &    43  &    0 \\  
+		 + an adjective        &   30  &   1 \\ \midrule
+		total\footnotemark     & 2912   & 498 \\ \lspbottomrule
+	\end{tabular}
+	\caption{The basic statistics on the annotation.}%\footnotemark }
+	\label{fig:annotation}
+\end{table}
+
+\footnotetext{The columns do not add up as the features are not mutually exclusive as mentioned earlier.}
+
+%\section{Paraphrase dictionary}
+\section{Dictionary of paraphrases}
+\label{results}
+
+3,410 single verbs indicated by the annotators as paraphrases or antonyms of 
+1,421 LVCs and 200 IVCs (\sectref{baran:sec:annotation}) form the lexical stock 
+of~\emph{ParaDi} 2.0, a~dictionary of single verb paraphrases\is{dictionary of paraphrases} of \ili{Czech} multiword 
+units of the selected types.\footnote{\emph{ParaDi} 2.0 is freely available at 
+the following URL: \url{http://hdl.handle.net/11234/1-2377}.} 
+
+The format of~\emph{ParaDi} 2.0 has been designed with respect to both human 
+and machine readability. The dictionary is thus represented as a plain table 
+in the TSV format, as it is a flexible and language-independent data format.
+
+Each lexical entry in the dictionary describes an individual LVC or IVC,
+providing the following information:
+
+\begin{itemize}
+    \item[(i)] \emph{type} -- the type of the given verbal multiword expression\is{verbal multiword expression!typology} 
+     with the following three possible values: LVC (indicating an LVC with the 
+     predicative noun in the direct or indirect object position), ILVC (representing an LVC 
+     with the predicative noun in the adverbial position), or IVC;
+   \item[(ii)] \emph{verb} -- a lemma of the verbal component of the given multiword unit;
+   \item[(iii)] \emph{reflexive} -- the reflexive morpheme of the lemma, if relevant;
+   \item[(iv)] \emph{aspect} -- a value of the \isi{grammatical aspect} of the verb;
+   \item[(v)]  \emph{aspectual counterpart} -- the aspectual counterpart of the verb, if relevant;
+   \item[(vi)] \emph{noun phrase} -- the nominal component of the given multiword unit;
+   \item[(vii)] \emph{morphology} -- the morphemic form of the given noun phrase;
+   \item[(viii)] \emph{lemmatized noun phrase} -- a lemma representing the noun phrase;
+   \item[(ix)] \emph{synonyms} -- a list of synonymous single verb paraphrases;
+   \item[(x)] \emph{antonyms}  -- a list of antonymous single verbs;
+   \item[(xi)] \emph{adj-modification} --  a list of single verb paraphrases 
+   and adjectival modifications of the nominal component of the LVC or IVC;
+   \item[(xii)] \emph{structural\_change} --  a list of single verb paraphrases requiring a change in their sentence structure;
+   \item[(xiii)] \emph{voice\_change} --   a list of single verb paraphrases requiring changes in the morphosyntactic expression of arguments.
+\end{itemize}
+	
+While the information provided in the columns (i)-(viii) concerns multiword units, 
+the information given in (ix)-(xiii) is relevant for their single verb paraphrases.
+A single verb paraphrase can appear in several columns if it is relevant. For example, 
+the verb paraphrase \textit{zalíbit se} `to find appealing' of the LVC \exlitidio{nalézt 
+zalíbení}{to find a delight}{to find appealing} is present in both columns 
+\emph{reflexive} and \emph{voice\_change} as it represents the verb paraphrase,  
+which requires both adding the reflexive morpheme \textit{se} to the verb lemma and 
+changes in the morphosyntactic expression of its arguments.
+
+\section{Machine translation experiment}
+\label{evaluation}
+In this section, we show how the dictionary providing high quality data 
+can be integrated into an experiment with improving statistical machine 
+translation quality. 
+If translated separately, multiword expressions often cause errors in 
+\isi{machine translation}. For example, IVCs have been reported to negatively affect 
+statistical \isi{machine translation} systems which might achieve only half of the 
+BLEU score \citep{Papineni:2002} on the sentences containing IVCs compared to 
+those that do not \citep{SaltonRK14}. 
+
+We took advantage of the \emph{ParaDi} dictionary 
+in a~\isi{machine translation} experiment in order to~verify its benefit for one of 
+the key NLP tasks. We experimented only with LVCs as we expected quality 
+of LVC translations higher than those of IVCs due to their weaker lexical 
+markedness and their more common use as their higher frequencies in the data suggested (see \tabref{data_preprocessing}).
+
+We selected 50 random LVCs from the dictionary. For each of them, we 
+randomly extracted one sentence from our data containing the~given LVC. This set 
+of sentences is referred to as BEFORE. By substituting the LVC for its first 
+paraphrase, i.e. the closest paraphrase in the vector space, we have created 
+a~new dataset, referred to as AFTER. We have translated both these datasets -- 
+BEFORE and AFTER -- to \ili{English} using two freely available MT systems -- 
+\textit{Google Translate}\footurl{http://translate.google.com} (GT) and 
+\textit{Moses}.\footurl{http://quest.ms.mff.cuni.cz/moses/demo.php}
+
+We used crowdsourcing for evaluation of~the resulting translations. Six 
+annotators were presented randomly a \ili{Czech} source sentence either from the 
+dataset BEFORE or from AFTER and their \ili{English} translations in a 
+randomized order. The annotation interface\is{annotation!manual} is displayed in \figref{interface}. 
+For each translated sentence, the annotators had to indicate its quality, 
+allowing for the same ranking of more than one translated sentences.
+
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{figures/anotovatko.png} 
+\caption{Example of the annotation interface for the MT experiment.}
+\label{interface}
+\end{figure}
+
+
+We collected almost 300 comparisons. The \isi{inter-annotator agreement} 
+measured by Krippendorff's alpha \citep{Krippendorff2007}, a~reliability 
+coefficient developed to measure the agreement between judges, has achieved
+0.58, i.e. a~moderate agreement. The results of replacing the selected verbal 
+MWEs by their single verb paraphrases in \isi{machine translation} are very 
+promising: annotators clearly preferred translations of AFTER  (i.e. the 
+translations with single verbs) to BEFORE (i.e. with LVCs), in 45\% of cases 
+for Moses and in 44\% of cases for Google Translate. The results are consistent
+for both translation systems, see \tabref{annotation}.
+
+\begin{table}
+	
+	\begin{tabularx}{.8\textwidth}{XrY}
+	\lsptoprule
+		Source & Moses   & GT    \\ \midrule
+		BEFORE & 30\%    & 33\%  \\
+		AFTER  & 45\%    & 44\%  \\
+		TIE    & 25\%    & 23\%  \\
+	\lspbottomrule
+	\end{tabularx}
+	\caption{Results of the manual evaluation of the MT experiment. The first 
+	column shows the~source of the better ranked sentence in the pairwise 
+	comparison within one translation model or whether they tied.}
+	\label{annotation}
+\end{table}
+
+
+
+However, the example in \tabref{example} illustrates that even minimal change in 
+a source sentence can substantially change its translations as both the 
+translation models are phrase-based.\footnote{The translations were 
+performed on 9th July 2016, i.e. before a massive expansion of neural 
+translation systems.} Based on this fact, we can expect that the evaluation of 
+the translations was not affected only by differences between translations 
+of~LVCs and their respective single verb paraphrases but by overall low quality 
+of the translations, which is inevitably reflected in the lower inter-annotator 
+agreement, typical of \isi{machine translation} evaluation \citep{wmt13}. 
+The judges unanimously agreed that the translations of the AFTER source sentence are better than the translations of the BEFORE source sentence. Both systems exhibited a tendency to translate the LVC \textit{dát branku} literally word by word, resulting in incorrect translations of the BEFORE source sentence.
+
+
+\section{Conclusion}
+We have explored the paraphrasability\is{verbal multiword expression!paraphrasability} of  \ili{Czech} light-verb constructions and 
+idiomatic verbal constructions. We have shown that their single verb 
+paraphrases are automatically obtainable from large monolingual data with 
+a~manual verification in a significantly larger scale than from paraphrase 
+tables generated from parallel data. Our 
+semiautomatic experiment further revealed that although these verbal multiword 
+units exhibit different linguistic properties, the possibility to paraphrase
+them\is{verbal multiword expression!paraphrasability} is very similar; for about one half of the selected light-verb constructions 
+and idiomatic verbal constructions single verb paraphrases have been detected.
+
+\begin{table}[t]
+  \begin{tabularx}{\textwidth}{Xlp{8.5cm}}
+	    \lsptoprule
+	    \multirow{2}{15mm}{\newline  Source} 
+	    & {BEFORE} &    
+	    \parbox{8.5cm}{
+	    \gll    Fotbalisté Budějovic  opět  \textbf{nedali} \textbf{branku}\\
+		    Footballers Budějovice  again did.not.give      gate\\
+	    \glt `Footballers of Budějovice didn't make a goal again.'	   
+	    }
+	    \\	
+	     \cmidrule{2-3} 
+	    & {AFTER}  &    
+	    \parbox{8.5cm}{
+	    \gll    Fotbalisté Budějovic  opět  \textbf{neskórovali}\\
+		    Footballers Budějovice  again did.not.score\\
+	    \glt  `Footballers of Budějovice didn't score again.'
+	    }
+	    \\  
+	    \midrule
+	    \multirow{2}{*}{GT}     & BEFORE                  &{Footballers Budejovice again not given goal}                                           \\ \cmidrule{2-3} 
+	    & AFTER                   &{Footballers did not score again Budejovice}                                            \\ \midrule
+	    \multirow{2}{*}{Moses}  & BEFORE                  &{Footballers Budějovice again gave the gate}                                            \\ \cmidrule{2-3} 
+	    & AFTER                   &{Footballers Budějovice score again}                                                    \\ \lspbottomrule
+    \end{tabularx} 
+
+% 	\begin{tabularx}{\textwidth}{llccccc}
+% 		\lsptoprule
+% 		\multirow{6}{*}{Source} & \multirow{3}{*}{BEFORE} & \multicolumn{1}{c}{Fotbalisté}       & Budějovic  & opět  & \multicolumn{1}{c}{\textbf{nedali}} & \textbf{branku} \\
+% 		&                         & \multicolumn{1}{c}{Footballers} & Budějovice & again & \multicolumn{1}{c}{did not give}      & gate   \\
+% 		&                         & \multicolumn{5}{l}{Footballers of Budějovice didn't make a goal again}                               \\ \cmidrule{2-7} 
+% 		& \multirow{3}{*}{AFTER}  & \multicolumn{1}{c}{Fotbalisté}       & Budějovic  & opět  & \multicolumn{2}{l}{\textbf{neskórovali}}               \\
+% 		&                         & \multicolumn{1}{c}{Footballers} & Budějovice & again & \multicolumn{2}{l}{did not score}             \\
+% 		&                         & \multicolumn{5}{l}{Footballers of Budějovice didn't score again}                                     \\ \midrule
+% 		\multirow{2}{*}{GT}     & BEFORE                  & \multicolumn{5}{l}{Footballers Budejovice again not given goal}                                           \\ \cmidrule{2-7} 
+% 		& AFTER                   & \multicolumn{5}{l}{Footballers did not score again Budejovice}                                            \\ \midrule
+% 		\multirow{2}{*}{Moses}  & BEFORE                  & \multicolumn{5}{l}{Footballers Budějovice again gave the gate}                                            \\ \cmidrule{2-7} 
+% 		& AFTER                   & \multicolumn{5}{l}{Footballers Budějovice score again}                                                    \\ \lspbottomrule
+% 	\end{tabularx} 
+  \caption{An example of translated sentences.}%\footnotemark }
+  \label{example}
+\end{table}
+
+%\footnotetext{The judges unanimously agreed that the translations of the AFTER source sentence are better than the translations of the BEFORE source sentence. Both systems exhibited a tendency to translate the LVC \textit{dát branku} literally word by word, resulting in incorrect translations of the BEFORE source sentence.}
+
+
+The results of our experiment form the lexical stock of a new version of the 
+freely available \textit{ParaDi} dictionary. We have demonstrated one of its 
+possible applications, namely an experiment with improving \isi{machine translation} 
+quality. However, the dictionary can be used in many other NLP tasks (text 
+simplification, information retrieval, etc.). We have used largely language 
+independent methods, a similar dictionary can be thus created for other 
+languages as well.
+
+\section*{Acknowledgments}
+The research reported in this chapter was supported by the \ili{Czech} Science 
+Foundation GA ČR, grant No. GA15-09979S. This work used language 
+resources developed and/or stored and/or distributed by the LINDAT-Clarin 
+project of the Ministry of Education, Youth and Sports of the \ili{Czech} Republic, 
+project No. LM2015071.
+
+\section*{Abbreviations}
+\begin{tabularx}{.5\textwidth}{ll}
+\textsc{gt} & Google Translate \\
+\textsc{ivc}s & idiomatic verbal constructions \\
+\end{tabularx}
+\begin{tabularx}{.45\textwidth}{ll}
+\textsc{lvc}s & light-verb constructions \\
+\textsc{mt} & Machine Translation \\
+\end{tabularx}
+
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this]
+}
+
+\clearpage
+\end{document}

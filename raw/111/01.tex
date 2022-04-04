@@ -1,0 +1,330 @@
+\chapter{Introduction}
+\label{chapter1}
+\setcounter{enums}{0}
+\largerpage[-1] %longdistance
+Human languages consist of various structures, among which syntactic
+structure and semantic structure are particularly well known. The
+present study is primarily concerned with information structure, and
+the ways in which it could be leveraged in natural language processing
+applications. 
+
+Information structure is realized by prosodic, lexical, or syntactic
+cues which constrain interpretation to meet communicative demands
+within a specific context.  Information structure is comprised of four
+primary components: \isi{focus}, \isi{topic}, \isi{contrast}, and
+\isi{background}.  Focus marks what is new and/or important in a
+sentence, while topic marks what the speaker wants to talk about.
+Contrast, realized as either \isi{contrastive focus} or contrastive topic,
+signals a contextually contrastive set of \isi{focus} or topic items
+respectively.\is{contrast} That which is not marked as either focus or topic is
+designated as background information.
+
+Information structure affects the \isi{felicity} of using a sentence in
+different discourse contexts, as exemplified in \myref{exe:intro}.
+
+\myexe{\eenumsentence{\toplabel{exe:intro}
+\item{Kim reads the book.}
+\item{It is Kim that reads the book.}
+\item{It is the book that Kim reads.}}}
+
+
+
+\noindent Though the sentences in (\ref{exe:intro}b--c) are constructed
+using the same lexical items and describe the same state of affairs as
+sentence (\ref{exe:intro}a), they differ with respect to how
+information is packaged: `Kim' is focused in (\ref{exe:intro}b), while
+`the book' is focused in (\ref{exe:intro}c). This difference in
+information structure means that (\ref{exe:intro}b) would be a
+felicitous answer to \textit{Who is reading the book?} and
+(\ref{exe:intro}c) would be a felicitous answer to \textit{What is
+  that book?}, but not vice versa.
+
+
+Furthermore, information structure can be key to finding felicitous
+translations \citep{paggio:96,kuhn:96}.  Since languages vary in the
+ways they mark information structure, a model of information structure
+meanings and markings is a key component of a well-constructed
+grammar.  For example, the simple \ili{English} sentence
+(\ref{exe:i-am-kim}a) can be translated into at least two
+\ili{Japanese} allosentences (close paraphrases which share
+\isi{truth-conditions}, \citealt{lambrecht:96}), with the nominative
+marker \ga or with the so-called \isi{topic} (and/or contrast) marker
+\wa.\is{contrast}
+
+
+\myexe{\eenumsentence{\label{exe:i-am-kim}
+\item I am Kim.
+\item\shortexnt{4}
+{watashi & ga/wa & Kim & desu.}
+{I & \textsc{nom}/\textsc{wa} & Kim & \textsc{cop} [jpn]}}}
+
+
+\noindent The choice between \isi{alternatives} is conditioned by
+context. Marking on the NP hinges on whether \textit{watashi} `I'
+functions as the \isi{topic} or not. If the sentence is an answer to a
+question like \textit{Who are you?}, \wa is preferred. If the sentence
+is instead a reply to a question like \textit{Who is Kim?}, answering
+using \textit{wa} sounds unnatural.
+
+
+This difference in \isi{felicity-conditions} across languages should
+be taken into consideration in computational linguistics; in particular
+in machine translation.  When machine translation systems cannot
+accurately model information structure, resulting translations may
+sound rather unnatural to native speakers.  Successful translation
+requires reshaping how information is conveyed in accordance with the
+precepts of the target language and not simply changing words and
+reordering phrases in accordance with syntactic rules. Better accuracy
+in translation requires the incorporation of information structure.
+
+
+
+
+\section{Motivations}
+\label{1:sec:motivations}
+
+
+The nature of information structure is less understood than that of
+syntactic and semantic structures. For many languages the full range
+of information structure markings remains unknown. Furthermore, the
+integration of information structure has been rather understudied in
+computational linguistic investigations to date, despite its potential
+for improving machine translation, Text-to-Speech, automatic text
+summarization, and many other language processing systems.
+
+
+
+There are several opportunities for improved incorporation of further
+exploration of information structure.  First, the absence of
+cross-linguistic findings results in less use of the information in
+practical systems.  In order for language processing systems to
+provide more fine-grained results and work truly
+language-independently, acquiring knowledge across languages is
+required \citep{bender:11}.  Second, distributional findings obtained
+from language data are still insufficient. Several previous studies
+exploit language data for the study of information structure, but use
+merely monolingual or bilingual texts
+\citep{komagata:99,johansson:01,bouma:etal:10,hasegawa:koenig:11}, so
+a larger picture of how information structure works across a range of
+languages is still elusive.  Third, existing proposals for
+representing information structure within a grammatical framework for
+natural language processing remain somewhat underdeveloped and
+insufficiently tested.  Previous literature, including
+\citet{king:97}, \citet{steedman:00}, and \citet{bildhauer:07},
+provides a variety of formalisms to represent information structure,
+but none of them has been shown to be cross-linguistically
+valid. Moreover, their formalisms have never been implemented into a
+practical system in a fully comprehensive way.  Lastly, largely for
+the reasons presented thus far, the potential improvement to machine
+translation and language processing systems derivable from using
+information structure has not yet been shown. If the contribution of
+information structure to improvement of practical applications were to
+be quantitatively substantiated through experimentation, this would
+motivate further development of information structure-based
+applications.
+
+
+The central goal of this book is to create a computational model to
+handle information structure from a multilingual perspective within
+the \isi{HPSG} (Head-driven Phrase Structure Grammar,
+\citealt{pollard:sag:94}) framework, using the \isi{MRS} (Minimal
+Recursion Semantics, \citealt{copestake:etal:05}) formalism, and
+contributing to the \lingo \isi{Grammar Matrix} system
+(\citealt{bender:etal:10}).
+
+
+
+\section{Grammar engineering}
+\label{2:sec:grammar-engineering}
+\largerpage
+
+
+In a nutshell, \isi{grammar engineering} is the process of creating
+machine-readable implementations of formal grammars. In order to
+understand what grammar engineering is, it is necessary to define what
+language is.  Since the early days of generative study in linguistics,
+language has been defined as (i) an infinite set of strings
+(ii) accepted as grammatical by (iii) native speakers, and grammar
+engineering has embraced this definition.  (i) Given that the number
+of sentences in human language is assumed to be nonfinite, grammar
+engineering takes the generative capacity of grammar into account in
+sentence-generation as well as sentence-parsing. (ii) Since formulating
+grammatical well-formedness in a language is crucial, grammar engineering is
+fundamentally concerned with constructing a linguistically-precise and
+broad-coverage grammar. (iii) Finally, grammaticality has to be judged
+by native speakers. The judgment can be made either via linguistic
+intuition or with reference to language data such as corpora.
+Intuition-based and data-based methodologies complement each other in
+grammar engineering.\footnote{\citet{balwin:etal:05}, in the context
+  of grammar engineering, discuss this spirit in an overall sense and
+  conduct an evaluation using the ERG (English Resource Grammar,
+  \citealt{flickinger:00}) and the BNC (British National Corpus,
+  \citealt{burnard:00}). They substantiate the interaction of two
+  sources of linguistic findings, namely acceptability judgments and
+  corpus data.}
+\newpage
+
+
+
+The main goal of grammar engineering is to build up reusable
+computational grammar resources.\is{grammar engineering} Ideally, the
+empirical description of the grammar resources is linguistically
+motivated. A grammar is to be described in a linguistically
+well-elaborated way, and on a large enough scale to cover the
+linguistic phenomena in a human language.  For this purpose, grammar
+engineering also utilizes various types of linguistic data such as
+(machine-readable) dictionaries, corpora
+\citep{nichols:etal:10,song:etal:10}, testsuites \citep{oepen:01},
+treebanks \citep{oepen:etal:04,bond:etal:06}, and wordnets
+\citep{bond:etal:09,pozen:13}.  The described grammar should be able
+to run on a computer in order to prove its mathematical tractability
+as well as its potential for utilization. The constructed grammar has
+to be reusable for other studies with varied research
+goals.\footnote{\citet[16]{bender:08} offers an explanation about how
+  grammar engineering can be used for linguistic hypothesis testing:
+  ``[L]anguages are made up of many subsystems with complex
+  interactions. Linguists generally \isi{focus} on just one subsystem
+  at a time, yet the predictions of any particular analysis cannot be
+  calculated independently of the interacting subsystems. With
+  implemented grammars, the computer can track the effects of all
+  aspects of the implementation while the linguist focuses on
+  developing just one.''} Building upon the grammar resources, grammar
+engineering facilitates parsing and generation, which can be used for
+several practical applications such as machine translation, grammar
+checking, information extraction, question-answering, etc.
+
+
+
+
+Within the field of grammar engineering, there are several competing
+theories of grammar, including \isi{HPSG}, \isi{LFG}
+(Lexical-Functional Grammar, \citealt{bresnan:01}), \isi{CCG}
+(Combinatory Categorial Grammar, \citealt{steedman:01}), and \isi{TAG}
+(Tree-Adjoining Grammar, \citealt{joshi:schabes:97}). HPSG, which
+employs typed feature structures as a mathematical foundation, has
+been used for creation of reusable computational grammars in many
+languages. Those who study grammar engineering within the HPSG
+framework have cooperated with each other, by forming a consortium
+called \isi{DELPH-IN} (DEep Linguistic Processing with HPSG -
+INitiative, \myurl{http://www.delph-in.net}).\footnote{There are other
+  initiatives based on HPSG as well as other frameworks, such as
+  CoreGram for HPSG-based implementations
+  (\url{http://hpsg.fu-berlin.de/Projects/CoreGram.html}) using the
+  TRALE system
+  (\url{http://www.sfs.uni-tuebingen.de/hpsg/archive/projects/trale}),
+  and ParGram in LFG-based formalism
+  (\url{http://pargram.b.uib.no}). There are also other HPSG-based
+  grammars such as Enju for English
+  (\url{http://www.nactem.ac.uk/enju}, \citealt{miyao:tsujii:08}), and
+  a Chinese grammar constructed in a similar way to Enju
+  (\citealt{yu:etal:10}).}  DELPH-IN, in the spirit of open-source NLP
+\citep{pedersen:08}, provides research and development outcomes in a
+readily available way. These are largely gathered in the \logon
+repository (\myurl{http://moin.delph-in.net/LogonTop}).\footnote{Note
+  that not all DELPH-IN resources are in the \logon repository. For
+  example, the collection of \textit{Language CoLLAGE} is not in the
+  repository, but is readily available \citep{bender:14}.} \logon
+includes a collection of computational grammars, e.g.,\ \isi{ERG} for
+English (\citealt{flickinger:00}), \isi{Jacy} for \ili{Japanese}
+(\citealt{siegel:etal:16}), \isi{KRG} for \ili{Korean}
+(\citealt{kim:etal:11}), \isi{GG} for \ili{German}
+(\citealt{crysmann:03,crysmann:05a,crysmann:05b}), \isi{SRG} for
+\ili{Spanish} (\citealt{marimon:12}), \isi{LXGram} for
+\ili{Portuguese} (\citealt{branco:costa:10}), \isi{Norsource} for
+\ili{Norwegian} (\citealt{hellan:05}), \isi{BURGER} for
+\ili{Bulgarian} (\citealt{osenova:11}), ZHONG for
+the \ili{Chinese} languages (\citealt{fan:15a,fan:15b}),\is{ZHONG}
+\isi{INDRA} for \ili{Indonesian} (\citealt{moeljadi:15}), and so
+forth, processors, e.g., \isi{\lkb}~(\citealt{copestake:02}),
+\isi{\pet}~(\citealt{callmeier:00}), etc., and other software
+packages, e.g.,\ \isi{\itsdb} (\citealt{oepen:01}).
+
+
+
+
+
+One of the major projects under the DELPH-IN consortium is the \lingo
+Grammar Matrix (\citealt{bender:etal:10}).  The \lingo Grammar Matrix
+customization system is an open source starter kit for the rapid
+development of HPSG/MRS-based grammars
+(\myurl{http://www.delph-in.net/matrix/customize}).  The grammars
+created by the system are to be rule-based, scalable to
+broad-coverage, and cross-linguisti\-cally comparable. The main idea
+behind the system is that the common architecture simplifies exchange
+of analyses among groups of developers, and a common semantic
+representation speeds up implementation of multilingual processing
+systems such as machine translation.
+
+
+
+The current work is largely dependent upon the results of the
+\isi{DELPH-IN} consortium.  First, I make use of the DELPH-IN
+formalism to construct the HPSG/MRS-based information structure
+library from a multilingual perspective on grammar
+engineering. Second, I refer to the comprehensive DELPH-IN grammars
+(i.e.\ resource grammars, such as the \isi{ERG} and the \isi{Jacy})
+during the construction. Finally, I utilize the DELPH-IN tools to
+check the feasibility of what I propose and conduct several types of
+evaluations.
+
+
+
+
+
+\section{Outline}
+\label{1:sec:outlines}
+
+This book is divided into three parts, dedicated to exploring
+solutions to each of the problems mentioned in Section \ref{1:sec:motivations}
+individually from a perspective of grammar engineering
+(Section \ref{2:sec:grammar-engineering}).
+
+
+The first part explores various information structure meanings and
+markings and how they are related to each other within and across
+different languages.  This is done through a review of previous
+studies on information structure as well as through a survey of
+various types of languages and their information structure
+systems. Building on this initial work and additional evidence, a more
+cross-linguistically valid explanation of information structure is
+provided. Chapter~\ref{chapter3} lays out the meanings each component
+of information structure conveys, and Chapter~\ref{chapter4} looks
+into three forms of expressing information structure, namely prosody,
+lexical markings, and sentence position.  Chapter~\ref{chapter5}
+discusses the discrepancies in meaning-form mapping of information
+structure.
+
+
+
+
+The second part presents a formal architecture for representing
+information structure within the HPSG/MRS-based formalism.  Several
+previous studies on information structure are surveyed in
+Chapter~\ref{chapter8}.  After that, I propose the definition of a new
+constraint type and feature hierarchy for modeling information
+structure in HPSG/MRS. \isi{ICONS} (mnemonic for \isi{Individual
+  CONStraints}) is presented as an extension to MRS in
+Chapters~\ref{chapter9} and~\ref{chapter10}.  Chapter~\ref{chapter9}
+presents the fundamentals of representing information structure via
+ICONS, and Chapter~\ref{chapter10} goes into the particulars of how
+ICONS works with some sample derivations.  Chapter~\ref{chapter10-2}
+shows how information structure in multiclausal utterances can be
+represented via ICONS, and Chapter~\ref{chapter10-3} delves into
+several means of expressing information structure with reference to
+ICONS.  Chapter~\ref{chapter10-4} explores how \isi{focus} projection can be
+supported by \isi{underspecification}.\is{focus projection}
+
+
+The third part is devoted to the implementation of an information
+structure-based computational model and evaluates the model.  The
+present study is concerned with the \lingo Grammar Matrix system,
+especially aiming to create a library for information structure and
+add that library into the customization system
+(\citealt{bender:flickinger:05,drellishak:09,bender:etal:10}). I
+discuss how the library for information structure is built up and how
+an information structure-based system works for multilingual machine
+translation.  Chapter~\ref{chapter11} builds up a grammar library for
+information structure and Chapter~\ref{chapter12} addresses how
+machine translation can be improved using ICONS.
+
+

@@ -1,0 +1,336 @@
+\chapter{Introduction}\label{ch:1}
+
+Synchronic and diachronic linguistics are typically pursued as separate
+disciplines, with little to no overlap. Nevertheless, it is not possible
+for either to be truly agnostic about the form of the other. This
+is necessarily true because \isi{synchronic} theories are not theories about
+attested languages, but theories about possible languages. Therefore,
+any possible language, undergoing any series of diachronic changes,
+must always end up as another member of the set of possible \isi{synchronic}
+languages. Conversely, a theory of the end state of diachronic change
+is necessarily a theory of a \isi{synchronic} grammar at some point in time.
+The actuators of change must also be latently present in some way
+within \isi{synchronic} states, just as the speakers of daughter languages
+must have been learners of mother languages.
+
+In this work I will demonstrate how deeply held assumptions about
+the correct representations of \isi{synchronic} grammars delimit an associated
+theory of diachrony, and how standard assumptions about the units
+of change disallow certain \isi{synchronic} states. I will argue that it
+is necessary to reconsider the operative units within both domains,
+and that in doing so we are likely to gain new insights into how linguistic
+structures change and, by extension, how they fail to change, i.e.,
+exhibit stable variation.
+
+The goal of this work is to determine what types of mental structures
+may be sufficient, and, possibly, necessary in order to capture certain
+linguistic phenomena at a computational level of description (in the
+sense of \citealt{marr1982vision}). The approach is twofold: 1) to
+test a number of proposed structures and mechanisms by implementing
+them in simple computational models; and 2) to test the explanatory
+adequacy of a number of existing models by transforming their implementations
+into theoretical constructs. The first method is likely to be familiar
+to many readers; the second, however, is somewhat novel, and requires
+some explanation. In the simplest terms, it is the reverse of the
+first: taking implemented functions and deriving the theoretical linguistic
+entity that the function implements. This requires determining whether
+a specific implementational detail is incidental (with no repercussions
+beyond the implementational level), or whether there are hidden ramifications
+to that choice at the level of linguistic theory (the computational
+level). There is a second aspect to this analysis as well. Models,
+to be useful, as well as tractable, must be simplifications of what
+are extremely complex systems. The simplifications, however, must
+be of the right kind to ensure that the model is still informative
+about the phenomenon of interest. That is, the model must be able
+to “scale up”. There is no algorithm, however, by which we can
+establish scalability ahead of time in building our toy models. Thus,
+it is critical that any model be made consistent with what is known
+more globally about the phenomenon of interest (what I will refer to as ``imposing
+boundary conditions''), and not just the small piece it was designed
+to explain. 
+
+As a series of models are developed and tested, they will be assessed
+as to whether or not they meet the relevant boundary conditions in
+an internally consistent, theoretically motivated way. This higher-level
+model analysis will reveal the covert representational corollaries
+of various modeling choices, providing insight, in turn, into both
+sufficient and necessary components of a working theory of language
+stability and change. This approach is also an illustration of the
+utility of an intensively fine-grained local analysis in approaching
+the largest and most general of theoretical questions. Although the
+phenomena modeled are \isi{phonetic} and \isi{phonological} ones, the methodology
+is applicable to any domain of linguistics. 
+
+This book is organized as follows. In the remainder of this chapter\largerpage
+the representational issues that apply in both the \isi{synchronic} and
+the diachronic domains are introduced. \chapref{ch:The-Exemplar-Model}
+describes the basic architecture from which the models are built.
+To begin with, three general types of phenomena are modeled: a gradient
+context-free process, a gradient context-dependent process, and a
+categorical context-dependent process. Simulations for all three demonstrate
+that iterated processes without check lead to collapse, or unbounded
+category shift. Furthermore, \isi{production} modeled as random selection
+of \isi{unnormalized} perceptual inputs leads to sub-category mismatch.
+\chapref{ch:The-Linguistic-Phenomena} makes explicit links
+between these general model types and specific linguistic phenomena,
+namely, word \isi{frequency} effects, vowel \isi{lengthening}, and \isi{vowel nasalization}.
+In \chapref{ch:Models-of-Change}, \isi{articulatory} targets are introduced
+to the basic model in order to check unbounded shift. A set of models
+with targets of various kinds are analyzed in depth. The set is generated
+by selecting parameters along two dimensions: whether \isi{production} tokens
+are stored or generated (\noun{state/process}); and whether more than
+one level of representation is used (category/sub-category). In this
+chapter it is shown that only two models from this set satisfy the
+criteria of being both representationally consistent and bounded.
+The possible states for each of the two models is then fully derived.
+These results are related to existing models, and the types of sound
+change that they are capable of capturing. In \chapref{ch:Perception-Production}, 
+it is shown that the typical implementational simplification, in which
+\isi{perception} and \isi{production} tokens are equated, is not only implausible,
+but obscures a fundamental flaw in the mechanism for change. Iterative
+change no longer follows once an explicit mapping between acoustic
+values and \isi{articulatory} gestures is required. \chapref{ch:Phoneme-Split}
+is devoted to a type of change not previously modeled: the genesis
+of a new \isi{phoneme} category. Adopting a theory in which the mapping
+from \isi{perception} to \isi{production} is taken to be inherently ambiguous,
+I offer a proposal for an implemented model in which variable \isi{sub-lexical}
+segmentation results in mixed representations. Change in the model
+is taken to be change in the distribution of already existing variants.
+The work is summarized in \chapref{ch:Summary},
+where other types of sound change, and future avenues of research,
+are briefly discussed. 
+
+\section{Abstract representations}\largerpage
+
+One of the basic representational divisions that can be made in a
+theory of cognition is between what is stored in memory versus what
+is not stored, and thus must be computed (or generated). The choice
+about what aspects of a linguistic pattern to treat as stored versus
+generated will determine, to quite a large extent, what we take to
+be the possible dimensions of \isi{synchronic variation} cross-linguistically,
+as well as the possible diachronic outcomes. This will be the focus
+of \chapref{ch:Models-of-Change}, where I will also show that
+this choice can imply a number of other representational assumptions.
+In this section, I preview that analysis by deconstructing some of
+the most basic units of \isi{phonological} theory.
+
+It should be noted that mainstream \isi{synchronic} linguistics is heavily
+biased towards conceptualizing phenomena as generating processes:
+“\isi{vowel nasalization}”, “final de-voicing”, “initial
+aspiration”, etc.\footnote{Even if these are merely terminological conveniences, they color the
+way we think about, and model, these phenomena.} This is directly linked to a conception of mental representations
+as maximally abstract. In other words, only unpredictable information
+should be stored (such as the arbitrary sound units associated with
+a given lexical item), while all predictable information should be
+derived. Although this view may have originated with \citet{Chomsky1968},
+it has also been explicitly advocated for much more recently in various
+theories of underspecification (e.g., \citealt{archangeli1988aspects,Steriade1995a}).
+More commonly, however, it is an unexpressed assumption that the analysis
+that maximizes the predictive power of the grammar is the preferred
+one.\footnote{Within Optimality Theory, this pressure is, in a sense, even stronger,
+because all possible words must be filtered through the grammar (not
+just the selected URs). However, Lexicon Optimization allows for known
+lexical items to be generated from faithful inputs allowing for some
+predictability to be retained in the lexicon (\citealt{Prince2004}:
+Ch. 9). }
+
+For example, the pronunciation of the word \textit{lamb} in English
+can be written with the following series of \isi{phonetic} symbols: {[læ̃m]},
+where the diacritic over the vowel indicates \isi{nasalization}. The property
+of \isi{nasalization}, however, is predictable in English, and only occurs
+when vowels are produced in proximity to nasal consonants, like {[}m{]}.
+The lexical entry for \textit{lamb} is therefore denoted as {/læm/},
+without the \isi{nasalization}. Concomitantly, a pronunciation rule must
+be internalized by the native English speaker, a rule that stipulates
+that any vowels adjacent to nasal consonants must become nasalized.
+Under this theory, the lexical item {/læm/} is first retrieved,
+and then transformed to {[læ̃m]} via the application of
+this rule. 
+
+This hypothesis in fact implies that the lexical entry is comprised
+of a string of smaller units, the phonemes {/l/}, {/æ/},
+and {/m/}, that are concatenated together in order to produce
+the word. The currently standard view of \isi{phonological} structure is
+that there exists an entire hierarchy of abstract units wherein larger
+units are successively built from smaller ones: phonemes from features,
+syllables from phonemes, words from syllables, etc. At each level,
+the units of the previous level undergo rules affecting their realization.
+The unit of interest in a particular analysis will depend on the phenomenon
+of interest. But that unit cannot exist independently of the rest
+of the hierarchy. Consider the dual nature of the \isi{phoneme} {/æ/}
+as part of an abstract category {/æ/}, but also as part
+of the word \textit{lamb}. The variant, or \isi{allophone}, of the \isi{phoneme}
+that occurs in that word is nasalized. However, the rule that nasalizes
+the {/æ/} is assumed to operate at a more abstract level,
+i.e., before any nasal, in any word and, in fact, on any
+vowel. See (\ref{allophony:nasal vowel}). 
+\begin{covexample}
+\emph{\label{allophony:nasal vowel}/vowel/ $\rightarrow$ {[}nasalized
+vowel{]}/\_\_ {[}nasal{]}}
+\end{covexample}
+Many phonemes can be said to have multiple \isi{phonological} allophones,
+and all phonemes have at least multiple \isi{phonetic} allophones. In the
+word \textit{tag} {[tʰæˑɡ˺}{]}, for example, the first
+sound can be characterized as the aspirated \isi{allophone} of {/t/}
+that is generated whenever a \isi{voiceless} plosive occurs in the onset
+of a stressed syllable; the second sound is the lengthened \isi{allophone}
+of {/æ/} that is generated whenever a vowel precedes a \isi{voiced}
+obstruent; and the third sound is the unreleased \isi{allophone} of {/ɡ/}
+that is generated whenever a plosive occurs in word-final position. 
+
+A consequence of abstract representations that do not match produced
+surface forms is that a \isi{normalization} procedure is required on the
+\isi{perception} side for successful recognition and retrieval. The actually
+heard {[læ̃m]} does not match the stored representation
+{/læm/}, and must be converted by somehow subtracting out,
+or “compensating” for, the predictable \isi{nasality}. As far as I
+am aware, there is no standard notation for formalizing the input
+(or \isi{perception}) side of the \isi{allophonic} relationship. Therefore, I
+use the special symbol $\hookrightarrow$ to denote the inference
+of the underlying form in (\ref{Normalization}), the inverse of (\ref{allophony:nasal vowel}). 
+\begin{covexamples}
+\item \label{Normalization} \emph{{[}nasalized vowel{]}{[}nasal{]}}
+$\hookrightarrow$ \emph{/vowel//nasal/}
+\end{covexamples}
+Once performed, the recovered form should be identical to the stored
+category. Thus, from the generative perspective, category matching
+is trivial, and the difficult part of speech recognition is the \isi{normalization}
+process. Note that the more rules there are, and the more complex
+their interaction, the more complicated the \isi{normalization} procedure
+becomes.\footnote{The real speech \isi{perception} problem, of course, is much more difficult
+than simply accounting for all the \isi{phonetic} and \isi{phonological} predictability.
+There are numerous other factors that affect the realization of a
+given utterance, such as vocal tract \isi{length}, \isi{speaking rate}, ambient
+noise, speaker sex, speech community, register, etc. At minimum, \isi{normalization}
+of all these factors requires a complex non-linear function, and is
+unlikely to have a unique solution.} 
+
+\section{\label{sec:Actuation-1}Actuation}
+
+A commonly described sound change is one in which a sound that was
+previously an \isi{allophone} becomes a \isi{phoneme} in its own right (\isi{phoneme}
+split). Vowel \isi{nasalization} is considered to be \isi{allophonic} in English,
+and was also \isi{allophonic} at some point in the history of French. The
+\isi{allophonic} rule entailed that a word like {/bɔn/} would be
+pronounced as {[bɔ̃n]}. According to the classical view,
+loss of nasal consonants like the one in {[bɔ̃n]}, resulted
+in words like {[bɔ̃]}, where the nasalized variant was
+no longer predictable (e.g., \citealt{Hajek1997a}). In theory, a
+minimal pair was now possible where the only difference between the
+word pairs was whether the vowel was oral or nasal, e.g., {[bɔ̃]}
+versus {[bɔ]}. 
+
+This story creates a paradox within the constraints of the representational
+framework just described. If \isi{nasalization} is predictable, then it
+is added by rule to an abstract underlying form, such as {/bɔn/}.
+If the final nasal is dropped by the speaker, then there should be
+no \isi{nasalization} on the vowel, and no way to arrive at a phonemically
+nasalized vowel.\footnote{In fact, it is possible to achieve the necessary outcome if the nasal
+is dropped by the speaker only \emph{after} the \isi{allophonic} rule has
+been applied. This move, however, requires a theory of serially ordered
+rules in the first place, and, in the second, raises other difficulties
+in terms of theoretical constraints on the ordering of those rules,
+and what types of rules are allowed to occur before or after others.}
+If the final nasal is not dropped by the speaker, but fails to be
+heard by the listener, a different problem arises. A listener provided
+with the input sequence {[bɔ̃]} ought to infer, based on
+their native language competence, that they failed to hear a nasal
+consonant that was actually produced, given that vowels are only ever
+nasalized preceding a nasal consonant. In fact, they ought to be able
+to infer, based on the conversational context and their knowledge
+of lexical items, that the \isi{target} was \textit{bon}, and thus correct
+for any performance errors in \isi{production} or \isi{perception}.
+
+The causality in this story can be reversed, where the loss of the
+nasal, rather than being the actuating event, merely reveals (to the
+linguist) that the nasalized vowel has already become phonemic (e.g.,
+\citealt{Janda2003}). This ``covert change'' approach, however, merely
+pushes the explanation back a step – how did the vowel become phonemically
+nasal? And in either story the Actuation Problem (\citealt{Labov1968})
+remains unsolved. What is required is a mechanism by which predictability
+can be lost at the \isi{allophonic} level. Furthermore, the mechanism itself
+must be predictable; that is, it must either always apply (yet only
+occasionally lead to sound change), or it must apply under specific
+well-understood conditions.
+
+\section{\label{sec:Less-abstract-Representations}Less-abstract representations}\largerpage
+
+Even within a maximally abstract system it will be necessary to deal
+with multiple representational levels in a way that is obscured by
+the notational conventions used above. For example, a \isi{phoneme split}
+was said to require predictability to be lost at the \isi{allophonic} level.
+But, in fact, what is really needed is the loss of predictability
+at a hyper-\isi{allophonic} level, such as that expressed in (\ref{allophony:nasal vowel})
+– which will be symbolized as $[\tilde{V}]$ going forward. And because
+neither phonemes, allophones, or hyper-allophones exist in isolation,
+whatever mechanism is proposed must act through the medium of actual
+words. Furthermore, sound change has been observed to be gradual from
+a \isi{phonetic} point of view, such that relatively small differences in
+pronunciation can be seen to incrementally increase across speakers
+of different ages in a “sound change in progress”. These small
+differences are reflected in what may be stable differences between
+different dialects, between male and female speakers, between speakers
+of higher socioeconomic and lower socioeconomic status, etc. It is
+now widely accepted, in fact, that the pool of \isi{phonetic} variants that
+exists across a heterogeneous population of speakers provides the
+basis for future sound changes (e.g., \citealt{Guy2008}).
+
+For these reasons, an alternative framework in which mental representations
+are far closer to actually produced forms, retaining significant detail
+at both the acoustic and \isi{phonetic} levels, has arisen in the study
+of sound change. Exemplar models were first developed in the field
+of psychology, in order to reflect a number of insights about human
+memory and categorization. Rather than having clear, definable boundaries,
+many mental categories seemed to function much more as though they
+were a reflection of their current members (e.g., \citealt{Rosch1977}).
+Categorization of novel items was less a question of logical inference,
+than of similarity to known instances. Furthermore, many dimensions
+of similarity were potentially implicated, not all of which were relevant
+from a taxonomic point of view (\citealt{Nosofsky1988,Luce1986}).
+Within linguistics, \isi{exemplar} models have been invoked to account for
+a host of factors known to affect both word recognition and \isi{production},
+but which are not expressable within a maximally abstract generative
+framework. Among these are the pervasive effects of word \isi{frequency}
+(\citealt{Bybee2001}), the familiar-speaker effect in word priming,
+as well as the persistence of \isi{sub-phonemic} detail (\citealt{tilsen2009subphonemic}),
+and the influence of socio-indexical variables on what are typically
+assumed to be more abstract, grammatical levels of processing (see
+\citealt{docherty2014evaluation} for review). 
+
+The term ``\isi{exemplar}'' is meant to indicate that representations being\largerpage
+stored in memory are of individual, specific experiences. For example,
+each time you hear the word \textit{lamb} over the course of your lifetime,
+spoken by any of a number of different people, in any number of different
+contexts, an \isi{exemplar} that resides within the category associated
+with the word \textit{lamb} is created. Just as a minimal representational
+framework implies the necessity of a \isi{normalization} procedure, a “maximal”
+representational framework suggests that \isi{normalization} of the acoustic
+signal may not be necessary at all. Since previous experiences of
+the word \textit{lamb} share many similarities, among them that fact
+that that there is some degree of \isi{nasalization} on the vowel, they
+are likely to provide the closest matches to any new token that also
+contains a nasalized vowel of this type. No reversal of \isi{nasalization}
+is required (cf. \citealt{Johnson1997a}). Classification occurs by
+discovering the cloud to which a new token bears the closest over-all
+similarity in this space. However, because speech is so variable,
+in ways that listeners seem quite sensitive to, this mental space
+is a very high-dimensional one. As a result, the similarity computation
+is likely to be quite complex. 
+
+Because the relationship between the acoustic speech signal and the
+structural units of language is a non-linear, many-to-many mapping,
+there must always be a theoretical trade-off of this kind. For an
+easy classification algorithm, generative theory requires complex
+pre-processing in the form of a \isi{normalization} procedure. For little
+to no pre-processing, \isi{exemplar} theory requires a complex classification
+algorithm. In the modeling work that follows we will adopt the non-trivial
+assumption that classification is perfect – that all tokens are recognized
+as members of their intended category. The complexity, however, will
+surface in the transformation between what is perceived (and subsequently
+stored), and what is produced (based on what is stored). Nominally,
+all the models in this work are \isi{exemplar} models. However, they are
+really much more general-purpose models. In the limit, all tokens
+can belong to a single category, or all categories contain a single
+token each. The question of \isi{normalization} will remain central because
+it depends on exactly how abstract the representations are, and there
+will always be a trade-off between what is stored and what is computed. 

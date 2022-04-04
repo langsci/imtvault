@@ -1,0 +1,116 @@
+\chapter{An approach to statistically modelling translation problems with the help of translation process data in R}\chaptermark{Statistically modelling translation problems in R}
+\label{sec:12}
+
+In the final chapter, I want to introduce an approach with which to identify problematic units in translation process data according to mere \isi{keylogging} and \isi{eyetracking} data as an alternative to think-aloud data. As we have learned, production times and \isi{eye movement} data like fixation durations and fixation counts can be interesting variables to detect problems in process data. However, these data have the disadvantage that there is no guarantee that they indicate problems. Is the participant really thinking about this word, when (s)he looks at it longer? Maybe (s)he is already thinking about the upcoming phrase, or revising what was already translated or post-edited in his\slash her head. Or even unrelated thoughts and any action in the environment can distract the translator\slash post-editor. Hence, I want to propose a problem indicator model that relies on the more stable predictors introduced in the earlier analyses: \textit{Task}, \textit{Munit}, \textit{InEff}, \textit{HTra}, and \textit{HCross}\footnote{Even if the participant types one translation, changes it, but then decides to go back to the initial translation, this insecurity might point to problematic units, too.}.
+
+
+
+As we saw in \sectref{sec:11:3}, the overall data as well as the single \isi{PoS} classes rely more or less strongly on different predictors. If we assume that one predictor has an impact on at least four of the behavioural parameters (production time and gaze data), it is included in the final formula to find the problem units. Before a first example is discussed, we have to determine a problem area. If we assume that every parameter is considerably high, when it exceeds its mean value plus one \isi{standard deviation}, we could postulate the following \isi{problem area} (PA) for each parameter (in R script) with “dataset” being representative for the data set a person wants to analyse:
+
+
+\ea
+\begin{lstlisting}
+PAMunit <- mean(dataset\$Munit) + sd(dataset\$Munit)
+PAInEff <- mean(dataset\$InEff) + sd(dataset\$InEff)
+PAHTra <- mean(dataset\$HTra) + sd(dataset\$HTra)
+PAHCross <- mean(dataset\$HCross) + sd(dataset\$HCross)
+\end{lstlisting}
+\z
+
+
+As the parameter \textit{Task} is not numeric, a problem area cannot be calculated. The calculation of the PAs is based on calculations on the confidence intervals in normal distributions and outliers. Testing the data has shown that multiplying the \isi{standard deviation} leads to the exclusion of too many data points. I tested different approaches to define the best fitting problem area with the specific formulas (the results can be found in Tables~\ref{tab:D:3} to \ref{tab:D:5} in Appendix~\ref{sec:Appendix:D}). If the problem area is only defined as being higher than the mean of the particular predictors, too many words would be specified as problematic, which would lead to too many false positives. A total of 20.8\% of all words would be considered problematic if the whole data set were approached, and for adjectives (46.4\%), adverbs (53.7\%), or verbs in the base form (48.3\%) even approximately half of the occurrences would be considered problematic. However, if the problem areas are defined as mean plus $1.5*\text{sd}$ (or higher), too many words would be excluded and hardly any problematic words could be defined, as indicated above. Accordingly, mean plus SD was established as the best fitting problem area. A selection of the most frequently occurring \isi{PoS} classes was tested (see \tabref{tab:D:4} in Appendix~\ref{sec:Appendix:D}). The formula would predict a rate of 0.1--1.0\% for function words which would need to be considered problematic\footnote{Except for determiners, which, however, were calculated differently and will be discussed further below.} and 6--21\% for content words\footnote{The rate for combining all verbs, however, was very low (only 0.1\%), which will be discussed further below.}. Although 21\% may be considered a bit too high, even for content words, the percentages seem to be plausible for most \isi{PoS} classes.
+
+
+
+Conclusively, we would arrive at the following basic command to filter out problematic units, considering \textit{Munit}, \textit{InEff}, \textit{HTra}, and \textit{HCross} are simultaneously significantly influential (excluding \textit{Task} for the moment), which they usually are not:
+
+
+\ea
+\begin{lstlisting}
+dataset[dataset\$Munit > PAMunit \& dataset\$InEff > PAInEff \& dataset\$HTra > PAHTra \& dataset\$HCross > PAHCross, ]
+\end{lstlisting}
+\z
+
+
+This means that, if all four predictors are influential, every data point can be considered a problematic source text unit that has a \textit{Munit} value that is in the PA, an \textit{InEff} value that is in the PA, and a \textit{HTra} value and a \textit{HCross} value that is in the respective PA.
+
+
+
+In the next step, the predictor \textit{Task} needs to be included. Let us, therefore, look at a first example: If we want to analyse the whole data set without focusing on a special \isi{PoS} class, the predictors \textit{Task}, \textit{Munit}, and \textit{HCross} need to be included, because they influenced at least four\footnote{Why it has to be at least four, will be discussed in more detail later in this chapter.} of the behavioural parameters. Hence, we need to integrate those three predictors into the command. If the parameter \textit{Task} is an influential part of the formula, the data set cannot be assessed as a whole, but TfS, PE and MPE have to be analysed separately as the tasks have an influential impact on the behavioural parameters. Accordingly, it has to be integrated both in the problem area of each parameter as well as in the final command. The problem areas for \textit{Munit} and \textit{HCross} can be specified as the following, already establishing that only TfS data are considered:
+
+
+\ea\begin{lstlisting}
+PAMunit <- mean(dataset[dataset\$Task == "TfS"]\$Munit) + sd(dataset[dataset\$Task == "TfS"]\$Munit))
+\end{lstlisting}\z
+
+\ea\begin{lstlisting}
+PAHCross <- mean(dataset[dataset\$Task == "TfS"]\$HCross) + sd(dataset[dataset\$Task == "TfS"]\$HCross))
+\end{lstlisting}\z
+
+
+The final command is constructed of the three influencing predictors:
+
+
+\ea\begin{lstlisting}
+dataset[dataset\$Task == “TfS” \& dataset\$Munit > PAMunit \& dataset\$HCross > PAHCross, ]
+\end{lstlisting}\z
+
+
+If the problematic source text units would be calculated for PE and MPE in the subsequent steps, the commands could remain the same, but \texttt{Task == “TfS”} would needed to be replaced by \texttt{Task == “PE”} (or \texttt{Task == “MPE”}). If an overview of all potential problematic units of all tasks is necessary, the problematic words have to be calculated separately per task and then combined because the problem areas have to be defined according to the tasks.
+
+
+
+On the other hand, if \textit{Task} is not an influential part in the formula, the research question, however, only requires inclusion of the problems in the PE task, \textit{Task} can be integrated in the final formula, but does not need to be integrated in the problem area calculation. Prepositions and subordinate conjunctions (IN), for example, require \textit{InEff} and \textit{HTra} as predictors. Hence, the problem areas would be set as
+
+\ea
+\begin{lstlisting}
+PAInEff <- mean(dataset\$InEff) + sd(dataset\$InEff))
+PAHTra <- mean(dataset\$HTra) + sd(dataset\$HTra))
+\end{lstlisting}
+\z
+
+
+and the final command could include the tasks, but would not have to, e.g.:
+
+
+\ea\textup{(complete data set)}\\
+\begin{lstlisting}
+dataset[dataset\$InEff > PAInEff \& dataset\$HTra > PAHTra, ]
+\end{lstlisting}
+\z
+
+\ea\textup{(for problematic words only in the TfS task)}\\
+\begin{lstlisting}
+dataset[dataset\$Task == “TfS” \& dataset\$InEff > PAInEff \& dataset\$HTra > PAHTra, ]
+\end{lstlisting}
+\z
+
+
+\textup{Accordingly, the final command can include or exclude everything that is (not) necessary for the analysis, like} \textit{Text} \textup{or} \textit{Participant}\textup{. These additional distinctions on the data set might not only be included into the final command, but also into the problem area, depending on the research question. For example, if we want to investigate which of the problems in the whole data set belong to participant P04, we include the restriction only in the final command. However, if we want to detect which words were especially problematic for P04, we can also include the restriction into the function for the PAs.}
+
+
+
+If the researcher uses the \isi{CRITT TPR-DB} or any other data collection method including numerous pieces of information, it might be convenient to include a restriction on the columns of the table that will be presented in the output. For the testing done in Tables~\ref{tab:D:3}--\ref{tab:D:5} in Appendix~\ref{sec:Appendix:D}, e.g., I only needed the information of columns two to eleven to determine which words are considered problematic and hence included this restriction in the command ({\ttfamily dataset[ …, 2:11]}).
+
+
+
+\textup{In the following, some issues will be discussed which were already addressed to some point or which may still need a solution. First,} \textit{Task} \textup{alone cannot be used to make any predictions. Although this did not occur in the \isi{PoS} selection that was tested,} Task \textup{would be the only predictor for VBPs (non 3}\textup{\textsuperscript{rd}}\textup{{}-}\textup{person-singular present verbs) and VBZs (3}\textup{\textsuperscript{rd}}\textup{{}-}\textup{person-singular present verbs). However, as it can be assumed that translators (trainees and professionals alike) do not have problems with the grammatical difference between VBPs and VBZs, it might be reasonable to synthesise those \isi{PoS} classes (maybe also including verb bases) and recheck for this superordinate class if it has different predictors}\footnote{Find a discussion on \isi{PoS} classes with no predictors and a discussion why combining all verbs does not seem helpful to identify problematic words further below.}\textup{. A closely linked issue emerges when Task and} \isi{HTra} \textup{are the only two predictors for a \isi{PoS} class (as is the case for} \textup{adjectives, adverbs, and verbs in their base forms), because the} \textit{HTra} \textup{value is calculated across the different tasks. Accordingly, the suggested problematic words are the same for all three tasks. Therefore, it might be reasonable to include another – usually the next closest – predictor. Otherwise Task could also be excluded as a predictor, because it hardly influences the outcome of the calculation. This was tested for Adjectives (JJ) for which the next best predictor is} \textit{Munit}\textup{. Independent of the tasks, the adjectives predicted to be problematic decreased from 13.6\% to 3.8\%, which still seems plausible.}
+
+
+
+A second issue that needs to be discussed is what if only one predictor (except \textit{Task}) falls under the given criterion introduced above for some \isi{PoS} classes, which led to the question whether it is sufficient to specify problematic words. For example, the \isi{PoS} group “all nouns” is only impacted by the \textit{InEff} values. When only one PA is used for the prediction, it gives the impression that too many words might be identified as a problem. Hence, it was tested how many nouns would be considered problematic when only \textit{InEff} is taken to define a PA. In a second test, the best three indicators for all nouns were taken into consideration (\textit{\isi{Munit}, InEff}, and \textit{HTra}). When three predictors were included into the formula, only 0.1\% of the nouns could be considered problematic, which is very few. However, if only \textit{InEff} was included, 6\% of the nouns would be considered problematic, which seems more realistic for content words (the detailed results can be found in Tables~\ref{tab:D:4}--\ref{tab:D:5} in Appendix~\ref{sec:Appendix:D}). Hence, I decided that only the predictors with a significant impact on at least four of the behavioural parameters should be included in the formula to prevent too many false negatives – except when the only predictor is \textit{HTra}/\textit{HCross} (and \textit{HTra}/\textit{HCross} combined with Task) as discussed above. Similarly, none of the predictors has a significant impact on determiners (DT) more than once. When a formula is established with those three predictors, which had an impact at all (\textit{InEff}, \textit{HTra}, and \textit{HCross}), still 4.2\% of the determiners could be considered problematic, which is a lot when three predictors are used, especially for function words. Therefore, we can assume that determiners cannot be predicted as problematic. The final basic model is presented in \figref{fig:12:1}.
+
+
+\begin{figure}
+\includegraphics[width=.9\textwidth]{figures/Figure_12_1.png}
+\caption{Overview of the final model}
+\label{fig:12:1}
+\end{figure}
+
+  
+
+\textup{Next, the focus should be on combining \isi{PoS} classes. While it might be sensible to combine \isi{PoS} classes in some cases, it might also cause misleading results. For example, if all verbs are combined, only 0.1\% of the verbs can be considered problematic according to the formula. This would be a very small number, especially for verbs, as over 20\% of all verbs in their base form (VB) would be considered problematic if the formula for VBs is applied to them. Hence, I suggest that word classes might only be combined if they obviously have the same root, like adjective, adverbs, nouns, verbs, etc., but only as long as the (grammatical) difference between the words can be considered easy to process. Accordingly, it would be reasonable to combine singular and plural nouns, but maybe to exclude proper nouns as they are subject to special requirements in translation. Further, adjectives and adverbs, respectively, can be combined with their comparative and superlative forms because these grammatical differences most likely do not cause problems for the translators. Similarly, 3}\textup{\textsuperscript{rd}}\textup{{}-}\textup{person-singular and non-3}\textup{\textsuperscript{rd}}\textup{{}-}\textup{person-singular present verbs can presumably be combined, maybe even with verb base forms, but gerund verbs and verbs in the past tenses may be considered separately because the problem with these verbs might be translating the grammatical structure rather than any lexical or semantic problem, etc.}
+
+
+
+{In the end, one has to bear in mind that this analysis is only on a word level, while many problems might instead occur on a phrase or sentence level or even higher.} {Hence, if one word is identified as problematic, it might not be the word itself but the phrase/context in which it is embedded. Accordingly, the interpretation of the identified problematic words must be performed very carefully.}

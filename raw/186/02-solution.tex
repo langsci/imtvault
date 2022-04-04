@@ -1,0 +1,441 @@
+\chapter{Modelling analogy in grammar}\label{chap:solution}
+
+In this chapter I will present a model that is able to  address the questions raised in the previous chapter. This model captures the interactions between analogy and grammar, while at the same time being independent of the techniques for implementing analogy and agnostic regarding the theory of morphology. This allows us to have a system that is flexible enough to be compatible with most computational implementations of analogy and with a variety of morphological theories, as well as with usage-based insights, while remaining precise and constrained enough to make clear predictions about different properties of analogical systems.
+
+The first section of this chapter introduces feature structures and inheritance hierarchies and then develops the formal model to relate these structures to analogical classifiers. The following sections describe the informal set-up of the system and present a possible formalization.
+
+\section{Basic assumptions}
+
+\subsection{Feature structures}
+
+\is{feature!structure|(}
+\is{LFG}
+
+For the representation of lexical items I assume a very simple system of feature structures. Feature structures are common in many varieties of \is{Construction Grammar} Construction Grammars \citep{Bergen.2005a, Croft.2001, Goldberg.1995, Goldberg.2006, Sag.2012, Steels.2011c}, as well as in \textsc{hpsg} \citep{Pollard.1994, Ginzburg.2000}, \textsc{lfg} \citep{Bresnan.2016, Kaplan.1982}, among others. Although theories differ in their assumptions about feature geometries, the differences mostly represent only theory-internal issues. In this book, I use the representation given in \REF{lex-item}.
+\is{feature!geometry}
+
+\begin{exe}
+    \ex \label{lex-item} \begin{avm}
+        \[\textit{type}\\
+            \textsc{phonology}& \textit{phon-object}\\
+            \textsc{category} &\textit{cat-object}\\
+            \textsc{semantics}& \textit{sem-object}\\
+        \]
+    \end{avm}
+\end{exe}
+
+Example \REF{lex-item} shows three features in small caps and a type in italics. Features can take values, including other feature structures. The two main features I will be concerned with in this book are \textsc{phonology} and, to a lesser extent, \textsc{semantics}. The feature \textsc{phonology} contains the phonological representation of the lexical item, while the feature \textsc{semantics} contains the meaning or semantic representation of the lexical item. The feature \textsc{category} contains morpho-syntactic properties of the lexical item (e.g. its part of speech and morphosyntactic properties, among others). The \textit{type} specifies to what types the lexical item belongs. A simple example of such a representation of the inflected form \textit{drew} is given in \REF{drew-ex}:
+
+\begin{exe}
+    \ex \label{drew-ex} \begin{avm}
+        \[\textit{transitive-verb}\\
+            \textsc{phonology} & /\textit{druː}/\\
+            \textsc{category} & \[\textsc{part-of-speech} & \textit{verb}\\
+                \textsc{verb-form} & \textit{finite}\\
+                \textsc{tense} & \textit{past}\\
+            \]\\
+            \textsc{semantics} & PAST(\textbf{draw})
+        \]
+    \end{avm}
+\end{exe}
+
+This representation says that the word \textit{drew} is of the type \textit{transitive-verb}, in a finite verb form, in the past tense.\footnote{I am using an informal semantic notation for the sake of simplicity. Any formal representation would also be compatible with the ideas of this book.} We see that the feature \textsc{category} in turn takes another feature structure as a value. This is an extremely simplified representation -- other feature like the valency, pragmatic features, etc., would also have to specified -- but this representation is sufficient for the topics covered in this book. To reiterate, the three key aspects I will be concerned with are: the type of lexical items, their phonology and their semantics.
+
+\is{feature!structure|)}
+
+\subsection{Type hierarchies}
+
+\is{type hierarchy|(}
+
+As mentioned above, analogical models work on the type of lexemes. In theories like \is{Construction Grammar} Construction Grammar and \textsc{hpsg}, types are organized in hierarchies which help to capture common properties between different items. Hierarchies ``provide tools for optimal encoding of lexical knowledge'' because ``properties of individal lexical items can be factored out into various general classes, each defined by the common attributes of its members'' \citep[13]{Koenig.1999}. In this book, I adopt a very general version of type hierarchies. I do not assume any specific theory or any particular version of what the lexicon looks like.
+
+\is{HPSG}
+\is{inheritance}
+\is{inheritance!multiple}
+\is{inheritance!non-monotonic}
+\is{type!sub-}
+\is{type!super-}
+In a type hierarchy, types specify all common properties of their members, and their members inherit these properties. In other words, all members of a type have to satisfy the constraints imposed by that type. Types can have sub-types and super-types and can inherit from multiple super-types at the same time. This creates a complex network of relations for any given leaf type.
+By assumption, theories like \textsc{hpsg} take inheritance to be monotonic, and features of super-types cannot be overwritten by sub-types \autocites{Corbett.1993, Brown.2012}. Some versions of \is{Construction Grammar} Construction Grammar, however, do operate with non-monotonic inheritance \autocite{Booij.2010}. For \textcite{Booij.2010}, lexical items can overwrite certain features imposed by their type. This approach helps make the hierarchical organization somewhat simpler. In this book I will assume that lexical items cannot overwrite features imposed by their types, but in the end either approach would work.
+The example in \figref{fig:exe-hierar-verbs-1} shows schematically the idea behind multiple inheritance.
+
+\begin{figure}
+    \caption{Example of multiple inheritance} \label{fig:exe-hierar-verbs-1}
+    \begin{forest} baseline, for tree={parent anchor=south, child anchor=north}
+        [\textit{word}
+        [\textit{pos} [\textit{noun}] [\textit{adjective}] [\textit{verb}
+        [\textit{kill}, name=kill] [\textit{run}, name=run]]
+        ]
+        [\textit{valency} [\textit{transitive}, name=TRANS] [\textit{intransitive}, name=INTRANS]]]
+        \draw (run.north) -- (INTRANS.south);
+        \draw (kill.north) -- (TRANS.south);
+    \end{forest}
+\end{figure}
+
+In \figref{fig:exe-hierar-verbs-1}, \textit{run} and \textit{kill} share a set of properties by virtue of both being verbs (say, the feature [\textsc{pos} \textit{verb}], which says that they are verbs), but \textit{kill} inherits its valency from \textit{transitive} while \textit{run} inherits its valency from \textit{intransitive}. Schematically we have:
+
+\begin{exe}
+    \ex \begin{avm}
+        \[\textit{verb}\\
+            \textsc{cat} & \[\textsc{pos} \textit{verb}\]\\
+        \]
+    \end{avm}
+
+    \ex \begin{avm}
+        \[\textit{transitive}\\
+            \textsc{valency} & \<Subj, Obj\>\\
+        \]
+    \end{avm}
+
+    \ex \begin{avm}
+        \[\textit{intransitive}\\
+            \textsc{valency} & \<Subj\>\\
+        \]
+    \end{avm}
+
+    \ex \begin{avm}
+        \[\textit{transitive-verb}\\
+            \textsc{phon} & /kɪl/]\\
+            \textsc{cat} & \[\textsc{pos} \textit{verb}\]\\
+            \textsc{valency} & \<Subj, Obj\>\\
+            \textsc{sem} & \textbf{kill}\\
+        \]
+    \end{avm}
+
+    \ex \begin{avm}
+        \[\textit{intransitive-verb}\\
+            \textsc{phon} & /rʌn/]\\
+            \textsc{cat} & \[\textsc{pos} \textit{verb}\]\\
+            \textsc{valency} & \<Subj\>\\
+            \textsc{sem} & \textbf{run}\\
+        \]
+    \end{avm}
+\end{exe}
+
+\is{inheritance!multiple}
+A couple of observations are necessary regarding multiple inheritance. As in this example, it is usually the case that multiple inheritance systems assume feature compatibility. The features inherited must be compatible. If we have the type for \textit{noun} as in \REF{exe-type-noun}, there could not be a type that inherits from both \textit{noun} and \textit{verb} at the same time, because the values of \textsc{pos} clash.
+
+\begin{exe}
+    \ex \label{exe-type-noun} \begin{avm}
+        \[\textit{noun}\\
+            \textsc{cat} & \[\textsc{pos} \textit{noun}\]\\
+        \]
+    \end{avm}
+\end{exe}
+
+\is{inheritance!multiple}
+\is{type!empty}
+\is{type!sub-}
+In Chapter \ref{chap:hybrid}, I will discuss cases in which regular multiple inheritance does not work in this way.
+An alternative is to use empty types. Empty types are types which impose no constraints on their members, and from which nothing is inherited\footnote{Notice empty types are only empty with regards to the morphological process, but they can, and in fact do specify phonological and semantic constraints on their members as described in the next sections.}.
+The idea behind empty types is that groups of lexical items share the common property of undergoing some morphological process or taking some particular marker, but we want to formally separate the groups themselves from the actual morphological process.
+Using empty types can help us capture several inflection class phenomena, including cases of multiple inheritance.
+We can expand the hierarchy in \figref{fig:exe-hierar-verbs-1} to include inflection class.\footnote{In \figref{fig:exe-hierar-verbs-2}, the type \textit{infl-class} is a sub-type \textit{word}, which is done so only for convenience. A more detailed type hierarchy would probably specify inflection class elsewhere.}
+
+\il{English}
+\begin{figure}
+    \scalebox{0.9}{\caption{Example hierarchy for English verb inflection} \label{fig:exe-hierar-verbs-2}
+    \begin{forest} baseline, for tree={parent anchor=south, child anchor=north}
+        [\textit{word}
+        [\textit{pos} [\textit{noun}] [\textit{adjective}] [\textit{verb}
+        [\textit{kill}, name=kill] [\textit{run}, name=run]]
+        ]
+        [\textit{valency} [\textit{trans}, name=TRANS] [\textit{intrans}, name=INTRANS]]
+        [\textit{inf-class} [\textit{class--d/t}, name=REG] [\textit{class--ʌ$\rightarrow$æ}, name=ua]
+        [\textit{class--ɪ $\rightarrow$ ʌ}]]
+        ]
+        \draw (run.north) -- (INTRANS.south);
+        \draw (kill.north) -- (TRANS.south);
+        \draw (kill.north) -- (REG.south);
+        \draw (run.north) -- (ua.south);
+    \end{forest}}
+\end{figure}
+
+In \figref{fig:exe-hierar-verbs-2}, \textit{class--ʌ $\rightarrow$ æ} and \textit{class-d/t} do not need to specify any feature. They are there to help the right \is{inflectional construction} inflectional constructions or rules apply to the right items. In this case, the construction for regular verbs will add a \textit{/d/} or \textit{/t/} to the \isi{stem} of the verb, while the construction for \textit{class--ʌ $\rightarrow$ æ} will change the \textit{/ʌ/} to a \textit{/æ/}.
+
+\is{inflection!class}
+This approach is roughly equivalent to saying that all lexemes specify their inflection class, but it has the additional property that we can easily organize inflection classes in a way that allows us to capture properties that they potentially share. Of course, there are alternatives to this approach, in which the markers of the inflection classes are directly specified in the latter, but such an approach will add extra complexity that is neither necessary nor helpful for the arguments brought forth in this book.
+
+As will be shown in the next sections, the model minimally requires that there be a subtree of the hierarchy which organizes lexemes according to their inflection class. The only important assumption here is that \textit{typing} is responsible for at least some morphomic properties of a system, like inflection classes and shared properties between inflection classes can be captured by the use of mid-level types.
+
+What would not work for the analogical classifiers is to have a model where inflection classes are given directly by features on the lexical entries. Example \REF{kill-verb} shows such an entry for the verb \textit{kill}.
+
+\begin{exe}
+    \ex \label{kill-verb} \begin{avm}
+        \[\textit{tr-verb}\\
+            \textsc{phon} & /kɪl/]\\
+            \textsc{cat} & \[\textsc{pos} \textit{verb}\]\\
+            \textsc{infl-class} & \textit{class--dt}\\
+            \textsc{sem} & \textbf{kill}\\
+        \]
+    \end{avm}
+\end{exe}
+
+\is{inflection!class}
+The feature structure in \REF{kill-verb} says that the lexical entry for the verb \textit{kill} has an inflection class feature which specifies that it belongs to \textit{class--dt}. In the following sections it will become clear that the reason this kind of approach would not work is that even if the values of the feature \textsc{infl-class} were organized in a hierarchy, said hierarchy would not be able to impose constraints on the \textsc{phon} and \textsc{sem} features of lexemes.
+\is{type hierarchy|)}
+
+\section{Analogy as type constraints}
+
+\is{constraint|(}
+\is{ATC|(}
+
+Having introduced feature structures and type hierarchies in the previous section, we can now address the question of how analogy interacts with grammar formulated in the previous chapter. The solution I will pursue in this book is to link analogical classifiers to types in the hierarchy. The claim is spelled out in \REF{claim-book}:
+
+\begin{exe}
+    \ex \label{claim-book} \emph{Analogical constraints are limited to types and can only run along the inheritance lines of the hierarchy.}
+\end{exe}
+
+I will call this hypothesis \emph{Analogy as a type constraint} (\textsc{atc}). As far as I am aware, this is not an explicit assumption of any analogical classifier that has been proposed in the literature, but implicitly most models seem to make use of something similar. Analogical constraints in AM, for example, are limited to the lexemes that take part in some inflectional or derivational phenomenon, and the assumption is that the model does not generalize or analogize across phenomena (e.g. a model would not capture strong verb and strong noun inflection in German at the same time, but two independent models would each apply to each phenomenon).
+\is{Analogical Modelling}
+
+I propose that analogical classifiers do not operate on a multiple category basis. Instead, classifiers operate on a type by type basis. For each type, its classifier says what the phonology and semantics of the items that belong to that type must be like. This means that classifiers are not multinomial, but binomial. This is a new view of analogy. Usually, analogical classifiers are understood as systems which assign a category to an item based on their phonology and semantics. This is the effect we see. But, if we want to properly integrate analogy into the grammar, we need to decompose its classifiers into multiple binary classifiers\footnote{This is not too different from what multinomial regression models do. From a computational perspective, whether one trains the models as individual binary classifiers or as one big multinomial classifier makes no real difference. However, because directly training multinomial models is much simpler, I will take this route when implementing the analogical models.}. A toy example with the irregular English verb classes already mentioned can help illustrate this crucial point. The example in \figref{fig:exe-classifier-multinomial} shows how a multinomial classifier works: The classifier takes a word, and for the word it decides what class it belongs to.
+\il{English}
+
+\begin{figure}
+    \caption{Example of multinomial classifier}\label{fig:exe-classifier-multinomial}
+    \begin{tikzpicture}[baseline=(current bounding box.north)]
+        \node (verb) at (1,0){\textit {verb}};
+        \node (cl) at (4,0){\textsc {classifier}};
+        \node[anchor=west] (classa) at (6,1){\textit {class--ʌ $\rightarrow$ æ}};
+        \node[anchor=west] (classb) at (6,0){\textit {class--ɪ $\rightarrow$ ʌ}};
+        \node[anchor=west] (classc) at (6,-1){\textit {class--dt}};
+        \draw[->] (verb) -- (cl);
+        \draw[->] (cl) -- (classa.west);
+        \draw[->] (cl) -- (classb.west);
+        \draw[->] (cl) -- (classc.west);
+    \end{tikzpicture}
+\end{figure}
+
+In contrast, the example in \figref{fig:exe-classifier-binomial} shows how a binomial classifier works: For each of the three classes: \textit{class--a}, \textit{class--b} and \textit{class--c}, an analogical classifier decides whether a given verb belongs to said class or not.
+
+\begin{figure}
+    \caption{Example of binomial classifier} \label{fig:exe-classifier-binomial}
+    \begin{tikzpicture}[baseline=(current bounding box.north)]
+        \node (va) at (0,1.5){\textit {verb}};
+        \node (vb) at (0,0){\textit {verb}};
+        \node (vc) at (0,-1.5){\textit {verb}};
+        \node[anchor=west] (cla) at (2,1.5){\textsc {classifier} $_{\text{class--ʌ \rightarrow æ}}$};
+        \node[anchor=west] (clb) at (2,0){\textsc {classifier} $_{\text{class--ɪ \rightarrow ʌ}}$};
+        \node[anchor=west] (clc) at (2,-1.5){\textsc {classifier} $_{\text{class--dt}}$};
+        \node (yna1) at (6.5,2){\textit {true}};
+        \node (yna2) at (6.5,1){\textit {false}};
+        \node (ynb1) at (6.5,0.5){\textit {true}};
+        \node (ynb2) at (6.5,-0.5){\textit {false}};
+        \node (ync1) at (6.5,-1){\textit {true}};
+        \node (ync2) at (6.5,-2){\textit {false}};
+        \draw[->] (va) -- (cla);
+        \draw[->] (vb) -- (clb);
+        \draw[->] (vc) -- (clc);
+        \draw[->] (cla) -- (yna1);
+        \draw[->] (cla) -- (yna2);
+        \draw[->] (clb) -- (ynb1);
+        \draw[->] (clb) -- (ynb2);
+        \draw[->] (clc) -- (ync1);
+        \draw[->] (clc) -- (ync2);
+    \end{tikzpicture}
+\end{figure}
+
+This approach restricts analogical models in several ways. First, because this model is strictly based on lexemic organization (that is, not on fully inflected words),\footnote{One could, of course, expand this model to also operate on inflected words. However, the implications of such a model are unclear.} analogical models cannot target morphological features on their own. For example, under these assumptions, no analogical model could classify dative vs. accusative nouns, or distinguish between a diminutive and an augmentative. These are features determined by morphological processes, not by the hierarchy of the lexicon (but compare \citealt{Koenig.1999}). This restriction is one of the key differences with respect to word-based models that employ analogy for identifying and analyzing fully inflected forms.
+
+There are several implications of the \textsc{atc}. First, if analogy is restricted to the hierarchy, it means that analogy is always categorical. Non-categorical usage preferences are a separate phenomenon. Most important, however, is the claim that analogy \textit{runs} through the hierarchy. If this is the case, we expect to see clear reflexes of the structure of the hierarchy on the analogical relations between lexemes. This is the main prediction of the \textsc{atc}.
+
+\subsection{Analogy is categorical}
+
+\il{French}
+There seems to be some degree of implicit (and sometimes more explicit) assumption that analogy (not only in the sense of analogical classifiers, but also in proportional analogies) is fuzzy or similar to soft, violable constraints. For example, \textcite[880]{Matthews.2010}, speaking about gender assignment in French, claims ``since the cues studied, especially the phonological, tend to be probabilistic and, hence, capable of violation, it is not surprising that connectionist models [\dots] have often been to the fore in such machine learning work since they implement general statistical principles and allow for `soft constraint' satisfaction''. In this case, it is not clear what \textit{probabilistic} is supposed to mean. Connectionist models are not probabilistic, they are statistical. In neural networks, there are no stochastic processes\footnote{Technically, nodes in a neural network start in a random activation state, but this initial state has little impact on the final weights.}, and outcomes are never probabilistic (although they may be probabilities)\footnote{Systems like stochastic OT \autocites{Boersma.1997, Boersma.1998, Boersma.2001} do work stochastically, in the sense that there is a probabilistic process at work, and the outputs it produces are distributed according to some density function.}. A neural network \is{neural network} trained to predict the gender of French nouns will always give the same prediction for the same input. From the very same domain of French \isi{gender} assignment, there seems to be some evidence that the (analogical) process by which speakers decide the gender of new French nouns is deterministic. Studies in which native speakers have to decide on the gender of new words have usually found high degrees of interspeaker agreement \autocites{Tucker.1968, Tucker.1977, Holmes.1999}.
+
+Analogical classifiers are not (or should not be) gradient or fuzzy. They should predict class membership categorically. However, this does not mean there is no room for gradience in the \textsc{atc} model. Gradience can be seen in usage especially when given two grammatical choices, speakers tend to prefer one over the other, or there are contextual cues which correlate with the alternatives. The degree to which one of the alternatives is preferred over the others is gradient because it does not consist of some categorical property but lies on a continuum. This kind of phenomenon has been studied extensively in corpus linguistics \autocites{Bresnan.2007, Bresnan.2008, Francis.2014, Hay.2006, Kapatsinski.2012}. The role of analogical classifiers here is to determine what the grammatical alternatives are, but speakers can have different preferences with regard to these. Of course, there are cases where speakers are unsure about new lexical items, or where different speakers do not agree on the classification of some wug. At least two different explanations could be behind these phenomena. One case arises if an analogical classifier finds all classes are inadequate for an item because the item does not fit into any class. If an item does not fit any of the possible classes well, it is natural that speakers will have trouble categorizing it. Another scenario causing uncertainty in categorization occurs when an item is assigned to two incompatible classes by the analogical model. If a new item matches two incompatible types (e.g. two different genders), there will be uncertainty about the class the item should belong to.
+
+A potential concern regarding binary analogical classifiers (i.e. classifiers which only return \textit{true} or \textit{false}) is that they could produce multiple class assignments. In a case with two types $\tau$ and $\sigma$, if the classifier that says which items are allowed to be $\tau$ cannot see what the classifier for $\sigma$ does, one could expect that there would be many cases of multiple assignments, since both classifiers could allow for some lexeme to belong to both $\tau$ and $\sigma$. This is not a problem. The fact that a classifier allows some item to belong to multiple classes does not actually mean that, in the grammar, the item will belong to multiple classes. Classifiers are not responsible for final class assignment, they simply say whether a lexeme could potentially belong to some type, not that it has to belong to that type. A word like \textit{nieve} `snow' in Spanish could be either masculine or feminine from its phonological and semantic properties, but it is feminine for all speakers. The fact that analogical classifiers set up this way could produce multiple class assignments not found in the grammar is not a real issue. In other words, analogical classifiers do not say that lexemes with certain phonological and semantic properties must belong to some type $\tau$, but rather that all lexemes that belong to type $\tau$ must fulfill the aforementioned phonological and semantic properties.
+
+\subsection{Analogy runs through the hierarchy}
+
+That analogy runs through the hierarchy is the main claim of this book, and most of the case studies in Part II will focus on providing evidence for this claim. If analogical models are restricted by the inheritance hierarchy, and analogies themselves are constraints attached to specific types, then we would expect to see reflexes of the shape of the hierarchy in the analogical relations.
+
+Although previous work on analogical classifiers seems to make this assumption in some way, it has never been stated explicitly. Analogical models are always proposed and trained for distinguishing types in direct paradigmatic opposition. There are no analogical models that distinguish between intransitive verbs and feminine countable nouns. Models for predicting gender are assumed to \emph{only} predict gender, models for distinguishing verb inflection classes are assumed to \emph{only} predict verb inflection classes, etc. This is not because of a limitation of the statistical methods used, since neural networks and AM could be trained to do this. Analogical models are not trained to do this because, intuitively, it would make no sense. Constraining analogy to the hierarchy straightforwardly accounts for why this is the case.
+
+This account has one direct consequence. If we accept that analogical models help to predict types in the hierarchy, there is no reason to think that analogical models can only predict the most specific types. Suppose an analogical model could discriminate between the four leaves (\textit{X}, \textit{Y}, \textit{Z}, \textit{W}) in \figref{fig:fake-exe-hierar}.
+
+\begin{figure}
+    \caption{Basic hierarchy example}\label{fig:fake-exe-hierar} 
+    \begin{forest}baseline, for tree={parent anchor=south, child anchor=north}
+        [\textit{class} [$\tau$ [\textit{X}] [\textit{Y}]] [$\sigma$ [\textit{Z}] [\textit{W}]]]
+    \end{forest}
+\end{figure}
+
+\is{type!super-}
+In such a case, the analogical model would also be equally capable of distinguishing between the intermediate types $\tau$ and $\sigma$ (it simply has to map \textit{X}, \textit{Y} $\rightarrow$ $\tau$, \textit{Z}, \textit{W} $\rightarrow$ $\sigma$). This would also be true of any grouping we make of \textit{X}, \textit{Y}, \textit{W} and \textit{Z}, not only grammar-based groupings. However, if analogy is directly linked to the types in the hierarchy, we expect that types $\tau$ and $\sigma$ may have analogical constraints of their own, which means that necessarily \textit{X} and \textit{Y} have to share some constraints not found in \textit{Z} and \textit{W}, and similarly, \textit{Z} and \textit{W} will share constraints not found in \textit{X} and \textit{Y}. This has the implication that leaf types will be more similar to each other if they share a common super-type.
+
+This might sound radical, but it is not. It is just the logical extension of an analogical classifier that works on leaf types. In an analogical classifier of genders, we assume that two feminine nouns will be more similar to each other than to masculine nouns because they are both under the same type \textit{feminine}. The claim the \textsc{atc} hypothesis makes is that there is nothing special about leaf types, and that exactly the same relations hold for more abstract types. There are no additional assumptions involved in this proposal, there are no UG requirements, and there are no major incompatibilities with other theories of grammar. The relevant inheritance hierarchies follow directly from observable morphological behaviour, and the analogical constraints follow directly from observable phonological and semantic features.
+
+There are several shapes hierarchies can take (see next section). Depending on the exact form of the hierarchy describing some morphological process, we expect to see very different effects from the analogical relations. Part II of this book presents several case studies from different languages that try to exemplify what happens in different systems, and show that the predictions of the \textsc{atc} hold in every case.
+
+\section{The (semi-)formal model}
+
+\is{type!sub-}
+In any theory with a type system, the type hierarchy has to fully specify what the type of each individual object in that hierarchy is. All sub-type relations are fully listed. For a given type $\tau$, the list of objects of this type must be specified $\{a_{\tau}, b_{\tau}, c_{\tau}, \dots \}$. From a morphosyntactic perspective, $\tau$ specifies those features shared by all items of type $\tau$. For example, $\tau$ can specify [\textsc{pos} \textit{noun}], and thus all lexical items of type $\tau$ will also share this feature.
+
+\is{Optimality Theory}
+\is{constraint}
+There is nothing that prevents a type from also specifying phonological (and semantic\footnote{Properly specifying semantic features is much more complex than specifying phonological features. For this reason, all examples presented here only list phonological constraints, but, in principle, the same can be done for semantics.}) features. This means that $\tau$ could specify that [\textsc{phon} \textit{/\#pt/}]\footnote{I will use phonological notation, with \# marking word edges, as a shorthand for: <\textit{/pt/}> $\oplus$ \textit{nelist}}. This would mean that all lexical items of type $\tau$ have an initial \textit{/pt/} cluster. Notice that some sort of phonotactic constraint must be in place in any case. All lexical items in a language must abide by phonotactic rules. Similarly, we can claim that $\tau$ can impose phonological (analogical) constraints. Analogical constraints rarely apply to all items of a certain type, but rather build subgroups within some type. For example, Colombian Spanish words may begin with either full vowels or consonants, but not glides. This constraint, in a theory like OT, could be written as *\textsc{jw-onset}, but it can also be written as a disjunction of what is allowed: \textit{/\#C/} $\lor$ \textit{/\#V/}. Assuming that this constraint is in some general type shared by all words in Spanish, then all words would necessarily have to start with either a consonant or full vowel. That is, for a lexical item \textit{w} to belong to $\tau$, it must satisfy one of a set of constraints specified in $\tau$.\footnote{From the previous discussion it should be clear that ultimately, the notation system and the technique we use to specify the analogical relations are of secondary interest. Any of the approaches described in the previous chapter should work with this system.} I will call these constraints \textit{analogical constraints} if they help discriminate between two or more classes.
+
+\is{stem}
+\is{inflection!class}
+To give an example from Sanskrit. The nominal inflection in Sanskrit has five classes \autocite{Whitney.1986}: \textit{a}-stems; \textit{i}- and \textit{u}-stems; (long vowel) \textit{ī}-, \textit{ū}-, and \textit{ā}-stems; \textit{ṛ}-stems; and \textit{C}-stems (consonant stems). \tabref{tab:aistems-sanskrit} presents the paradigm of \textit{a}-stems and \textit{C}-stems.
+
+\il{Sanskrit}
+\is{singular}\is{plural}
+
+\begin{table}
+    \centering
+    \caption{Sanskrit inflection classes according to \textcite{Whitney.1986}} \label{tab:aistems-sanskrit}
+    \begin{tabular}{llll}
+      \lsptoprule
+      \multicolumn{4}{c}{\textit{a}-stem, \textit{kāma-} `desire'}                                          \\
+      \midrule
+      & Singular                 & Dual                         & Plural                       \\
+      Nominative   & kām-\textit{as}          & kām\textit{a}-\textit{u}     & kām\textit{ā}-\textit{s}     \\
+      Accusative   & kām-\textit{am}          & kām\textit{a}-\textit{u}     & kām\textit{ā}-\textit{n}     \\
+      Instrumental & kām-\textit{ena}         & kām\textit{ā}-\textit{bhyām} & kām\textit{a}-\textit{is}    \\
+      Dative       & kām-\textit{āya}         & kām\textit{ā}-\textit{bhyām} & kām\textit{e}-\textit{bhyas} \\
+      Ablative     & kām-\textit{āt}          & kām\textit{ā}-\textit{bhyām} & kām\textit{e}-\textit{bhyas} \\
+      Genitive     & kām-\textit{asya}        & kām\textit{a}-\textit{yos}   & kām\textit{ā}-\textit{nām}   \\
+      Locative     & kām-\textit{e}           & kām\textit{a}-\textit{yos}   & kām\textit{e}-\textit{ṣu}    \\
+      Vocative     & kām-\textit{a}           & kām\textit{a}-\textit{u}     & kām\textit{ā}-\textit{s}     \\
+      \midrule
+      \multicolumn{4}{c}{\textit{C}-stem, \textit{vak-} `voice'}                                            \\
+      \midrule
+      & Singular                 & Dual     & Plural   \\
+      Nominative   & vā\textit{k}-$\emptyset$ & vā\textit{c}-\textit{āu}    & vā\textit{c}-\textit{as}    \\
+      Accusative   & vā\textit{c}-\textit{am}          & vā\textit{c}-\textit{āu}    & vā\textit{c}-\textit{as}    \\
+      Instrumental & vā\textit{c}-\textit{ā }          & vā\textit{g}-\textit{bhyām} & vā\textit{g}-\textit{bhis}  \\
+      Dative       & vā\textit{c}-\textit{e }          & vā\textit{g}-\textit{bhyām} & vā\textit{g}-\textit{bhyas} \\
+      Ablative     & vā\textit{c}-\textit{as}          & vā\textit{g}-\textit{bhyām} & vā\textit{g}-\textit{bhyas} \\
+      Genitive     & vā\textit{c}-\textit{as}          & vā\textit{c}-\textit{os}    & vā\textit{c}-\textit{ām}    \\
+      Locative     & vā\textit{c}-\textit{i }          & vā\textit{c}-\textit{os}    & vā\textit{k}-\textit{ṣu}    \\
+      Vocative     & vā\textit{k}-$\emptyset$ & vā\textit{c}-\textit{āu}    & vā\textit{c}-\textit{as}    \\
+      \lspbottomrule
+    \end{tabular}
+\end{table}
+
+The individual exponents of these conjugations are not too important here; the important point is that these are different enough for both classes to take exponents which are too different to have a purely phonological explanation. In other words, it is unlikely that the exponents of cells like the genitive singular \suffix{sya} and \suffix{as} are phonologically derived from each other. These really are different markers that target different inflection classes. The important point is that Sanskrit requires at least five inflection class types (subdivisions within these five types are very likely necessary), to which nouns must belong. Thus, the generalization about the ending of the stems according to inflection class is an analogical constraint in the sense used in this book.
+
+In terms of analogical constraints, a noun belongs to class \textit{a-stem} if its stem ends in \textit{/a/} or \textit{/ə/}, that is, \textit{a}-stem nouns in Sanskrit must satisfy: /\textit{ə}\#/ $\lor$ /\textit{a}\#/, while \textit{C}-stem nouns must satisfy: /\textit{C}\#/.\footnote{The constraint /\textit{C}\#/ could be further decomposed into all the actual consonants a noun of the \textit{C}-stem declension can end with. Alternatively one could use feature decomposition and claim the constraint targets [+cons].}
+
+\is{constraint!negative}
+Types can also specify negative constraints on what is disallowed. This follows because a negative constraint like \textit{$\lnot$/\#p/} would be the product of a disjunction of positive constraints: \textit{/\#a/ $\lor$ /\#b/ $\lor$ \dots}, missing \textit{/\#p/}. Negative constraints are useful in cases with default types that exclude a very specific set of lexemes (as shown below). 
+
+\is{type!sub-}
+To sum up, so far we have the general setup for integrating analogy into the grammar: types have analogical constraints associated with them, which members have to satisfy. Additionally, a type $\sigma$, sub-type of $\tau$, can specify further analogical constraints its members must have. There are two alternatives at this point. We could either postulate a unification-based system where the constraints in $\tau$ and $\sigma$ are unified to build a more complex constraint, or we can simply specify that inheritance is given by an $\land$ relation between the set of constraints in $\tau$ and $\sigma$, and use a \is{boolean algebra} boolean algebra. I will pursue the second option in this section, but either approach would work.
+
+I have been using simple \is{phoneme} phoneme-based representations for \textsc{phon} constraints, but these could take many different shapes and forms. These constraints could be based on feature decomposition, or on distance from a set of prototypes of the class. That is, a constraint could say that any lexeme of type $\tau$ must not be too different from some prototypical lexeme (or set of lexemes) \textit{w}. Constraints of this type could take the following form:
+
+\begin{exe}
+    \ex {[}\textsc{phon} \textit{f$_p$(w)}$<$\textit{n}{]}
+\end{exe}
+
+\noindent
+where \textit{f$_p$} is a function which measures the distance of \textit{w} from the prototype \textit{p}, and \textit{n} is a set threshold. There are multiple ways of measuring distances between strings (e.g. the Levenshtein distance \citealt{Levenshtein.1966}), but the distance  could also be based on perception, i.e. what speakers perceive to be similar or different.\footnote{Unlike measures such as the Levenshtein distance, perceptual distances factor in the relative prominence of different phonemes, among other things. For example, confusion between /t/ and /d/ might be much higher than confusion between /k/ and /g/ in some languages, despite the fact that these pairs of phonemes only differ in one feature.}
+\is{distance function}
+
+\is{type!sub-}
+We can define inheritance of analogical constraints as follows. If $\sigma$ is a sub-type of $\tau$, then
+
+\begin{exe}
+    \ex if constraint $c$ holds of type $\tau$ and $\sigma$ is a sub-type of $\tau$, then constraint $c$ holds of $\sigma$
+\end{exe}
+
+\is{inheritance!multiple}
+This can be easily extended to multiple inheritance:
+
+\begin{exe}
+    \ex if constraints $c_1$ and $c_2$ hold of types $\tau_1$ and $\tau_2$, respectively, and $\sigma$ is a sub-type of both $\tau_1$ and $\tau_2$, then constraints $c_1$ and $c_2$ also hold for $\sigma$.
+\end{exe}
+
+\is{exception}
+\il{German}
+To model special cases and exceptions, we only have to add the full phonological specification of said exception. If, in a toy language, $\tau$ allows words starting with a dental or the \isi{stem} \textit{paner}, it would specify the constraints: \textit{/\#t/ $\lor$ /\#d/ $\lor$ /\#paner\#/}. This straightforwardly accounts for \isi{productivity} issues. New items of type $\tau$ can only start with \textit{t} or \textit{d}, but there is the exception \textit{paner}. We find such an instance in the German gender system, where nouns ending in \textit{/aj/} are feminine. A few exceptions are words like \textit{Ei} (/aj/, `egg'), or \textit{Blei} (/blaj/, `lead'). This means that neuter would specify [\textsc{phon} \textit{(\dots  $\lor$ /\#aj\#/ $\lor$ /\#blaj\#/ $\lor$ \dots) $\land$ $\lnot$/.aj\#/}] (where the `.' stands for any \isi{phoneme}), including the exceptions to the \textit{/aj/} pattern.\footnote{It is worth noting here that the \textit{/aj/} string is not always part of the lexeme but it can be a gender assigning suffix.}$^{,}$\footnote{Notice that listing /\#aj\#/ and /\#blaj\#/ in the set of possible phonological shapes for neuter nouns does not ensure on its own that there will be two neuter nouns with phonology /\#aj\#/ and /\#blaj\#/, it only means that these are possible shapes neuter nouns can take.} And, similarly, from a semantic perspective, in German all alcoholic drinks take the masculine gender except for \textit{Bier} `beer', which is neuter.
+
+\is{type!default}
+A different kind of special case is that of \textit{default} types. Default types, with regard to analogy (which may or may not overlap with morphological defaults), are types where remaining cases land. This situation occurs where a series of types have strict analogical constraints, and one type which allows for every item which does not fit well into any of the other types. However, a default type situation is only a particular distribution of analogical constraints and not something especially coded into the system. This can be illustrated with some toy examples. Suppose there are two types in competition: $\sigma$ [\textsc{phon} \textit{/\#C/}] and $\tau$ [\textsc{phon} \textit{/\#V/}]. In such a case it makes no sense to talk about a default distribution because the analogical constraints are complementary and (depending on the phonotactics of the system) do not say anything about which of the two types will likely have more items. Now suppose that the types in competition are: $\sigma$ [\textsc{phon} \textit{/\#k/}] and $\tau$ [\textsc{phon} \textit{/\#C/}]. In such a case $\sigma$ can only accept items which begin with /k/, while $\tau$ can accept any item which begins with a consonant (including /k/). We can say then that $\tau$ is an overlapping default that accepts every item, including items which could belong to $\sigma$. Finally, suppose now that the constraints across both types are as follows: $\sigma$ [\textsc{phon} \textit{/\#k/}] and $\tau$ [\textsc{phon} \textit{/\#C/} $\land$ $\lnot$ \textit{/\#k/}]. In this case, $\tau$ is a non-overlapping default that only accepts remaining items that do not belong to $\sigma$. These are only the three basic cases, and complex combinations of these three cases may be at work within a system. For example, in a case with three types $\tau$, $\sigma$ and $\gamma$, $\tau$ may be a non-overlapping default with respect to $\sigma$, and at the same time $\tau$ may be an overlapping default with respect to $\gamma$.\footnote{This follows if, e.g.: $\tau$ [\textsc{phon} \textit{/\#C/} $\land$ $\lnot$ \textit{/\#k/}], $\sigma$ [\textsc{phon} \textit{/\#k/}], and $\gamma$ [\textsc{phon} \textit{/\#t/}]}
+
+We expect that in a system, the types that have the highest number of members will also have the least number of constraints. Having less strict analogical constraints means allowing for more different items.
+
+An important feature of this system is that there are no statistics directly associated with any of the analogical constraints. Statistical systems can help us infer the constraints and find patterns of preference, but this is independent of the actual grammar. It is irrelevant how many feminine nouns in German end in /aj/, since the constraint is categorical. Actual numbers and proportions probably play a role in \is{language acquisition} language acquisition but are not really relevant for the formal grammar specification. For example, in German there is a statistical preference for nouns ending in /e/ to be feminine, but nouns ending in /e/ do not have to be feminine. This means that all genders in German have the constraint /e\#/ (i.e. no gender in German has the constraint \textit{$\lnot$/e\#/}).
+
+With the model in place, we can calculate the predictions of different hierarchy shapes. In a simple tree-like hierarchy, as in \figref{fig:formal-exe-tree}:
+
+\begin{figure}
+    \caption{Simple inheritance hierarchy} \label{fig:formal-exe-tree}
+    \begin{forest} baseline, for tree={parent anchor=south, child anchor=north}
+        [$\tau$ [$\sigma$ [$\gamma_1$] [$\gamma_2$]] [\textit{non}-$\sigma$ [$\pi_1$] [$\pi_2$]]]
+    \end{forest}
+\end{figure}
+
+we expect that, if \textit{non}-$\sigma$ has any analogical constraints, items that belong to $\pi_1$ will share more features with items that belong to $\pi_2$ than to $\sigma$.
+This is because $\pi_1$ and $\pi_2$ have to satisfy any analogical constraints in \textit{non}-$\sigma$, while items in $\sigma$ do not.
+However, if \textit{non}-$\sigma$ has no particular analogical constraints, then we do not have any particular expectation regarding what we should see in terms of similarity between these three leaf types.
+
+\is{inheritance!multiple}
+In a case of multiple inheritance as in \figref{fig:formal-exe-tree-2}, we expect that the $\gamma$ type will look like both $\tau$ and $\sigma$, but $\tau$ and $\sigma$ will share less. This is because $\gamma$ is stricter in its analogical constraints. Only those constraints which are compatible between $\Tau$ and $\Sigma$  will be available for items belonging to $\gamma$, while all constraints on $\Tau$ are available to $\tau$ and all constraints on $\Sigma$ to $\sigma$, and since these need not overlap, it is easier for $\tau$ and $\sigma$ items to be different from each other.
+
+\begin{figure}
+    \caption{Multiple inheritance example} \label{fig:formal-exe-tree-2}
+    \begin{tikzpicture}[baseline=(current bounding box.north)]
+        \node (a) at (0,0){$\Alpha$};
+        \node (S) at (-1,-1){$\Sigma$};
+        \node (T) at (1,-1){$\Tau$};
+        \node (s) at (-2,-2){$\sigma$};
+        \node (ts) at (0,-2){$\gamma$};
+        \node (t) at (2,-2){$\tau$};
+        \draw (a.south) -- (S.north);
+        \draw (a.south) -- (T.north);
+        \draw (S.south) -- (s.north);
+        \draw (S.south) -- (ts.north);
+        \draw (T.south) -- (t.north);
+        \draw (T.south) -- (ts.north);
+    \end{tikzpicture}
+\end{figure}
+
+Although the predictions are clear, we cannot expect a perfect correlation between the observed analogical relations and the shape of the hierarchy in all cases. There are several factors that can give rise to mismatches. First, the existence of overlapping default types will cause confusion between the default type and all other sister types, independently of hierarchy. If $\tau$ and $\sigma$ are sister nodes, and $\tau$ has a constraint such that [\textsc{phon} \textit{/a\#/}], while $\sigma$ has none, both types will allow words ending in \textit{a}. The second reason is that transparent types will result in effectively flat hierarchies. A transparent type is a type that imposes no analogical constraints. If, for example, in \figref{fig:formal-exe-tree}, \textit{non}-$\sigma$ has no constraints of its own, for analogy it is as if all three leaf types in the tree were at the same level, and thus only the specific constraints in $\sigma$, $\pi_1$ and $\pi_2$ will play a role.
+
+\is{type!transparent}
+\is{type!super-}
+\is{learnability}
+A final advantage of this model is that it is \textit{learnable} and thus compatible with \isi{usage-based} approaches to language. Although it makes use of abstract types, these follow directly from the surface inflectional or derivational behaviour of lexemes. Because analogical constraints associated with abstract types must be inherited by more concrete types, they are also visible on the surface of words. The toy hierarchy in \figref{fig:exe-learnable} shows a simple example of how this works. The words on the leaf nodes directly instantiate the constraints in their super-types, and these in turn instantiate the constraints in $\Alpha$ and $\Pi$.
+
+\begin{figure}
+    \caption{Complete hierarchy example} \label{fig:exe-learnable}\scriptsize
+    \begin{forest} baseline, qtree
+        [$\Tau$
+        [$\Alpha$ \\{[\textsc{phon} \textit{/V\#/}]}
+        [$\iota$ \\ {[\textsc{phon} \textit{/i\#/}]} \\ \textit{kani} \\ \textit{li}]
+        [$\alpha$ \\ {[\textsc{phon} \textit{/a\#/}]} \\ \textit{ptara} \\ \textit{llanna}]
+        [$\epsilon$ \\ {[\textsc{phon}  \textit{/e\#/}]} \\ \textit{ipe} \\ \textit{arine}]]
+        [$\Pi$ \\{[\textsc{phon} \textit{/C\#/}]}
+        [$\beta$ \\ {[\textsc{phon} \textit{/v\#/ $\lor$ /b\#/}]} \\ \textit{prav} \\ \textit{lab}]
+        [$\delta$ \\ {[\textsc{phon} \textit{/t\#/}]} \\ \textit{narat} \\ \textit{ot}]
+        [$\lambda$ \\ {[\textsc{phon} \textit{/l\#/}]} \\ \textit{orol} \\ \textit{sil}]]
+        ]
+    \end{forest}
+\end{figure}
+
+It is easy to see that in a case like \figref{fig:exe-learnable}, all analogical constraints on the mid-level types are directly the product of generalizing across the leaf types, just as the constraints of the leaf types are the product of generalizing across the lexemes. Real world examples are not as simple, but should follow the same pattern.
+
+There are some possible objections to the claim that such a model is usage-based compatible. For example, \textcite[428]{Eddington.2009}, discussing analogical classifiers, claims that ``in analogical models words are not parsed into morphemes, but stored as wholes''. At first sight this seems incompatible with the idea that the lexicon organizes lexemes, and not inflected forms. However, both views are possible. It is likely that speakers store fully inflected items, and keep track of most items they encounter \autocite{DeVaan.2007}; however, this does not entail that speakers store unanalyzed items. Rather, there is evidence to the contrary \autocite{Roelofs.2002}. In a usage-based model, speakers can store all inflected forms they encounter, but still organize lexemes according to their inflectional and derivational behaviour.
+
+\is{constraint|)}
+\is{ATC|)}
+
+\section{Final remarks}
+
+In this chapter, I have proposed a model that can help answer the open questions of how analogy interacts with grammar in a way that makes it compatible both with (several) grammatical theories, and also with most assumptions from usage-based linguistics.
+The claim of the \textsc{atc} model is that analogical classification is closely linked to the hierarchy, and thus it reflects aspects of the organization of the lexicon. This view produces a system in which analogy is categorical and operates on a type by type basis.\footnote{Notice that this model does not imply that the hierarchy comes first, and then analogy attaches to it or the other way around. This model is completely silent as to how both analogy and the hierarchical organization of the lexicon are acquired. It is my hope that different models of language acquisition should be compatible with it.}
+In Part II, I present evidence from various languages and phenomena that show strong support for the model proposed here.
+It is important to note, however, that the semi-formalization of the previous section is not a requirement for the thesis of this book. The empirical results presented in Part II are the main contribution of this work. 
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../main"
+%%% End:

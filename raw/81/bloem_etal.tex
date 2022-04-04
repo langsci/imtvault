@@ -1,0 +1,271 @@
+% \usepackage{localmetadata}
+% \usepackage{localpackages}
+% \usepackage{localhyphenation}
+% \usepackage{localcommands}
+ 
+% \usepackage{graphicx}
+% \usepackage{url}
+% \usepackage{booktabs}
+
+
+%\epigram{\textsuperscript{1}Amsterdam Center for Language and Communication, University of Amsterdam\\
+%\textsuperscript{2}Center for Language and Cognition, University of Groningen\\
+%\textsuperscript{3}Department of Quantitative Linguistics, University of T\"{u}bingen\\
+%\textsuperscript{4}Freiburg Institute for Advanced Studies, University of Freiburg}
+
+%\usepackage{tipa}
+%\usepackage{lsp-gb4e}
+
+%\addbibresource{futureofdialects}
+\documentclass[output=paper]{LSP/langsci}  
+\author{Jelke Bloem\affiliation{Amsterdam Center for Language and Communication, University of Amsterdam}\and Martijn Wieling\affiliation{Center for Language and Cognition, University of Groningen} \lastand John Nerbonne\affiliation{Center for Language and Cognition, University of Groningen, Freiburg Institute for Advanced Studies, University of Freiburg }} 
+\title{Automatically identifying characteristic features of non-native {E}nglish accents} 
+% \epigram{Change epigram in chapters/01.tex or remove it there }
+\abstract{We demonstrate the application of statistical measures from dialectometry to the study of accented English speech. This new methodology enables a more quantitative approach to the study of accents. Studies on spoken dialect data have shown that a combination of representativeness (the difference between pronunciations within the language variety is small) and distinctiveness (the difference between pronunciations inside and outside the variety is large) is a good way to identify characteristic features of a language variety. We applied this method from dialectology to transcriptions of the words from the Speech Accent Archive, while treating L2 English speakers with different L1s as `varieties'. This yields lists of words that are pronounced characteristically differently in comparison to native accents of English. We discuss English accent characteristics for French, \ili{Hungarian} and \ili{Dutch}, and compare the results to other sources of accent information. Knowing about these characteristic features of accents has useful applications in teaching L2 learners of English, since potentially difficult sounds or sound combinations can be identified and addressed based on the learner's native language.
+}
+\ChapterDOI{10.17169/langsci.b81.88 }
+\rohead{\thechapter\hspace{.5em} Automatically identifying features of non-native English accents} 
+\maketitle 
+\begin{document}
+%\author{Jelke Bloem\textsuperscript{1}, Martijn Wieling\textsuperscript{2,3}, John Nerbonne\textsuperscript{2,4}} 
+%\affil[1]{Amsterdam Center for Language and Communication, University of Amsterdam}
+%\affil[2]{Center for Language and Cognition, University of Groningen}
+%\affil[3]{Department of Quantitative Linguistics, University of T\"{u}bingen}
+%\affil[4]{Freiburg Institute for Advanced Studies, University of Freiburg}
+%\author{Jelke Bloem \\ Amsterdam Center for Language and Communication, University of Amsterdam \\j.bloem@uva.nl}
+
+%\author{Martijn Wieling \\Center for Language and Cognition, University of Groningen \\ Department of Quantitative Linguistics, University of T\"{u}bingen \\wieling@gmail.com}
+
+%\author{John Nerbonne \\ Center for Language and Cognition, University of Groningen \\ Freiburg Institute for Advanced Studies, University of Freiburg \\j.nerbonne@rug.nl}
+ 
+\section{Introduction}
+
+Dialectologists have taken advantage of computational techniques to study regional language variation, and developed specific measures for quantifying this variation. This field of quantitative dialectology is known as \isi{dialectometry}. Dialectometry research has led to a variety of methods for analyzing large numbers of dialectal features in systematic ways. In particular, aggregation of features made available new methods such as quantification of distances between dialects, and statistical analysis of differences that allowed generalization over the noise inherent in examining any single linguistic feature \citep{nerbonne_data-driven_2009}. However, dialectologists are still interested in examining single features as well. Typical characteristics of dialects, known as `\isi{shibboleths}', are quite salient and frequently discussed among both dialectologists and laymen. \citet{prokic_detecting_2012} show that \isi{quantitative methods} can provide insight into this phenomenon as well. They identify the most characteristic words for various \ili{Dutch} dialects, providing statistical evidence due to the aggregation of data.
+
+The methods that have been developed in dialectometry have not been widely applied to other domains of linguistics, but there are clear generalizations that can be made. Any time a set of language variants is studied, where the languages differ in a quantifiable way, dialectometry methods can potentially be applied. This is certainly the case in second language acquisition, where different language backgrounds lead to a lot of variety among learners. In the acquisition of a particular second language such as English, native Mandarin speakers will produce a different English than native German speakers. These kinds of differences can be studied with dialectometric methods.
+
+In particular, researchers working on accent studies (i.e. \citealt{wells_accents_1982, waniek-klimczak_issues_2008}) could benefit from the use of these methods. It has long been noted that foreign accents\is{foreign accent|(} can be perceived\is{accent perception} negatively \citep{ryan_social_1983}. As a consequence, pronunciation training is a part of second language teaching, in which the goal is to make the students' accents more native-like. Since it is quite difficult to achieve native-like proficiency in second language learning, it has long been acknowledged that learners do not need to learn how to speak perfectly, but that intelligibility is sufficient:
+\begin{quote}
+The learner (...) would have presented to him certain carefully chosen features on which to concentrate, the rest of his pronunciation being left to no more than a general supervision \citep[93]{abercrombie_problems_1956}.
+\end{quote}
+This suggestion has later been developed into the idea of a hierarchy of errors, i.e. pronunciation problems that require the most attention in pronunciation training. A summary of research in this direction is provided by \citet[7--15]{van_den_doel_evaluation_2006}. He notes that such hierarchies ``have been formulated partly on the basis of experimental research, but mainly as a result of impressionistic observational procedures''. Obviously, they are also language-specific.
+
+We are not aware of many studies that discuss error hierarchies of phonological errors, or characteristic feature rankings\is{characteristic accent feature}. One example of the use of error hierarchies in a more general sense can be found in \citet{rifkin_error_1995}. This analysis does not go to the level of phonological features, as it discusses grammatical errors and intonation errors. \citet{gynan_comprehension_1985} discusses phonological features and places them in an error hierarchy, but only on a general level. Based on data from Spanish learners of English and U.S. bilingual native speakers of English, he notes that comprehensibility of accents is related more to phonological than to morphosyntactic characteristics, but problems with morphosyntax are more salient to native speakers.
+
+There are also studies that discuss characteristic pronunciation errors in English by speakers of a specific language. \citet{gao_pronunciation_2005} studied a \ili{Chinese} L2 student of English in a longitudinal study over 12 weeks, analyzing the errors and determining whether they arose from first-language interference or from being in an early stage of language acquisition. Potential errors were identified from earlier work on \ili{Chinese} accents, a methodology that is strongly biased against the discovery of less stereotypical errors. The study finds that most errors arise from \ili{Chinese} interference, though this may be partly due to the bias towards typical \ili{Chinese} errors. The article also notes the need for research that studies a wider range of speakers.
+
+Another line of work that assumes strong interference effects and makes comparisons to native speaker phonology is automatic \isi{accent classification}. These methods are often also based on the assumption that the non-native speaker replaces unfamiliar sounds in the second language with sounds from their native language, e.g. by \citet{angkititrakul_advances_2006}.
+
+One error hierarchy that explicitly includes phonological errors can be found in the thesis of \citet{van_den_doel_evaluation_2006}. He carried out a large study where native English speakers were asked to detect and evaluate \ili{Dutch} pronunciation errors, to provide more empirical evidence for attitudes towards specific pronunciation errors for this combination of languages. We will compare this error severity hierarchy approach with our characteristic\is{characteristic accent feature|(} feature ranking approach, and show that this measure of severity is not the same as measuring characteristic features by comparing results of the two approaches.
+
+\citet{schaden_casselberveetovallarga_2006} discuss an interesting data set that has applications in identifying characteristic pronunciation errors: the CrossTown corpus, which contains transcriptions of speakers of several European languages pronouncing place names from other European countries. In \citet{schaden_crosstowns_2004}, a rule-based system for accent generation was created from this data set. Rules that encode typical pronunciation errors by speakers of one language in another language were derived manually in this study. Automatic identification of these errors would probably be possible from this data set, but does not appear to have been attempted.
+
+Automatic identification of characteristic features of accents may provide additional empirical evidence for pronunciation difficulties. Since by definition native speakers rarely produce these features, they are likely to stand out. We propose that \citegen{prokic_detecting_2012} method for detecting characteristics of dialects can be used for detecting characteristics of accents. Based on transcriptions\is{accent transcription} of accented English speech from the \isi{Speech Accent Archive} (SAA, \citealt{weinberger_speech_2011}), we demonstrate how such characteristic features of accents can be identified. We quantify the most distinctive deviations from the standard English pronunciation for several languages of which native speakers are included in the archive. Note, however, that the method can be used for any language of which transcriptions from native speakers are available. We then compare the segments\is{segment} we identify to phonological features from published literature that are said to be typical of the English accent of that language.
+
+To illustrate the method, we discuss the results for three languages: French, \ili{Hungarian} and \ili{Dutch}. First, however, we will explain the measure we use to determine the characteristic features.
+
+\section{Measure}
+\label{s:measure}
+\citet{wieling_bipartite_2011} proposed two measures to identify characteristic features of dialects. The first measure is \textsc{representativeness}, which they defined as how frequently the feature occurred within the dialect area. A high representativeness \is{representativeness|(} indicates that the differences between pronunciations within the dialect area are small. The second measure is \textsc{\isi{distinctiveness}}, which they defined as how characteristic\is{characteristic accent feature|)} the feature is for the dialect. A high distinctiveness\is{distinctiveness|(} indicates that the differences between pronunciations within and outside the dialect area are large. 
+
+\largerpage
+These measures are comparable to \citegen[p.43]{labov_atlas_2006} isogloss measures: \textsc{representativeness} is identical to their measure of homogeneity, and \textsc{distinctiveness} is similar but not identical to their consistency measure. The differences are discussed by \citet{wieling_analyzing_2014}. Furthermore, the representativeness measure is similar to \textsc{recall} and distinctiveness to \textsc{precision}, as used in information retrieval.
+
+\citet{prokic_detecting_2012} showed that even a single dialect word can be used to characterize a dialect area using these measures. The measures proposed by \citet{wieling_bipartite_2011} were generalized by \citet{prokic_detecting_2012} in order to apply them (numerically) to the word level, rather than at the level of the individual features. Given that we are interested in the word level, we follow Proki\'{c} et al.'s definition. A further advantage of focusing on the word level is that phonetic context is taken into account. Non-native speakers are likely to use phonological rules from their native language, which may depend on context.
+
+\citet{prokic_detecting_2012} define the measures from a dialectological perspective in terms of sites and groups --- a site is a location where a dialect sample is observed, and a group is a dialect area. Since we are working with accent data, instead we will use the terms speakers and languages --- a speaker is one person included in the Speech Accent Archive, and a language is a group of speakers with the same native language.
+
+A very representative feature shows little variation among the English accents of native speakers of one language, and a very distinctive feature shows a large difference between those speakers and native speakers of English. More formally, we assume a native language $l$, consisting of $|l|$ speaker samples, among a larger group of languages $G$ consisting of $|G|$ speaker samples. $G$ includes the speakers $s$ that speak $l$ as well as the $s$ speaking other languages. In this work, we limit $G$ to only include native speakers of the language of interest $l$ and of English, since we would like to see what features are characteristic compared to native English. However, including more languages in $G$ is possible too.
+
+We also assume a measure of between-speaker difference $d$, with respect to a given feature $f$. For representativeness\is{representativeness|)}, we then calculate a mean difference $\bar{d}$ with respect to $f$ within the language under investigation:
+\begin{equation}
+\bar{d}^l_f = \frac{2}{|l|^2 - |l|} \sum_{s,s' \in l} d_f(s,s')
+\end{equation}
+To quantify distinctiveness\is{distinctiveness|)}, we calculate a mean difference $\bar{d}$ with respect to $f$ from the speech of native English speakers:
+\begin{equation}
+\bar{d}^{\neg l}_f = \frac{1}{|l|(|G| - |l|)} \sum_{s \in l,s' \notin l} d_f(s,s')
+\end{equation}
+
+Characteristic features are considered to be those where the difference between $\bar{d}^{\neg l}_f$ and $\bar{d}^l_f$ is relatively large. Following \citet{prokic_detecting_2012}, we normalize these measures by calculating the difference between their z-scores rather than just the raw difference:
+
+\begin{equation}
+\frac{\bar{d}^{\neg l}_f - \bar{d}_f}{sd(d_f)} - \frac{\bar{d}^{l}_f - \bar{d}_f}{sd(d_f)}
+\end{equation}
+This normalizes the difference scores for each feature separately.
+
+This measure is implemented in the publicly available Gabmap web application for dialectology \citep{nerbonne_gabmap_2011}, and this is the implementation we used to conduct this research.\footnote{Available at: \url{www.gabmap.nl}} In this application, languages $l$ are represented as clusters of $|l|$ speaker samples. We manually defined these clusters using the native language metadata from the Speech Accent Archive, not applying any of the automatic clustering techniques available in Gabmap to avoid errors.
+
+As for the measure of between-speaker difference $d$, we used the \isi{Gabmap} function for finding the \isi{aggregated Levenshtein distance}\is{edit distance} between two speakers' transcriptions, described by \citet{nerbonne_gabmap_2011}. This dialectometric method has also been applied to accent studies before. \citet{wieling_measuring_2014} found a correlation of $r = -0.81$ between human native-likeness judgments and the Levenshtein distance between native and non-native English speech.   
+
+We have applied this measure to transcriptions of the words from the Speech Accent Archive, each time comparing speakers of one particular language to native English speakers. After applying the formula above to the pronunciation distances, we identify lists of words that are characteristically pronounced differently by the non-native speakers, in comparison to native accents of English. To verify the measure and obtain more detail, we examined the top of these lists more closely. For the top five words, we looked at the most frequently occurring transcribed forms of the word in language $l$ to see if they are indeed different from native English speech and if these differences might be called characteristic.
+
+\section{Material}
+\label{s:material}
+
+Our transcriptions are a subset of transcriptions extracted from the Speech Accent Archive (SAA, \citealt{weinberger_speech_2011}). The SAA has been expanded since we extracted the transcriptions, but we have used this older dataset because it has been segmented and manually checked. The SAA is available at \url{http://accent.gmu.edu} and contains a large collection of speech samples in English from people with various language backgrounds, including both native and non-native speakers of English. Each speaker reads the same paragraph containing 69 words in English:
+
+\begin{quote}
+\textit{Please call Stella. Ask her to bring these things with her from the store: Six spoons of fresh snow peas, five thick slabs of blue cheese, and maybe a snack for her brother Bob. We also need a small plastic snake and a big toy frog for the kids. She can scoop these things into three red bags, and we will go meet her Wednesday at the train station.}
+\end{quote}
+
+While reading out a paragraph may not be the most accurate representation of one's pronunciation ability, this method of elicitation makes sure that there is a set of comparable transcriptions for all speakers. Furthermore, this paragraph has been designed to include the most common phonemes of English, and should be able to serve as a standard for that reason.
+
+To show how much information these transcriptions contain, we provide some example transcriptions from the SAA below. These are the first lines of the elicitation text, spoken by four speakers with different language backgrounds. Example~\ref{ex:English1} was spoken by a 42-year-old American male from Pittsburgh (english1 on the website). Example~\ref{ex:Hungarian1} is a female \ili{Hungarian} speaker, who lived in both the UK and the USA for 1.5 years (hungarian1). Example~\ref{ex:Dutch1} is a male \ili{Dutch} speaker from the Netherlands, who only spent one month abroad in the UK (dutch1). Lastly, example~\ref{ex:French1} is a female speaker from France, who spent four months in the USA (french1). More information about the speakers is also available in the archive, but for this study we have not taken any of this metadata into account, except for the native language.
+
+\begin{exe}
+\ex \label{ex:English1} {\normalfont [pʰl̥iiːz kʰɑlˠ stɛlə æsk ɚ ɾə bɹɪ̃ŋ ðiiːz θɪ̃ŋz wɪθ ɚ fɹʌ̃m ðə stɔɹ]} (English)
+\ex \label{ex:Hungarian1} {\normalfont [plis kol stalʌ æsk hɜ tu brɪ̃ŋ d̪is t̪ɪ̃ŋz̥ wit̪ hər frɔ̃m d̪ə stɔr]} (\ili{Hungarian})
+\ex \label{ex:Dutch1} {\normalfont [pliːs kɔl stɛ̞la ask hɜ tu bɹɪ̃ŋ ʔðɪs ʔθɪ̃ŋs wɪθ hɜ fɹom d̪ə stoɜ]} (\ili{Dutch})
+\ex \label{ex:French1} {\normalfont [pʰliz̥ kʰɔl stɛla æsk hɜɹ tu bɹɪ̃ŋ zɪs θɪːŋks wɪθ hɜɹ fɹʌ̃m d̪ə stɒɹ]} (\ili{French})
+\end{exe}
+
+Even from these single examples, we can already observe some typical foreign accent\is{foreign accent|)} characteristics. The English speaker strongly reduces the word \textit{her}, which the non-native speakers seem to be more conservative about. The English and \ili{French} speakers aspirate their unvoiced plosives at the start of the first two words ([pʰ]), while the \ili{Hungarian} and \ili{Dutch} speakers do not, since their native languages lack aspirated stops. The open back unrounded vowel [ɑ] is not present in standard \ili{Dutch} or \ili{Hungarian}, and none of the speakers use it in the example. We observe these speakers replacing it with more closed varieties of the vowel. We also see that not all stereotypical accent characteristics are always present: both the \ili{Dutch} and \ili{French} speakers correctly produced dental fricatives\is{dental fricative} in the sequence \textit{things with}, even though these languages do not include dental fricatives and non-native speakers are known to have trouble with this sound. Furthermore, \ili{French} does not have aspirated stops just like \ili{Dutch} and \ili{Hungarian}, yet the \ili{French} speaker still produced one (as noted above), while the \ili{Dutch} and \ili{Hungarian} speakers did not. Some speakers may be better at English pronunciation than others, and have learned to correctly use foreign sounds. We do see the \ili{French} speaker substituting [z] for [ð] in \textit{these}, and she aspirates the /p/ and /k/ in the first two words, which is unusual in French. She also devoices the final consonant of \textit{things}, but not in \textit{please}, showing that we not only find variation among native speakers of the same language, but that we also find it within the speech of a single speaker. We can observe one peculiar phenomenon in the \ili{Dutch} transcription, the glottal stops before \textit{these} and \textit{things}. No other speakers of \ili{Dutch} or English show this, and no such phoneme is apparent in the sound file, so it appears to be a transcription error. For these and other reasons, it is insufficient to examine the speech of a single speaker in discussing `characteristic' accents. By aggregating, our method will provide stronger evidence of the characteristic features of accented speech.
+
+\section{Results}
+\label{s:results}
+
+In this section, we will discuss the results of applying our method to \ili{French}, \ili{Hungarian} and \ili{Dutch} accents. We limit ourselves to showing the top five most characteristic words according to the method, and their two most common transcribed forms. We have examined the \ili{French} accents because many samples are available in the archive, \ili{Hungarian} because it has some unusual phonological phenomena that span word boundaries and may be hard to detect, and \ili{Dutch}, because we can compare our measure to the empirically established \isi{pronunciation error hierarchy} of \citet{van_den_doel_evaluation_2006}.
+
+%GabMap diacritics?
+
+\subsection{French}
+
+\begin{table}[h]
+\begin{tabular}{lld{3}ll}
+\lsptoprule %\midrule
+Rank & Word   & \multicolumn{1}{l}{Score} & Characteristic forms & Native forms\\ \midrule
+1    & to & 1.26 & tu (20/34 : 11/181) & ɾə (0/34 : 112/181) \\
+	 &	  &      & tŭ (5/34 : 8/181)   & \\
+2    & into & 1.05 & ɪ̃ntu (21/34 : 25/181) & ɪ̃ntə (1/34 : 56/181)\\
+	 &    &      &  ɪ̃nt̪u (4/34 : 0/181) &  ɪ̃nɾə (0/34 : 29/181) \\
+3    & call & 0.88 & kɔl (14/34 : 12/181) & kʰɑlˠ (0/34 : 48/181)\\
+	 &    &      &   kɔːl (3/34 : 0/181) &  kʰɔlˠ (1/34 : 13/181) \\
+4    & small & 0.78 & smɔl (22/34 : 33/181) & smɑlˠ (1/34 : 59/181) \\
+	 &    &      &   smol (4/34 : 1/181) & smɔl (22/34 : 33/181) \\
+5    & can   & 0.50 & kæ̃n (13/34 : 3/181)& kə̃n (1/34 : 82/181) \\
+	 &    &      &    kæn (4/34 : 0/181) & kʰə̃n (0/34 : 23/181) \\
+\lspbottomrule %\midrule
+\end{tabular}
+\caption{Characteristic words of \ili{French} native speakers}
+\label{tb:fr}
+\end{table}
+
+There are 34 speakers of \ili{French} in the data set, providing us with a large sample of different forms of the words. \tabref{tb:fr} shows the five most characteristic words of the \ili{French} speakers, ranked by their difference score (see previous section). This is calculated over all of the tokens in the elicitation paragraph. For words that occur multiple times in the paragraph, we will refer to their tokens with an index, i.e. \textit{the} [2] for the second instance of the word `the' in the text. For each word, we also list the two most frequent forms used by \ili{French} speakers, and the two most frequent forms used by native English speakers. If one form is used overwhelmingly more often than the other ones, we only list one. Behind each form, we list their frequency of occurrence in the following format: (French usage ratio : native usage ratio). For instance, for the first ranked item \textit{to}, we can see that 20 out of 34 \ili{French} speakers used the form [tu], while 11 out of 181 native English speakers used this form. It is highly characteristic of French. Native English speakers generally use the weakened form [ɾə], while the \ili{French} speakers do not. 
+
+In French, unstressed vowels tend to be pronounced, and \ili{French} speakers would be unlikely to produce the form [ɾə] anyway. The [ə] does exist in French, but it is phonetically realized only under special circumstances. A word-final schwa is usually elided, and only pronounced when the next word starts with a consonant. However, in the orthography this sound always appears as an <\textit{e}>. A similar effect can be observed for \textit{into} (ranked 2nd). English speakers use the form [ɪ̃ntə], used 56 times, as well as other forms ending in [ə], which are only used by one of the \ili{French} speakers. The \ili{French} language does not have \isi{vowel reduction} to [ə] in word-final position, so it makes sense that \ili{French} speakers would deviate from standard English here.
+
+\largerpage[-1]
+For the word \textit{call} (rank 3), we mainly observe the use of [ɔ] as the vowel, while the majority of the native speakers uses [ɑ]. In French, the vowel [ɑ] is used, but it is in the process of merging with [a] \citep[60--62]{walker_french_2001}. Perhaps for this reason, the \ili{French} native speakers use [ɔ] in their English. The [ɔ] pronunciation can be observed in the speech of some native speakers as well. British Received Pronunciation (RP) speakers would use [ɔ] here, and this dialect is prestigious. Furthermore, the same difference can be observed in the \ili{Dutch} and \ili{Hungarian} data, though not as strongly. It may be the case that [ɔ] is taught to second language learners of English in this context, explaining the effect. The same phenomenon occurs in \textit{small} (rank 4), where there are even some instances of [o] in the French-accented speech.
+
+To continue, we can see that \ili{French} native speakers do not aspirate the initial consonants of \textit{call} or \textit{can} (5th), for there are no aspirated consonants in Standard \ili{French} \citep[p. 35]{walker_pronunciation_1984}. In the fifth word, \textit{can}, we can also observe the usage of [æ̃] or [æ] instead of [ə] by the \ili{French} speakers. [æ] is not a phoneme of standard \ili{French} \citep{walker_french_2001}, however, it is the vowel used in the full \il{English!American English}American English form of \textit{can}. It is likely that the speakers have mostly acquired this English sound, but have not or not yet learned to reduce it, as the native speakers do.
+
+Some properties of accents are considered to be effects of being in an early stage of learning regardless of the native language. However, it appears that many of the characteristic differences we found in \ili{French} accents can be traced back to the phonology of Standard French.
+
+\subsection{Hungarian}
+
+\begin{table}[h]
+\begin{tabular}{lld{3}ll}
+\lsptoprule %\midrule
+Rank & Word   & \multicolumn{1}{l}{Score} & Characteristic forms & Native forms \\ \midrule
+1    & these [1] & 2.06 & d̪is (5/7 : 3/181) & ðiːz (0/7 : 35/181) \\
+	 &	  &      & d̪iz̥ (2/7 : 0/181)   &  ðiz (0/7 : 19/181) \\
+2    & please & 1.70 & plis (4/7 : 1/181) & pʰliːz (0/7 : 39/181)\\
+	 &	  &      & pʰliːs (2/7 : 5/181)   &  pʰliːz̥ (0/7 : 31/181) \\
+3    & big    & 1.69 & bik (5/7 : 0/181) & bɪɡ(0/7 : 77/181) \\
+	 &	  &      & bɪk (1/7 : 1/181)   &  \\
+4    & these [2] & 1.55 & d̪is (4/7 : 1/181) & ðiz (0/7 : 59/181) \\
+	 &	  &      & d̪iz̥ (1/7 : 1/181)   & ðiːz (0/7 : 38/181) \\
+5    & the [1]   & 1.52 & d̪ə (6/7 : 3/181) & ðə (0/7 : 97/181) \\
+	 &	  &      & də (1/7 : 0/181)   & n̪ə (0/7 : 64/181) \\
+\lspbottomrule %\midrule
+\end{tabular}
+\caption{Characteristic words of \ili{Hungarian} native speakers}
+\label{tb:hung}
+\end{table}
+
+Our discussion of the \ili{Hungarian} accent data will refer to the English \isi{pronunciation teaching} guide of \citet{nadasdy_background_2006}, which contains specific information on errors and substitution by \ili{Hungarian} native speakers of English. Table~\ref{tb:hung} shows the most characteristic words of the \ili{Hungarian} speakers. The top-ranked word \textit{these} indeed shows two properties that seem to be typical of \ili{Hungarian} accents and follow from the phonology of the language.
+
+First, the dental fricatives\is{dental fricative} [ð] and [θ] do not exist in \ili{Hungarian}. The language has dental sounds and fricatives, but no dental fricatives, and using dental fricatives is considered to be a speech defect. \ili{Hungarian} learners of English are said to often perceive these sounds as [f] and [v], but in production, the typical mistake is to replace [θ] with [s] and [ð] with [d] \citep[p. 71]{nadasdy_background_2006}. This is also what we observe in our data: the words \textit{these} (rank 1 and 4) and \textit{the} (rank 5) show [ð] being replaced by [d̪]. Second, we observe that a majority of the \ili{Hungarian} speakers devoices the [z] in \textit{these}, something the English speakers do not do. This is likely to be an effect of \ili{Hungarian} regressive (or anticipatory) assimilation. When two obstruents in \ili{Hungarian} are pronounced in sequence, the first one assimilates to the second one --- if the second obstruent is voiceless, the first obstruent will be voiceless, too. This can also occur across word boundaries, as long as there is no phonological gap. In the original text, both instances of \textit{these} are followed by the word \textit{things}, which the speakers pronounce with [t̪] (7 times), [t] (1 instance) or [θ] (6 times), which are all unvoiced obstruents. In \ili{Hungarian}, \isi{regressive assimilation} would devoice the [z] of \textit{these} here, and this is also what happens in their English pronunciation.
+
+The word \textit{big} (rank 3) shows another clear example of regressive devoicing, but with [g] devoicing to [k]. The context in the elicitation paragraph is \textit{big toy frog}, and the \ili{Hungarian} speakers mostly pronounce [tɔɪ] as the English speakers do, with the only differences being in aspiration of the [t]. Since the [t] is unvoiced, the devoicing of the [g] in \textit{big} is regressive devoicing. The word \textit{please} (rank 2) shows the devoicing before the unvoiced [k] of \textit{call}, but also a difference in aspiration. There are no aspirated stops in \ili{Hungarian} \citep{petrova_voice_2006}.
+
+When looking at these characteristic features, one might wonder whether speakers always apply final devoicing in English. This is not the case, however. For example, the word-final [d] in the sequence \textit{red bags} is voiced by all \ili{Hungarian} speakers. These cases are not characteristic of the \ili{Hungarian} accent, as English also has no strict final devoicing and English speakers use the [d] as well. The score of the word \textit{red} is only -0.48, the fourth lowest, showing less difference between \ili{Hungarian} and English native speakers than among the \ili{Hungarian} speakers. This indicates a quite similar pronunciation to native English.
+
+In summary, our data show that regressive devoicing and the lack of dental fricatives are typical of \ili{Hungarian} English accents compared to native English speakers' accents.
+
+\subsection{Dutch}
+
+
+While it is interesting to have quantitative\is{quantitative methods} evidence for characteristic features that can be linked to the phonetics of the native language, this does not tell us much about the ranking of the features. How do we know that the top five words really contain the most characteristic features? We are not aware of any other work that ranks phonetic or segment-based features of accents using a computational measure, but we may be able to find some evidence in perception studies.\is{accent perception} \citet{van_den_doel_evaluation_2006} conducted a large study on how \ili{Dutch} accents are judged by British (Received Pronunciation) and American native speakers, which was aimed at finding salient pronunciation errors. In his study, he presented native English speakers 32 sentences, each containing a single pronunciation error considered to be typically \ili{Dutch}, based on a survey. The pronunciation of the sentences was native, except for the error. Not all of the errors are phonemic (and therefore relevant to our study), but the ones that are, are considered by the authors to be representative of a more general phonological error. In the study, \citet[292]{van_den_doel_evaluation_2006} established hierarchies of errors consisting of five classes of severity, and separately for \il{English!British English}British English and \il{English!American English}American English. The most severe errors according to both groups are stress errors, which are not relevant to our study. We will discuss the most severe phonemic errors mentioned in the study, reproduced in Table~\ref{tb:doel}, and compare them to our most characteristic features of \ili{Dutch} accents, the top five of which are listed in Table~\ref{tb:nl}.
+
+
+\begin{table}[t] 
+\begin{tabular}{l  p{4.4cm} @{\hskip 1cm} p{4.4cm}}
+\lsptoprule %\midrule
+{Severity} & {Received Pronunciation\il{English!British English}} & {General American\il{English!American English}} \\ \midrule
+{$> 3.5$} & Stress errors & Stress and stress-related \newline errors \vspace{0.2cm} \newline  Fortis/lenis neutralization\is{fortis/lenis neutralization} \vspace{0.2cm} \newline Use of uvular-\textbf{r} \\ \midrule
+{$2.2-3.5$} & Stress-related errors \vspace{0.2cm} \newline Fortis/lenis neutralization \vspace{0.2cm} \newline Use of uvular-\textbf{r} \vspace{0.2cm} \newline Some substitutions of /θ,ð/ by /t,d/ \vspace{0.2cm} \newline Glottalisation of final /d/ \vspace{0.2cm} \newline Epenthetic [ə] in /lm/ \vspace{0.2cm} \newline /v $\sim$ w/ confusion \vspace{0.2cm} \newline Confusion of /æ $\sim$ e, ʌ $\sim$ ɒ, ʊ $\sim$ u:/ \vspace{0.2cm} \newline Unaspirated [t] & Most substitutions of /θ,ð/ by /t,d/ \vspace{0.2cm} \newline Glottalisation of final /d/ \vspace{0.2cm} \newline Epenthetic [ə] in /lm/ \vspace{0.2cm} \newline /v $\sim$ w/ confusion \vspace{0.2cm} \newline /æ $\sim$ e/ confusion \vspace{0.2cm} \newline Inappropriate post-vocalic \textbf{r}
+\\ 
+\lspbottomrule
+\end{tabular}
+\caption{\ili{Dutch} hierarchy of error including only errors of severity $> 2.2$, adapted from \citet{van_den_doel_evaluation_2006}}
+\label{tb:doel}
+\end{table}
+
+
+\begin{table} 
+\begin{tabular}{lld{3}ll}
+\lsptoprule %\midrule
+Rank & Word   & \multicolumn{1}{l}{Score} & Characteristic forms & Native forms \\ \midrule
+1    & big & 1.92 & bɪk (13/16 : 1/181) & bɪɡ (0/16 : 77/181) \\
+	 &	  &      &    &  bɪɡ˺ (0/16 : 41/181) \\
+2    & to & 1.22 & tu (10/16 : 11/181) & ɾə (0/16 : 112/181) \\
+	 &	  &      &   tə (3/16 : 21/181)  &   \\
+3    & slabs    & 1.12 & slæps (5/16 : 0/181) & slæbz (1/16 : 66/181)\\
+	 &	  &    & slæb̥s (3/16 : 1/181)  &  slæːbz (0/16 : 38/181)    \\
+4    & bags & 1.08 & bæks (4/16 : 0/181) & bæɡz (1/16 : 39/181) \\
+	 &	  &    &  bæːɡ̥s (3/16 : 2/181)  &  bæːɡz (0/16 : 33/181)    \\
+5    & of [1]   & 1.06 & ɔf (7/16 : 7/181) & əv (0/16 : 58/181) \\
+	 &	  &    &  əf (7/16 : 46/181  &  əf (7/16 : 46/181)   \\
+\lspbottomrule %\midrule
+\end{tabular}
+\caption{Characteristic words of \ili{Dutch} native speakers}
+\label{tb:nl}
+\end{table}
+
+
+
+
+For the \il{English!American English}American English data, two phonemic errors were classified in the most severe error class \citet{van_den_doel_evaluation_2006}: the use of the uvular trill [ʀ], and `fortis/lenis neutralization' (similar to devoicing, replacing [v] with [f], [d] with [t]).
+The first error is not observed in our top five. The topmost word where an [ʀ] might be found is \textit{for} [2] at rank 19. However the \ili{Dutch} speakers either use [ɹ] or no final consonant at all, and this is similar to what the native speakers do. In fact, in all of the words spoken by the 16 \ili{Dutch} native speakers in the SAA, no instances of [ʀ] occur. The error may be severe and distinctive, but not representative, and therefore not characteristic. Even in native \ili{Dutch}, [ʀ] is only used in the south, and throughout the \ili{Dutch} language area, five main categories of \textit{r} are in use, with further subdivisions possible \citep{sebregts_sociophonetics_2015}. 
+This illustrates the fact that the perception experiment of \citet{van_den_doel_evaluation_2006} identifies perceptually salient errors, which do not necessarily have to be characteristic. To be ranked highly by our measure, a feature has to be used by many non-native speakers of the language under consideration. Nevertheless, the second error, fortis/lenis neutralization, does occur. While \textit{of} (rank 5) is more commonly pronounced with a final [v] by the native English speakers, all \ili{Dutch} speakers use [f]. In our ranking, we also observe other forms of devoicing at the end of the words \textit{slabs} (rank 3), \textit{bags} (rank 4) and \textit{big} (rank 1), though \textit{big} is more likely to stem from the fact that most \ili{Dutch} speakers do not use [ɡ]. These phenomena were not included in the study of \citet{van_den_doel_evaluation_2006} at all, so it is unclear whether these forms are perceived as severe errors.
+
+Out of the remaining errors listed in the second-most severe class for both \il{English!British English}British and \il{English!American English}American English, all but one appear to be relatively uncharacteristic for \ili{Dutch} non-native speakers of English. /v/-/w/ confusion is listed as severe, and might be expected because the \ili{Dutch} /w/ is usually often pronounced 
+[ʋ]. It almost never occurs in the data. For each word containing a \textit{w}, all but one or two \ili{Dutch} speakers use [w]. In fact, both instances of \textit{we} in the elicitation paragraph are the two lowest ranked words using our difference scores. Another such confusion, /æ/-/e/ confusion, might be expected in \textit{slabs} (rank 3 in Table~\ref{tb:nl}). This confusion may arise because \ili{Dutch} does not normally use [æ]. However, no \ili{Dutch} speakers pronounce \textit{slabs} with an [e], though [a] and [ɛ] are each used by one speaker. The word mainly ranks highly because of devoicing in the final consonant cluster. Another error considered severe, though it can only occur in intermediate stages of learning, is glottalization of final /d/. While \ili{Dutch} does not have any final glottalization, the hypothesis is that because English has glottalization of final /t/, \ili{Dutch} speakers may generalize it. There is only one final /d/ in our elicitation paragraph, in \textit{red}, and the phenomenon does not occur there. The word has a score of only -0.05, indicating a very similar distribution of forms as among the native speakers, with the exception of two speakers who did fortis/lenis neutralization. The last uncommon error is the insertion of an epenthetic schwa in [lm] clusters. There are no such consonant clusters in the elicitation paragraph, and there are not many words that end in \textit{lm} in English.
+
+\largerpage 
+One notable characteristic\is{characteristic accent feature|(} that \citet{van_den_doel_evaluation_2006} classifies in the second-most severe category, is the replacement of dental fricative with other sounds (most likely [t] and [d] in \ili{Dutch}). The highest ranked word with a dental fricative in \ili{Dutch} accents is \textit{the}[2] at rank 17. The reason is that various different replacements of the 
+[ð] are used by the \ili{Dutch} speakers. The expected phoneme [d] was used seven times, and four times [d̪] was used, the dental variety which is used in \il{Dutch!Flemish}Flemish Dutch. Only two out of these four speakers were actually Flemish, so it may be used as a closer approximation of a dental fricative when learning English. Three more speakers correctly used [ð].
+Since there is so much variation, there is no form that is particularly representative of \ili{Dutch} accents, and the feature is not judged to be characteristic as a result. However, if we rank the \ili{Dutch} accent features only by distinctiveness, two instances of \textit{the} are ranked second and third. Consequently, this approach may be use to detect errors which show great variability by the non-native speakers.
+
+%%%
+%%% mailed Jelke to see if this should really be commented out or not -- yes, it should be left out.
+%%%
+%Lastly, there is also one difference in the feature at rank 2 in our results, the word \textit{to}, which was discussed in \citet{van_den_doel_evaluation_2006} but ranked as not very severe. Native speakers generally use the weakened form /ɾə/, while the \ili{Dutch} speakers use [tu] or a slight weakening, [tə]. This error may be less salient because it is a closed class function word, which due to its syntactic context is unlikely to be mistaken for other words. Our measure does not capture such aspects, and is limited to modelling phonemic and phonological phenomena. Furthermore, not reducing a word is unlikely to make it harder to understand for native speakers.
+
+\section{Discussion}
+In this paper, we have demonstrated the use of dialectometric techniques to study English accents. We hope to have shown that methods from dialectology can be applied to other domains of linguistics in which there is language variation. We have used a quantitative measure to identify characteristic features of the accents of several languages. By aggregating over the transcriptions of multiple speakers from the Speech Accent Archive, we obtain stronger evidence for these features than one would obtain from the analysis of single transcriptions. We verified the resulting feature rankings by comparing them to three other sources of information relevant to accents: phonologies of the native language \citep{walker_french_2001}, \isi{pronunciation teaching} literature \citep{nadasdy_background_2006}, and an empirical error perception study \citep{van_den_doel_evaluation_2006}. From the phonology and pronunciation literature, we learned that most of the characteristic features that we found are indeed a direct effect of interference from the native language, as opposed to some intermediate stage of learning. Furthermore, our method provides quantitative evidence for these observations, something we were not able to find in other work. It also yields a ranking of the words that phonological features occur in, providing more detail than was previously possible.
+
+In the comparison to the perception study, we observed that our measure of characteristic features only somewhat overlaps with the perceived severity of \isi{speech errors}. In particular, uncommon differences may be severe, but not characteristic due to their rarity. Difficult phonemes that are substituted in various ways by different speakers of an accent, are not deemed characteristic by our method. To identify these errors, the distinctiveness measure can be used.
+
+The identification of characteristic features of accents can provide an additional source of information for teachers of English, since the measure favours features that are widespread, as opposed to some of the more stereotypical errors described by \citet{van_den_doel_evaluation_2006}. They also differ from these stereotypical errors, indicating that our method may find errors that are not typically considered by teachers. By obtaining these characteristics in an empirical, objective and reproducible way, existing insights on L1-specific pronunciation errors can be validated against a dataset of transcriptions. Our method can also identify characteristic features of non-native speakers in other languages, as long as transcriptions of the SAA elicitation paragraph are available. This information can be applied in teaching L2 learners of English. Potentially difficult sounds or sound combinations can be identified and addressed based on the learner's native language.
+
+One limitation of the method is that we still require a manual step to find phonological features in the transcribed forms of the words. In future work, perhaps this method can be combined with identifying characteristic sound correspondences \citep{wieling_bipartite_2011}. An obvious continuation of this line of work is to apply this method to English accents of other languages. Finally, we suggest that dialectometric methods could be applied to the study of accents more often, since the two fields have many common characteristics.\is{characteristic accent feature|)}
+
+\section*{Acknowledgements}
+
+We would like to thank Anna M\'{e}sz\'{a}ros for suggestions regarding the \ili{Hungarian} data, and the anonymous reviewers for their helpful comments.
+
+
+\printbibliography[heading=subbibliography,notkeyword=this]
+\end{document}

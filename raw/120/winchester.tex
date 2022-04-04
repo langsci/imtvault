@@ -1,0 +1,331 @@
+\documentclass[output=paper,modfonts]{langscibook} 
+\title{Egyptian Arabic broken plurals in DATR} 
+\author{Lindley Winchester \affiliation{Georgetown University} 
+}
+\ChapterDOI{10.5281/zenodo.1251734}
+\abstract{This paper examines plural inflectional processes in Egyptian Arabic, with specific focus on the complex broken plural system. The data used in this examination is a set of 114 lexemes from a dictionary of the Egyptian Arabic variety by \citet{Badawi1986} collected through comparison of singular to plural template correspondences proposed by \citet{Gadalla2004}. The theoretical side of this analysis builds upon Alain Kihm’s realizational “Root-and-Site Hypothesis”, which categorizes concatenative and non-concatenative morphological processes as approachable in the same manner when discussing inflection as not only represented in segments but also as “sites” where inflectional operations may take place \citep[69]{Kihm2006}. To organize the data through a computational lens, I emulate Kihm’s approach in DATR, a lexical knowledge representation language, to generate the grammatical forms for a set of both broken and regular plural nouns. The hierarchically-structured inheritance of DATR allows for default templates to be defined and overridden, permitting a wide scope of variation to be represented with little code content. Overall, the analysis reveals that complex morphological phenomena, such as the broken plural, can be accounted for through a combination of theoretical and computational approaches.
+}
+\begin{document}
+\maketitle
+\section{Introduction} 
+
+Egyptian \ili{Arabic} is a branch of the \ili{Arabic} language and the national language of \isi{Egypt}. Outside of \isi{Egypt}, it is intelligible in other \ili{Arabic}-speaking countries, such as \isi{Libya}, Syria, and \isi{Yemen}. It is defined characteristically as part of the central and south branch of the Afroasiatic language family and Semitic genus \citep{Lewis2009}. The particular inflectional process in focus here occurs on the nominal forms of the language, which are inflected for plural number through one of two separate processes, a suffixal inflection and infixational inflection, both of which will be elaborated upon further in \sectref{sec:2:winchester}. The latter process will take the majority of the focus, analyzed through a pre-existing theoretical framework and formalized in the computational model, \textsc{datr}. The purpose of this examination is to computationally model theory in the construction of broken plurals in Egyptian \ili{Arabic}, seeking an analysis that encompasses a majority, if not all, of the complex forms in question.
+
+\section{Nominal inflection}\label{sec:2:winchester}
+
+Although nominals are inflected for definiteness, possession, number, and grammatical gender in Egyptian \ili{Arabic}, the discussion here focuses on the language’s singular and plural number inflection \citep[129--130]{Gadalla2004}\footnote{ Egyptian \ili{Arabic}, unlike Classical and Modern Standard \ili{Arabic}, does not inflect for case through affixation \citep[108]{Gadalla2004}.}. While singular number is not overtly marked, the expression of plural number in the \ili{Arabic} varieties is realizable through two different inflectional processes and therefore partitions the lexicon of the language into two groups according to which process they utilize. The group of words which employ the first process, called the sound plurals, add a suffix to the singular stem without changing its internal structure. This group is loosely analogous to the \textit{dog/dog-s} number inflection in \ili{English}. However, unlike \ili{English} the suffixes which attach to the stem \isi{agree} in gender. 
+
+The broken plural group (\textsc{bp}s from here) is characterized by internal stem modification through the infixation of interweaving vowels, which vary in both vowel quality, length, and position between the consonantal roots of the stem. These plurals are considerably less predictable than their suffixal counterparts, analogous to the irregular \textit{man/men} inflections in \ili{English}. An example of this group is the masculine singular \isi{noun} \textit{ʃaahid} ‘witness’, which does not attach the masculine suffix /-iin/ but becomes \textit{ʃuhuud} in the plural. Unlike verbal derivation, the broken plural inflection cannot be associated with any one sequence of vowels (such as the -u-uu- format in \textit{ʃuhuud}) and similarly can not be defined through the process of allomorphy. Rather, the vowel qualities of both the singular and plural forms are semi-regular at best, making it difficult to distinguish any one vowel as the plural marker and any one vowel as the singular \citep[70]{Kihm2006}. Examples of \textsc{bp} inflectional variation can be seen in \tabref{tab:winchester:1} below.\footnote{The numbers listed in parentheses after each gloss in this and the following tables refer to the page in \citet{Badawi1986} on which the respective example is found.}
+
+%%please move \begin{table} just above \begin{tabular
+\begin{table}
+\begin{tabularx}{\textwidth}{XXl}
+\lsptoprule
+Singular & Broken Plural & Gloss\\
+\midrule
+suura & suwar & ‘chapter of the Koran (331)’\\
+taman & ʔatmaan & ‘price (137)’\\
+ʃagaan & ʃuguun & ‘sorrow (453)’\\
+\lspbottomrule
+\end{tabularx}
+\caption{Examples of \textsc{bp} variation.}
+\label{tab:winchester:1}
+\end{table}
+
+In addition, plural patterns cannot be uniquely associated with any one singular form nor any singular with any one plural form. For example, the C\textsubscript{1}aC\textsubscript{2}C\textsubscript{3} singular templatic form is associated with multiple \textsc{bp} patterns as seen in \tabref{tab:winchester:2} below. 
+
+\begin{table}
+\begin{tabularx}{\textwidth}{XXX}
+\lsptoprule
+Singular & Plural & Gloss\\
+\midrule 
+garh
+
+(C\textsubscript{1}aC\textsubscript{2}C\textsubscript{3}) & guruuħ, giraaħ 
+
+(C\textsubscript{1}uC\textsubscript{2}uuC\textsubscript{3}, C\textsubscript{1}iC\textsubscript{2}aaC\textsubscript{3}) & ‘wound (153)’\\
+\tablevspace 
+
+raxw
+
+(C\textsubscript{1}aC\textsubscript{2}C\textsubscript{3}) & raxaawi  
+
+(C\textsubscript{1}aC\textsubscript{2}aaC\textsubscript{3}i) & ‘whiplash (331)’\\
+\lspbottomrule
+\end{tabularx}
+%%please move \begin{table} just above \begin{tabular
+\caption{Examples of inflectional variation between templates.}
+\label{tab:winchester:2}
+\end{table}
+
+\subsection{Broken plurals in theory} 
+
+Currently in \ili{Arabic} linguistics, morphological research has been divided into two camps by differing theoretical approaches. Previously, the field assumed a root-based approach used by traditional Arab grammarians in explaining \ili{Arabic} morphology. In opposition to this traditional approach are the word or stem-based approaches \citep[71--91]{Ratcliffe2013}. From the span of approaches used to analyze \textsc{bp}s,\footnote{ Namely, \citet{Hammond1988}, \citet{McCarthyPrince1990}, \citet{Ratcliffe1998}, and \citet{Kihm2006}. This list is by no means exhaustive.} I selected \citegen{Kihm2006} analysis of \textsc{bp}s and verbal nouns within Classical \ili{Arabic} to provide the main theoretical framework in this paper.\footnote{ With supplemental information from an array of his other publications, each of which assists in explaining the framework further.} This decision was influenced heavily by Kihm’s adherence to the traditional root-and-pattern approach to \ili{Arabic} morphological studies in addition to its flexibility and adaptability to \textsc{datr}. 
+
+The widely accepted approach on the opposing side, a prosodic approach by \citet{McCarthyPrince1990}, would not satisfy the intended goal of this paper. In their analysis, the main focus is placed on the leftmost heavy syllable, or two moras, as the singular stem’s minimal word within which the \textsc{bp} is formed (\citealt[80]{Ratcliffe1998}; \citealt[231]{McCarthyPrince1990}). With this, they structure their analysis around developing \textsc{bp}s from lexemes’ singular stems, replacing some material while utilizing portions of its structure as distinctive in developing the iambic plural structure. One such feature that is transferred from the singular to plural form is said to be the vowel length of the final syllable when the singular’s first syllable is heavy (CVC or CVV). However, despite being the “most familiar of the non-\isi{root} properties,” it is not consistently maintained in EA data, as seen in the singular \textit{ʃaahid} becoming plural \textit{ʃuhuud} ‘witnesses’ (\citealt[218]{McCarthyPrince1990}; \citealt[122]{Badawi1986}). Though\textit{ ʃaahid} does contain an initial heavy syllable /ʃaa-/, the short vowel in the singular’s final syllable /-hid/ is not maintained in the plural but rather is lengthened to a long vowel.\footnote{ This is just one feature \citet{McCarthyPrince1990} discuss as transferrable from the singular stem to a \textsc{bp}. Refer to \citet{Kihm2006} for a further elaboration on the issues with relying on singular forms in determining \textsc{bp}s.}  Though rules such as this do find some grounding in the EA data at hand, they are not consistent enough to develop wide sweeping generalizations. 
+
+Furthermore, McCarthy \& Prince’s analysis places a heavy emphasis on the iambic plural, which they present as most productive in the \ili{Arabic} lexicon. Though this may be true, the analysis presented is not easily adaptable to the remaining non-iambic forms in my data and therefore cannot serve for the purpose of this paper. The root-based assumptions used in Kihm’s analysis allow for more flexibility in presenting a wider array of the type of \textsc{bp}s found in the data.
+
+Finally, Kihm’s theoretical adherence to the root-and-pattern approach also allows for an easy transition into \textsc{datr}, which focuses on the lexeme, defined as the consonantal \isi{root} for this paper, rather than the morpheme as the minimal sign in a morphological paradigm \citep[5]{BrownHippisley2012}.
+
+\subsection{The Root-and-Site Hypothesis}
+
+Kihm’s Root-and-Site Hypothesis (\textsc{rsh}) takes a realizational nonsegmental concatenative approach to the \textsc{bp} phenomenon in Classical \ili{Arabic} based upon a \textsc{hpsg}-type lexicon (see \citealt{Pollard1994}). He argues this and other non-concatenative morphological processes could be absorbed into the category of concatenative morphology, shared by the sound plural inflection, if not only segments but also abstract elements, which he names functional “sites,” can act as the locations in which morphology can occur \citep[69]{Kihm2006}. These locations can be both outside and inside the stem boundary. 
+
+The functional site designated for the nominal \textsc{bp} inflection is located within the stem, between the second and third consonants. Though root-based, this placement coincides well with the word/stem-based hypotheses from \citet{Ratcliffe1998} and \citet{McCarthyPrince1990}. This \isi{root} internal site is thus associated with the feature bundle \textsc{num}(ber) and is realized by the insertion of a glide, designated as /I/ (which can surface as /i/ or /j/), /U/ (which can surface as /u/ or /w/) and /A/ (which can surface as /a/ or /ʔ/) \citep[80]{Kihm2006}. 
+
+Once inserted, the featured glide can either remain or spread into a short or long vowel construction within the word form \citep[80]{Kihm2006}. The determination of which form surfaces is dependent upon the type of location it is inserted into: a slot designated for consonants or vowels. It surfaces as a long vowel when inserted in a consonantal location, and a short vowel when in a vowel slot \citep[81]{Kihm2006}. This short vowel occurrence accounts for the construction of non-iambic broken plurals (see \citealt{McCarthyPrince1990}) and forms the basis for the “No long vowel inflection” class in the organization of data for this research. 
+
+Defining the diversity of the glide’s timbre and the location in which it is inserted (whether a consonant or vowel slot) as irreducible, Kihm posits that each lexical entry must therefore supply the timbre of the glide, the type of slot in which it will be inserted, and the consonantal roots \citep[81]{Kihm2006}. 
+
+\section{Methodology} 
+
+The data collected for the purpose of this research is a summation of a comparative analysis between two written sources. Gadalla's (\citeyear{Gadalla2004}) comparative morphological analysis of Modern Standard \ili{Arabic} and Egyptian \ili{Arabic} supplies a complete list of singular to broken plural templates (as well as those apt to take the sound plural) for Egyptian \ili{Arabic}, such as follows: C\textsubscript{1}aC\textsubscript{2}C\textsubscript{3} → C\textsubscript{1}uC\textsubscript{2}uuC\textsubscript{3}, C\textsubscript{1}iC\textsubscript{2}aaC\textsubscript{3}, etc.\footnote{In alignment with other researchers, Gadalla utilizes F-ʕ{}-L as markers of the consonantal roots in the \ili{Arabic} languages, correlational to C\textsubscript{1}{}-C\textsubscript{2}{}-C\textsubscript{3}. For the remainder of this paper, I will use the latter form of consonantal notation.} In order to collect a set of concrete wordforms for analysis, I matched the list of template correspondences to vocabulary entries listed in \citet{Badawi1986} \textit{A Dictionary of Egyptian Arabic}, in a similar fashion to:
+
+\ea
+{C\textsubscript{1}aC\textsubscript{2}C\textsubscript{3} → \textit{garħ} ; C\textsubscript{1}uC\textsubscript{2}uuC\textsubscript{3} → \textit{guruuħ}}
+\z
+
+The collection process resulted in 114 individual lexemes that form \textsc{bp}s. These sets are meant to exhibit the range of variation seen in the broken plural formation from singular stems in Egyptian \ili{Arabic} and are not based upon type or token statistical frequency within the language. The lack of such statistics should be considered a limitation at this point as the data does not provide a picture of the more or less commonly used \textsc{bp} forms within the language. However, the purpose of this analysis is not to discuss the most frequent forms in comparison to their infrequent siblings but rather to encompass as much of the found variation as possible within the computational construction.
+
+Coinciding with Kihm’s theoretical approach, I have categorized the data into inflectional classes based on their inflection site (at this point assumed to be a long vowel) in the \textsc{bp} form. These classes are then further separated based on \isi{major} alterations to the stem during the inflection process, such as the insertion of a \isi{glottal} stop prefix or a non-\isi{root} based glide. From the 114 sets of singular to plural forms collected, one representative set is selected for each inflection class and subclass, characterized by the placement of the \textsc{bp} inflection site (class), any modification to the stem (subclass), and number of consonantal roots. These categories are displayed in \tabref{tab:winchester:winchester:3} below, containing examples from \citet{Badawi1986}, which I have organized according to the site in which their inflection occurs. 
+
+\begin{table}
+\caption{Nouns covered by second \textsc{datr} theory.\label{tab:winchester:winchester:3}}
+\begin{tabularx}{\textwidth}{XllX}
+\lsptoprule
+\raggedright Designated Inflection class & Singular form & Plural form & Gloss\\
+\midrule
+\multicolumn{4}{X}{ \textbf{Triconsonantal Roots}}\\
+Inflected after C1 & sajjid & saada & ‘male polite form of address (440)’\\
+Inflected after C2 & gabal & gibaal & ‘hill (148)’\\
+& garħ & guruuħ & ‘wound (153)’\\
+& ʃagaan & ʃuguun & ‘sorrow (453)’\\{}
+→ with \isi{glottal} stop prefix & taman & ʔatmaan & ‘price (137)’\\{}
+→ with glide insertion & garħa & gawaariħ & ‘carnivore (153)’\\{}
+→ previously defined “derived \isi{noun}” & matgar & mataagir & ‘place of business (122)’\\
+& marsa & maraasi & ‘harbor (337)’\\
+Inflected after C3 & ɣuraab & ɣirbaan & ‘crow (619)’\\
+& sˤadiiq & ʔɑsˤdiqɑɑʔ & ‘friend (499)’\\
+No long vowel inflection & dibb & dibab & ‘bear (275)’\\
+\multicolumn{4}{X}{ \textbf{Quadriconsonantal Roots}}\\
+Inflected after C2 & tuzluk & tazaalik & ‘leather leggings (128)’\\
+& zooraq & zawaariq & ‘small boat (386)’\\
+No long vowel inflection & sˤɑjdɑli & sˤɑjɑdlɑ & ‘pharmacist (516)’\\
+\lspbottomrule
+\end{tabularx}
+\end{table}
+
+
+\section{\textsc{datr}} 
+
+\textsc{datr} is a lexical knowledge representation language used to express default-inheritance networks. Its primary use is the “representation of lexical entries for natural language processing” (\citealt{Evans1989}: 66). Therefore, in \textsc{datr}’s language, I am able to define connections between a lexical entry’s informational content and various nodes, which contain separate collections of internally related grammatical information, to construct a representation of the singular and \textsc{bp} forms. My representation heavily relies on networks of inheritance and the specification of morphosyntactic features through attribute paths. To elaborate, attribute paths can be realized as values, as in an atom: <path1> == value, a separate path: <path2> == <path1>, or as a combination of the two: <path3> == <path1> a. This final example might represent the fact that some morphosyntactic feature, named path3, is realized as whatever form path1 realizes plus a word-final /-a/ suffix \citep[167--168]{Evans1996}. For a concrete example, refer to the basic lexical entry for the \isi{noun}, \textit{gabal} ‘hill/mountain’ (\textit{gibaal} ‘hills/mountains’ for the plural) below in \REF{fig:winchester:1}.
+
+
+\ea \textsc{gabal} ‘hill/mountain’ lexical entry\\ \begin{lstlisting} 
+GABAL:
+    <syn_cat> == \isi{noun}
+    <gender> == masc
+    <gloss> == hill , or , mountain
+    <vowel sg> == V2:<vowel>
+    <vowel pl> == <vowel sg>
+    <c 1> == g
+    <c 2> == b
+    <c 3> == l
+    <stem sg> == SINGULAR:<stem sg 3>
+    <stem pl> == INFLC2. 
+\end{lstlisting}
+\label{fig:winchester:1}
+\z
+
+Here, I have designated the syntactic category for \textit{gabal} as a \isi{noun}, the gender as masculine, and so forth. The < > denote paths that are realized by the values following the == \citep[169]{Evans1996}.
+
+Following the conceptual purpose of the \textsc{datr} language, which is to create wide-sweeping generalizations within language inflection while avoiding redundancy throughout the coding process, we see that the singular stem <stem sg> and plural stem <stem pl> values refer to a separate node and does not simply state the singular and plural stem \citep[169]{Evans1996}. It would be contradictory to our purpose as well as \textsc{datr}’s to simply state <stem sg> == gabal and <stem pl> == gibaal. Rather, as seen in \REF{fig:winchester:1}, we rely on networks of inheritance to form these for the lexical entry, and hopefully various others, by creating separate nodes called \textsc{singular} for the singular stem and \textsc{inflc}\oldstylenums{2} for the plural. The paths that are realized by these two nodes can construct the singular and plural stems through the insertion of vowels and the consonantal \isi{root} values specified within the lexical entry. This inheritance appears just as in \figref{fig:winchester:2} below, where the lexical entry \textsc{gabal} looks to the  \textsc{inflc}\oldstylenums{2} node searching for a path that matches its own <stem pl>. This <stem pl> within \textsc{inflc}\oldstylenums{2} then yields a template in which \textsc{gabal} inserts the values for its consonantal roots.
+
+  
+%%please move the includegraphics inside the {figure} environment
+%%\includegraphics[width=\textwidth]{Winchesteredited-img1.png}
+ 
+
+\begin{figure}
+\begin{forest}
+[GABAL  [ INFLC2 [stemPL [gVbVVl ]]]]
+\end{forest}
+\caption{\textsc{gabal} inheritance visual representation.}
+\label{fig:winchester:2}
+\end{figure}
+%%%\todo[inline]{Lost figures! Also other cases below}
+
+Within the same lexical entry, the singular path is realized by a separate node titled \textsc{singular}, which itself contains a path designated as <stem sg  3>. Similar to the description above for \figref{fig:winchester:2}, to form \textsc{gabal}’s singular stem, it looks to a node called \textsc{singular}, finds a path within it named <stem sg 3>, inherits the template specified there and inserts its consonantal \isi{root} values. 
+
+The coding within these two nodes can be seen below in \REF{fig:winchester:3}.
+
+\ea Singular and post-C\textsubscript{2} \textsc{bp} inflection coding\\
+\begin{verbatim}
+SINGULAR: 
+   <stem sg 3> == "<c 1>" "<vowel sg>" "<c 2>" "<vowel sg>" "<c 3>".
+INFLC2: 
+   <stem pl> == "<c 1>" "<vowel pl 2>" "<c 2>" "<vowel pl>" 
+   "<vowel pl>" "<c 3>".
+\end{verbatim}
+% \todo[inline]{can we insert a linebreak in the "stem pl" line?}
+%NOTE: changed lstlisting to verbatim to avoid underscores in the example
+\label{fig:winchester:3}
+\z
+
+The question now is how to associate the appropriate vowel qualities within the <vowel sg> and <vowel pl> paths defined in the <stem pl> and <stem sg 3> templates.  While it would be easy to simply place them within the templatic structures specified within the \textsc{inflc}\oldstylenums{2} and \textsc{singular} nodes, allowing the lexical entry to inherit both the templatic form and vowel qualities together, the theory would no longer have the ability to account for words that have the same template but different vowels. An example of this is the singular \textit{ʃagaan} ‘sorrow’ becoming the plural \textit{ʃuguun} ‘sorrows’. In the plural, \textit{gibaal} and \textit{ʃuguun} share the same template (C\textsubscript{1}{}-V-C\textsubscript{2}{}-V-V-C\textsubscript{3}) but vary in vowels. In order for the lexical entries \textsc{shagaan} and \textsc{gabal} to both inherit from the same \textsc{inflc}\oldstylenums{2} <stem pl>, the vowel qualities for the respective plural stems must simply be specified in a separate location where they can be inherited by the corresponding lexical entry. In \textsc{singular}’s template, we see the vowels are both specified as some default singular vowel (<vowel sg>), whereas the vowels in \textsc{inflc}\oldstylenums{2} are designated as a long default plural vowel in the second syllable (<vowel pl> <vowel pl>) and a non-default plural vowel in the first syllable (<vowel pl 2>). These specifications require that the lexical entry realize the paths: <vowel sg> and <vowel pl>. By having content from multiple nodes converge into one, the lexical entry, the result is called a multiple inheritance network \citep[202--203]{Evans1996}. Since a <sg> and <pl> inheritance for the vowels is distinguished, the theory can link the values from separate vowel nodes to the appropriate singular and plural vowel paths specified in the templatic structures of the \textsc{singular} and \textsc{inflc}\oldstylenums{2} nodes. 
+
+Referring back to \textsc{gabal}’s lexical entry, we see the singular vowels are to be assigned from the \textsc{v}\oldstylenums{2} node and any of its <vowel> path values. Looking at \textsc{v}\oldstylenums{2}, we find the coding in \REF{fig:winchester:4}.
+
+\ea \textsc{v}\oldstylenums{2} node\\ \begin{lstlisting} 
+    V2:
+    <vowel> == a
+    <vowel 2> == i.
+\end{lstlisting}
+\label{fig:winchester:4}
+\z
+
+With this vowel value and \textsc{datr}’s use of multiple inheritance, we can now insert material into the <vowel sg> paths in <stem sg 3>’s template in \REF{fig:winchester:3} to create the full singular stem, \textit{g -a-b-a-l} → \textit{gabal}. Since <stem sg 3> does not call for a <vowel sg 2>, the information provided by <vowel 2> in \textsc{v}\oldstylenums{2} is ignored for now. 
+
+For the plural, the vowel values are assigned from the same node as the <vowel sg>’s path. Using the same procedure as above, \textsc{datr} inserts this <vowel> value into the <vowel pl> path locations specified in \textsc{inflc}\oldstylenums{2}’s <stem pl> template. Unlike the singular, the template now calls for a <vowel pl 2> value and therefore inserts the values specified for <vowel 2> within \textsc{v}\oldstylenums{2}, creating \textit{g -i-b-a-a-l} → \textit{gibaal}. The full inheritance \isi{hierarchy} for \textsc{gabal} can be seen below in \figref{fig:winchester:5}. 
+
+  
+\begin{figure}
+%%please move the includegraphics inside the {figure} environment
+%%\includegraphics[width=\textwidth]{Winchesteredited-img2.png}
+\begin{forest}
+[GABAL [VSG [ SINGULAR [stemSG3 [gabal]]]] [VPL [INFLC2 [stemPL [gibaal]]]]] 
+\end{forest}
+
+\caption{\textsc{gabal} inheritance visual representation.}
+\label{fig:winchester:5}
+\end{figure}
+
+Now let’s expand our theory to account for \textsc{shagaan}. Its lexical entry appears as below in \REF{fig:winchester:6}.
+
+\newpage
+\ea \textsc{shagaan} ‘sorrow’ lexical entry\\ \begin{lstlisting} 
+SHAGAAN:
+    <syn_cat> == \isi{noun}
+    <gender> == masc
+    <gloss> == sorrow
+    <vowel sg> == V1:<vowel>
+    <vowel pl> == V6:<vowel>
+    <c 1> == ʃ
+    <c 2> == g
+    <c 3> == n
+    <stem sg> == SINGULAR:<stem sg 5>
+    <stem pl> == INFLC2.
+\end{lstlisting}
+\label{fig:winchester:6}
+\z
+
+As with \textsc{gabal}, the lines designating the syntactic category, gender, gloss, consonantal roots, and stem/vowel qualities for both the singular and plural stems are included. \textsc{shagaan} follows the same procedure as \textsc{gabal} in forming the plural, inheriting the same <stem pl> template from \textsc{inflc}\oldstylenums{2} and plural vowels from a node named \textsc{v}\oldstylenums{6}, which supplies the /u-uu/ vowel melody. The coding for \textsc{v}\oldstylenums{6} appears the same as \textsc{v}\oldstylenums{2}, except specifying <vowel> == u in this instance. 
+
+The two lexical entries differ in their singular form and therefore inherit different templates within the \textsc{singular} node. Specifically, \textsc{shagaan} inherits from a path named <stem sg 5>, with the number only distinguishing the different templates with no relation to \isi{hierarchy}. The coding for the \textsc{singular} node now appears in \REF{fig:winchester:7}, including both \textsc{shagaan} and \textsc{gabal}’s singular stem formations.
+
+\newpage 
+\ea \textsc{singular} node coding\\ \begin{verbatim} 
+SINGULAR: 
+   <stem sg 3> == "<c 1>" "<vowel sg>" "<c 2>" "<vowel sg>" "<c 3>"
+   <stem sg 5> == "<c 1>" "<vowel sg>" "<c 2>" "<vowel sg 2>" 
+   "<vowel sg 2>" "<c 3>".
+\end{verbatim}
+\label{fig:winchester:7}
+\z
+
+The remainder of the inheritance remains the same as in \textsc{gabal}. \textsc{shagaan} inherits \textsc{singular}’s <stem sg 5> and inserts its consonantal roots and the inherited vowel from the \textsc{v}\oldstylenums{1} node’s <vowel>, the coding of which is seen below in \REF{fig:winchester:8}. 
+
+\ea \textsc{v}\oldstylenums{1} node\\ \begin{lstlisting} 
+    V1:
+    <vowel> == a.
+\end{lstlisting}
+\label{fig:winchester:8}
+\z
+
+These are then inserted into the appropriate slots in the singular stem’s template (C\textsubscript{1}{}-V-C\textsubscript{2}{}-V-V-C\textsubscript{3}), creating \textit{ʃ{}-a-g-a-a-n} \textit{→}\textit{ ʃagaan}. The redundancy we see in comparing nodes \textsc{v}\oldstylenums{1} and \textsc{v}\oldstylenums{2} is necessary in order to capture the vowel variation seen in stems like singular \textit{gabal} → plural \textit{gibaal}, \textit{ʃagaan} → \textit{ʃuguun,} and \textit{matgar} ‘place of business’ → \textit{mataagir} ‘places of business’. Lexical entries for \textsc{gabal} and \textsc{matgar} will inherit from \textsc{v}\oldstylenums{2} to achieve the /a-i/ or /i-a/ vowels in their plural while \textsc{shagaan} inherits from \textsc{v}\oldstylenums{1} to achieve solely /a/ vowel insertion. Mimicking \textsc{gabal} above, the tree representation for \textsc{shagaan} can be seen in \figref{fig:winchester:9} below.
+
+  
+\begin{figure} 
+\begin{forest}
+ [SHAGAAN [VSG [SINGULAR [stemSG5 [ʃagaan]]]] [VPL [INFLC2 [stemPL [ ʃuguun ]]]]] 
+\end{forest}
+ 
+
+\caption{\textsc{shagaan} inheritance visual representation.}
+\label{fig:winchester:9}
+\end{figure}
+
+In addition to triconsonantal roots, the theory can also form quadriconsonantal singular and \textsc{bp} forms. An example of the lexical entry for such can be seen in \REF{fig:winchester:10} below.
+
+\newpage 
+\ea \textsc{zooraq} ‘small boat’ lexical entry\\ \begin{lstlisting} 
+ZOORAQ:
+    <syn_cat> == \isi{noun}
+    <gender> == masc
+    <gloss> == small, boat
+    <vowel sg> == V4:<vowel>
+    <vowel pl> == V2:<vowel>
+    <c 1> == z
+    <c 2> == w
+    <c 3> == r
+    <c 4> == q
+    <stem sg> == QUAD_SINGULAR:<stem sg 2>
+    <stem pl> == QUAD_PL_INFLC2:<stem pl 2>.
+\end{lstlisting}
+\label{fig:winchester:10}
+\z
+
+It appears the same as the two previous entries but with an additional consonant specified as <c 4>. This lexeme is particularly interesting for containing a glide as its second consonantal \isi{root}. Within the data, medial glide \isi{root} consonants sometimes surface as a long vowels within either the lexeme’s singular or plural forms (such as the singular \textit{sajjid} becoming the plural \textit{saada} ‘polite forms of address’ with the \isi{root} consonants /s-j-d/). Since \textsc{zooraq}’s weak medial \isi{root} consonant, /w/, does not appear as a consonant in the singular but rather as the long vowel /oo/, it uses the value of  <stem sg 2> in the \textsc{quad}\_\textsc{singular} node to form a template. This template is structured by the coding in \REF{fig:winchester:11} below.
+
+\ea Subset of \textsc{quad}\_\textsc{singular} node\\ \begin{verbatim} 
+QUAD_SINGULAR:
+   <stem sg 2> == "<c 1>" "<vowel sg>" "<vowel sg>" "<c 3>" 
+   "<vowel sg 2>" "<c 4>".
+\end{verbatim}
+\label{fig:winchester:11}
+\z
+
+As is necessary to output \textit{zooraq}, the template is structured to place a long vowel after the first \isi{root} consonant and does not call for a <c 2>. However, in the plural template, the glide value of  <c 2> is required and therefore structured in \textsc{quad}\_PL\_\textsc{inflc}\oldstylenums{2}’s <stem pl 2> value creating \textit{z-a-w-a-a-r-i-q} → \textit{zawaariq}.
+
+The structure of these lexical entries simulates my intended adherence to Kihm’s theoretical framework. Specifically, each stem forming node, such as \textsc{inflc}\oldstylenums{2}, provides a template for either a singular or plural form while the lexical entry defines the vowel timbre and consonantal roots.\footnote{The inheritance defined between a lexical entry and the V(owel) nodes should be viewed as simply a selection process from the set of vowels permitted for this particular language. The purpose of separating them from the lexical entry itself was a foresight so the theory could be expanded further to encompass verbal and other derivations.} The plural stem formation nodes are organized according to the occurrence of the long vowel (or lack thereof as in \textit{dibb} → \textit{dibab} ‘bears’), with further variation for stems within each node. An example of this organization can be seen in \REF{fig:winchester:12} below. 
+
+\ea \textsc{inflc\oldstylenums{3}} node coding\\ \begin{verbatim} 
+INFLC3:
+   <stem pl> == "<c 1>" "<vowel pl 2>" "<c 2>" "<c 3>" "<vowel pl>" 
+   "<vowel pl>" n
+   <stem pl 2> == ʔa "<c 1>" "<c 2>" "<vowel pl 2>" "<c 3>" 
+   "<vowel pl>" "<vowel pl>" ʔ.
+\end{verbatim}
+\label{fig:winchester:12}
+\z
+
+In this example, we see the plural templates for those words with long vowel inflection after the third \isi{root} consonant. <stem pl> creates words such as \textit{ɤuraab} ‘crow’ → \textit{ɤirbaan} ‘crows’ while <stem pl 2> forms plurals such as \textit{sˤadiiq} ‘friend’ → \textit{ʔasˤdiqaaʔ} ‘friends’.
+
+A simplistic hierarchical representation of \textsc{bp} formation as it is constructed in the theory can be seen in \figref{fig:winchester:13} below. 
+
+  
+%%please move the includegraphics inside the {figure} environment
+%%\includegraphics[width=\textwidth]{Winchesteredited-img4.png}
+ 
+
+\begin{figure}
+\begin{forest}
+[LexicalEntry [V] [stemPL [NOINFL [dibab]] [INFLC1 [saada]] [INFLC2 [gibaal]] [INFLC3 [ ɤirbaan]] [Q-PL-NOINFL [sˤajadla] ] [Q-PL-INFLC2 [tazaalik]]]]
+\end{forest}
+\caption{Inheritance network for plural formation.}
+\label{fig:winchester:13}
+\end{figure}
+
+Working from the bottom of the tree, examples of \textsc{bp}s from \tabref{tab:winchester:winchester:3} are located under their corresponding stem formation nodes. From left to right we have a class for \textsc{bp}s with no apparent long vowel inflection (\textsc{noinfl}), with long vowel inflection following the first consonantal \isi{root} (\textsc{inflc\oldstylenums{1}}), following the second consonantal \isi{root} (\textsc{inflc}\oldstylenums{2}), and following the third consonantal \isi{root} (\textsc{inflc\oldstylenums{3}}). The two classes located at the far right of the tree are designed for quadriconsonantal roots. These are further divided by whether the quadriconsonantal \textsc{bp} shows long vowel inflection after the second \isi{root} consonant (\textsc{q-pl-inflc}\oldstylenums{2}) or not at all (\textsc{q-pl-noinfl}). Altogether, these plural stem formation nodes represent the fourteen distinct \textsc{bp} forms seen in \tabref{tab:winchester:winchester:3} and exemplify the variation found in \textsc{bp}s across the language.
+
+\section{Conclusions}
+
+In an attempt to construct a wide array of complex broken plural forms in Egyptian \ili{Arabic}, the fundamentals of Kihm's Root-and-Site Hypothesis can be integrated into \textsc{datr}. Though encountering difficulties within the theoretical framework for portions of the data, the theory generates exemplary singular and plural forms for each of the designated inflection classes and subclasses into which the data has been organized. Therefore, it covers the extent of complex variation found within the data set through an extension of the theoretical framework. In this analysis, it has been shown that not only theoretical but computational approaches can be utilized in the representation of complex morphological phenomena like the broken plural.  
+ 
+% \todo[inline]{Missing ref: BrownHippisley2012}
+
+{\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this]
+}
+\end{document}

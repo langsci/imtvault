@@ -1,0 +1,1967 @@
+\documentclass[output=paper]{langsci/langscibook}
+\ChapterDOI{10.5281/zenodo.1407001}
+
+\author{Olivier Bonami\affiliation{Laboratoire de linguistique    formelle, Université Paris Diderot}\lastand  Berthold Crysmann\affiliation{Laboratoire de linguistique    formelle, CNRS}}
+
+
+
+\title{Lexeme and flexeme in a formal theory of grammar}
+
+\abstract{This paper deals with the role played by the notion of a lexeme in a   constraint-based lexicalist theory of grammar such as Head-driven  Phrase Structure Grammar. Adopting a Word and Paradigm view of   inflection, we   show how the distinction  between lexemes, individuated by their lexical semantics, and   flexemes, individuated by their inflectional paradigm, can   fruitfully be integrated in such a framework. This allows us to present  an integrated analysis of stem spaces, inflection classes, heteroclisis   and overabundance.
+}
+
+\maketitle
+
+\newcommand{\DIM}[1]{\uppercase{#1}}
+\newcommand{\DIMBOX}[1]{\fbox{\DIM{#1}}}
+
+\avmoptions{center}
+\avmfont{\normalfont\scshape}
+\avmvalfont{\normalfont\itshape}
+\avmsortfont{\normalfont\itshape}
+
+\newcommand{\BC}[2]{#2}
+
+
+\newcommand{\phon}[1]{\mbox{\textsf{#1}}}
+
+
+
+\begin{document}
+\selectlanguage{english}
+
+
+\is{Head-driven Phrase Structure Grammar|(}
+\is{morphology!Information-based Morphology|(}
+
+It is often observed by morphologists that contemporary work in
+theoretical morphology has little impact on formal theories of
+grammar, which on average are content with a view of morphology quite
+close to that of offered by the post-Bloomfieldian morphemic
+toolkit.
+A notable exception to this
+situation is the pervasive use in Head-driven Phrase Structure Grammar
+(henceforth HPSG) of the distinction between \textsc{words} and
+\textsc{lexemes} familiar from Word and Paradigm approaches to
+morphology \citep[see among many
+others][]{Robins59,Hockett67,Matthews72,Zwicky85,Anderson92,Aronoff94,Stump01,Blevins14}. In
+this paper we reevaluate the role of the lexeme in HPSG in the light
+of 20 years of research, and in particular of recent attempts to
+integrate a truly realisational theory of inflection within the HPSG
+framework \citep{Crysmann14}. We conclude that current theorizing
+conflates two distinct notions of an abstract lexical object: lexemes,
+which are characterised in terms of their syntax and semantics, and
+\textsc{flexemes} \citep{Fradin03b}, which are characterised in terms
+of their inflectional paradigm. We propose distinct formal
+representations for lexemes and flexemes, and explore the benefits of
+the distinction for a formally explicit theory of morphology and the
+morphology-syntax interface.
+
+The structure of the paper is as follows. In Section~\ref{sec:1}, we present the
+standard view of the lexeme in contemporary HPSG, and show that
+lexemes are given a dual representation, as a distinct type of signs
+and as the value of the feature \textsc{lid}. In Section~\ref{sec:2}, we present
+Information-based Morphology (IbM),%
+\footnote{The framework is presented and elaborated in
+  \citet{Bonami13d,Bonami15b,Crysmann:14:OUP,Crysmann14}. The name is
+  intended as a reference to \citeauthor{Pollard87}'s (1987)
+  \emph{Information-based Syntax and Semantics}. \BC{}{In IbM, the
+    notion of information in the sense of feature logic plays a
+    central role in determining morphological wellformedness, defined
+    in terms of exhaustive expression of morphosyntactic
+    properties. Furthermore, IbM implements Paninian competition on
+    the basis of subsumption, a measure of informativity in feature
+    logic.} } an HPSG-compatible realisational approach to inflection,
+and show that lexemes-as-signs have no role to play in an HPSG using
+IbM as its inflectional component. In Section~\ref{sec:3} we discuss Fradin and
+Kerleroux's distinction between lexemes and flexemes, and argue that
+this should be encoded by distinguishing a feature \textsc{lid} and
+the values it can take from \textit{pid} objects: while the former
+reside in syntactic/semantic representations, the latter are found in
+inflection proper. Finally in section~\ref{sec:4} we discuss the consequences of
+the distinction between \textsc{lid} and \textit{pid} for the
+modelling of heteroclisis and overabundance.
+
+
+\section{The lexeme in standard HPSG}
+\label{sec:1}
+
+\subsection{Lexemes as a distinct type of lexical signs}
+
+Most current work in Head-driven Phrase Structure Grammar
+\citep[henceforth HPSG;][]{Pollard94,Ginzburg00,Sag03} and its variant
+Sign-Based Construction Grammar \citep[henceforth SBCG;][]{Boas12}
+embraces the notion of a lexeme, familiar from Word-and-Paradigm
+approaches to morphology. Under this view, a lexeme is an abstract
+lexical object encapsulating what is common to the collection of words
+belonging to the same inflectional paradigm. Although the details are
+complex and disputed, it is uncontroversial enough to assume that a lexeme
+may be comprised of some amount of phonological information (in the
+form of a stem, a collection of stem alternants, a consonantal
+pattern, etc.), morphological information (e.g. inflection class
+information), syntactic information (at the very least part of speech
+and valence information), and semantic information corresponding to a
+notion of `lexical meaning' (plus linking of semantic roles to
+syntactic dependents). Inflection is then concerned with the relation
+between (abstract) lexemes and (concrete)
+words,\footnote{Alternatively, within an \emph{abstractive}
+  conceptualisation of morphology \citep{Blevins06}, where words are
+  seen as primitives rather than derived objects, inflection is
+  concerned with the relation between words in a paradigm, and the
+  abstract notion of a lexeme captures what is common between these
+  words.} while `word formation', more adequately called
+\textsc{lexeme formation} \citep{Aronoff94}, is concerned with
+morphological relations between lexemes.
+
+Since the late 1990s a growing consensus has emerged within HPSG that
+lexemes should be treated as signs on a par with words.\footnote{See \citet{Bonami15b} for a thorough overview of work on morphology in HPSG.} That is, the \is{type hierarchy}
+hierarchy of linguistic objects includes the subhierarchy in
+Figure~\ref{fig:BonamiCrysmann:signs}. Syntactic rules may form phrases by combining
+signs of type \emph{syn-sign}, while rules of morphology manipulate
+only signs of type \emph{lex-sign}.
+
+\begin{figure}
+\centering
+\smaller
+\normalfont\itshape
+\setlength{\tabcolsep}{0pt}
+\begin{tabular}{ccccc}
+& & \rnode{a}{\psframebox[linecolor=white,framesep=1pt]{sign}}\\ \\
+& \rnode{b}{syn-sign} & & \rnode{c}{lex-sign}\\ \\
+\rnode{d}{phrase} & & \rnode{e}{word} & & \rnode{f}{lexeme}\\
+\psset{linewidth=.6pt,angleA=-90,angleB=90,arm=0}
+\ncdiag{a}{b}
+\ncdiag{a}{c}
+\ncdiag{b}{d}
+\ncdiag{b}{e}
+\ncdiag{c}{e}
+\ncdiag{c}{f}
+\end{tabular}
+\normalfont
+\caption{\label{fig:BonamiCrysmann:signs} A standard HPSG subhierarchy of signs}
+\end{figure}
+
+This is intended to implement the notion of strong lexicalism. First,
+words constitute the interface of morphology and syntax, since they
+belong to both types. Second, morphology and syntax are discrete
+components of grammar inasmuch as some aspects of the feature geometry
+of signs will be specific to phrases or lexemes; likewise, this
+architecture allows for the possibility that the kind of combinatory
+rules relating phrases to their component parts be very different from
+the kind of combinatory rules relating words to their component parts.
+% As a case in point, consider briefly the view of inflectional
+% morphology defended by \cite{Crysmann15}. Under this view, rules of
+%  inflection take the form of statements linking a set of $n$ exponents
+% (bits of phonology indexed for position) to a set of $m$
+% morphosyntactic properties. Inflectional well-formedness amounts to
+% verifying that there is a set of rules licensing the presence of
+% exactly that set of exponents to realise the relevant morphosyntactic
+% information. Under that view, morphological structure is nothing like
+% syntactic phrase structure: morphological representations are strings,
+% not trees, and their licensing does not amount to parsing these
+% strings into contiguous subunits. While Crysmann and Bonami's views
+% may be disputable, the very fact that such a view is entirely
+% compatible with the architecture in Figure~\ref{fig:BonamiCrysmann:signs} highlights
+% how different morphology and syntax may be taken to be.
+
+Although this is by no means an obligation, as we will see below,
+standard practice in HPSG and SBCG in the past two decades has been to
+assume an Item and Process view of morphology
+\citep{Orgun96,Riehemann98,Koenig99,Muller02,Sag03,Sag12}, where the
+word-lexeme opposition captures the difference between inflection and
+lexeme formation. Rules of inflection map a lexeme to a word, rules of
+derivation map a lexeme to a lexeme, rules of composition map two
+lexemes to a lexeme. The three toy rules in Figures~\ref{fig:BonamiCrysmann:plural},
+\ref{fig:BonamiCrysmann:agent} and~\ref{fig:BonamiCrysmann:compound} illustrate the basic
+architecture.
+
+\begin{figure}
+\centering
+\smaller
+\begin{avm}
+\[ \asort{word}
+   phon & \normalfont\@1+/z/\\
+   synsem & \@2 \[head & noun\\ num & pl\]\\
+   m-dtrs & \< \[\asort{lexeme} phon & \@1\\ synsem & \@2\] \>
+\]
+\end{avm}
+
+\caption{Simplified rule of regular English plural
+  formation.\label{fig:BonamiCrysmann:plural}}
+\end{figure}
+
+\begin{figure}
+\centering\smaller
+\begin{avm}
+\[ \asort{lexeme}
+   phon & \normalfont \@1+/ɚ/\\
+   synsem & \[head & noun\]\\
+   m-dtrs & \<\[\asort{lexeme} phon & \@1\\ ss$|$hd & verb\]\>
+\]
+\end{avm}
+\caption{Simplified rule of English Agent noun
+  formation.\label{fig:BonamiCrysmann:agent} }
+\end{figure}
+
+\begin{figure}
+\centering\smaller
+\begin{avm}
+\[ \asort{lexeme}
+   phon & \@1+\@2\\
+   synsem & \[head & noun\]\\
+   m-dtrs & \<\[\asort{lexeme} phon & \@1\\ ss$|$hd & noun\],\,\[\asort{lexeme} phon & \@2\\ ss$|$hd & noun\]\>
+\]
+\end{avm}
+\caption{Simplified rule of English noun-noun compound
+  formation\label{fig:BonamiCrysmann:compound} }
+\end{figure}
+
+Formally, morphological rules are modeled on a par with
+phrase-structure rules, except for the fact that, in inflectional and
+derivational rules, the relation between the phonology of the mother
+(the output lexical sign) and the phonology of the daughter (the input
+lexical sign) is specified syncategorematically: affixes are not
+signs, but bits of phonology added by rule.\footnote{For a dissenting
+  view see \citet{Emerson15}.} The main difference between inflection
+and lexeme formation rules lies in the fact that inflection does not
+modify the \textsc{synsem} value, but merely expresses some of its
+aspects. The main specificity of composition is that the input (the
+daughter signs) consists of two lexemes rather than
+one. Figures~\ref{fig:BonamiCrysmann:lovers} and~\ref{fig:BonamiCrysmann:birdwatchers} illustrate
+typical morphological analyses within such a framework.
+
+
+\begin{figure}[htb]
+\centering
+\smaller
+\begin{avm}
+\[	\asort{word}
+	ph & \normalfont/lʌvɚz/\\
+	ss|hd & \@1 \[num & pl\]\\
+	m-dtrs & \<\[	\asort{lexeme}
+					ph & \normalfont/lʌvɚ/\\
+					ss|hd & \@1 noun\\
+					m-dtrs & \<\[	\asort{lexeme}
+									ph & \normalfont/lʌv/\\
+									ss|hd & verb
+							  \]\>
+			 \]\>
+\]\end{avm}
+
+%\br{}{
+%\lf{\begin{avm}\[\asort{lexeme} ph & /bɝd/\\ ss|hd & noun\]\end{avm}}
+%\br{\[\asort{lexeme} ph & /wɑtʃɚ/\\ ss|hd & \@1 noun\]}{
+%\lf{\begin{avm}\[\asort{lexeme} ph & /wɑtʃ/\\ ss|hd & verb\]\end{avm}}
+%}}}
+%\end{avmtree}
+
+%\begin{avmtree}
+%\psset{linewidth=.6pt,levelsep=12ex}
+%\br{\[\asort{word} ph & /lʌvɚz/\\ ss|hd & \@1 \[num & pl\]\]}{
+%\br{\[\asort{lexeme} ph & /lʌvɚ/\\ ss|hd & \@1 noun\]}{
+%\lf{\begin{avm}\[\asort{lexeme} ph & /lʌv/\\ ss|hd & verb\]\end{avm}}
+%}}
+%\br{\[\asort{word} ph & /bɝdwɑtʃɚz/\\ ss|hd & \@1 \[num & pl\]\]}{
+%\br{\[\asort{lexeme} ph & /bɝdwɑtʃɚ/\\ ss|hd & \@1 noun\]}{
+%\lf{\begin{avm}\[\asort{lexeme} ph & /bɝd/\\ ss|hd & noun\]\end{avm}}
+%\br{\[\asort{lexeme} ph & /wɑtʃɚ/\\ ss|hd & \@1 noun\]}{
+%\lf{\begin{avm}\[\asort{lexeme} ph & /wɑtʃ/\\ ss|hd & verb\]\end{avm}}
+%}}}
+%\end{avmtree}
+\caption{Analysis of the noun \emph{lovers} under an  Item-and-Process view of morphology \label{fig:BonamiCrysmann:lovers}}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\smaller
+\begin{avm}
+\[	\asort{word}
+	ph & \normalfont/bɝdwɑtʃɚz/\\
+	ss|hd & \@1 \[num & pl\]\\
+	m-dtrs & \<\[	\asort{lexeme}
+					ph & \normalfont/bɝdwɑtʃɚ/\\
+					ss|hd & \@1 noun\\
+					m-dtrs & \<\[	\asort{lexeme}
+									ph & \normalfont/bɝd/\\
+									ss|hd & noun
+							   \],
+							   \[	\asort{lexeme}
+									ph & \normalfont/wɑtʃɚ/\\
+									ss|hd & \@1 noun\\
+									m-dtrs & \<\[\asort{lexeme}
+							        			 ph & \normalfont/wɑtʃ/\\
+							        			 ss|hd & verb
+										     \]\>
+							  \]\>
+			\]\>
+\]
+\end{avm}
+\caption{Analysis of the noun \emph{birdwatchers} under an
+  Item-and-Process view of morphology \label{fig:BonamiCrysmann:birdwatchers}}
+\end{figure}
+
+\subsection{Lexeme identifiers}
+
+It is sometimes necessary for a lexical entry or syntactic
+construction to be able to select a particular lexical item in its
+environment. One clear case of this is that of flexible
+idioms. Consider the idiom \emph{pull strings} `try something'. As the
+examples in~(\ref{ex:BonamiCrysmann:strings}) make clear, while the idiomatic meaning
+is present only when the object of \emph{pull} is headed by the lexeme
+\emph{strings}, the noun may occur in either singular or plural form,
+and combine with a variety of determiners and modifiers
+\citep{Bargmann17}.
+
+\begin{exe}
+  \ex \label{ex:BonamiCrysmann:strings} \begin{xlist} \ex There I learned whom [\emph{sic}] my
+    secret advocate was, the man who had pulled strings to get me the
+    teaching job in the midst of a terrible economy, and who had
+    pulled more strings to allow me to keep it, and who had then
+    pulled even more strings to have my commission assigned to the
+    Abwehr.\footnote{K. Ryan, \emph{The Somnambulist}, New York:
+      iUniverse, 2006.}
+
+    \ex You'll never know the trouble I had, and the strings I had to
+    pull to get you back from Berlin.\footnote{K. McDermott, \emph{The
+        time of the corncrake}, Victoria: Trafford, 2004.}
+
+    \ex We have to remember that Jacob was at their wedding. Just how
+    many strings did he
+    pull?\footnote{\url{http://www.losttv-forum.com/forum/showthread.php?t=65542}. Accessed
+      on November 26, 2016.}
+
+    \ex So I didn't pull any string. Didn't need
+    to.\footnote{\url{http://www.justusboys.com/forum/archive/index.php/t-437037.html}. Accessed
+      on November 26, 2016.}
+
+    \ex When I got the job, I thought to myself, ``Someone upstairs
+    finally pulled a string for
+    me''.\footnote{\url{http://ultraphrenia.com/2016/10/02/a-cigarette-break-behind-heavens-gate}. Accessed
+      on November 13, 2016.}
+
+    \ex No string was pulled, it was based on
+    merit.\footnote{\url{http://obafemayor02.blogspot.fr/2013_03_24_archive.html}. Accessed
+      on November 26, 2016.}
+\end{xlist}
+\end{exe}
+
+This type of situation motivated the introduction of the feature
+\textsc{lid} (or \textsc{Lexeme IDentifier}) as a head feature
+projecting to phrasal level information as to which lexeme heads a
+phrase \citep{Sag07,Sag12}.\footnote{Note that a very similar role is
+  played by the feature \textsc{listeme} in \citet{Soehn06} and
+  \citet{Richter09}. % See also the use of \textsc{head|keys|keyrel} in
+  % the English Resource Grammar \citep{lingoerg}, and, more generally
+  % in Minimal Recursion Semantics \citep{Copestake06}.
+} Simplifying
+matters considerably, one can see the constructions above as licensed
+by the two idiomatic lexical entries in
+Figure~\ref{fig:BonamiCrysmann:pull-strings:LI}, which contrast with the two
+ordinary entries in Figure~\ref{fig:BonamiCrysmann:ordinary:LI}: a special lexical
+entry of \emph{pull} with idiomatic meaning selects specifically for
+an object headed by a form of \emph{strings} with idiomatic
+meaning. The postulation of a specific \textsc{lid} value for
+idiomatic \emph{string} allows idiomatic \emph{pull} to select for a
+specific combination of an inflectional paradigm with an idiomatic
+meaning, while abstracting away from inflectional and syntactic
+variability in the makeup of the object of \emph{pull}.
+
+
+\begin{figure}
+\centering
+\smaller
+\begin{avm}
+	\[	\asort{lexeme}
+	    phon & \normalfont {/pʊl/}\\
+	    head & \[lid & pull-lid\]\\
+	    val & \<NP$_i$,NP$_j$\>\\
+	    cont & \[\asort{pull-rel} act & i\\ und & j\]
+	\]
+	\end{avm}
+~~~~~~\begin{avm}
+	\[	\asort{lexeme}
+	    phon & \normalfont{/stɹɪŋ/}\\
+	    head & \[lid & string-lid\]\\
+	    cont & string-rel
+	\]
+	\end{avm}
+
+        \caption{\label{fig:BonamiCrysmann:ordinary:LI} Ordinary lexical entries for
+          \emph{pull} and \emph{strings}}
+\end{figure}
+\begin{figure}
+\centering
+\smaller
+\begin{avm}
+	\[	\asort{lexeme}
+	    phon & \normalfont{/pʊl/}\\
+	    head & \[lid & idiomatic-pull-lid\]\\
+	    val & \<NP$_i$,NP$_j$[\textsc{lid}~{\upshape\itshape idiomatic-string-lid}]\>\\
+	    cont & \[\asort{use-rel} act & i\\ und & j\]
+	\]
+	\end{avm}
+~~~~~~\begin{avm}
+	\[	\asort{lexeme}
+	    phon & \normalfont{/stɹɪŋ/}\\
+	    head & \[lid & idiomatic-string-lid\]\\
+	    cont & influence-rel
+	\]
+	\end{avm}
+\caption{\label{fig:BonamiCrysmann:pull-strings:LI} Idiomatic lexical entries for \emph{pull} and \emph{strings}}
+\end{figure}
+
+
+
+The feature \textsc{lid} provides a useful mechanism for spreading
+lexical information in syntactic structures that has  been
+used since in the analysis of complex predicates \citep{Muller10} and
+periphrastic inflection
+\citep{Bonami13,Bonami15,bonami2015,Bonami16b}. It also provides a
+direct encoding of lexemic identity. Since \textsc{lid} is a head
+feature, and inflected words share the \textsc{head} value of the
+lexeme they are derived from, all inflected forms of a lexeme will
+have the same \textsc{lid}. Under the natural assumption that all
+lexemes have a distinct \textsc{lid} value, whether two words
+instantiate the same lexeme can thus be deduced by inspection of their
+\textsc{lid} values, without examining their derivation history.
+
+
+\section{The lexeme in a Word and Paradigm version of HPSG}
+\label{sec:2}
+
+\subsection{Going Word and Paradigm}
+
+
+
+While an Item and Process view of morphology has been dominant in the
+HPSG literature, over the last 20 years a number of authors have
+become more vocal in advocating the incorporation into HPSG of a Word
+and Paradigm view of inflection (see
+among others \citealt{Erjavec94,Miller97,Ackerman98,Crysmann02,Bonami06,Bonami13,bonami2015,Bonami15,Crysmann14}). Under
+such a view, rules of inflection do not incrementally specify how a
+basic sign is augmented with morphosyntactic information and
+phonological exponents; rather, a full morphosyntactic specification
+of the word is given as input to a system of rules of exponence
+indicating how such a specification is partially realised by exponents
+in various positions with respect to the basic stem. The arguments in
+favour of such a move are the usual ones
+\citep{Matthews74,Zwicky85,Anderson92,Stump01,Brown12}: systems of
+exponence depart too strongly from a one-to-one correspondence between
+form and content for the Item and Process view to make sense in the
+general case. We will not rehearse these arguments here, and simply
+make the sociological observation that Word and Paradigm approaches
+have over the last two decades become the \emph{de facto} standard for
+theoretical and typological reasoning on inflection systems.
+
+Recent attempts at implementing Word and Paradigm inflection in HPSG
+come in two flavors. One the one hand,
+\citet{Bonami13,bonami2015,Bonami15} explicitly interface Paradigm
+Function Morphology \citep{Stump01,Stump16} with HPSG through a set of
+relational constraints. On the other hand, \citet{Crysmann14} design a
+realisational framework for inflection native to the HPSG
+architecture, \emph{Information-based Morphology} (IbM), making heavy
+use of the \isi{underspecification} techniques provided by a typed feature
+structure formalism.
+
+Figure~\ref{fig:BonamiCrysmann:buvions} illustrates the main features of IbM by way
+of the analysis of a rather simple inflected word, the French verb
+\emph{buvions} `we drank'.
+\begin{figure}
+\centering\smaller
+\begin{avm}
+\[ \asort{word}
+phon & \normalfont/byvjɔ̃/\\
+mph & \{\,\rnode{aa}{\[ph &  \normalfont/byv/\\ pc & 0\]} , \rnode{ab}{\[ph &  \normalfont/j/\\ pc & 2\]} , \rnode{ac}{\[ph &  \normalfont/ɔ̃/\\ pc & 3\]}\,\}\\ \\
+   rr & \{\,\[	mph & \{\,\rnode{ba}{\[ph &  \@1 \normalfont/byv/\\ pc & 0\]}\,\}\\
+   				mud & \{\,\rnode{ca}{\[lid & \[\asort{drink-lid} stems & \q<\@1,\ldots\q>\]\]}\,\}
+			\] ,
+			\[	mph & \{\,\rnode{bb}{\[ph &  \normalfont/j/\\ pc & 2\]}\,\}\\
+   				mud & \{\,\rnode{cb}{\[tns & pst\\ asp & ipfv\]}\,\}\\
+%				ms & \{\[\asort{subj} per & 12\\ num & pl\]\}
+			\]
+			,
+			\[	mph & \{\,\rnode{bc}{\[ph &  \normalfont/ɔ̃/\\ pc & 3\]}\,\}\\
+   				mud & \{\,\rnode{cc}{\[\asort{subj} per & 1\\ num & pl\]}\,\}\\
+			\]
+
+		\}	\\ \\
+   ms & \{\,\rnode{da}{\[lid & \[\asort{drink-lid} stems & \<\normalfont/byv/,/bwav/,/bwa/\>\]\]} , \rnode{db}{\[tns & pst\\ asp & ipfv\]},\rnode{dc}{\[\asort{subj} per & 1\\ num & pl\]}\,\}\\
+   synsem & \[
+              head & \[lid & drink-lid\\ tns & pst\\ asp & ipfv\]\\
+              arg-st & \<NP$_{\text{\itshape 1pl}}$, NP\>
+            \]
+\]
+\end{avm}
+%\psset{arrows=<->,linecolor=red,angleA=-90,angleB=90}
+%\nccurve{aa}{ba}
+%\nccurve{ab}{bb}
+%\nccurve[angleA=45]{ac}{bc}
+%\nccurve{ca}{da}
+%\nccurve{cb}{db}
+%\nccurve{cc}{dc}
+
+\caption{A sample IbM analysis: the French \textsc{ipfv.2pl} word
+  \emph{buvions} `we drank'\label{fig:BonamiCrysmann:buvions}}
+\end{figure}
+IbM specifies the inflectional system of a language as a set
+of constraints relating a word's \textsc{synsem} value to its
+\textsc{phon}ology. In the present example, a word realising the past
+imperfective of the verb \textsc{boire} in the context of a
+\textsc{1pl} subject is constrained to have the string /byvjɔ̃/
+as its phonological realisation. The specification of these
+constraints makes use of three intermediate, strictly morphological,
+representations. The feature \textsc{ms} (standing for
+`morphosyntactic properties') encodes those syntactic and semantic
+properties of the word that are relevant to inflection, in a format
+suitable for the expression of constraints on exponence. The feature
+\textsc{mph} (standing for `morphs') indicates the set of morphs
+making up the word, indexed for their position within the word
+(\textsc{pc}, standing for `position class'). Finally, the feature
+\textsc{rr} (standing for `realisation rules') indicates which
+generalisations on the relationship between morphosyntactic properties
+and morphs license the particular association between form and content
+instantiated in that word. Importantly, realisation rules relate a
+\emph{set} of morphosyntactic properties (listed under \textsc{mud},
+standing for `morphology under discussion') to a \emph{set} of morphs
+(listed under \textsc{mph}). Thus, while in this simple example, there
+is a one-to-one mapping between properties and morphs, IbM realisation
+rules can just as easily accommodate cumulative exponence
+($m\, \text{properties}:1\, \text{morph}$), extended exponence
+($1\, \text{property}:n\, \text{morphs}$), overlapping exponence
+($m\, \text{properties}:n\, \text{morphs}$), and zero exponence
+($m\, \text{properties}:0\, \text{morphs}$).
+
+The relationship between the various features is regulated by a set of
+general principles that we will  only state in prose here; we refer the
+reader to \citet{Bonami13d} or \citet{Crysmann14} for a more explicit
+formulation.
+Let us start with the relationship between the
+\textsc{synsem} and \textsc{ms} values. This is regulated by a set of
+language-specific constraints, since which aspects of syntax and
+semantics are realised by inflection is a highly parochial matter. Two
+features of this interface are worth noting. First, lexeme-specific
+information on inflection class and stem alternants is included in
+\textsc{ms} inside the \textit{lid} value. In particular, a
+list-valued feature \textsc{stems} provides an indexed set of stem
+alternants, also known as a \isi{stem space} \citep{Bonami06}.%
+\footnote{\citet{Bonami06} argue that the French stem space has 12
+coordinates. for simplicity we show only 3 in the example in
+Figure~\ref{fig:BonamiCrysmann:buvions}.}
+The choice of
+a particular stem is then effected by a realisation rule of \emph{stem
+  selection} \citep{Stump01}, picking out the appropriate value in this
+list, depending on the morphosyntactic context; In the present instance,
+the default of picking the first stem applies. In other words, in IbM,
+even the stem is taken to be the realisation of some word-level
+information, namely lexical identity. Second, \textsc{ms} values are
+relatively flat in comparison to \textsc{synsem} values, consisting of
+a set of small feature structures, rather than one large, deeply
+recursive feature structure. This is necessitated by the different
+demands of morphological and syntactic combination.\footnote{The
+  distinction between \textsc{synsem} and \textsc{morsyn} may also be
+  used to account for mismatches between content and form at the
+  morphology-syntax interface, as variously captured in the literature
+  by distinguishing syntactic and morphological features
+  \citep{Sadler:Spencer01,Corbett06,bonami2015} or content and form paradigms
+  \citep{Stump06,Stump16}.}
+
+\newpage   
+We may now turn to the relationship between \textsc{ms} and
+\textsc{rr}. This is regulated by a principle of morphological
+wellformedness: the \textsc{ms} value of a word must be identical to
+the disjoint union of the \textsc{mud}s of the realisation rules. In
+other words, each morphosyntactic property must be realised by exactly
+one rule, although a single rule may realise multiple properties at
+once.\footnote{Implicit here are two assumptions familiar from
+  Paradigm Function Morphology: (i) if two realisation rules are
+  appropriate in some context, only the rule realising more content
+  may apply (Panini's Principle); and (ii) there exists a universal
+  rule of default non-realisation, ensuring that a property set
+  remains unrealised if and only if the inflection system provides no
+  other rule for its realisation.}
+
+Finally, the relation between \textsc{rr}, \textsc{mph} and
+\textsc{phon} is rather straightforward. First, the \textsc{mph} value
+of a word is the union of the \textsc{mph} values of its realisation
+rules: in other words, every morph must be licensed by at least one
+realisation rule, although a realisation rule may license more than
+one morph (extended or overlapping exponence), or even no morph at all
+(zero exponence). Second, a word's phonology is determined by
+appending the phonology of its morphs in accordance with the linear
+sequence of position class indices. Note that, although the system of
+position class indices encodes the notion of a morphotactic template,
+it does so with appropriate flexibility. There is no notion of an
+`empty position' in the template: position class indices regulate the
+relative order of morphs, but morph ordering is not effected by
+putting bits of phonology in slots, just by appending bits of
+phonology in order. More importantly, realisation rules may partially
+underspecify the position they assign morphs to, allowing one to
+capture an unprecedented set of situations of variable
+morphotactics. Note also that, although a realisation rule may encode
+zero exponence, it is not equivalent to a zero morpheme: having no
+morph as one's exponent is not the same thing as having a morph with
+no phonological realisation. In particular, since no empty morphs are
+postulated, no sybilline decisions need to be taken as to the
+positioning of  inaudible elements.
+
+\subsection{The role of the lexeme in IbM}
+
+Now that we have outlined the main features of IbM, let us consider
+the role of the lexeme in such a framework. Remember that in classical
+HPSG, inflection rules take the form of unary rules relating an
+abstract sign, the lexeme, to a surface sign, the inflected word. IbM
+has no use for such a notion of inflection rule, since inflection is
+stated directly as a relation between content and form at the word
+level. On the other hand, IbM makes crucial use of the notion of a
+lexeme identifier to state lexeme-specific phonological and
+morphological information; and the word/lexeme opposition is still
+a useful way of capturing the relationship between lexical entries
+and inflected words, and making a clear distinction between lexeme
+formation and inflection.
+
+We thus assume that, while there are no inflectional lexical rules,
+there is a general constraint on objects of type \emph{word} to the
+effect that they are the realisation of a lexeme, as indicated in~(\ref{ex:BonamiCrysmann:lexp}).
+This constraint enforces the monotonic character of inflection: unlike derivation, inflection does not modify syntax or semantics but merely realises whatever features are made available by paradigm structure and compatible with the syntactic context. This is enforced by the identity of \textsc{synsem} values at the \textit{lexeme} and \textit{word} levels.
+
+\begin{exe}
+\ex\label{ex:BonamiCrysmann:lexp}\small
+\textit{word} $\rightarrow$
+\begin{avm}
+\[  synsem & \@1\\
+	m-dtrs & \< \[ \asort{lexeme}
+                   synsem & \@1
+                \] \>
+\]
+\end{avm}
+\end{exe}
+
+As a consequence of~(\ref{ex:BonamiCrysmann:lexp}), an inflected word will inherit any constraint imposed by the lexeme's lexical entry within \textsc{synsem}, including, crucially, lexical identity and stem alternants as specified through the \textsc{lid} feature. Note that we assume the \textsc{phon} attribute to be appropriate only for \textit{syn-sign} objects (that is, words and phrases): lexemes constrain the phonology of their inflected forms through the \textsc{stems} feature instead \citep{Bonami06}. The inflection-specific features \textsc{mph}, \textsc{rr} and \textsc{sc} are appropriate for \textit{word}s only. The format of lexical entries and lexeme formation rules is essentially unchanged.
+
+
+%In effect, the notion of a lexeme as a member of the \emph{sign}
+%hierarchy is made entirely redundant in IbM, and can be
+%eliminated. Lexical relatedness between members of a paradigm amounts
+%to identity of \textsc{lid}. Lexical entries can be stated as
+%underspecified descriptions of words that leave to the inflectional
+%component the specification of the word's \textsc{phon} value as a
+%function of its \textsc{lid} and the syntactic and semantic context in
+%which it is used. While these correspond to lexeme signs in
+%Item-and-Process HPSG, in IbM they do not constitute a distinct entity
+%type from words.
+%
+%Lexeme formation processes can be modeled as relating partial
+%descriptions of words, rather than lexemes. For instance, the
+%derivation rule in Figure~\ref{fig:BonamiCrysmann:agent} could be reimplemented along
+%the lines shown in Figure~\ref{fig:BonamiCrysmann:agent:IbM}.
+%
+%\begin{figure}[htb]
+%\centering
+%\smaller
+%\begin{avm}
+%\[ \asort{word}
+%    ss & \[cat|hd & \[\asort{noun}
+%                      lid & \[stems & \<\normalfont \@1+/ɚ/\>\]
+%                    \]\\
+%%           sem & \[ind & \@{x}\\
+%%                   restr & \{\[\asort{habitual-rel} soa & \@2\]\}
+%%                 \]
+%          \]\\
+%   m-dtrs & \<\[\asort{word}
+%                ss & \[cat|hd & \[\asort{verb}
+%                                  lid & \[stems & \<\normalfont \@1\>\]
+%                                \]\\
+%%                       sem|restr & \{\@2 \[\asort{agt-rel} act & \@{x}\]\}
+%                     \]
+%              \]\>
+%\]
+%\end{avm}
+%\caption{Simplified rule of English Agent noun formation in
+%  IbM.\label{fig:BonamiCrysmann:agent:IbM} }
+%\end{figure}
+%
+%
+%This rule relates a word to a word by specifying how the
+%\textsc{lid} value of the output is derived from
+%the \textsc{lid} value of the input.
+%Since the rule says nothing about number or the
+%\textsc{phon} value, its output is compatible with whichever
+%relationship between \textsc{synsem} and \textsc{phon} values are
+%allowed by the inflectional morphology of the language. For instance,
+%under simple assumptions, the rule is compatible with the two
+%instantiations shown in Figure~\ref{fig:BonamiCrysmann:derivations:IbM}, where the
+%base sign is taken to be the verb \textsc{love} and the two distinct
+%ways of inflecting the noun \textsc{lover} depending on number are
+%shown.\footnote{The second rule in \textsc{rr} in the analysis of
+%  \emph{lover} is the default non-realisation rule, stating that in
+%  the absence of a more specific rule, any property may be unrealised,
+%  i.e. associated with an empty set of morphs.}
+%
+%
+%\begin{figure}[htb]
+%\centering\smaller
+%\avmoptions{top}
+%\begin{avm}
+%\[	   \asort{word}
+%       phon & \normalfont/lʌvɚ/\\
+%       mph & \{\@5 \[ph & \@1 \\ pc & 0\]\}\\
+%	   rr & \{\[mph & \{\@5\}\\ mud & \{\@3\}\],
+%	          \[mph & \{~\}\\ mud & \{\@4\}\]
+%	        \}\\
+%	   ms & \{\@3 \[lid & \@2\], \@4 \[num & sg\]\}\\
+%       ss|hd & \[\asort{noun} lid & \@2 \[\asort{lover-lid} stems & \<\normalfont \@1 /lʌvɚ/\>\]\\ num & sg\]\\
+%       m-dtrs & \<\[\asort{word} ss|hd & \[\asort{verb} lid & \[\asort{love-lid} stems & \<\normalfont /lʌv/\>\]\]\]
+%       \>\]
+%\end{avm}%
+%~%
+%\begin{avm}
+%\[	   \asort{word}
+%       phon & \normalfont/lʌvɚz/\\
+%       mph & \{\@5 \[ph & \@1 \\ pc & 0\], \@6 \[ph & /z/\\ pc & 1\]\}\\
+%	   rr & \{\[mph & \{\@5\}\\ mud & \{\@3\}\],
+%	          \[mph & \{\@6\}\\ mud & \{\@4\}\]
+%	        \}\\
+%	   ms & \{\@3 \[lid & \@2\], \@4 \[num & pl\]\}\\
+%       ss|hd & \[\asort{noun} lid & \@2 \[\asort{lover-lid} stems & \<\normalfont \@1 /lʌvɚ/\>\]\\ num & pl\]\\
+%       m-dtrs & \<\[\asort{word} ss|hd & \[\asort{verb} lid & \[\asort{love-lid} stems & \<\normalfont /lʌv/\>\]\]\]
+%       \>\]
+%\end{avm}
+%
+%\caption{Analyses of the nouns \emph{lover} and \emph{lovers} under an
+%  IbM view of morphology \label{fig:BonamiCrysmann:derivations:IbM}}
+%\end{figure}
+%
+%
+%To sum up, it is now clear that, under a Word and Paradigm view of
+%morphology (as exemplified by IbM), the classical HPSG distinction
+%between two kinds of lexical signs, lexemes and words, becomes
+%redundant. The lexicon and lexeme formation components provide various
+%\textsc{lid} values; the inflectional component determines what
+%phonology words with such \textsc{lid} values should have in different
+%morphosyntactic contexts.
+
+\section{Lexemes and flexemes}
+\label{sec:3}
+
+\is{flexeme|(}
+
+In this section we build on the general architecture just presented and argue that a distinction between two notions of lexical identity needs to be made.
+
+\subsection{Introducing the flexeme}
+
+Up to now, we have assumed a simple relationship between lexemes and
+inflectional paradigms: the value of the same feature \textsc{lid} is
+used for purposes of lexeme selection and for purposes of
+individuating inflectional paradigms. In doing so we have been
+following standard practice in realisational morphology, where
+paradigm functions take `lexemes'
+\citep{Stump01,Stump16} or equivalently a `lexemic index'
+\citep{Spencer13} as an argument.
+
+In an important but rarely cited paper, \citet{Fradin03b} note that
+matters are not so simple, for reasons having to do with lexical
+ambiguity and the division of labour between inflection and lexeme
+formation.\footnote{We purposefully use the general term `lexical
+  ambiguity' because whether the relevant examples are instances of
+  polysemy or homonymy does not affect the argument.} Rules of
+inflection are not generally
+% there's e.g. hanged and hung
+concerned with matters of lexical ambiguity: from the point of view of
+inflection, the  two French verbs \textsc{devoir$_1$} `must' and
+\textsc{devoir$_2$} `owe' are indistiguishable, as they have the same
+(highly irregular) inflectional paradigm. From the point of view of
+derivation, however, things are different. Derived lexemes normally
+relate to one sense of their base: for instance, while the French noun
+\textsc{fille} is ambiguous between two readings \textsc{fille$_1$}
+`girl' and \textsc{fille$_2$} `daughter', the diminutive
+\textsc{fillette} `small girl' only relates to the
+first.\footnote{This very short summary does not do justice to
+  Fradin and Kerleroux's insights, which build on an examination of
+  the compatibility of various lexeme formation rules in French
+  \citep{Fradin03b} with various families of meanings. See also
+  \citet{Fradin09} for more discussion.}  \citet{Fradin03b} argue that
+this warrants a distinction between two kinds of abstract lexical
+objects: \emph{lexemes} and \emph{flexemes}. Inflection is about
+flexemes, while derivation is about lexemes. Because of the pervasive nature
+of lexical ambiguity, a single flexeme often corresponds to multiple
+  lexemes.
+
+In the remainder we follow \citet{Walther13} in assuming that inflection is strictly concerned with flexemes, and propose an implementation of the  lexeme-flexeme distinction in IbM.
+
+\subsection{\textsc{lid} and \textsc{pid}}
+
+Within an HPSG view of the world, it is tempting to capture the
+relationship between lexemes and flexemes in terms of
+\isi{underspecification} in an inheritance hierarchy\is{type hierarchy}: flexemes would then be
+abstract groupings of lexemes. Suppose for concreteness a hierarchical
+organisation of \textsc{lid} values such as that indicated in
+Figure~\ref{fig:BonamiCrysmann:devoir}. Rules of inflection can then be stated in
+terms of the supertype \emph{fille}, while lexemes are properly
+individuated in terms of the subtypes; and hence \textsc{fillette} can
+be uniquely related to the lexeme whose \textsc{lid} value is
+\emph{fille$_1$}.
+
+\begin{figure}[htb]
+\centering
+\smaller
+\itshape
+\begin{tree}
+\psset{linewidth=.6pt,linestyle=dashed,levelsep=8ex,treesep=6em}
+\br{\itshape lid}{
+\br{\begin{avm}\[\asort{fille-lid} stems &  \q\<\normalfont/fij/\q\>\]\end{avm}}{\psset{linestyle=solid}\lf{fille-1-lid}\lf{fille-2-lid}}}
+\end{tree}
+\caption{\normalfont\label{fig:BonamiCrysmann:devoir} A first pass at flexemes in HPSG: flexemes as underspecified \textsc{lid} values}
+\end{figure}
+
+
+While this is technically feasible, such an approach only obscures the
+orthogonal roles played by the two notions. As illustrated above, IbM
+\textsc{lid} values are structured objects, which encompass all
+lexically-specified information relevant to inflection, including most
+notably stem alternants and inflection class. Such information is
+clearly irrelevant to syntax, although it is an indispensable
+component of inflection.  On the other hand, studies that use
+\textsc{lid} for purposes of syntactic selection presuppose a tight
+correspondence between \textsc{lid} values and lexical semantic
+identity, and have no use for purely morphological information on stem
+alternants or inflection classes. In particular, \citealt{Sag12}
+argues that \textsc{lid} values are to be identified with the main semantic
+predicate associated with a lexeme. One clear advantage of this
+convention is avoidance of redundancy in lexical entries: it is not
+necessary to postulate a new symbol as the \textsc{lid} value of each
+lexeme, since such a symbol is already present in the lexical entry as
+the constant designating the lexeme's main semantic predicate.
+
+
+We now propose to clarify the situation by adopting Sag's view of
+\textsc{lid}. This entails that, for purposes of inflection, a
+separate index must be posited that individuates words according to
+which flexeme they instantiate. We call this index \textsc{pid}, standing
+for `paradigm identifier'. While \textsc{lid} resides in \textsc{head}
+and is thus available for selection in idioms, complex predicate
+constructions, or periphrastic constructions, \textsc{pid} is a top-level
+feature carried by signs of type \textit{lexeme} only. As such it can be specified by lexical entries or manipulated by lexeme formation rules. In addition, it is universally constrained to be present among the features realised by inflection through inclusion in \textsc{ms}, as indicated in~(\ref{ex:BonamiCrysmann:pid}). This is crucial to ensuring that inflection is always concerned with the realisation of lexical identity.
+
+\begin{exe}
+\ex\label{ex:BonamiCrysmann:pid}\small
+\textit{word} $\rightarrow$
+\begin{avm}
+\[  ms & \{\,\@1, \ldots\,\}\\
+	m-dtrs & \< \[ \asort{lexeme}
+                   pid & \@1
+                \] \>
+\]
+\end{avm}
+\end{exe}
+
+In this architecture then, lexical entries need to specify both an \textsc{lid} and a \textsc{pid} value. To elaborate on the same example, an appropriate analysis of
+\textsc{fille} would posit two lexical entries sharing the same
+\textsc{pid} object while having different \textsc{lid} values, as
+indicated in Figure~\ref{fig:BonamiCrysmann:fille:two}.
+
+\begin{figure}[htb]
+\centering\smaller
+
+\begin{avm}
+\[ \asort{lexeme} ss & \[cat|hd|lid & \@1 girl-rel\\
+                       sem|restr & \{\,\@1\,\}
+                     \]\\
+   pid &  fille-pid%\[\asort{pid} stems & \<\normalfont /fij/\>\]
+\]
+~~~~~
+\[ \asort{lexeme} ss & \[cat|hd|lid & \@1 daughter-rel\\
+                       sem|restr & \{\,\@1\,\}
+                     \]\\
+   pid & fille-pid%\[\asort{pid} stems & \<\normalfont /fij/\>\]
+\]
+\end{avm}
+\caption{Proposed lexical entries for the two lexemes
+  \textsc{fille}.\label{fig:BonamiCrysmann:fille:two}}
+\end{figure}
+
+Under this analysis, the two lexemes \textsc{fille} are related by
+virtue of having indistinguishable \textsc{pid}s, but they are still distinguishable in terms of \textsc{lid}. Hence, as indicated in the lexical entry in
+Figure~\ref{fig:BonamiCrysmann:fillette}, the derived noun \textsc{fillette} adds diminutive semantics (\emph{dim-rel}) to the semantics of its base which is constrained to be that lexeme with \textsc{lid} \emph{girl-rel}, i.e., the left-hand lexeme in Figure~\ref{fig:BonamiCrysmann:fille:two}. This captures the notion of formal lexical identity at the level of \textsc{pid} while implementing Fradin and
+Kerleroux's insight that derivational morphology operates on fully
+specific rather than underspecified lexemes.
+
+\begin{figure}[htb]
+\centering\smaller
+\begin{avm}
+\[ \asort{lexeme} ss & \[cat|hd|lid & \@1 \[\asort{dim-rel} inst & \@{x}\]\\
+                       sem|restr & \{\,\@1, \@2\,\}
+                     \]\\
+   pid & fillette-pid\\%\[\asort{pid} stems & \<\normalfont/fijɛt/\>\]\\
+   m-dtrs & \<\[ \asort{lexeme}
+                 ss & \[cat|hd|lid & \@2 \[\asort{girl-rel} inst & \@{x}\]\\
+                        sem|restr & \{\,\@2\,\}
+                      \]\\
+                 pid & fille-pid\\%\[\asort{pid} stems & \<\normalfont/fij/\>\]
+              \]\>
+\]
+\end{avm}
+\caption{Proposed lexical entry for the lexeme \textsc{fillette}
+  `small girl'.\label{fig:BonamiCrysmann:fillette}}
+\end{figure}
+
+
+\subsection{Individuating flexemes: stem spaces}
+\is{stem!stem space|(}
+\il{French|(}
+
+We now turn to the nature of \textit{pid} objects. Evidently, there
+should be enough distinct \textsc{pid} values to be able to distinguish
+each flexeme from one another; that is necessary and sufficient to
+capture the notion of a flexeme.  In the context of a typed-feature
+structure ontology, however, it is very natural to use \textsc{pid} to
+capture all aspects of inflectional identity. We thus take
+\textsc{pid}s to be structured objects providing enough phonological
+and inflectional information to deduce a whole paradigm with minimal
+redundancy: Hence, at the very least, for the simplest inflectional
+systems, a basic stem. For systems of any complexity, this basic
+information needs to be supplemented with inflection class information
+(if there is more than one inflectional strategy) and information on
+stem alternants (if there are unpredictable stem alternations).
+
+We illustrate a simple approach to the encoding of stem alternations
+by adapting the HPSG analysis of French conjugation presented in
+\citet{Bonami06}. French verbs exhibit pervasive stem alternations,
+illustrated in Table~\ref{tab:BonamiCrysmann:fr-vs} in the indicative present
+subparadigms. Regular verbs from the first conjugation use a uniform
+stem in the present, and regular verbs from the second conjugation use
+an augmented stem in /-s/ in the plural. In addition to these two
+patterns, however, there are hundreds of irregular verbs instantiating
+others, which can be grouped into three types: either there is one stem
+for the singular and one for the plural, or the same stem is used for
+the singular and for the third plural, or three different stems are
+used following the pattern illustrated by
+\textsc{boire}.\footnote{\citet{Bonami06} deliberately set apart a
+  handful of highly irregular and very frequent verbs instantiating an
+  unpredictable form in the \textsc{1sg}, \textsc{1pl} or
+  \textsc{2pl}.}
+
+
+\begin{table}[htb]
+\fittable{
+\begin{tabular}{llllllll}
+\lsptoprule
+& \scshape 1sg & \scshape 2sg & \scshape 3sg & \scshape 1pl & \scshape 2pl & \scshape 3pl\\
+\midrule
+\textsc{laver} `wash' & lav & lav & lav & lav-ɔ̃ & lav-e & lav & (1st conjugation)\\
+\textsc{finir} `finish' & fini & fini & fini & finis-ɔ̃ & finis-e & finis & (2nd conjugation)\\
+\midrule
+\textsc{envoyer} `send' & ɑ̃vwa & ɑ̃vwa & ɑ̃vwa & ɑ̃vwaj-ɔ̃ & ɑ̃vwaj-e & ɑ̃vwa\\
+\textsc{joindre} `join' & ʒwɛ̃ & ʒwɛ̃ & ʒwɛ̃ & ʒwaɲ-ɔ̃ & ʒwaɲ-e  & ʒwaɲ & (other patterns)\\
+\textsc{boire} `drink' & bwa & bwa & bwa & byv-ɔ̃ & byv-e & bwav\\
+\lspbottomrule
+\end{tabular}
+}
+\caption{Sample French present indicative paradigms illustrating recurrent stem alternation patterns\label{tab:BonamiCrysmann:fr-vs}}
+\end{table}
+
+Given the pervasive nature of these alternations and the general
+unpredictability of the shapes of the alternants, \citet{Bonami03a}
+build on previous work by
+\citet{Aronoff94,Brown98,Hippisley98}, and \citet{Stump01}, and posit that each lexeme
+is associated with a \textsc{stem space}, a vector of phonological
+shapes indicating the shape of the stem used in some zone of the
+paradigm. Limiting attention again to the stems found in the indicative
+present, the stem space of the verbs under consideration is indicated
+in Table~\ref{tab:BonamiCrysmann:ss}: Stem 1 the default stem, Stem 2 is used in the
+\textsc{3pl}, and Stem 3 is used in the singular.
+
+\begin{table}[htb]
+
+\begin{tabular}{lllllll}
+\lsptoprule
+& Stem 1 & Stem 2 & Stem 3\\
+\midrule
+\textsc{laver} `wash' & lav & lav & lav\\
+\textsc{finir} `finish' & finis & finis & fini\\
+\midrule
+\textsc{envoyer} `send' & ɑ̃vwaj & ɑ̃vwa & ɑ̃vwa\\
+\textsc{joindre} `join' & ʒwaɲ & ʒwaɲ& ʒwɛ̃\\
+\textsc{boire} `drink' & byv & bwav & bwa\\
+\lspbottomrule
+\end{tabular}
+\caption{Stem spaces for a sample of French verbs in the present indicative\label{tab:BonamiCrysmann:ss}}
+\end{table}
+
+\newpage 
+In the context of an Item-and-Process view of inflection,
+\citet{Bonami06} propose to encode stem spaces as the value of a
+feature carried by lexemes, and posit a hierarchy\is{type hierarchy} of stem space types
+capturing different patterns of identity among coordinates in the stem
+space. This analysis can be readily adapted to the current framework by
+assuming that stem spaces are represented inside \textit{pid} objects
+using a list-valued feature \textsc{stems}. Let us first consider the
+lexical entry of \textsc{boire} `drink'. This needs to list three
+unpredictable stems, as indicated in Figure~\ref{fig:BonamiCrysmann:boire}.
+
+\begin{figure}[htb]
+\centering\smaller
+\begin{avm}
+\[\asort{lexeme}
+\avmspan{ss|cat|hd\;\[\asort{verb} lid & drink-rel\]}\\
+  pid & \[\asort{boire-pid} stems & \<\normalfont/byv/,/bwav/,/bwa/\>\]
+\]
+\end{avm}
+\caption{Lexical entry for \textsc{boire} `drink'\label{fig:BonamiCrysmann:boire}}
+\end{figure}
+
+The grammar then needs to specify in which context each element in
+\textsc{stems} is to be used. Following insights from
+\citet[chap.~6]{Stump01}, we assume that this is effected by
+\textsc{stem selection rules}, a special kind of realisation rule that
+selects a stem alternant for insertion. The relevant rules are
+presented in Figure~\ref{fig:BonamiCrysmann:ssr}.\footnote{We use the em dash (`—')
+  to denote an unconstrained string of segments. `—' in a
+  \textsc{stems} value thus indicates that the shape of that stem is
+  not constrained by the rule, type, or lexical entry under
+  consideration.}
+
+
+\begin{figure}[htb]
+\smaller\centering
+\begin{avm}
+\[	mph & \{\,\[ph & \@1\\ pc & 0\]\,\}\\
+    mud & \{\,\[\asort{pid} stems & \<\@1,\ldots\>\]\,\}
+\]~~~~%
+\[	mph & \{\,\[ph & \@1\\ pc & 0\]\,\}\\
+    mud & \{\,\[\asort{pid} stems & \<—,\@1,—\>\]\,\}\\
+    ms & \{\,\[per & 3\\ num & pl\],\ldots\,\}
+\]~~~~%
+\[	mph & \{\,\[ph & \@1\\ pc & 0\]\,\}\\
+    mud & \{\,\[\asort{pid} stems & \<—,—,\@1\>\]\,\}\\
+    ms & \{\,\[num & sg\],\ldots\,\}
+\]
+\end{avm}
+\caption{Stem selection rules for French  present indicative\label{fig:BonamiCrysmann:ssr}}
+\end{figure}
+
+The first rule states that, by default, lexical identity
+(i.e.~\textsc{pid}) is realised by inserting the first element on the
+\textsc{stems} list as a morph in position 0.\footnote{This rule can
+  be thought of as capturing an inflectional universal, as it simply
+  states that some stem must be provided for every word. In systems
+  without unpredictable stem allomorphy, this will be the sole element
+  on the \textsc{stems} list. In systems with stem allomorphy, by
+  convention, we place the default stem alternant first.} The two
+other rules add some allomorphic conditioning: the second element is
+only used if the morphosyntactic context is that of a \textsc{3pl}
+subject, while the third is used when it is that of a \textsc{sg}
+subject.
+
+\largerpage
+Note that the stem selection rules are in no way sensitive to
+inflection class. This is in keeping with Bonami and Boyé's (\citeyear{Bonami2003,
+Bonami06}) analysis, which starts from the assumption that all variation in
+French conjugation originates in differential distributions of
+alternants in the stem space. That being said, it is useful to
+characterise classes of flexemes in terms of the patterns of identity
+they instantiate. In the present context, such a classification can be
+stated in the form of a type hierarchy of  \textit{pid} objects, as
+indicated in Figure~\ref{fig:BonamiCrysmann:hier:fr}.
+
+
+\begin{figure}[htb]
+\centering\smaller
+\avmoptions{top}
+\begin{avmtree}
+\itshape
+\psset{linewidth=.6pt}
+\br{\upshape\itshape pid}{
+\br{\rnode{y}{\[\asort{AAx-pid} stems & \<\@1,\@1,—\>\]}}{\lf{AAB-pid}
+\lf{\begin{avm}\[\asort{reg-II-pid} stems & \<\normalfont\@1+/is/,\@1+/is/,\@1+/i/\>\]\end{avm}}}
+\lf{full-irreg-pid}
+\br{\[\asort{xBB-pid} stems & \<—,\@2,\@2\>\]}{\lf{\rnode{x}{reg-I-pid}}
+	\lf{ABB-pid}
+	}
+}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{y}{x}
+\end{avmtree}
+\caption{Hierarchy of \emph{pid} subtypes capturing aspects of the French verbal stem space\label{fig:BonamiCrysmann:hier:fr}}
+\end{figure}
+
+
+
+The hierarchy\is{type hierarchy} of \textit{pid} objects highlights the structure of the
+system, and allows the grammar writer to minimise redundancy in the
+stamement of lexical entries. In particular, all regular verbs can be
+described with mention of the first stem only, while different types
+of irregulars necessitate information on two or more stems in
+different coordinates of the stem space. More sample lexical entries
+are provided in Figure~\ref{fig:BonamiCrysmann:more:le} for illustration. Note that
+the lexical entry for \textsc{boire} of Figure~\ref{fig:BonamiCrysmann:boire} does
+not need to mention  a subtype of \emph{pid} explicitly, since
+\emph{full-irreg-pid} is the only subtype compatible with the listing
+of three distinct stems.
+
+\begin{figure}[htb]
+\centering\smaller
+\begin{tabular}{cc}
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & wash-rel\]}\\
+  pid & \[\asort{reg-I-pid} stems & \<\normalfont/lav/,–,–\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & finish-rel\]}\\
+  pid & \[\asort{reg-II-pid} stems & \<\normalfont/finis/,–,–\>\]
+\]
+\end{avm}
+\\ \\
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & send-rel\]}\\
+  pid & \[\asort{ABB-pid} stems & \<\normalfont/ɑ̃vwaj/,/ɑ̃vwa/,–\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & join-rel\]}\\
+  pid & \[\asort{AAB-pid} stems & \<\normalfont/ʒwaɲ/,–,/ʒwɛ̃/\>\]
+\]
+\end{avm}
+\end{tabular}
+\caption{Lexical entries for  a sample of French verbs\label{fig:BonamiCrysmann:more:le}}
+\end{figure}
+
+\largerpage 
+Finally, the distinction between \textsc{pid} types and stem inventories provides a simple account of situations where two verbs belonging to different stem alternation types have the same basic stem, as is the case e.g. with \textsc{tapir} `hide' and \textsc{tapisser} `paper', wich have both have a basic stem /tapis/, witness the ambiguous \textsc{prs.1pl} /tapisɔ̃/ `we hide'/`we paper'. Figure~\ref{fig:BonamiCrysmann:tapis} shows the relevant lexical entries.
+\newpage 
+
+\begin{figure}[t]
+\centering\smaller
+\begin{tabular}{cc}
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & paper-rel\]}\\
+  pid & \[\asort{reg-I-pid} stems & \<\normalfont/tapis/,–,–\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme}\avmspan{ss|cat|hd\;\[\asort{verb} lid & hide-rel\]}\\
+  pid & \[\asort{reg-II-pid} stems & \<\normalfont/tapis/,–,–\>\]
+\]
+\end{avm}
+\end{tabular}
+\caption{Lexical entries for two French verbs with homophonous basic stems\label{fig:BonamiCrysmann:tapis}}
+\end{figure}
+
+
+  
+To sum up then, \textsc{pid} provides a natural locus for the
+representation of lexical information on stem alternations, and allows
+for a natural encoding of Bonami and Boyé's notion of a stem space. In
+addition, in a system where (by hypothesis) all variation in
+inflection is located in the stems, the indication of a specific
+vector of stem alternants is sufficient to fully individuate
+flexemes. In such a system, the hierarchy of \textit{pid} values is
+merely used to limit the statement of redundant information in lexical
+entries.
+\is{stem!stem space|)}
+\il{French|)}
+
+\subsection{Individuating flexemes: affixal inflection classes}
+\label{sec:3:4}
+\is{inflection!inflection class|(}
+\il{Czech|(}
+
+We now turn to the role of \textsc{pid}  in a system with
+nontrivial affixal inflection classes. As an illustration, let us
+examine a subset of the Czech nominal declension
+system. Table~\ref{tab:BonamiCrysmann:CzechNoun} provides partial paradigms for four
+nouns belonging to four of the major inflection classes of masculine
+inanimate and neuter nouns.
+
+
+\begin{table}[htb]
+\centering\smaller
+%\begin{tabular}{ll|ll|ll|ll}
+%\lsptoprule
+%& & \multicolumn{2}{c}{\sc masculine} & \multicolumn{2}{c}{\sc feminine} & \multicolumn{2}{c}{\sc neuter}\\
+%& & hard &  soft & hard &  soft & hard &  soft\\
+%\midrule
+%\multirow{4}{*}{\sc sg} & \sc nom & most & pokoj & žen-a & růž-e &  měst-o & moř-e\\
+%& \sc gen & most-u &  pokoj-e & žen-y & růž-e	& měst-a &  moř-e\\
+%& \sc dat & most-u &  pokoj-i & žen-ě & růž-i & měst-u &  moř-i\\
+%& \sc acc & most &  pokoj & žen-u & růž-i & měst-o &  moř-e\\
+%\midrule
+%\multirow{4}{*}{\sc pl} & \sc nom & most-y &  pokoj-e & žen-y & růž-e &  měst-a &  moř-e\\
+%& \sc gen & most-ů  & pokoj-ů & žen & růž-í& měst & moř-í\\
+%& \sc dat & most-ům &  pokoj-ům & žen-ám & růž-ím & měst-ům &  moř-ím\\
+%& \sc acc & most-y &  pokoj-e & žen-y & růž-e & měst-a &  moř-e\\
+%\midrule
+%& & `bridge' &  `room' & `woman' & `rose' & `town' &  `sea'\\
+%\lspbottomrule
+%\end{tabular}
+\begin{tabular}{ll|ll|ll}
+\lsptoprule
+& & \multicolumn{2}{c}{\scshape masculine} &  \multicolumn{2}{c}{\scshape neuter}\\
+& & hard &   soft & hard &  soft\\
+\midrule
+\multirow{4}{*}{\scshape sg} & \scshape nom & most & pokoj  &  měst-o & moř-e\\
+& \scshape gen & most-u &  pokoj-e &  měst-a &  moř-e\\
+& \scshape dat & most-u &  pokoj-i & měst-u &  moř-i\\
+& \scshape acc & most &  pokoj &  měst-o &  moř-e\\
+& \scshape voc & most-e & pokoj-i & měst-o & moř-e\\
+& \scshape loc & most-ě & pokoj-i & měst-ě & moř-i\\
+& \scshape ins & most-em & pokoj-em & měst-em & moř-em\\
+\midrule
+\multirow{4}{*}{\scshape pl} & \scshape nom & most-y &  pokoj-e &   měst-a &  moř-e\\
+& \scshape gen & most-ů  & pokoj-ů & měst & moř-í\\
+& \scshape dat & most-ům &  pokoj-ům &  měst-ům &  moř-ím\\
+& \scshape acc & most-y &  pokoj-e &  měst-a &  moř-e\\
+& \scshape voc & most-y & pokoj-e & měst-a & moř-e\\
+& \scshape loc & most-ech & pokoj-ích & měst-ech &moř-ích\\
+& \scshape ins & most-y & pokoji & měst-y & moř-i\\
+\midrule
+& & `bridge' &  `room' &  `town' &  `sea'\\
+\lspbottomrule
+\end{tabular}
+\caption{Partial declension for the four inflection classes of Czech inanimate nouns}
+\label{tab:BonamiCrysmann:CzechNoun}
+\end{table}
+
+The distinction between hard and soft declension is correlated with
+the phonological properties of the stem-final consonant; however, it is
+not in general possible to categorically predict whether a noun will
+belong to a hard or soft declension on the basis of the phonological
+shape of its stem.  Groups of declensions do share characteristics of exponence; in particular, it is evident from the table that some
+exponent strategies are common to the soft declensions (e.g. \emph{-e}
+marking the \textsc{gen.sg}), to the masculine declensions
+(e.g. \emph{-ů} in the \textsc{gen.pl}), or to larger groups of
+declensions (e.g. \emph{-ům} is used in the \textsc{dat.pl} accross
+the declensions shown here, except in the soft neuter). These observations
+motivate arranging flexemes in a hierarchy\is{type hierarchy} of classes, so that the
+application of rules of exponence can be restricted to arbitrary
+collections of declension classes. We thus propose a simpler hierarchy\is{type hierarchy}
+of \textit{pid} objects reflecting the distinction between hard and
+soft declensions, as indicated in Figure~\ref{fig:BonamiCrysmann:cz:hier}.
+
+\begin{figure}[htb]
+\centering\smaller
+\avmoptions{top}
+\begin{tree}
+\itshape
+\psset{linewidth=.6pt,arm=0pt,nodesep=1pt,angleA=-90,angleB=90,treesep=5em}
+\br{pid}{
+	\lf{\rnode{h}{hard-pid}}
+	\lf{\rnode{s}{soft-pid}}
+}
+\end{tree}
+\caption{Premiminary hierarchy of \emph{pid} subtypes for Czech declension\label{fig:BonamiCrysmann:cz:hier}}
+\end{figure}
+
+In addition, we propose that, since gender is inherent for nouns (in
+contrast to agreement gender) yet still conditions inflectional
+realisation, it should be represented as part of \textsc{pid}. Hence
+the lexical entries of the 4 nouns under consideration are as
+indicated in Figure~\ref{fig:BonamiCrysmann:cz:le}. Note that traditional declensions
+correspond to a combination of a \textit{pid} subtype and a gender
+value.\footnote{This bidimensional representation of declension
+  classes is possible because gender is a strict predictor of
+  inflection class in Czech: all members of each declension class
+  belong to the same gender. Some declension classes corresponding to
+  different genders are very similar, but always differ in at least
+  one paradigm cell: e.g. masculine \textsc{táta} `dad' inflects like a
+  feminine hard noun in only about half of its paradigm cells. Also
+  note that a full description of the system would require more
+  subtypes of \emph{pid}, as there are more than two classes per
+  gender, and hence organizing the \emph{pid} hierarchy\is{type hierarchy} as a dense
+  semi-lattice of inflection class groupings \citep{Beniamine16}.}
+
+
+\begin{figure}[htb]
+\centering\smaller
+\begin{tabular}{cc}
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & bridge-rel\]}\\
+  pid & \[\asort{hard-pid} gen & mas\\ stems & \<\normalfont/most/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & room-rel\]}\\
+  pid & \[\asort{soft-pid} gen &mas\\ stems & \<\normalfont/pokoj/\>\]
+\]
+\end{avm}
+\\ \\
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & town-rel\]}\\
+  pid & \[\asort{hard-pid} gen &neu\\ stems & \<\normalfont/měst/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & sea-rel\]}\\
+  pid & \[\asort{soft-pid} gen &neu\\ stems & \<\normalfont/moř/\>\]
+\]
+\end{avm}
+\end{tabular}
+\caption{Preliminary lexical  entries for  a sample of Czech nouns\label{fig:BonamiCrysmann:cz:le}}
+\end{figure}
+
+
+
+
+
+
+
+
+
+\newpage
+To see how this hierarchy\is{type hierarchy} helps in capturing the distribution of
+exponents in Czech, consider the partial hierarchy\is{type hierarchy} of rules of exponence for the
+expression of \textsc{gen.sg} in Figure~\ref{fig:BonamiCrysmann:cz:re}.  The three
+rules have the same general structure: they associate a specific
+phonological shape with the expression (through the \textsc{mud}
+value) of the \textsc{gen.sg}, but place a condition on that
+expression by restricting the \textsc{ms} value to contain specific
+information in its \textit{pid} value. That is, they limit the use of
+an exponent to flexemes belonging to a particular inflection class or
+group of inflection classes. The first two rules express the
+conditioning in terms of both a type in the \textit{pid} hierarchy\is{type hierarchy}
+ and a gender value.  The third one, however, does not mention
+gender, and hence can apply both in the case of masculine and neuter
+soft nouns.
+
+
+\begin{figure}[t]
+\centering\smaller
+\avmoptions{top}
+\begin{avmtree}
+\itshape
+\psset{linewidth=.6pt,arm=0pt,nodesep=1pt,angleA=-90,angleB=90,treesep=3em,levelsep=12ex}
+\br{\upshape\itshape rln-rule}{\psset{levelsep=22ex}
+	\br{\[	\asort{gs-rule}
+			mph & \{\,\[pc & 2\]\,\}\\
+            mud & \{\,\[case & gen\\ num & sg\]\,\}
+        \]
+        }{
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/u/\>\]\,\}\\
+    			ms & \{\,\[\asort{hard-pid} gen & mas\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/a/\>\]\,\}\\
+    			ms & \{\,\[\asort{hard-pid} gen & neu\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/e/\>\]\,\}\\
+    			ms & \{\,\upshape\itshape soft-pid, \ldots\,\}
+			\]\end{avm}}
+		}
+	}
+\end{avmtree}
+\caption{Preliminary realisation rules for Czech \textsc{gen.sg}\label{fig:BonamiCrysmann:cz:re}}
+\end{figure}
+
+
+This simple example illustrates how the typed feature structure
+architecture allows for a straightforward statement of generalisations
+on exponence across declension types by locating inherent
+inflectional information in \textsc{pid} values and conditioning the
+application of rules of exponence to families of possible \textsc{pid}
+values.
+%\textcolor{red}{In addition, this architecture provides a natural way of
+%accounting for situations where two flexemes share the same stem
+%inventory but have distinct paradigms. As a case in point, the two masculine Czech nouns \textsc{u\v{r}ad} `administration' and \textsc{u\v{r}ada} `administrator' have the same stem \emph{u\v{r}ad-} but belong to distinct inflection classes, specifically two subtypes of the hard masculine declension. This can be captured by assigning \textsc{u\v{r}ad} the same \textsc{pid} type as \textsc{most} `bridge' and \textsc{u\v{r}ada} the same \textsc{pid} type as \textsc{táta} `daddy'. More generally, any difference in inflection
+%that is not reducible to the shape of a stem or a vector of stem
+%alternants can be captured by making some distinction on the type of
+%\textsc{pid}.}
+
+We conclude this section by noting that the use of stem spaces,
+inherent features such as gender, and type of \textsc{pid} does not
+necessarily exhaust the inventory of relevant information that should
+be coded inside \textsc{pid} for the languages of the world.  For
+instance, \citet{Bonami11e} proposed that lexical information on
+thematic suffixes in the conjugation of the Kartvelian language Laz
+should be stored as the value of a dedicated feature inside the
+\textsc{pid}, since information on the shape of the thematic affix
+needs to be lexically stipulated but the affix is neither always
+present nor always contiguous to the root; and \citet{Crysmann17} propose a concrete implementation of that idea in the context of Estonian declension.
+Our general claim is that
+\textsc{pid} should be the sole locus of lexically stipulated
+information on inflection.
+\is{inflection!inflection class|)}
+\il{French|)}
+
+\section{Flexemes and overabundance}
+\label{sec:4}
+
+\is{overabundance|(}
+\is{heteroclisis|(}
+
+In previous sections we have justified the distinction between lexemes
+and flexemes by arguing that a single flexeme (characterised by a
+single inflectional paradigm) may correspond to multiple lexemes
+(characterised by different lexical semantic and/or syntactic
+properties). In this final section we explore situations where one may
+want to argue the opposite: multiple flexemes corresponding to a
+single lexeme.
+
+Although we have not made use of it yet, the analytic scheme defined
+in the previous section certainly leaves room for such a
+possibility. Both for French verbs and Czech nouns, we have proposed
+that \textit{pid} objects be organised in a hierarchy\is{type hierarchy}, capturing
+families of inflectional behavior. The lexical entries used thus far
+all introduce a \textsc{pid} value corresponding to a specific leaf
+type in the hierarchy: hence one flexeme for each lexeme. However, if
+some lexical entries were to refer to some \textit{pid} supertype,
+this would authorise multiple inflectional behaviours for the same
+lexeme~--~hence, in a sense, multiple flexemes for one lexeme.
+
+As a matter of fact, both French conjugation and Czech declension
+provide examples of phenomena that are insightfully analysed in this
+fashion. The phenomena at hand fall under the general heading of
+\textsc{overabundance} \citep{Thornton11,Thornton12,Thornton17}, that
+is, of situations where a single lexeme has multiple realisations for
+the same set of morphosyntactic properties.
+
+
+\is{stem!stem space|(}
+First consider the French verb \textsc{asseoir}. There is considerable
+variation in the realisation of different paradigm cells of this verb,
+leading to free variation at least for some paradigm cells in some
+varieties \citep{Bonami10}. Limiting ourselves again to the indicative
+present, there seem to be two equally felicitous forms for each
+person-number combination in Standard French, as indicated in
+Table~\ref{tab:BonamiCrysmann:asseoir}.
+
+\begin{table}[htb]
+
+\begin{tabular}{lllllll}
+\lsptoprule
+\scshape 1sg & \scshape 2sg & \scshape 3sg & \scshape 1pl & \scshape 2pl & \scshape 3pl\\
+\midrule
+aswa & aswa & aswa & aswaj-ɔ̃ & aswaj-e & aswa\\
+asje & asje & asje & asɛj-ɔ̃ & asɛj-e & asɛj\\
+\lspbottomrule
+\end{tabular}
+\caption{The two main indicative present subparadigm of \textsc{asseoir} `sit'\label{tab:BonamiCrysmann:asseoir}}
+\end{table}
+
+Although this situation could be described in terms of overabundance
+in individual paradigm cells, such an approach would not capture the
+fact that the forms seem to be organised in two distinct paradigms,
+each with two stem alternants, and each instantiating a different but
+familiar pattern of stem allomorphy: the /aswa/~/aswaj/ contrast
+follows an ABB pattern similar to that of \textsc{envoyer} (see
+Table~\ref{tab:BonamiCrysmann:fr-vs}), while the /asje/~/asɛj/ contrast follows an AAB
+pattern similar to that of \textsc{joindre}. It is thus more
+perspicuous to describe this case of overabundance as involving two
+different stem spaces, and hence two different \textsc{pid} values,
+rather than variation in individual paradigm
+cells. Figure~\ref{fig:BonamiCrysmann:asseoir:LE} shows two appropriate lexical
+entries corresponding to the two paradigms of \textsc{asseoir} that
+readily integrate with the analysis presented in Section~\ref{sec:3} and account
+for overabundance directly.
+
+\begin{figure}[htb]
+\smaller\centering
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{verb} lid & sit-rel\]}\\
+  pid & \[\asort{AAB-pid} stems & \<\normalfont/asej/,—,/asje/\>\]
+\]
+\end{avm}
+~~~
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{verb} lid & sit-rel\]}\\
+  pid & \[\asort{ABB-pid} stems & \<\normalfont/aswaj/,/aswa/,—\>\]
+\]
+\end{avm}
+\caption{Lexical entries for two variants of the verb \textsc{asseoir}
+  `sit'\label{fig:BonamiCrysmann:asseoir:LE}}
+\end{figure}
+
+The French verb \textsc{asseoir} exemplifies a case of stem-based
+overabundance, which is readily accommodated by having two stem spaces
+for a single lexeme.  \is{stem!stem space|)} Let us now turn to Czech and discuss a situation
+of exponent-based overabundance.\il{Czech|(}
+% This
+% contrasts more naturally with stem
+
+\is{inflection!inflection class|(}
+In Section~\ref{sec:3:4} we discussed the fact that the Czech inflection system
+distinguishes `hard' and `soft' declensions. As it happens, some
+lexemes follow a hybrid or `mixed' pattern that does not clearly fall
+into one type or the other, but rather makes use of both hard and soft
+exponents. However, this has different manifestations for neuter and
+masculine inanimate nouns, as evidenced by the examples in
+Table~\ref{tab:BonamiCrysmann:cz:ov}.
+
+
+
+\begin{table}[htb] 
+\setlength{\tabcolsep}{4pt}
+\fittable{
+\begin{tabular}{ll@{\qquad}ll@{$\sim$}ll@{\qquad\qquad}lll}
+\lsptoprule
+& &&  \multicolumn{2}{c}{\scshape masculine} &&& \multicolumn{1}{l}{\scshape neuter}&\\
+& & hard & \multicolumn{2}{c}{mixed} & soft & hard & mixed & soft\\
+\midrule
+\multirow{4}{*}{\scshape sg} & \scshape nom & most & \multicolumn{2}{c}{pramen} & pokoj & měst-o & kuř-e & moř-e\\
+& \scshape gen & most-u & pramen-u&pramen-e & pokoj-e & měst-a & kuř-et-e & moř-e\\
+& \scshape dat & most-u & pramen-u&pramen-i & pokoj-i & měst-u & kuř-et-i & moř-i\\
+& \scshape acc & most & \multicolumn{2}{c}{pramen} & pokoj & měst-o & kuř-e & moř-e\\
+& \scshape voc & most-e & pramen-e & pramen-i & pokoj-i & měst-o & kuř-e & moř-e\\
+& \scshape loc & most-ě & pramen-u & pramen-i & pokoj-i & měst-ě & kuř-et-i & moř-i\\
+& \scshape ins & most-em & \multicolumn{2}{c}{pramen-em} & pokoj-em & měst-em & kuř-et-em & moř-em\\
+\midrule
+\multirow{4}{*}{\scshape pl} & \scshape nom & most-y & \multicolumn{2}{c}{pramen-y} & pokoj-e & měst-a & kuř-at-a & moř-e\\
+& \scshape gen & most-ů & \multicolumn{2}{c}{pramen-ů} & pokoj-ů & měst & kuř-at & moř-í\\
+& \scshape dat & most-ům & \multicolumn{2}{c}{pramen-ům} & pokoj-ům & měst-ům & kuř-at-ům & moř-ím\\
+& \scshape acc & most-y & \multicolumn{2}{c}{pramen-y} & pokoj-e & měst-a & kuř-at-a & moř-e\\
+& \scshape voc & most-y & \multicolumn{2}{c}{pramen-y} & pokoj-e & měst-a & kuř-at-a & moř-e\\
+& \scshape loc & most-ech & \multicolumn{2}{c}{pramen-ech} & pokoj-ích & měst-ech & kuř-at-ech & moř-ích\\
+& \scshape ins & most-y & \multicolumn{2}{c}{pramen-y} & pokoji & měst-y & kuř-at-y & moř-i\\
+\midrule
+& & `bridge' & \multicolumn{2}{c}{`spring'} & `room' & `town' & `chicken' & `sea'\\
+\lspbottomrule
+\end{tabular}
+}
+\caption{Overabundance and Heteroclisis in Czech declension}
+\label{tab:BonamiCrysmann:cz:ov}
+\end{table}
+
+The paradigm of the mixed neuter noun \textsc{kuře} `chicken' exhibits
+\textsc{heteroclisis} \citep{Stump06}: \textsc{kuře} inflects like a
+soft noun in the singular, but like a hard noun in the plural. By
+contrast, the paradigm of the mixed masculine noun \textsc{pramen}
+`spring' exhibits a combination of heteroclisis and partial
+overabundance. In the plural, \textsc{pramen} inflects like a hard
+noun; in the singular, it may inflect either like a hard noun or like
+a soft noun. Correctly capturing the difference between these two
+types of mixed inflectional behaviour is a serious challenge for any
+theory of inflection.
+
+Both behaviours are readily accomodated in the present framework,
+using a more refined hierarchy\is{type hierarchy} of \textsc{pid} values. The crucial
+insight is that overabundance amounts to ambiguity, i.e. disjunctive
+membership of two inflection classes, whereas heteroclisis involves
+simultaneous membership of two classes: while the former is modelled
+straightforwardly by means of \isi{underspecification}, corresponding to the
+\textsc{join} in the semi-lattice of \textit{pid} types, the latter
+can be captured by overspecification, i.e.  the \textsc{meet}, as
+shown by the type hierarchy\is{type hierarchy} in Figure~\ref{fig:BonamiCrysmann:cz:hier:bis}.
+
+
+\begin{figure}[t]
+\centering\smaller
+\itshape
+
+\rnode{s}{pid}
+
+\vspace*{1.5\baselineskip}
+\rnode{nh}{hard-pid}~~~~~~~~~~~
+\rnode{ns}{soft-pid}\ncdiag{n}{ns}
+
+\vspace*{1.5\baselineskip}
+\rnode{a}{\itshape strict-hard-pid}~~~~%
+\rnode{b}{\itshape mixed-pid}~~~~%
+\rnode{c}{\itshape strict-soft-pid}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{nh}\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{ns}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{a}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{c}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{b}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{b}
+\normalfont
+\caption{Improved hierarchy of \emph{pid} subtypes capturing heteroclite Czech declension classes\label{fig:BonamiCrysmann:cz:hier:bis}}
+\end{figure}
+
+
+Figure~\ref{schema} shows schematically to which \textsc{pid} value each
+noun is assigned, and Figure~\ref{schemabis} which \textsc{pid} value
+rules of exponence for the \textsc{gen.sg} (left hand side) and
+\textsc{nom.pl} (right hand side) are restricted to. More detailed
+lexical entries and rules of exponence are presented below in
+Figures~\ref{fig:BonamiCrysmann:cz:LE:bis} and~\ref{fig:BonamiCrysmann:cz:rr:bis}. Any noun can be
+inflected using a realisation rule declared with a compatible
+\textsc{pid} value. That is, any point in the hierarchy\is{type hierarchy} that is
+identical to that of the noun, dominates it, or is dominated by
+it.
+
+\begin{figure}[p]
+\centering\smaller
+\itshape
+\newcommand{\lxnode}[2]{\rnode{#1}{\psframebox[linestyle=dashed,framearc=0.2,dash = 1pt 1pt,linecolor=gray]{\upshape\scshape#2}}}
+
+\begin{tabular}[t]{c}
+~\\
+\\
+\lxnode{pramen}{pramen}
+\\[3ex]
+\lxnode{most}{most}
+\\[3ex]
+\lxnode{mesto}{město}
+\end{tabular}
+\hfill
+\begin{tabular}[t]{@{}c@{}c@{}c@{}c@{}c@{}}
+& & \rnode{s}{pid}\\ \\
+& \rnode{nh}{hard-pid} & & \rnode{ns}{soft-pid}\\ \\
+\rnode{a}{strict-hard-pid} && \rnode{b}{mixed-pid} & & \rnode{c}{strict-soft-pid}\\
+\end{tabular}
+\hfill
+\begin{tabular}[t]{c}
+~\\
+\\
+\lxnode{pokoj}{pokoj}
+\\[3ex]
+\lxnode{more}{moře}
+\\[3ex]
+\lxnode{kure}{kuře}
+\end{tabular}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{nh}\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{ns}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{a}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{c}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{b}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{b}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{pramen}{nh}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{most}{a}
+\nccurve[angleA=-20,angleB=225,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{mesto}{a}
+\nccurve[angleA=-10,angleB=190,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{c}{pokoj}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{c}{more}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{b}{kure}
+
+
+\normalfont
+\caption{Schematic representation of inflection class assignment for Czech nouns\label{schema}}
+\end{figure}
+
+\begin{figure}[p] 
+\centering\smaller
+\itshape
+\newcommand{\lxnode}[2]{\rnode{#1}{\psframebox[linestyle=dashed,framearc=0.2,dash = 1pt 1pt,linecolor=gray]{\upshape\scshape#2}}}
+
+\begin{tabular}[t]{c}
+\lxnode{y}{\textsc{m.nom.pl}~:~\upshape\itshape -y}
+\\[3ex]
+\lxnode{anom}{\textsc{n.nom.pl}~:~\upshape\itshape -a}
+\\[3ex]
+\lxnode{u}{\textsc{m.gen.sg}~:~\upshape\itshape -u}
+\\[3ex]
+\lxnode{agen}{\textsc{n.gen.sg}~:~\upshape\itshape -a}
+\end{tabular}
+\hfill
+\begin{tabular}[t]{@{}c@{}c@{}c@{}c@{}c@{}}
+& & \rnode{s}{pid}\\ \\
+& \rnode{nh}{hard-pid} & & \rnode{ns}{soft-pid}\\ \\
+\rnode{a}{strict-hard-pid} && \rnode{b}{mixed-pid} & & \rnode{c}{strict-soft-pid}\\
+\end{tabular}
+\hfill
+\begin{tabular}[t]{c}
+~\\ \\
+\lxnode{egen}{\textsc{gen.sg}~:~\upshape\itshape -e}
+\\[3ex]
+\lxnode{enom}{\textsc{nom.pl}~:~\upshape\itshape -e}
+\end{tabular}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{nh}\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{ns}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{a}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{c}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{b}
+\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{b}
+\nccurve[angleA=0,angleB=150,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{y}{nh}
+\nccurve[angleA=0,angleB=180,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{anom}{nh}
+\nccurve[angleA=0,angleB=190,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{u}{nh}
+\nccurve[angleA=0,angleB=210,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{agen}{a}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{ns}{egen}
+\nccurve[angleA=-20,angleB=200,arrows=<->,linecolor=gray,linestyle=dashed,dash = 2pt 1pt]{c}{enom}
+
+%\hfill\smaller
+%\newcommand{\stack}[1]{\begin{tabular}[t]{@{}c@{}}#1\end{tabular}}
+%
+%\begin{minipage}{.3\textwidth}
+%\centering
+%\rnode{xs}{\itshape pid}
+%
+%\vspace*{1.5\baselineskip}
+%\rnode{xnh}{\stack{\itshape hard-pid\\\textsc{m.gen.sg}~:~\itshape -u}}~~~~~~~~~~~
+%\rnode{xns}{\stack{\itshape soft-pid\\\textsc{gen.sg}~:~\itshape -e}}\ncdiag{n}{ns}
+%
+%\vspace*{1.5\baselineskip}
+%\rnode{xa}{\stack{\itshape strict-hard-pid\\\textsc{n.gen.sg}~:~\itshape -a}}~~~~%
+%\rnode{xb}{\stack{\itshape mixed-pid}}~~~~%
+%\rnode{xc}{\stack{\itshape strict-soft-pid}}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xs}{xnh}\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xs}{xns}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xnh}{xa}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xns}{xc}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xnh}{xb}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{xns}{xb}
+%\end{minipage}
+%\hfill
+%\begin{minipage}{.4\textwidth}
+%\centering
+%\rnode{s}{\itshape pid}
+%
+%\vspace*{1.5\baselineskip}
+%\rnode{nh}{\stack{\itshape hard-pid\\\textsc{m.nom.pl}~:~\itshape -y\\\textsc{n.nom.pl}~:~\itshape -a}}~~~~~~~~~~~
+%\rnode{ns}{\stack{\itshape soft-pid}}\ncdiag{n}{ns}
+%
+%\vspace*{1.5\baselineskip}
+%\rnode{a}{\stack{\itshape strict-hard-pid}}~~~~\rnode{b}{\stack{\itshape mixed-pid}}~~~~%
+%\rnode{c}{\stack{\itshape strict-soft-pid\\\textsc{nom.pl}~:~\itshape -e}}
+%
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{nh}\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{s}{ns}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{a}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{c}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{nh}{b}
+%\ncdiag[arm=0pt,nodesep=1pt,angleA=-90,angleB=90]{ns}{b}
+%\end{minipage}
+%\hfill
+
+\normalfont
+\caption{Schematic representation of the scope of rules of exponence for Czech nouns\label{schemabis}}
+\end{figure}
+
+
+
+
+\begin{figure}[p]
+\smaller\centering
+\begin{tabular}{ccc}
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & bridge-rel\]}\\
+  pid & \[\asort{strict-hard-pid} gen & mas\\ stems & \<\normalfont/most/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & spring-rel\]}\\
+  pid & \[\asort{hard-pid} gen & mas\\ stems & \<\normalfont/pramen/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & room-rel\]}\\
+  pid & \[\asort{strict-soft-pid} gen & mas\\ stems & \<\normalfont/pokoj/\>\]
+\]
+\end{avm}
+\\ \\
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & city-rel\]}\\
+  pid & \[\asort{strict-hard-pid} gen & neu\\ stems & \<\normalfont/město/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & chicken-rel\]}\\
+  pid & \[\asort{mixed-pid} gen & neu\\ stems & \<\normalfont/kuře/\>\]
+\]
+\end{avm}
+&
+\begin{avm}
+\[\asort{lexeme} \avmspan{ss|cat|hd\;\[\asort{noun} lid & sea-rel\]}\\
+  pid & \[\asort{soft-pid} gen & mas\\ stems & \<\normalfont/moře/\>\]
+\]
+\end{avm}
+\end{tabular}
+
+\caption{Lexical entries for six Czech nouns\label{fig:BonamiCrysmann:cz:LE:bis}}
+\end{figure}
+
+\begin{sidewaysfigure}
+\centering
+\avmoptions{top}
+\resizebox{\textwidth}{!}{
+\begin{avmtree}
+\itshape
+\psset{linewidth=.6pt,arm=0pt,nodesep=1pt,angleA=-90,angleB=90,treesep=1em,levelsep=12ex}
+\br{\upshape\itshape rln-rule}{\psset{levelsep=22ex}
+	\br{\[	\asort{decl-rule}
+			mph & \{\,\[pc & 2\]\,\}\\
+        \]
+        }{
+	\br{\[	\asort{gs-rule}
+            mud & \{\,\[case & gen\\ num & sg\]\,\}
+        \]
+        }{
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/u/\>\]\,\}\\
+    			ms & \{\,\[\asort{hard-pid} gen & mas\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/a/\>\]\,\}\\
+    			ms & \{\,\[\asort{strict-hard-pid} gen & neu\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/e/\>\]\,\}\\
+    			ms & \{\,\upshape\itshape soft-pid, \ldots\,\}
+			\]\end{avm}}
+		}
+	\br{\[	\asort{np-rule}
+            mud & \{\,\[case & nom\\ num & pl\]\,\}
+        \]
+        }{
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/y/\>\]\,\}\\
+    			ms & \{\,\[\asort{hard-pid} gen & mas\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/a/\>\]\,\}\\
+    			ms & \{\,\[\asort{hard-pid} gen & neu\], \ldots\,\}
+			\]\end{avm}}
+		\lf{\begin{avm}
+			\[	mph & \{\,\[ph & \<\normalfont/e/\>\]\,\}\\
+    			ms & \{\,\upshape\itshape strict-soft-pid, \ldots\,\}
+			\]\end{avm}}
+		}
+	}
+	}
+\end{avmtree}}
+\caption{Realisation rules for Czech \textsc{gen.sg} and \textsc{nom.pl}  nouns\label{fig:BonamiCrysmann:cz:rr:bis}}
+\end{sidewaysfigure}
+
+%\begin{avm}
+%\[	mph & \{\[ph & \<\normalfont/y/\>\\ pc & 2\]\}\\
+%    mud & \{\[case & nom\\ num & pl\]\}\\
+%    ms & \{\[\asort{hard-pid} gen & mas\],\ldots\}
+%\]
+%\end{avm}
+%&
+%\begin{avm}
+%\[	mph & \{\[ph & \<\normalfont/e/\>\\ pc & 2\]\}\\
+%    mud & \{\[case & nom\\ num & pl\\\]\}\\
+%    ms & \{\normalfont\itshape{strict-soft-pid},\ldots\}
+%\]
+%\end{avm}
+%&
+%\begin{avm}
+%\[	mph & \{\[ph & \<\normalfont/a/\>\\ pc & 2\]\}\\
+%    mud & \{\[case & nom\\ num & pl\]\}\\
+%    ms & \{\[\asort{hard-pid} gen & neu\],\ldots\}
+%\]
+%\end{avm}
+%\end{tabular}
+%\caption{Realisation rules for Czech \textsc{gen.sg} and \textsc{nom.pl}  nouns\label{fig:BonamiCrysmann:cz:rr:bis}}
+%\end{figure}
+
+As shown in Figure~\ref{schema}, nouns belonging to non-mixed
+declensions are assigned to either of the two simple leaf types
+\emph{strict-hard-pid} (\textsc{most, město}) and
+\emph{strict-soft-pid} (\textsc{pokoj, moře}). The heteroclite noun
+\textsc{kuře} is assigned to \emph{mixed-pid}, and hence may inflect
+using either \emph{hard} or \emph{soft} exponents, but not
+\emph{strict-hard} or \emph{strict-soft} ones. The assignment of
+exponents to \emph{pid} values (shown in Figure~\ref{schemabis})  ensures that it must use soft exponents in the
+  singular, yet hard exponents in the plural. By contrast, the
+overabundant noun \textsc{pramen} is assigned to an underspecified
+inflection class, namely \emph{hard-pid}. As such it may use any
+one of \emph{hard-pid}, \emph{strict-hard-pid},
+\emph{mixed-pid}, or \emph{soft-pid} exponents, but, crucially, not
+\emph{strict-soft} exponents. This accounts pretty concisely
+for its contrasting behaviour in the singular and the plural: since
+the \textsc{gen.sg} exponent \emph{-e} is only \emph{soft-pid}, there
+are two \textsc{gen.sg} exponents available for \textsc{pramen}, which
+is thus overabundant: inflection with \textit{-e} by resolving
+\textit{soft-pid} demanded by the rule and \textit{hard-pid} demanded
+by \textsc{pramen} to the hetoroclite type \textit{mixed-pid}, or else
+with \textit{-u}, by the sheer fact that this is the exponent
+available for all \textit{hard-pid} words, whether strict or
+heteroclite. By contrast, the \textsc{nom.pl} exponent \emph{-e} is
+constrained to \emph{strict-soft}. As such, it is inaccessible to
+\textsc{pramen}, which hence behaves like a simple hard masculine noun
+in the plural.
+
+
+
+We have thus established that mixed overabundant declensions can be
+accommodated by assigning a lexeme to a supertype in the \textit{pid}
+hierarchy\is{type hierarchy}, while mixed heteroclite declensions can be accommodated by
+introducing a subtype intermediate between the hard and soft
+declensions.
+
+\is{inflection!inflection class|)}
+\il{Czech|)}
+
+
+
+ The discussion in this section has exhibited the benefits of
+associating multiple \textit{pid} objects with a single \textsc{lid}
+value to address some situations of overabundance; which amounts to
+positing that a single lexeme may correspond to multiple flexemes.  We
+by no means claim that all overabundance phenomena are best thought of
+in such terms; See Thornton~(this volume) for relevant
+discussion. Rather, we suggest that, where overabundance results from
+a lexeme being ambiguous between two classes of paradigms, lexically
+underspecified \textit{pid}s make good sense of the situation.
+
+\is{overabundance|)}
+\is{heteroclisis|)}
+
+
+\section{Conclusions}
+
+% In this paper we have addressed two issues. The first issue pertains
+% to the architecture of HPSG. We have argued that, while the notion of
+% a lexeme is a valuable analytic tool that can and should be given an
+% explicit representation, the lexemic index or \textsc{lid} is
+% sufficient for that purpose. The assumption that, in addition, there
+% is a type of sign \emph{lexeme} distinct from the \emph{word}, has
+% become irrelevant, in a context where \textsc{lid} accounts for
+% lexemic identity and inflectional morphology is realisational. We have
+% shown in particular that Information-based Morphology has no need
+% for the type \emph{lexeme}. %%% BC: to be discussed
+
+In this paper we have addressed the representation of lexical identity
+in morphology. Following \citet{Fradin03b}, we have argued that a
+distinction should be made between lexemes, individuated in terms of
+lexical semantics, and \textsc{flexemes}, individuated in terms of
+inflectional paradigms. We have then shown that lexemes and flexemes
+stand in a many-to-many relation: in cases of lexical ambiguity, one
+flexeme realises multiple lexemes; in at least some situations of
+overabundance, multiple flexemes realise the same lexeme. We have
+shown how this distinction can be integrated into Information-based
+Morphology by providing words with two independent indices:
+\textsc{lid} and \textsc{pid}.
+
+The distinction between \textsc{lid} and \textsc{pid} clarifies the role
+of lexical identity at the interface between inflectional morphology
+and syntax: syntax cares about lexemes, but not flexemes; inflectional
+morphology cares about flexemes, but not about lexemes. In the present framework, this is captured by the fact that \textsc{lid} is not
+represented in \textsc{ms}, the input to rules of
+inflection. Arguably, the distinction is also useful to clarify the
+role of lexical identity in lexeme formation. Recent work on French
+lexeme formation has highlighted the many-to-many nature of lexeme
+formation rules (see \citealt[§3.1]{Bonami15b} and references
+cited therein): typically, a single formal process may be associated
+with multiple meanings, and the same type of meaning may be realised
+by multiple processes. \citet{Bonami12t} and \citet{Tribout14} explore how the
+\textsc{lid}/\emph{pid} can be used to make sense of that distinction.
+In their analytic scheme, lexeme formation rules are organised in a
+bidimensional multiple inheritance hierarchy\is{type hierarchy}, with one dimension
+laying out formal strategies, and the other dimension describing a
+syntactic/semantic operation.  Formal strategies determine a new
+\emph{pid} from that of the base, while syntactic/semantic operations
+amount to constructing a new \textsc{lid} from that of the base.
+
+  
+More work is needed to integrate Bonami and Tribout's insights into IbM,
+but this integration paves the way towards a general, \isi{underspecification}-based
+framework for morphological analysis.
+
+\is{Head-driven Phrase Structure Grammar|)}
+    
+\is{morphology!Information-based Morphology|)}
+\is{flexeme|)}
+
+
+\section*{Acknowledgments}
+
+We thank  Gilles Boyé and Jana Strnadová for their comments. This  work was partially supported  by a public grant
+    overseen by the French National Research Agency (ANR) as part of
+    the ``Investissements d'Avenir'' program (reference:
+    ANR-10-LABX-0083).
+
+
+{\sloppy
+    \printbibliography[heading=subbibliography,notkeyword=this]
+}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: ''../main''
+%%% End:

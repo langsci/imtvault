@@ -1,0 +1,1182 @@
+\documentclass[output=paper]{langsci/langscibook}
+\ChapterDOI{10.5281/zenodo.1182597}
+\author{Éric Laporte\affiliation{Université Paris-Est, Laboratoire d’informatique Gaspard-Monge CNRS,
+%\newline 8049, F77454 Marne-la-Vallée, 
+France}}
+\title{Choosing features for classifying multiword expressions}
+
+\abstract{Multiword expressions (MWEs) are a heterogeneous set with a glaring need for classifications. Designing a satisfactory classification involves choosing features. In the case of MWEs, many features are a priori available. Not all features are equal in terms of how reliably MWEs can be assigned to classes. Accordingly, resulting classifications may be more or less fruitful for computational use. I outline an enhanced classification. In order to increase its suitability for many languages, I use previous works taking into account various languages.}
+
+\maketitle
+
+
+\begin{document}
+
+\section{Introduction}
+\largerpage[-2]
+\is{taxonomy|(}
+Multiword expressions range from idioms like \textit{put pen to paper}, meaning ‘undertake to write something’, to multiword terms like \textit{protein kinase} to support-verb constructions like \textit{take a dip} ‘bathe’ and other types. Due to such diversity, there is a glaring need for classifications, if only for practical organization and for necessities of communication within the research community. Forty years after the first published comprehensive classifications of sets of MWEs, the community has not reached a satisfactory consensus on large classes or on the most relevant features. One outline of a classification \citep{Sag:2002}, based on \cite{Nunberg1994}, is influential, but some classes are fuzzily defined. The community is seeking to delineate the basic objects of the field. This uncertainty confuses computer scientists’ main MWE-related activity, which is to recognise types of MWEs in texts through statistical engineering: the community does not offer a consensual definition of types of MWEs.\footnote{However, there is a relative consensus on the delimitation of MWEs themselves. At least, many experts agree that this class includes collocations, multiword terms and support verb constructions. I will not address this issue in more detail for lack of space.}
+
+Classifications are a matter of features of the items to be classified. Which features should be used for classification, and therefore investigated in priority? Of course, linguistic relevance plays a prominent role in this selection, but my point in this paper is that many researchers overlook other important reasons for selecting or discarding some kinds of features. Some features are fuzzy and imprecise, that is, it is difficult to tell which MWEs have them. In resulting classifications, assignment of MWEs to classes is less reliable than it could be, and this is detrimental to computational use. Other features are more clear-cut and potentially more useful, but have not made their way to computational-linguistic literature yet. Another requirement for a convenient classification is that its outline be suitable for many languages. Accordingly, I use previous work taking into account various languages.
+
+In \sectref{sec:2}, I exemplify and discuss the notion of a fuzzy feature. In  \sectref{sec:3} and \sectref{sec:4}, I investigate two connected topics: clusters of correlated features, and practical problems of observation. \sectref{sec:5} advocates in favour of the practice of checking information against the lexicon. I outline an enhanced classification in \sectref{sec:6}.
+\is{taxonomy|)}
+
+\section{Clear-cut or fuzzy features?}
+\label{sec:2}
+
+\subsection{Examples} 
+\label{sec:221}
+
+\is{feature!clear-cut}
+Some features are more clear-cut than others. For example, some MWEs select a preposition for a free slot/argument position,\footnote{Here, \textit{free} means that the content of the slot, i.e. the noun phrase, is variable.} as in \textit{have pity on}:
+
+\begin{exe}
+ \ex  []{ \label{ex:6:1}
+\textit{You could have pity on us.}}
+\end{exe}
+
+
+
+\noindent Nothing is totally definite in linguistics, but using \textit{on} in this context is clearly appropriate.
+
+\is{feature!fuzzy}
+In contrast, the semantic weight of verbs is a much fuzzier feature that lies in a continuum. The verb \textit{have} in (\ref{ex:6:1}) is deemed “light”, whereas it has full semantic weight in (\ref{ex:6:2}):\is{light verb}\is{light verb construction}\is{phrasal verb}
+
+\begin{exe}
+ \ex   []{\label{ex:6:2}
+\textit{They will have this machine in soon.}
+\glt `This machine will soon be available for sale in their store.'}
+\end{exe}
+
+
+
+\noindent This is a basis to classify \textit{have pity} in (\ref{ex:6:1}) as a support-verb construction, or light-verb construction, and \textit{have in} in (\ref{ex:6:2})  as a phrasal verb. But, in \textit{have a call} ‘talk on the phone’, or \textit{ have a goal}, or \textit{make a joke}, intuition about the semantic weight of the verb in these expressions remains unsettled or depends on whom you 
+ask.\footnote{Another fuzzy feature of MWEs is whether they belong to terminology.\textit{ Protein kinase} does, \textit{smooth operator} ‘persuasive person; manipulative person’ does not; but \textit{sore throat} ‘inflammation of the throat’ is somewhere in between, since it is used by professionals but mainly to communicate with non-professionals.}
+
+\subsection{Related work} 
+\label{22}
+
+\subsubsection{Earlier work on clear-cut features}
+\label{earlierworkonfeatures}
+
+\is{feature!clear-cut|(}
+All the main features for present classifications had already been proposed by 1995, so the historical background is worth reviewing. 
+
+The first research works on MWEs with extended classificatory results define classes and subclasses with relatively clear-cut features. For instance, \citet{Labelle1974}'s study of \ili{French} support-verb constructions with \textit{avoir} ‘have’ assigns a class to expressions with an argument position introduced by the preposition \textit{sur} ‘on’, as in: \is{light verb construction}
+
+\begin{exe}
+ \ex []{\textit{Lyon a un avantage sur Marseille.}
+\glt `Lyon has an advantage over Marseille.’\footnote{For examples not in English, I do not provide glosses because they would not be useful for the reader. I provide a translation of the literal meaning when it is different from the non-literal meaning.}\label{ex:6:3}
+}
+\end{exe}
+
+\noindent This kind of sharp distinction neatly separates classes. For example, \textit{avoir un faible pour} ‘have a taste for’ definitely does not select \textit{sur}, since sequences like (\ref{ex:6:4}) are rejected.\footnote{Independently of that, \textit{avoir un avantage} may also occur with other prepositions, maybe less clearly selected: \textit{J’ai un avantage par rapport à toi.} ‘I have an advantage as compared to you.’} 
+
+\begin{exe}
+ \ex  [*]{\textit{J’ai un faible sur toi.}\\
+Lit. `I have a taste on you.’
+\label{ex:6:4}}
+\end{exe}
+
+\is{Lexicon-Grammar}
+\noindent The other features used to define Labelle’s classes are similar. Many features come down to applying elementary syntactic operations, one at a time, and judging the acceptability of the result, while watching out for unexpected meaning changes. The method used by Labelle, called Lexicon-Grammar (LG) by \citet{Guillet}, is briefly described by \citet{Gross1994}. It was applied to MWEs by other authors since then (\citealt{Meunier1977}; \citealt{Giry-Schneider1978}; \citealt{Danlos1980}; \citealt{gross1982}; \citealt{Freckleton1985}; \citealt{Machonis1985}; \citealt{Ranchhod1990}; etc., in \ili{English}, Romance languages, \ili{Greek}, etc.). All prefer clear-cut features such as:
+
+\begin{itemize}
+\item parts of speech (multiword nouns; verbal, adverbial and adjectival idioms) 
+\item applicable syntactic operations, \is{syntactic operation}
+including optionality vs. compulsoriness of fixed constituents and free slots.\footnote{\label{foonote-laporte-6} 
+\citet[39]{Fraser1970} also proposes a \is{taxonomy} classification of verbal idioms based on applicable syntactic operations. But he tests it on a sample of 131 idioms only (p. 40--41). In addition, he hypothesizes entailments between operations: for instance, if an idiom accepts passivization, it would also accept permutation of complements. His classification presupposes the entailments: when some of them are wrong for an idiom, there is no class for it. This is the case for the French idioms \textit{faire le jour sur} (lit. make the day on) ‘shed light on’ and \textit{claquer la porte au nez de} (lit. slam the door to the nose of) ‘slam the door in the face of’, which accept passivization, but not permutation of complements.
+\is{movement!permutation of complements}\is{passive}
+}
+\end{itemize}
+
+\noindent Some examples of clear-cut features are less likely to occur at the top of a classification tree:
+
+\begin{itemize}
+\item phrase structure (e.g. number of fixed objects in a verbal idiom) 
+\item number of free slots, their selected prepositions, restrictions on what may fill them
+\item compulsory coreference relations (e.g. in \textit{think on one’s feet} ‘improvise a reaction quickly’, between the free subject and the possessive)
+\end{itemize}
+
+Nothing is totally definite in linguistics, but the implicit rationale behind preference for clear-cut features is that it is unwise to place poorly understood features in a decision tree, especially at its top.
+\is{feature!clear-cut|)}
+
+\subsubsection{Earlier work on fuzzy features}
+\label{earlierfuzzyfeat}
+
+\is{feature!fuzzy|(}
+However, outside this LG trend, clear-cut features are readily mixed with fuzzier ones, even when defining large classes. The clear-cut features are essentially the same as above. The fuzzier ones often involve semantics or psycholinguistics.\footnote{Wisely, current classifications of MWEs avoid using terminologicalness to define main classes.}
+ 
+ \is{light verb construction|(}
+\textsc{Semantic weight} is often used to define support-verb constructions, or light-verb constructions, such as \textit{have pity, have a goal, take a dip}. This section will show that this definition relies entirely on fuzzy features, and so does the other naive definition. 
+
+\citet[276]{Baldwin2010} define light-verb constructions by the fact that their \is{light verb} verb is “semantically bleached or ‘light’, in the sense that [its] contribution to the meaning of the light-verb construction is relatively small in comparison with that of the noun complement,” that is semantically weak. This definition dates back to Jespersen: “[s]uch everyday combinations as those illustrated in the following paragraphs after \textit{have} and similar ‘light’ verbs (\ldots) are in accordance with the general tendency of modern English to place an insignificant verb, to which the marks of person and tense are attached, before the really important idea (\ldots) \textit{I really must have a good stare at her.}” \citep[117]{Jespersen1942}. But in many occurrences, verbs are felt to lie somewhere in a spectrum of intermediate stages between significant and insignificant. And, even though the feature is polar, it is not scalar: there is no metrics according to which it would be possible to measure how close an item is to the poles of the range.
+
+Alternative views of support-verb constructions have been proposed. One of them is in terms of predicate-argument structure: “nouns that have characteristics of predicates” (\citealt{Gross1981}: 32, my translation; \citealt{Cattell1984}). By \textit{predicate-argument structure}, I mean the concept borrowed from logic by linguists, who initially applied it \citep{Tesniere1959} to sentences such as:
+
+\begin{exe}
+ \ex   []{\label{ex:6:5}
+\textit{The wire connects the device to the socket.}}
+\end{exe}
+	
+\noindent In this analysis, the predicate-argument structure of (\ref{ex:6:5}) is ‘connect’(‘wire’, ‘device’, ‘socket’), where the predicate is ‘connect’ and the arguments are ‘wire’, ‘device’ and ‘socket’. The predicate does not necessarily match with a verb:
+
+
+\begin{exe}
+ \ex   []{\label{ex:6:6}
+\textit{Everyone took a look at our project.}}
+\end{exe}
+
+
+\noindent Analysing (\ref{ex:6:6}) as ‘take’(‘everyone’, ‘look’) or ‘take’(‘everyone’, ‘look’, ‘project’) is not satisfactory, precisely because \textit{take} is too weak to make sense as the core of a predicate-argument structure. If you analyse (\ref{ex:6:6}) as ‘take\_look’(‘everyone’, ‘project’) instead, you consider that the predicate is\textit{ take a look} (or the noun \textit{look}, which makes little difference, since \textit{take} has features of a mere function word). Or, in other words, the noun \textit{look} has valency two. On the basis of this type of analysis, support-verb constructions could be defined as those in which the predicate does not match with the main verb, but with a noun (a predicational noun, or noun that has valency) or another part of speech (PoS). Unfortunately, this definition still relies on a shaky semantic intuition: which part of a sentence matches best with the intuition of predicate? Take the following sentence:
+
+
+\begin{exe}
+ \ex   []{\label{ex:6:7}
+\textit{He made a joke.}}
+\end{exe}
+In (\ref{ex:6:7}), is the verb \textit{make} to be analysed as a “performance” predicate, or is it so light that the sentence is equivalent to \textit{He joked}?
+
+Another alternative is suggested by examples from \citet{Jespersen1942}, which all involve deverbal nouns such as \textit{stare}, and by the pairs of sentences explicitly pointed out by \cite[17--19]{Harris1964}:
+
+\begin{exe}
+\ex  \begin{xlist}  
+ \ex []{\label{ex:6:8a}
+ \textit{He took a look at it.}}
+ \ex []{\label{ex:6:8b}
+\textit{He looked at it.}}
+ \end{xlist}
+ \end{exe}
+
+\noindent Could support-verb constructions be defined by the equivalence between the content verb (\textit{looked}) and the support-verb followed by the deverbal noun (\textit{took a look})? This would be consistent with both previous definitions.\footnote{As for the definition based on semantic weight, if \textit{look} is equivalent to \textit{take a look}, little is left for \textit{take} to contribute to the meaning. Now for the definition referring to predicate-argument structure: if \textit{looked} is the predicate in (\ref{ex:6:8b}), its equivalent \textit{took a look} should logically be considered as the predicate in (\ref{ex:6:8a}).} Unfortunately, the definition based on equivalence with a verb would exclude many expressions for which no equivalent verb is in use \citep{Labelle1974}: 
+
+\begin{exe}
+\ex \begin{xlist} 
+\ex []{\textit{Il a eu un conflit avec sa famille.}\\
+ ‘He had a conflict with his family.’
+ \label{ex:6:9a}}
+\ex [*]{
+\textit{Il s’est conflité avec sa famille.}\\
+Lit. He conflicted himself with his family. 
+\glt ‘He conflicted with his family.’\label{ex:6:9b}
+}
+\end{xlist}
+\end{exe}
+
+\noindent This is not desirable because (\ref{ex:6:9a}) otherwise behaves like a typical support-verb construction. It is syntactically and semantically similar, for example, to (\ref{ex:6:10a}), for which an equivalent verb is observed:
+
+
+\begin{exe}
+\ex \begin{xlist}
+\ex []{
+\textit{Il a eu une réconciliation avec sa famille.}\\
+  ‘He had a reconciliation with his family.’\label{ex:6:10a} 
+  }
+\ex []{\textit{Il s’est réconcilié avec sa famille.}\\
+Lit. He reconciled himself with his family.
+\glt ‘He was reconciled with his family.’\label{ex:6:10b}
+}
+\end{xlist}
+\end{exe}
+
+\noindent Here are parallel examples in English: 
+
+
+\begin{exe}
+\ex \begin{xlist}
+\ex []{
+\textit{He has the goal of getting rich.}
+\label{ex:6:11a}}
+\ex [*]{\textit{He goals to get rich.}
+\label{ex:6:11b}}
+\end{xlist}
+\end{exe}
+
+
+\begin{exe}
+\ex \begin{xlist}
+\ex  []{\label{ex:6:12a}
+\textit{He has the aim of getting rich.}}
+\ex []{\label{ex:6:12b}
+\textit{He aims to get rich.}}
+\end{xlist}
+\end{exe}
+	
+
+\noindent Reformulating, the property of equivalence with a content verb would not classify (\ref{ex:6:9a}) and (\ref{ex:6:11a}) as support-verb constructions, in spite of their striking similarity with (\ref{ex:6:10a}) and (\ref{ex:6:12a}).
+
+\largerpage
+Thus, we are left with the first two naive definitions of support-verb constructions: one with the semantic weight of the verb, and the other with predicate-argument structure. Both definitions rely on particularly fuzzy semantic intuitions. They situate the feature of being a support-verb construction in a continuum between two poles. A more precise definition will be reported in \sectref{clearcutfeatures}\is{light verb construction|)}.
+
+\citet[104]{Gibbs1989} 
+\is{multiword expression|analyzability}\is{taxonomy}
+define another loose feature, \textsc{semantic decomposability}, as the “[contribution of] parts of idioms to their figurative interpretations as a whole [according to] speakers’ assumptions”. For example, the parts of \textit{pull strings} ‘covertly use one’s influence on personal connections’ would be \textit{pull} ‘exploit’ and \textit{strings} ‘personal connections’. This is a continuously graded intuition: “People’s intuitions about the decomposability of any idiom can vary along some continuum of semantic decomposition” 
+\is{multiword expression!decomposable}
+(Gibbs \& Nayak 1989: 67); “in general, idiom phrases exist on a continuum of analyzability ranging from those idioms that appear to be highly decomposable (e.g., \textit{pop the question}) to those that can be viewed as semantically nondecomposable (e.g., \textit{kick the bucket})” \citep[107]{Gibbs1989}. \cite[497, 508]{Nunberg1994} reterm this feature \textsc{semantic analysability} and redefine it as the fact that the “idiomatic interpretation [can] be distributed over [the] parts of the [expression]”. The wording is different, but it comes to the same thing, since the only source to know the distribution of the idiomatic interpretation over the parts of the expression is speakers’ assumptions.\footnote{\cite[496--497]{Nunberg1994}  contrast semantic analysability with \textit{transparency}, which is about speakers’ ability to guess why an expression with some literal meaning is used to convey a given non-literal meaning.} \cite[520--523]{Nunberg1994} cite an uncertain case: they represent \textit{take advantage of} with two lexical entries, one of which is semantically analysable while the other is not, although they “know of no evidence that the two entries might be semantically different”. This case where the same idiom, in the same sense, both is and is not analysable implicitly situates it at some intermediate stage. Although analysability is imprecise, \citet{Sag:2002}  and \cite[270]{Baldwin2010} adopt this feature, going back to the term of \textsc{semantic decomposability},\footnote{\cite[270]{Baldwin2010} equate their notion of decomposability to \citet[496]{Nunberg1994}’s  semantic analysability.} to distinguish two of their major classes of MWEs: semi-fixed expressions and syntactically-flexible expressions. \is{multiword expression!semi-flexible}\is{multiword expression!flexible}
+
+Thus, reputed classifications use fuzzy features as liberally as clear-cut ones, even at the top of their classification trees.
+\is{feature!fuzzy}
+
+\subsubsection{Clear-cut features and lexical inventorying}
+\label{clearcutfeatures}
+
+\is{feature!clear-cut|(}
+There is something more to be learned from early work on MWEs: extensive practice of lexical description leads researchers to discover clear-cut features and adopt them in their classifications. \is{taxonomy}
+
+Recall that \citet{Labelle1974} and other LG authors cited in \sectref{earlierworkonfeatures} prefer clear-cut features. This specificity is connected to their practice of inventorying lexical items: they delimit a set of phrases on the basis of features, systematically record phrases belonging to the set, obtain comprehensive lists and study them in order to reach well-documented conclusions. The papers and PhDs of these linguists either include a comprehensive list of members of each class proposed, or at least were published after the completion of such lists.\footnote{The lists still exist. They describe features for all entries and take the form of tables of features, which are easy to use. Many of these tables are freely available, e.g. at \url{http://infolingu.univ-mlv.fr/} for French. They remain to be diffused so that they reach out to the mainstream community.} For example, \citet{Freckleton1985} lists 8000 English verbal idioms; by 1987, Gross’ laboratory\footnote{Laboratoire d’automatique documentaire et linguistique (LADL), a part of Université Paris 7 and of CNRS.} had studied 12700 entries of French predicational nouns used with support verbs \citep[144]{Tolone2011}. 
+
+This labour-intensive method contrasts with common practice of that time. \cite[498]{Nunberg1994}, for example, do not challenge the LG approach or the resulting classifications,\footnote{\label{footnote-laporte-13}
+\citet[498]{Nunberg1994}’s  divergence from \citet{Machonis1985} is terminological: they call \textit{conventionality} what \citet[306]{Machonis1985} and \cite[128\textendash129]{Danlos1988}  call \is{semantics!compositionality} \textit{lack of compositionality}, that is impossibility of predicting the meaning or use of the MWE on the basis of \textit{only} a knowledge of the rules that determine the meaning and use of its parts when they occur separately.} but base most of their research on sporadically picked examples: the only sizable lists reproduced in their paper (p.~532--534) answer empirically one of the many issues they address. When they claim that the number of MWEs with anomalous morphosyntactic structure, like \textit{every which way} ‘in all directions; in complete disorder’, is “not so small” \citep[515]{Nunberg1994}, as a reply to \citet[149]{Chomsky1980} who claims such expressions are not “typical”, they do not compare numbers of lexical entries in comprehensive dictionaries. (Tables of MWEs settle this dispute in favour of Chomsky: morphosyntactically anomalous MWEs are really a small minority.) %
+
+\is{multiword expression!analyzability}
+\cite{Sag:2002}  and \cite{Baldwin2010} share the same weaknesses. In no language did any research group assign semantic (un)analysability to comprehensive classes of MWEs. \cite[64]{Bond}  encode this property in 421 English idioms, but this is a small sample, not a comprehensive lexical inventory; in contrast, Grégoire’s study of 5000 \il{Dutch} Dutch MWEs led her to give up categorizing them as analysable or not \citep[31--32]{Gregoire2010}.
+
+But what is the connection between clear-cut features and extensive lexical description? When the description of a feature gives clear-cut results throughout the inventory of expressions, authors understandably tend to consider these results particularly reliable, and to prefer this feature over others, all else being equal.
+
+This is how Gross and his followers in the 1970s came across formal features of support-verb constructions which are still used as criteria to recognise them \citep{Langer2005}. They systematically scanned \is{lexicon} the lexicon of French nouns, studied their syntactic constructions and worked out criteria of recognition of predicational nouns for dubious cases. One of these criteria is a formal property of determiners and adjuncts \citep[109]{Gross1976} which is also observed in English. In (\ref{ex:6:13a}), if possessive determiners, phrases with \textit{of} and genitives are inserted around \textit{joke}, they cannot refer to anything else than the subject:
+
+
+\begin{exe}
+\ex \label{ex:6:13}
+\begin{xlist}
+\ex []{\label{ex:6:13a}
+\textit{He made a joke.}}
+\ex []{\label{ex:6:13b}
+\textit{He made his joke.}}
+\ex [*]{\textit{He made your joke.}\label{ex:6:13c}}
+\ex  [*]{\textit{He made Ann’s joke.}\label{ex:6:13cd}}
+ \end{xlist}
+\end{exe}
+
+How does this criterion correlate with the intuitive notion of predicate (cf. \sectref{earlierfuzzyfeat})? In other sentences where the core of the intuition-identified predicate is a noun, like (\ref{ex:6:8a}) \textit{He took a look at it} or (\ref{ex:6:11a}) \textit{He has the goal of getting rich}, this constraint is also observed. But when the intuitive predicate is a verb, the constraint is not observed:
+
+
+\begin{exe}
+\ex \label{ex:6:14}
+\begin{xlist}
+\ex []{\label{ex:6:14a}	
+\textit{He made your car.}}
+\ex []{\label{ex:6:14b}	
+  \textit{He made Ann’s car.}}
+\end{xlist}
+\end{exe}
+
+
+\begin{exe}
+\ex \label{ex:6:15}
+\begin{xlist}
+\ex []{\label{ex:6:15a}	
+\textit{He reported your joke.}}
+\ex []{\label{ex:6:15b}
+  \textit{He reported Ann’s joke.}}
+\end{xlist}
+\end{exe}
+
+\noindent This formal test is a reason for analysing (\ref{ex:6:13a}) as ‘joke’(‘he’), but (\ref{ex:6:14a}) as ‘make’(‘he’, ‘car’) and (\ref{ex:6:15b}) as ‘report’(‘he’, ‘joke’(‘Ann’)), in spite of their apparently similar structure.
+
+This property, when used as a criterion to distinguish support-verb constructions from full-verb constructions, gives more precise results than those I mentioned in \sectref{earlierfuzzyfeat}. It does not help with the distinction between support-verb constructions and verbal idioms. Some verbal idioms behave as (\ref{ex:6:13}):
+
+\begin{exe}
+\ex \label{ex:6:16}
+\begin{xlist}
+\ex []{\label{ex:6:16a}
+\textit{He thought on his feet.} 
+\glt ‘He improvised a reaction quickly.’}
+\ex [*]{\textit{He thought on Ann’s feet.}\label{ex:6:16b}}
+\end{xlist}
+\end{exe}
+
+\noindent Others behave as (\ref{ex:6:14}) and (\ref{ex:6:15}): 
+
+\begin{exe}
+\ex \label{ex:6:17}
+\begin{xlist}
+\ex []{\label{ex:6:17a}
+\textit{He melted your heart.}
+\glt ‘He made you feel sympathy.’}
+\ex []{\label{ex:6:17b}
+\textit{He melted Ann’s heart.}}
+\end{xlist}
+\end{exe}
+	 
+
+\noindent But a similar property (\citealt{Gross1979}: 865–866, Footnote 6), which is used in a forthcoming compendium on French grammar \citep[16]{Abeille2011}, contributes to making more definite the distinction between support-verb constructions and verbal idioms. Take the following construction with the support verb \textit{make}: 
+
+\begin{exe}
+\ex []{\label{ex:6:18}
+\textit{The quake made damage to the area.}}
+\end{exe}
+	 
+
+\noindent A syntactic operation applied to (\ref{ex:6:19a}) produces a variant (\ref{ex:6:19b}) where \textit{make} is absent:\is{syntactic operation|(}
+
+
+\begin{exe}
+\ex \label{ex:6:19}
+\begin{xlist}
+\ex []{\label{ex:6:19a}
+\textit{The damage to the area made by the quake $($is described in the diary$)$.}}
+\ex []{\label{ex:6:19b}
+\textit{The damage to the area by the quake $($is described in the diary$)$.}}
+\end{xlist}
+\end{exe}
+
+\noindent This criterion classifies \textit{have the back of}, meaning ‘back, support’, as a verbal idiom, not as a support-verb construction, because it has no variant in which \textit{have} would be absent. Take the following sentence:
+
+
+ 
+\begin{exe}
+\ex []{\label{20}
+\textit{The president has the back of our children.}}
+\end{exe}
+	 
+\noindent A banal syntactic operation on (\ref{20}) would produce the subject of the following sentence:
+
+
+\begin{exe}
+\ex [*]{\textit{The president’s back of our children $($is manifested by real actions$)$.}\label{ex:6:21}}
+\end{exe}
+
+\noindent But (\ref{ex:6:21}) is not in use.
+
+\newpage 
+This criterion applies to all support-verb constructions. The syntactic operations that remove the support verb are not the same for all support-verb constructions, even in a given language: (\ref{ex:6:19}) exemplifies one of them for English, (\ref{20})--(\ref{ex:6:21}) another. Applying the criterion may involve knowing all operations and testing them, because the criterion rules out the support-verb construction analysis only if none applies, e.g. for \textit{have the back of.}\footnote{This criterion also rules out the support-verb construction analysis for \textit{take advantage of}: 
+\begin{itemize}
+\item[(i)] 
+\textit{The bank takes advantage of deposit slip errors.} 
+\end{itemize}
+
+The syntactic operation of (\ref{ex:6:19}) does not apply:  
+\begin{itemize}
+\item[(ii)] 
+\textit{The advantage taken by the bank of deposit slip errors $($has been revealed$)$.} 
+\item[(iii)]  
+*\textit{The advantage by the bank of deposit slip errors (has been revealed)}. 
+\end{itemize}
+
+Neither does that of (\ref{20})--(\ref{ex:6:21}): 
+\begin{itemize}
+\item[(iv)] 
+\textit{The advantage the bank takes of deposit slip errors $($has been revealed$)$.}
+\item[(v)]  
+*\textit{The bank’s advantage of deposit slip errors (has been revealed).}
+\end{itemize}} 
+In \ili{Italian} (\citealt{Angelis1989}), \ili{Portuguese} (\citealt{Ranchhod1990}, \citealt{Rassi}), \ili{Korean} \citep{Han2000}, \ili{Greek} (\citealt{Kyriacopoulou2003}) and other languages, LG authors selected analogous technical criteria and definitions. 
+\is{syntactic operation|)}
+
+The larger linguistic and NLP community was not receptive to LG in the 1980s and 1990s, and access to publications was difficult. \citet{Cattell1984}, though he did not explicitly challenge the LG syntactic criteria, stuck to definitions based on semantic intuition, and so did many linguists. Since then, both traditions, that is intuitive vs. technical definitions of support-verb constructions, have continued in parallel.\footnote{The use of \textit{light verb} is loosely correlated with the intuitive approach and \textit{support verb} with the technical approach. 
+\is{light verb}\is{light verb construction}
+\citet[12]{Gross1981} adopts the term of \textit{support verb}, with the idea that, for example, \textit{make} “supports” a predicational noun in (\ref{ex:6:13a}).} Thus, support-verb constructions provide an example of a feature that can be defined either as clear-cut or as fuzzy. The notion itself is basically the same, but some definitions ensure more definite membership than others.
+
+This review of earlier work showed that researchers engaged in projects of extensive lexical description tend to discover more clear-cut features and adopt them in their classifications, but that recent literature does not make a difference between clear-cut and fuzzy features. Recent classifications are derived indifferently from both.
+\is{feature!clear-cut|)}
+
+\subsection{Discussion}
+\label{fuzzyfeaturediscussion}
+
+I could not find in the literature any discussion of whether the use of these fuzzy features is an issue at all, or if their relevance compensates for their drawbacks. \is{Natural Language Processing} Even NLP literature does not care more than corpus linguistics or the philological or generative traditions.
+
+\is{feature!fuzzy|(}\is{feature!clear-cut|(}
+Fuzzy features can be less technical. For example, as opposed to the definition of support-verb constructions based on the semantic weight of the verb, a concern for definiteness leads one to adopt formal criteria that involve applying detailed \is{syntactic operation} syntactic operations, as in (\ref{ex:6:13c}) *\textit{He made your joke}, and assessing the result. It is not just that this complexity can be seen as a drawback: it also makes precise features more likely to be language-dependent. The criteria illustrated by (\ref{ex:6:13}) for \ili{English} need to be adapted when they are applied to, say, \ili{Italian} or \ili{Korean}, due to differences in syntactic constructions. Decisive criteria for support-verb constructions have been found in many languages, but they are not exactly the same. \citet{Butt2010} also draws this conclusion on the basis of a review of typological and diachronic literature. In contrast, the fuzzy definition based on the semantic weight of the verb is language-independent.
+
+But the price to be paid for language independence is that you cannot tell if an item satisfies the definition or not. Then, to which class does it belong? In practice, in order to avoid fuzzy membership of classes, and uncertain inclusions between classes, fuzzy features must be replaced by clear-cut, binary models of them. 
+
+Proponents of fuzzy features rarely claim these might be useful for computer applications. 
+\is{multiword expression!analyzability}
+\is{multiword expression!decomposability}
+Semantic analysability\slash decomposability, for instance, is relevant to \is{lexicon} the mental lexicon, maybe to first language acquisition, but probably not to computational applications. If, in the future, information is attached to parts of idioms in formal semantic representations, can it be exploited computationally? \cite[501]{Nunberg1994} cite a variation on \textit{tilt at windmills} ‘fight against imaginary or invincible opponents’:
+
+\begin{exe}
+\ex []{\label{ex:6:22}
+\textit{tilting at the federal windmill}}
+\end{exe}
+	
+
+\noindent One can imagine that a parser that would handle a semantic representation of\textit{ tilt at windmills} composed of separate structures for the parts \textit{tilt} and \textit{windmill} might interpret (\ref{ex:6:22}) more correctly than a parser with an atomic semantic representation of the idiom. But, as of 2018, both types of parsers are hypothetical, since few parsers interpret idioms. The challenge of identifying even their least creative variants, such as \textit{tilt bravely at windmills}, is probably a priority as compared to that of unlexicalized, playful variations like \textit{tilt at a federal windmill}. Besides this remote perspective, computational applications of analysability are elusive. \cite{Bond} do not say that the analysability encoded in the dictionary is used by the English HPSG \is{Head-Driven Phrase Structure Grammar} grammar to check restrictions on the form of idioms.
+
+No clear use has been found either for another fuzzy feature, which consists in the fact that native speakers that don’t know the MWE can guess its sense or not when they hear it in an uninformative context. For example, according to   \citet[3]{Osherson2010}, the sense of\textit{ rest on one’s laurels} ‘keep from making effort out of self-satisfaction from prior achievements’ is easily guessed, but that of \textit{walk on eggshells} ‘be very cautious’ is not.\footnote{ This feature is the more restrictive of the two features that \citet[495]{Nunberg1994} call \textit{conventionality}. 
+\is{semantics!compositionality}
+Osherson \& Fellbaum term it \textit{non-compositionality}, but it is quite different from \textit{lack of compositionality} (cf. Footnote \ref{footnote-laporte-13}) in \citet[128--129]{Danlos1988}: when speakers that don’t know \textit{rest on one’s laurels} figure out what it means, they don’t base their guesses only on a knowledge of the rules that determine the meaning and use of the parts when they occur separately, but also on their imagination and cultural familiarity with classical antiquity. \citet[496–497]{Nunberg1994}’s  \textit{transparency} (speakers’ ability to guess why an expression with some literal meaning is used to convey a given non-literal meaning) is less restrictive: even if speakers can’t figure out the non-literal meaning of an unknown idiom, they may be able to guess the motivation of this meaning once they are informed of it.} \is{taxonomy} This feature is relatively fuzzy: “the classification suggested above is only approximate, a number of idioms (\ldots) cannot be  straightforwardly fit into any one category”; they do not claim any computational use of this feature, and it is hard to imagine a realistic one.
+
+\is{Lexicon-Grammar}
+In contrast, many clear-cut features are straightforwardly exploitable in language processing, especially those that directly determine the possibility of occurrence of actual forms, such as selected prepositions or applicability of syntactic operations. Clear-cut features of MWEs, as described in LGs, have been used early and recently in \is{Tree-Adjoining Grammar} Tree-Adjoining Grammars \citep{Abeille88}, symbolic machine translation \citep{Danlos1992}, finite-state parsers \citep{Senellart1998}, symbolic dependency parsers \citep{Tolone2011} and statistical parsers \citep{Constant}. \is{Natural Language Processing}
+
+Clear-cut features have significant methodological and practical advantages. When fuzzy features are used instead, it is worth checking carefully that their linguistic relevance motivates this choice.
+\is{feature!clear-cut|)}\is{feature!fuzzy|)}
+
+\section{Correlated features}
+\label{sec:3}
+
+\label{correlatedfeatures}
+\is{feature!correlated}
+
+\subsection{An example} 
+
+\is{syntactic operation|(}
+In some cases, it is easy to replace a single fuzzy feature with a bundle of clear-cut ones. For example, the syntactic operations applicable to verbal idioms, instead of being collectively considered as a single (fuzzy) feature, are better dealt with separately from one another.
+
+Here are a few examples of syntactic operations.
+
+\begin{itemize}
+\item Optionality of fixed constituents:
+
+\begin{exe}
+\ex \label{ex:6:23}
+\begin{xlist}
+\ex []{\label{ex:6:23a}
+\textit{John bearded the lion in his den.}\\
+ ‘John faced the danger directly.’}
+\ex []{\label{ex:6:23b}
+\textit{John bearded the lion.}}
+\end{xlist}
+\end{exe}	
+
+\item Optionality of free slots:
+
+\begin{exe}
+\ex \label{ex:6:24}
+\begin{xlist}
+\ex []{\label{ex:6:24a}
+\textit{John bears comparison to Magritte.}\\
+ ‘John is similar enough to Magritte to be likened to him.’}
+\ex []{\label{ex:6:24b}
+\textit{John bears comparison.}}
+\end{xlist}
+\end{exe}
+ 
+\item Insertion of free adjuncts: 
+
+
+\begin{exe}
+\ex \label{ex:6:25}
+\begin{xlist}
+\ex []{\label{ex:6:25a}
+  \textit{This dealt a blow to my hopes.}}
+\ex []{\label{ex:6:25b}
+\textit{This dealt a strong blow to my hopes.}}
+\end{xlist}
+\end{exe}
+\item Topicalisation: \is{movement!topicalization}
+
+\begin{exe}
+\ex \label{ex:6:26}
+\begin{xlist}
+\ex []{\label{ex:6:26a}
+\textit{He would not deal such a blow to you.}}
+\ex []{\label{ex:6:26b}
+\textit{Such a blow, he would not deal to you.}}
+\end{xlist}
+\end{exe}
+
+\item Dative shift: 
+
+\begin{exe}
+\ex \label{ex:6:27}
+\begin{xlist}
+\ex []{\label{ex:6:27a}
+\textit{This dealt a blow to my hopes.}}
+\ex []{\label{ex:6:27b}
+\textit{This dealt my hopes a blow.}}
+\end{xlist}
+\end{exe}
+
+\item Reduction in a repeated occurrence: 
+
+\begin{exe}
+\ex \label{ex:6:28}
+\begin{xlist}
+\ex []{\label{ex:6:28a}
+\textit{I changed my mind about China.}}
+\ex []{\label{ex:6:28b}
+\textit{You changed yours about India.}}
+\end{xlist}
+\end{exe}
+
+\newpage 
+\item Pseudocleft construction:
+
+\begin{exe}
+\ex \label{ex:6:29}
+\begin{xlist}
+\ex []{\label{ex:6:29a}
+\textit{John fights fire with fire.}\\
+ ‘John uses the same arms as his opponents.’}
+\ex []{\label{ex:6:29b}
+\textit{The way John fights fire is with fire.}}
+\end{xlist}
+\end{exe}
+
+\item Passivization:
+
+\begin{exe}
+\ex \label{ex:6:30} 
+\begin{xlist}
+\ex []{\label{ex:6:30a}
+\textit{The price of the coffee caught John short of change.}\\
+ ‘Given the price of the coffee, John had no change.’}
+\ex []{\label{ex:6:30b}
+\textit{John was caught short of change by the price of the coffee.}}
+\end{xlist}
+\end{exe}
+
+\end{itemize}
+
+Not all operations are applicable to the same idioms. For example, \textit{bear comparison to} admits the removal of its prepositional free slot, but not passivization:
+
+
+\begin{exe}
+\ex [*]{Comparison to Magritte is borne by John.\label{31}}
+\end{exe}
+
+\noindent \citet[34]{Fraser1970} is aware of these differences between features. 
+\is{multiword expression!flexibility}
+The straightforward model for syntactic flexibility is a multidimensional space of variation, since there are independent features. \cite[509]{Nunberg1994} claim that some large range of syntactic operations \is{syntactic operation} is “loosely correlated”. Contrasts such as (\ref{ex:6:24a}) vs. (\ref{31}) show that such correlation, if it exists, is not 100\%. Since correlation is a statistical notion, only statistical evidence could support \cite{Nunberg1994}'s claim. This could be done by measuring the correlation with extensive lexical data. For example, \citet{Freckleton1985}'s table C1P2, which contains \textit{beard the lion in his den}, shows a positive but loose correlation between optionality of the prepositional object and passivizability: the Pearson’s correlation coefficient, computed with these data, is 0.13.
+
+
+\citet[6]{Sag:2002}, \citet[278]{Baldwin2010} cluster all syntactic operations 
+into \textsc{syntactic flexibility}. Syntactic flexibility is an imprecise feature, since idioms that undergo only some of the known syntactic operations are intermediate cases, “syntactically flexible to some degree”, as \cite{Sag:2002} put it. But they do not measure the correlation either. Even so, both \cite[3]{Sag:2002}  and \citet[279]{Baldwin2010} derive some of their major classes from “the” feature of syntactic flexibility. \cite{Baldwin2010}  subdivide verbal idioms into two subclasses: one of non-decomposable idioms “with hard restrictions on word order and composition”, i.e.~no application of syntactic operations, and another of decomposable, syntactically flexible idioms. They leave open the question of where intermediate cases should belong in practice: when some syntactic operations apply and others don’t, they cross-classify, i.e. they assign the same lexical item to different classes. None of these authors shows the benefit for NLP or linguistics of using a unidimensional scale as a model for a multidimensional variation space.
+\is{syntactic operation|)}
+
+These models artificially create fuzzy features and the associated problems. Their authors do not explain what motivates this innovation, nor do they state a position on previous classifications that avoid equating distinct syntactic operations.
+
+\subsection{Discussion}
+\label{syntacticflexibility}
+\is{multiword expression!flexibility}
+
+Syntactic flexibility is a cluster of loosely correlated features and should not be used as if it were a single feature, especially when defining major classes: such definitions are imprecise. If a lexical database registers \textit{bear comparison to} in a class of syntactically flexible idioms, this signals that this idiom admits at least some syntactic operations, 
+\is{syntactic operation}
+but users cannot be certain about any specific operation, for example the removal of its prepositional free slot: (\ref{ex:6:24b}) \textit{John bears comparison}. Reversely, if it is in a class of non-syntactically-flexible idioms, it does not admit all the possible operations, but users cannot safely deduce that it does not admit, say, passivization: (\ref{31}) *\textit{Comparison to Magritte is borne by John}. This compromises computational usage: a major function of a classification is to ensure that the members of each class have the corresponding defining features.
+
+Thus, as long as all properties are not securely established for all entries, it is a good practice to specify each criterion accurately. This leads to individuating a number of features, and to specifying which entries have which features, like in LG tables, which show that syntactic operations are not visibly more correlated in \ili{French} \citep{gross1982}, \ili{Italian} \citep{Vietri2011} or \ili{Greek} \citep{fotopoulou1993} than in \ili{English} \citep{Freckleton1985}.\is{Lexicon-Grammar}
+
+\is{multiword expression!flexibility}
+\is{taxonomy}
+A correlation between features may give a sense that they are particularly relevant to classification, because they might stem from a hidden, underlying, fundamental property. Moreover, if these features are used jointly for classification, assigning an entry to a class will implicitly specify all features at the same time, killing two birds with one stone. However, the temptation should be resisted until a systematic investigation assesses how correlated the features are. If intuition overestimates the degree of correlation, which often happens, and if a classification equates loosely correlated features, assigning an entry to a class does not specify any of the features, failing to kill any of the proverbial birds.
+
+Fundamental scientific progress has often been achieved by elaborating a distinction between two notions that are easy to confuse, e.g. weight and mass in physics. In their model, \cite{Sag:2002}  and \citet{Baldwin2010} do the reverse: they replace a set of relatively precise features, which are objectively distinct and had been treated as such before, with an imprecise one, which is therefore more difficult to handle. Their model adds artificial uncertainty.
+
+Thus, merging a cluster of loosely correlated features into an “aggregate” feature decreases the accuracy of the model and weakens its information content.
+\is{feature!correlated}
+\is{multiword expression|flexibility}
+
+\section{Reproducibility of observation of features}
+\label{sec:4}
+\is{reproducible observation|(}
+
+\subsection{Examples} 
+
+Even without any excess of optimism about correlations, some features are more clear-cut than others for another reason: reproducibility. Reproducible observations are those inherently susceptible to high inter-judge agreement. This notion may sound technical and is often ignored, but my point in this part is that it has considerable practical significance for projects with realistic goals.
+
+Features are not equal in terms of inter-judge agreement. For example, the compulsoriness of a coreference relation in an MWE, e.g.~in \textit{think on one’s feet} ‘improvise a reaction quickly’, between the subject and the possessive, is judged by checking the grammaticality or acceptability\footnote{By \textit{grammatical} we mean that a sentence may be used to convey some information in some situation and in some context. This is consistent with how \textit{grammatical} is used by most linguists, and identical to what \citet[293]{Harris1957} means by \textit{acceptable} \citep[161]{Ross1979}. In fact, we will use \textit{acceptable}, to avoid confusion with Chomsky’s  use of \textit{grammatical} \citep[15]{Chomsky1957}, which is in principle divergent since some nonsense sequences may be grammatical in his sense.}  of some sentences, which is relatively factual, as in (\ref{ex:6:16}) cited here as (\ref{ex:6:32}):
+
+\begin{exe}
+\ex \label{ex:6:32} 
+\begin{xlist}
+\ex []{
+\textit{He thought on his feet.}\label{ex:6:32a}}
+\ex [*]{\textit{He thought on Ann’s feet.}\label{ex:6:32b}}
+\end{xlist}
+\end{exe}
+
+
+\noindent With \textit{melt someone’s heart} ‘make someone feel sympathy’, such coreference is not compulsory, as shown in (\ref{ex:6:17a}) \textit{He} \textit{melted}\textit{ your heart.} Few native speakers will disagree with such observations. Consequently, this feature can be recorded in a lexical database in a relatively reliable way. 
+\is{syntactic operation}
+Similarly, the applicability of syntactic operations to MWEs is tested by applying the operations, as in (\ref{ex:6:16}), (\ref{ex:6:17}) and (\ref{ex:6:23})–(\ref{31}), while judging the acceptability of the result and the conservation of the meaning. Therefore, in most cases, it is also reproducibly observable.
+
+\is{multiword expression!analyzability}
+\is{multiword expression!decomposability|(}
+In contrast, semantic analysability\slash decomposability in the sense of   \citet{Gibbs1989}, \cite[508]{Nunberg1994}, \cite{Sag:2002} and  \cite{Baldwin2010} has no other empirical ground than pure semantic impressions. “There are no well-defined procedures for specifying whether a given idiom is semantically decomposable or not.”  (\citealt[106]{Gibbs1989}). \cite[523--524]{Nunberg1994}'s intuitions about the analysability of \textit{take advantage of} are unstable (cf. \sectref{22}). They cite \textit{take stock} ‘take the time to think’ as analysable and\textit{ take hold} ‘grasp’ as non-analysable, but other speakers’ introspection is not sure to reproduce this contrast. According to them, \textit{take stock} “can be roughly paraphrased as ‘make an assessment’, with the noun \textit{stock} semantically approximating ‘assessment’.” But in the same vein, \textit{take hold} can be paraphrased as ‘voluntarily acquire a grasp’, where \textit{take} would denote the ‘voluntary acquiring’ and \textit{hold} the ‘grasp’. Acceptability is judged by introspection too, but is more factual and can be backed by corpus attestations in some cases. Joint use of introspection and corpus attestation is more and more recognized as a valid source of empirical data on acceptability (\citealt{Johansson1991}: 313;\footnote{“The corpus remains \textit{one} of the linguist’s tools, to be used together with introspection and elicitation techniques. Wise linguists, like experienced craftsmen, sharpen their tools and recognize their appropriate uses.”} \citealt[58]{Fillmore1992armchair}; \citeyear[1]{Fillmore2001};\footnote{“One [cannot have] success in the language business without using both resources: any corpus offers riches that introspecting linguists will never come upon if left to their meditations; and at the same time, every native speaker has solid knowledge about facts of their language that no amount of corpus evidence, taken by itself, could support or contradict.”}   \citealt[16]{McEnery1996};\footnote{“Why move from one extreme of only natural data to another of only artificial data? Both have known weaknesses. Why not use a combination of both, and rely on the strengths of each to the exclusion of their weaknesses? A corpus and an introspection-based approach to linguistics are not mutually exclusive. In a very real sense they can be gainfully viewed as being complementary.”}  \citealt{Kepser2005};\footnote{“It is one of the main aims of this volume to overcome the corpus data versus introspective data opposition and to argue for a view that values and employs different types of linguistic evidence each in their own right.”} \citealt{Gries2011}: 87\footnote{“It is obvious that corpus linguists need to make subjective decisions all the time, and they need to document their subjective choices very clearly in their publications. However, in spite of these undoubtedly subjective decisions, many advantages over armchair linguistics remain: the data points that are coded are not made-up, their frequency distributions are based on natural data, and these data points force us to include inconvenient or highly unlikely examples that armchair linguists may ‘overlook’.”}). \textit{Roll one’s eyes}, in its idiomatic meaning, denotes a ‘feeling of surprise and rejection for something stupid or strange’, and often also an actual eye movement that expresses this feeling, but this physical element of meaning is perhaps not necessarily present in all occurrences of the idiom:
+
+
+\begin{exe}
+\ex []{\label{ex:6:33} 
+\textit{We’ve all rolled our eyes at a particularly catchy headline.}}
+\end{exe}
+
+\noindent Many idioms share this property \citep[44]{Burger1998}. In their meaning, the feeling part is rather non-analysable, whereas the physical movement part is rather analysable. 
+\is{multiword expression!analyzability}
+When compromising between these intuitions, not all speakers are likely to obtain the same result. It is not just that the semantic analysis of the feeling part is funny: more importantly, there is no reason why different observers would assign the idiom to the same class.
+
+The contrast between more or less reproducibly observable features is also observed in \ili{French}, in \ili{Italian}, and presumably in any language. Take this French idiom:
+
+\begin{exe}
+\ex []{\label{ex:6:34} 
+\textit{se mettre le doigt dans l’œil}\\
+Lit. put one’s finger in {one’s eye}
+\glt ‘have a mistaken understanding’}
+\end{exe}
+
+\noindent My own impressions in terms of analysability are precarious: does \textit{le doigt} (lit. one’s finger) really stand for an element of meaning like ‘understanding(\textit{x})’, \textit{mettre} (lit. put) for ‘choose’ and \textit{dans l’œil} (lit. in one’s eye) for ‘wrong’?
+
+Semantic analysability poses recurrent problems of reproducibility of observation. This makes it a fuzzy feature.
+\is{multiword expression!analyzability}
+\is{multiword expression!decomposability|)}
+
+\subsection{Related work}
+\largerpage
+
+Reproducibility of observation is not a new requirement. It is a central concern for American structuralists such as Bloomfield and Harris, who typically improve 
+it by adjusting the definition of features under analysis, and in particular, by resorting to \textsc{formal or syntactic criteria}, as in (\ref{ex:6:16b}) *\textit{He thought on Ann’s feet}, avoiding to rely directly on pure semantic intuition. This tradition focuses on selecting knowledge that can be reproducibly observed, as part of a quest for scientificity in linguistics. 
+\is{semantics!differential semantic evaluation}\is{semantic evaluation}
+In the observation of semantic features, \textsc{differential semantic evaluation} is more reproducible than absolute semantic evaluation (\citealt{Gross:75-Relation}: 391–392).\footnote{“Pairs of sentences that are candidates for being related by a transformation are judged to be synonymous or not. Thus, meaning is only involved in comparisons, and \textit{differences} in meaning are detected in this manner. In the physical sciences, it is well-known that \textit{absolute} evaluations of a variable (e.g. temperature) lead always to rather crude results, when compared to \textit{differential} evaluations of the same variable. The situation appears to be the same in linguistics with respect to meaning. Attributing absolute terms to forms is quite problematic, and anyway, has proved to be rather unsuccessful, while comparing the meanings of similar forms may bring to light subtle differences that may be hard to detect directly.”} For example, take the following French support-verb construction:\il{French}\il{light verb construction}
+
+
+\begin{exe}
+\ex []{\label{35}
+\textit{Le mur a de la couleur.}\\
+Lit. The wall has colour.
+\glt ‘The wall is colourful.’}
+\end{exe}
+
+\noindent Far from all interviewed speakers agree that (\ref{35}) denotes intensiveness; in other words, this observation is little reproducible. Now take the following variant:
+
+
+\begin{exe}
+\ex []{\label{36}
+\textit{Le mur a une couleur.}
+\glt ‘The wall has a colour on it.’}
+\end{exe}
+
+
+\noindent When asked if (\ref{35}) is more intensive than (\ref{36}), much more speakers share this perception, agreeing that (\ref{36}) is more neutral. The differential observation is more reproducible than the absolute one.\footnote{Here are two other examples of definite semantic differences: (\ref{35}) denotes more of a favourable subjective judgment than (\ref{36}), and (\ref{35}) may evoke one or several colours, whereas (\ref{36}) evokes one.} Reproducibility decreases back if you compare phrases, for example \textit{de la couleur} vs. \textit{une couleur,} instead of complete sentences. The LG method is much about such practical techniques of elaborating the procedures of observation or the definition of features, in order to improve reproducibility. When you ask the right question, it is easier to agree on an answer. In practice, performers of LG work are trained to be systematically watchful of their own dubious or instable judgments, and to compare these judgments to those of their peers. This measurement of reproducibility is subjective, but peer controlled, in order that subjectivity does not affect the quality of the results. It is performed right from the beginning of the project, and separately for each feature, to detect which features raise reproducibility problems. Such detection leads to two types of decisions:
+
+\renewcommand{\theenumi}{(\roman{enumi})}%
+\renewcommand\labelenumi{\theenumi}%pminos remove dot
+\begin{enumerate}
+\item give up the study of ``bad" features, that is those that cannot be observed with reasonable reproducibility
+\item look for ``good" features for which methodological precautions ensure reasonable reproducibility
+\end{enumerate}
+
+\largerpage
+\noindent A reproducibility issue often causes a shift from an intuition-defined feature to one or several new criterion-defined ones. The latter may be a little different, but they have an advantage: it is clearer what they are. Such decisions refine or shift the target of the description and, of course, eventually affect the classifications based on the features.
+
+There are few ongoing debates about such practices in linguistics, and even less in research on MWEs. Reproducibility is alien to \cite{Baldwin2010}'s concerns, except for an allusion in connection with interpretation of nominal compounds \citep[275]{Baldwin2010}.\footnote{Anyway, in the case of \is{multiword expression!analyzability} analysability, no such improvements of the definition seem to be at hand.} In current practices beyond LG, measurement of reproducibility is more objective: it takes the form of inter-judge agreement statistics. But these statistics either focus on a small sample of features deemed representative, or handle features collectively, not individually (\citealt[86]{Palmer} is an exception): in both cases, they don’t help to tell the ``good"  features from the ``bad". The inter-judge agreement approach tests how a team of descriptive linguists fare as regard reproducibility, it does not assess the potential of each feature. It views reproducibility as a behavioral problem only, not as a syntactic or lexicological problem, and disregards the fact that the problem is different for each feature.
+
+ 
+In addition, current practices usually take into account only small samples of prototypical MWEs deemed representative.\footnote{\cite[60]{Gibbs1989a}  assess the consistency of undergraduates’ judgments of semantic decomposability of a sample of 36 idioms.} But many reproducibility issues stem from the diversity of lexical entries: \is{lexicon}
+their detection requires comprehensive scrutiny of the lexicon.\footnote{The complexity of the assessment of reproducibility has three dimensions: the number of features, the number of lexical entries and the number of judges. Informal LG practices deal with all three dimensions. But objective measurement of inter-judge agreement is costly, which leads to limiting its ambition in terms of two of the three dimensions: the number of features and of lexical entries. Thus, the operation loses its essential benefits.}
+
+Globally, with the shift from subjective to objective procedures, quality of measurement has deteriorated. It is worse than that: now, reproducibility assessment is rarely used for feedback on the aims of the description or on its practical procedures. First, such feedback would require differential assessment on individual features. Second, inter-judge agreement is usually computed at the end of the descriptive phase (\cite[803]{Meyers} is an exception), when it is too late for feedback. Reproducibility assessment is only regarded as a quality indicator: researchers are content with measuring the symptoms and rarely attempt to cure them.\footnote{Another way of improving the resources has emerged: automating error detection targeted at specific error types in resources. 
+\is{dictionary}
+For example, \citet{Meyers} automatically check formal and heuristic properties of dictionary entries; \citet{Cohen}  check a constraint that the occurrences of dictionary entries in a corpus are supposed to fulfill. These a posteriori checks are celebrated as contributing to “quality assurance” and to “the development of a true science of annotation” (\citealt[82]{Cohen}), but they are hardly relevant to the present discussion, since they do not target features with reproducibility issues. In addition, they do not contribute to refining the target of description, as a priori vigilance about reproducibility does.}
+
+\newpage 
+LG \is{Lexicon-Grammar} also contributes to reproducibility indirectly, by supporting the publication of results in readable formats. LG tables display readably which entries have which features. Their well-known tabular format is theory-, framework-, formalism- and implementation-independent and allows for explicit negative information, e.g. the fact that \textit{bear comparison to} has no passive. Publishing LG tables in scientific publications and web sites indirectly tends to increase reproducibility, since peers can easily check if they agree with the recorded information.  \citet{Kaalep2008} adopt a readable tabular format too, but do not individuate columns for individual features. LG tables are used as source code, i.e.~for manual edition; they usually need to be automatically translated into application-dependent formats (\citealt{Tolonea}; \citealt{Constanta}), and this is their main flaw for computational linguists (\citealt{Hathout1998}; \citealt{Gardent2005}).\footnote{\citet{Tolone2011} improved part of the LG in that regard: she homogenized the mnemonic identifiers of properties, encoded properties common to whole classes and created a user documentation in English.} However, other formats are less readable: the DuELME \cite[34–36]{Gregoire2010}  and Lefff (\citealt{Tolonea}) formats contain lists of features without explicit negative information: to check that an entry does \textit{not} have a given feature \textit{f}, you have to verify that none of the features it has is \textit{f}.
+
+\subsection{Discussion}  
+
+Reproducibility is an epistemological requirement for scientificity. Low reproducibility casts a doubt on what exactly a feature is, since different observers perceive the feature differently. \citet[14]{Gross1981} even says about traditional semantic classification of prepositional adjuncts: “Perception of such distinctions depends a lot on individuals; therefore, they might be of no interest” (my translation). Features with high reproducibility of observation are essential when lexical entries are described manually, and provide a good basis for a classification with an ambition of stability and scientificity. In addition, many of these features are factual, and therefore informative for further research, no matter the linguistic theory adopted. Factual features are available for  language processing, especially when they determine the possibility of occurrence of actual forms, as in (\ref{ex:6:16}), (\ref{ex:6:17}) and (\ref{ex:6:23})–(\ref{31}): this is essential to automatically recognizing such MWEs.
+
+\is{Lexicon-Grammar}
+LG authors’ experience on a number of languages proves that the requirement of reproducibility does not drastically limit the diversity of features to be studied. Their tables of MWEs contain a large collection of useful features. For instance, the study of prepositional-phrase idioms compatible with \textit{be} in English by \citet{Machonis1987} showed that many of them admit a syntactic operation that inserts verbs such as \textit{get} or \textit{throw} and a causative or agentive subject, as \textit{be in a jam} ‘be in trouble’:\is{syntactic operation}
+
+
+\begin{exe}
+\ex \label{37} 
+\begin{xlist}
+\ex []{\label{37a}
+\textit{Kathy was in a jam.}}
+\ex []{\label{37b}
+\textit{An unfortunate situation had $($got $+$ thrown$)$ Kathy into a jam.}\footnote{The notation (\textit{got $+$ thrown}) serves to refer to several variants, here both \textit{had got Kathy into a jam} and\textit{ had thrown Kathy into a jam}. This notation inspired from algebra and commonly used in LG is more informative than the notation \textit{got/thrown}, since the parentheses delimit precisely where each variant begins and ends.}}
+\end{xlist}
+\end{exe}
+
+\noindent But some idioms don’t admit this operation with the same verbs, as \textit{be in the wrong} ‘be morally or legally wrong’:
+
+ \begin{exe}
+\ex \label{38} 
+\begin{xlist}
+\ex []{\label{38a}
+\textit{The cyclist is in the wrong.}}
+\ex []{\label{38b} 
+\textit{Slapping the pedestrian $($got $+$ *threw$)$ the cyclist in the wrong.}}
+\end{xlist}
+\end{exe}
+       
+
+\noindent Features related to this little-known causative construction, usually classified in recent literature under the large category of “lexical variation”, are decisive for the automatic parsing of sentences such as (\ref{37b}).
+
+\subsection{A more detailed example} 
+
+Semantic features such as analysability are rare in LG descriptions: they are difficult to define with sufficient rigour. I will exemplify this difficulty with a new semantic feature which is interesting for \is{Natural Language Processing} NLP, but requires a precise definition before it can be encoded in LG tables. \is{Lexicon-Grammar}
+
+\il{French}
+The French law term \textit{citer un témoin} (lit. `quote a witness') ‘call somebody as a witness’ is an MWE because the verb \textit{citer} has this meaning only with the noun \textit{témoin}. Still, the meaning of this noun in the idiom is the same as a meaning this noun can also have, as a (lexicalized) law term, when \textit{citer} is not present at all in the context. Even in the idiom, it usually refers to a specific person. It can belong to a chain of coreferring expressions, no matter whether it is the first element of the chain, as in (\ref{39}), or not, as in (\ref{40}).
+
+
+\begin{exe}
+\ex []{\label{39}
+\textit{La défense a cité un témoin. Il vient de s’exprimer.}\\
+Lit. The defence  quoted a witness. He has just expressed himself. 
+\glt ‘The defence called a witness. He has just spoken.’}
+\end{exe}
+
+\noindent In (39), \textit{un témoin} ‘a witness’ and \textit{il} ‘he’ refer to the same person.
+
+
+\begin{exe}
+\ex []{\label{40}
+\textit{Ils avaient {un autre} témoin, mais finalement ils ne l’ont pas cité.}\\
+Lit. They had another witness, but finally they did not quote him.
+\glt ‘They had another witness, but they ended up not calling him.’}
+\end{exe} 
+
+\noindent In (\ref{40}), \textit{un témoin} in the idiom is replaced by the pronoun \textit{l’} ‘him’, which refers to the same person as \textit{un autre témoin} ‘another witness’. In a chain of coreferring expressions like those of (\ref{39}) and (\ref{40}), the syntactic markers of the coreference such as determiners, pronouns, etc., follow the same rules as when the noun is not part of an idiom. For example, in (\ref{39}), \textit{il} ‘he’ has the same form as when \textit{un témoin} ‘a witness’, but not the rest of the idiom, is present in the context:
+
+\begin{exe}
+\ex []{\label{41}
+\textit{La défense a un témoin. Il vient de s'exprimer.}\\
+ ‘The defence has a witness. He has just spoken.’}
+\end{exe}
+ 
+ 
+\noindent The feature that I wish to single out, and which \textit{témoin} ‘witness’ in (\ref{39}) shares with many other idiom components, is a combination of three properties:
+
+\renewcommand{\theenumi}{(\roman{enumi})}%
+\begin{enumerate}
+\item The component, when used in the idiom, has mandatorily a meaning that it can also have (as a lexicalised meaning) when the rest of the idiom is not present at all, not even in the context, as opposed to \textit{feet} in \textit{think on one’s feet} ‘improvise a reaction quickly’, or to \textit{eyes} in \textit{roll one’s eyes}, where\textit{ eyes} doesn’t always refer to eyes. \footnote{Property (i) matches what \citet[96]{Burger2007} calls \textit{partly idiomatic} expressions. It is more restrictive than analysability\slash decomposability: for instance, in \textit{pull strings} ‘covertly use one’s influence on personal connections’, the noun \textit{string} does not keep any of the lexicalized meanings it has when \textit{pull} is not present at all. As a consequence, the feature that I am defining is different from analysability 
+\is{multiword expression!analyzability}
+too.}
+
+\item The component can be the first in a chain of coreferring expressions, and then the syntactic markers of the coreference: determiners, pronouns, etc., follow the same rules as when the noun is not part of the idiom. This does not happen, for instance, with \textit{posture} in the \ili{French} idiom of (\ref{42}):
+
+\begin{exe}
+\ex []{\label{42}
+\textit{Kathy était en mauvaise posture.} \\
+Lit. Kathy was in bad posture.
+\glt ‘Kathy was in trouble.’}
+\end{exe}
+
+To refer to the trouble after they have used this idiom, speakers use another noun:
+
+\begin{exe}
+\ex []{\label{43}
+\textit{Kathy était en mauvaise posture. Ces difficultés auraient pu être évitées.}\\
+Lit. Kathy was in bad posture. This trouble  could have  been avoided.
+\glt ‘Kathy was in trouble. This trouble could have been avoided.’}
+\end{exe}
+  
+Without this idiom, they can use the same noun:
+
+\begin{exe}
+\ex []{\label{44}
+\textit{Kathy avait une posture fière. Cette posture a été commentée.}
+\glt ‘Kathy had a proud posture. This posture has been commented.’}
+\end{exe}
+
+But if the first expression referring to the trouble is part of the idiom of (\ref{42}), speakers do not use the same noun for other coreferring expressions:
+
+\begin{exe}
+\ex [*]{\label{45}
+\textit{Kathy était en mauvaise posture. Cette posture aurait pu être évitée.}\\
+Lit. Kathy was in bad posture. This posture could have  been avoided.
+\glt `Kathy was in trouble. This trouble could have been avoided.'\footnotemark{}
+}
+\end{exe}
+\footnotetext{Example (\ref{45}) is not entirely parallel to (\ref{39}): (\ref{39}) involves pronouns and (\ref{45}) involves determiners and nouns. Studying feature (ii) requires taking into account diverse syntactic markers of coreference. This feature is connected with pronominalizability, but not only.}
+%{  Example (30) is not entirely parallel to (27): (27) involves pronouns and (30) involves determiners and nouns. Studying feature (ii) requires taking into account diverse syntactic markers of coreference. This feature is connected with pronominalizability, but not only.}}
+
+\item  The component can occur in a chain of coreferring expressions without being the first, and then the syntactic markers of the coreference such as determiners, pronouns, etc., follow the same rules as when the noun is not part of the idiom. This does not happen, for example, with \textit{strings} in \textit{pull strings} ‘covertly use one’s influence on personal connections’. When speakers refer to the connections before using this idiom, the coreference between the first mention of the connections and the idiom component is not explicitly marked:
+
+\begin{exe}
+\ex []{\label{46}
+\textit{I needed connections to make myself known, and John could pull strings for me.}}
+\end{exe}
+
+In this form, \textit{strings} has the same form as if there were no mention of it before. Without the idiom, we observe a syntactic marker of coreference:
+
+\begin{exe}
+\ex []{\label{47}
+\textit{I needed connections to make myself known, and John provided them to me.}}
+\end{exe}
+
+
+Speakers do not use this marker if the second mention of the connections is part of the idiom:
+
+\begin{exe}
+\ex [*]{\label{48}
+\textit{I needed strings to make myself known, and John could pull them for me.}}
+\end{exe}
+
+\end{enumerate}
+
+But why get interested in the combination of features (i)--(iii),\footnote{It 
+  is not an “aggregate” of features (i)--(iii) as in \sectref{correlatedfeatures} above: it is specifically a conjunction of these independent features, in the sense that an idiom has it if and only if it has simultaneously (i), (ii) and (iii). Alternatively, features (i)--(iii) might be studied separately, but they are likely to be less useful than their conjunction.
+} which has never been studied or named? Because it is shared by many other terminological idioms, for example the \ili{French} term of geometry \textit{abaisser une perpendiculaire à} ‘drop a perpendicular on to’ (lit. move down a perpendicular to).\footnote{\textit{Abaisser} has this meaning only with \textit{perpendiculaire} and \textit{parallèle} ‘parallel’, which keep their autonomous terminological meaning and ability to be referred to anaphorically:  
+\ea \textit{On abaisse une perpendiculaire de A à BC. Cette droite est parallèle à CD.}  
+\glt ‘A perpendicular is dropped from A on to BC. This line is parallel to CD.’
+\zlast
+}
+The idiom component that has the feature, like \textit{témoin} ‘witness’, is often a technical term too, and is able to denote a referent in a clear and specific way. In such case, these idioms are meaningful elements of technical texts, a realistic target for future improvements to the automated understanding of natural language texts.
+
+My definition is based on properties (i)--(iii), which are relatively formal.\footnote{My definition does not include another striking property of \textit{témoin} ‘witness’ in (\ref{39}): it can refer to a specific entity, as opposed to \textit{fire} in (\ref{ex:6:29a}) \textit{John fights fire with fire}, which alludes to ways of fighting in general. The semantic distinction between specific and generic reference is a matter of pure intuition. As such, its reproducibility of observation can be low, for example in the case of \textit{bread} in \textit{They will take the bread from our mouths} ‘They will divert money from us’: in this sentence, does \textit{the bread} refer to material goods in general, or to a specific instance of income?} Even so, this feature is probably not ready for encoding, that is for production of a satisfactory list of the idioms with this feature: only large-coverage encoding experiments would tell if this definition ensures sufficient reproducibility of observation.
+
+In this section, all the examples above focus on nouns that are parts of verbal idioms. How does the feature extend to other PoS? Here are two noteworthy features closely related to this one. 
+
+In a large proportion of multiword nouns, the head noun keeps all the grammatical and semantic behaviour it has as an independently existing lexical entry. This is the case of \textit{red wine}: it is a (terminological) MWE because \textit{red} has this meaning only with \textit{wine}, but \textit{wine} can be equated with the independent lexical entry \textit{wine}, with the same properties (i)--(iii) as above. With multiword nouns, this is related to another test: \textit{red} can usually be inserted in sentences with \textit{wine} or removed from them, without unexpected changes in acceptability or meaning:
+
+\begin{exe}
+\ex \label{49}
+\begin{xlist}
+\ex []{\label{49a}
+\textit{They have an interest in wine.}}
+\ex []{\label{49b}
+\textit{They have an interest in red wine.}}
+\end{xlist}
+\end{exe}
+
+\begin{exe}
+\ex \label{50}
+\begin{xlist}
+\ex []{\label{50a}
+\textit{Is red wine healthy and worth the calories?}}
+\ex []{\label{50b}
+\textit{Is wine healthy and worth the calories?}}
+\end{xlist}
+\end{exe}
+
+\noindent This test uses differential semantic assessment. \textit{Smooth operator} ‘persuasive person; manipulative person’ doesn’t share this feature, as the meaning changes in (\ref{51})–(\ref{52}) show:
+
+
+\begin{exe}
+\ex \label{51}
+\begin{xlist}
+\ex []{\label{51a}
+\textit{Ask the operator to dial.}\\
+ ‘Ask the switchboard operator to dial.’}
+\ex []{\label{51b}
+\textit{Ask the smooth operator to dial.}
+\glt ‘Ask the persuasive person to dial.’; ‘Ask the manipulative person to dial.’}
+\end{xlist}
+\end{exe}
+
+\begin{exe}
+\ex \label{52}
+\begin{xlist}
+\ex []{\label{52a}
+\textit{Any lady I’ve dated will tell you I’m no smooth operator.}
+\glt ‘Any lady I’ve dated will tell you I’m not manipulative.’}
+\ex []{\label{52b}
+\textit{Any lady I’ve dated will tell you I’m no operator.}
+\glt ‘Any lady I’ve dated will tell you I’m not a switchboard operator’}
+\end{xlist}
+\end{exe}
+
+ 
+Some adverbs are specific to one or a few verbs, which nevertheless keep all their behaviour. Here are two examples in \ili{French} from the tables of multiword adverbs by \citet{Gross1986}:
+
+\begin{exe}
+\ex \label{53}
+\begin{xlist}
+\ex []{\label{53a}
+(\textit{chanter} $+$  \textit{crier} $+$  \textit{rire}) \textit{à gorge déployée}\\
+Lit. (sing $+$  shout $+$  laugh) at opened-out throat
+\glt ‘(sing + shout + laugh) out loud’}
+\ex []{\label{53b}
+ \textit{N}\textsubscript{0} \textit{aller à N}\textsubscript{1}  \textit{comme un tablier à une vache}\\
+Lit.  N\textsubscript{0} fit N\textsubscript{1} as an apron does a cow
+\glt ‘N\textsubscript{0} fit N\textsubscript{1} supremely badly’}
+\end{xlist}
+\end{exe}
+
+\noindent As opposed to the preceding examples, these have no terminological value.
+\newpage   
+
+Care for reproducibility in observation of linguistic facts characterizes a conception of humanities in which scholars not only share insights and deepen their intuition, but also gather reliable factual knowledge, paying attention to practical techniques that improve the quality of their description. In this conception, descriptive work, and in particular lexical description, is fundamental. For instance, assessing reproducibility of observation is a practical matter: it involves scanning through the lexicon while trying to describe which entries have a feature and which don’t. Thus, preferring features that can be observed by humans in a reproducible way is good practice.
+\is{reproducible observation|)}
+
+
+\section{Checking information against the lexicon}
+\label{sec:5}
+
+\is{lexicon|(}
+\subsection{Discussion} 
+\label{sec:51}
+
+Checking information against the lexicon is still alien to a large part of MWE research. \citet{Baldwin2010} do not cite studies using intensive lexical description of MWEs, except for Estonian MWEs. The companion website to their paper cites corpora and tools, but no NLP \is{Natural Language Processing} dictionaries.\footnote{\url{http://handbookofnlp.cse.unsw.edu.au/?n=Chapter12} was looked up in August 2016.}  Among the tools, it even omits those based on dictionaries. Current descriptive research is not eager to achieve large lexical coverages. FrameNet has a small coverage of MWEs (\citealt{Hartmann2013}), and so do, among NLP dictionaries, VerbNet, WordNet and Meaning-Text. \cite{Bond}  encode for HPSG \is{Head-driven Phrase Structure Grammar} a sample of English idioms with a possessive coreferent with the subject, like \textit{roll one’s eyes}, but here is how the size of the result compares with previous efforts: \cite{Freckleton1985}'s classes C1A and C11 contain 538 verbal idioms with such a possessive, while \cite[64]{Bond}’s  four classes that correspond to C1A and C11 total 168 ones. 
+\is{Lexicon-Grammar}\is{dictionary}
+Aside from LGs, sizable lexical databases of MWEs are few. The NomLex-Plus and NomBank dictionaries of English nouns with predicate-argument structure list 8000 entries (\citealt{Meyers2007}). \cite{Kaalep2008}'s database lists 13000 \il{Estonian} Estonian MWEs. The DuELME dictionary of \il{Dutch} Dutch MWEs totals 5000 expressions (\citealt{Gregoire2010}).\footnote{The SemLex Dictionary of Czech MWEs is still little documented in publications \citep{Bejcek2010}.}
+
+My point in this part is that information on MWEs is worth checking against the lexicon. Reluctance against lexical description is rarely explicit, and when it is, it is not motivated by sound reasons.\footnote{“Again, in itself this type of approach [interviews, surveys, statistics] is neither good nor bad. The question is whether it leads to the discovery of principles that are significant. We are back to the difference between natural history and natural science. In natural history, whatever you do is fine. If you like to collect stones, you can classify them according to their color, their shape, and so forth. Everything is of equal value, because you are not looking for principles. You are amusing yourself, and nobody can object to that. But in the natural sciences, it is altogether different. There the search is for the discovery of intelligible structure and for explanatory principles. In the natural sciences, the facts have no interest in themselves, but only to the degree to which they have bearing on explanatory principles or on hidden structures that have some intellectual interest.” \citep[58--59]{Chomsky1979} Beyond the depreciative rhetoric of this passage, Chomsky actually suggests skipping factual observation when it involves extensive description.}
+
+\is{Lexicon-Grammar}
+Sure, intensive investigation into the lexicon is costly. For example, the construction of LG tables of MWEs, which are comprehensive repositories with representation of individual features (cf. \sectref{earlierworkonfeatures}), has always involved considerable work. But the objective of a satisfactory processing of MWEs is worth cost and effort. (The reason one enjoys Dostoyevsky is not because he is easy to read.) And the tables are available for several languages, which shows that this work is realistic.
+
+The reluctance towards intensive lexical description might come from a feeling that it is deemed an unskilled, low-grade occupation. But such a feeling is unfounded: in projects of construction of large lexical databases of MWEs, linguists are obviously engaged in highly skilled labour.
+
+The reluctance may be directed towards manual work. As computer science is about automating information processing, many computational linguists may understandably feel excited about devising “knowledge-free” solutions that avoid the need of \textit{any} labour-intensive activity, be it in preliminary operations. But, in the case of MWE-related NLP, relying on this only hope is adventurous: the goal of fully automating acquisition of knowledge about all MWEs has been giving hard times to the community for more than 15 years.
+
+\is{dictionary}
+No dictionary is 100\% complete or 100\% error-free, but this does not make them useless%
+%Combine with the next paragraph?
+%
+%
+%I prefer keeping it separated for the sake of argumentative structure. It is one of a sequence of 4 paragraphs, each of which answers a reason to neglect lexical description.
+%
+.
+
+\largerpage
+And manual lexical description has several advantages. The resulting data allows for more well-documented studies and is likely to be useful for making successful rules or devising successful machine learning experiments. When linguists scrutinize 10 features on a comprehensive part of a 1000-item class, what they find out is worth taking a look. It provides examples and counter-examples which are useful to test predictions, proposals and hypothetical rules or generalities. 
+\is{Lexicon-Grammar}
+LG tables, as large repositories of factual features, are a source of examples for further research, no matter the theory, framework or implementation to be used. Creativity of language is a major obstacle to its scientific study, and it lies, among other things, in the combinatorics of lexical items and grammatical constructions: systematic investigation in the lexicon is therefore a way of addressing this problem.
+
+\is{taxonomy}
+Intensive lexical description is crucial to selecting features for classification, and therefore to the quality of classification. The construction of the NomLex-Plus and NomBank dictionaries of English nouns with predicate-argument structure involved an unprecedented investigation into support-verb constructions in English and into features to recognize and classify them (\citealt{Meyers2007}). The study of idioms that take the form of a prepositional phrase in Romance languages (\citealt{Danlos1980}; \citealt{Ranchhod1990}; \citealt{gross1996}; \citealt{Vietri1996}), \il{English} English \citep{Machonis1988} and \il{Greek} Greek \citep{Moustaki1995} singled out a particularly useful feature for the top of MWE classifications. Some of these idioms are compatible with \textit{be} or the equivalent copula in other languages and may appear in predicative position, as in (\ref{54b}):
+
+\begin{exe}
+\ex \label{54}
+\begin{xlist}
+\ex []{\label{54a}
+\textit{John will reach the end on time.}}
+\ex []{\label{54b}
+\textit{John will be  on time.}}
+\end{xlist}
+\end{exe}
+
+\noindent Others may not:
+
+
+\begin{exe}
+\ex \label{55}
+\begin{xlist}
+\ex []{\label{55a}
+\textit{The crisis has a demographic cause in the final analysis.}
+\glt ‘The crisis has a demographic cause, when everything has been considered.’}
+\ex [*]{\label{55b}
+\textit{The cause is in the final analysis.}}
+\end{xlist}
+\end{exe}
+
+
+\noindent Those compatible with \textit{be}, like \textit{on time} ‘punctually; punctual’ in (\ref{54}), \textit{on vacation} and \textit{on the spot} ‘immediately; in the same place; in trouble’, usually pose a problem of PoS: are they closer to adjectives or to adverbs?\footnote{Lexicalized MWEs are lexical items, so they may have a PoS like single-word lexical items do.} In contrast, those like \textit{in the final analysis} in (\ref{55a}) and \textit{for instance} are clearly adverbial expressions. Compatibility with \textit{be}, that is the contrast between (\ref{54}) and (\ref{55}), provides a relatively sharp division in a large number of cases where PoS distinction would otherwise be particularly uncertain. Applying this criterion requires investigating into the syntactic contexts of idioms in sentences, but this is the usual price to be paid to resolve PoS issues,\footnote{The most appropriate definition of each PoS is based on its possible syntactic contexts in sentences. For example, in English, a noun is to be recognized by its ability to be preceded by determiners and adjuncts, followed by adjuncts, etc.} and PoS are key to a \is{taxonomy} general classification of MWEs. So, this criterion is more relevant than the presence vs.~absence of a determiner, retained by  \citet[278]{Baldwin2010} at the top of their classification, a criterion that only uses the internal structure of idioms. 
+
+Lexical data deepens knowledge of how correlated two features \is{feature!correlated} are. It does so by providing reliable statistics on lexical entries: how many entries with feature~\textit{f} also have feature \textit{g}? For example, the causative construction of (\ref{37b}), with a prepositional-phrase idiom and \textit{get}, \textit{throw} or other verbs like \textit{keep}, is observed only when the idiom is compatible with \textit{be}:
+
+\begin{exe}
+\ex \label{56}
+ \begin{xlist}
+\ex []{\label{56a}
+\textit{John will be on time.}}
+\ex []{\label{56b}
+\textit{This gift will keep John on time.}}
+\end{xlist}
+\end{exe} 
+
+\begin{exe}
+\ex \label{57}
+ \begin{xlist}
+\ex [*]{\label{57a}
+ \textit{The cause is in the final analysis.}}
+\ex [*]{\label{57b}
+ \textit{This point keeps the cause in the final analysis.}}
+\end{xlist}
+\end{exe}     
+
+\noindent Such specific grammatical information allows for measuring correlations accurately.
+
+Intensive lexical description tends to make researchers more cognizant of variation, including less frequent variations and variations of less frequent items. As such, it is complementary to corpus annotation, which rather makes them aware of context-related issues.
+
+Lexical description also provides means of separating homonymous entries, for example the various interpretations of \textit{on the spot}: ‘immediately’; ‘in the same place’; ‘in trouble’. Such separation, in turn, is essential to construct cross-lingual tables (\citealt{Ranchhod}).
+
+All these benefits of lexical description make it \textit{a priori} useful for applications. There is still little significative feedback from the NLP use of any comprehensive dictionary of MWEs, but this may come from the complexity of the problem and the interdependence of all subproblems of symbolic syntactic parsing. 
+\is{lexicon|)}
+
+\subsection{Predicted vs. checked features} 
+
+\is{multiword expression!analyzability|(}
+\cite[104]{Gibbs1989} hypothesize that semantic analysability\slash decomposabil\-ity “determines the syntactic behavior of idioms”. In this section, I examine the present and potential consequences of this conjecture.
+
+\is{syntactic operation|(}
+\is{multiword expression!flexibility}
+With \cite{Nunberg1994}, the hypothesis becomes two claims. First, the ana\-lysability of an expression predicts syntactic operations are applicable to it: “the syntactic properties of idioms [that is the applicability of syntactic operations] are largely predictable from the semantically based analysis of idioms we are proposing [i.e. their analysability].” (\citealt[507]{Nunberg1994}). In parallel, the unanalysability of an expression predicts syntactic operations are not applicable to it: “we (\ldots) explain a variety of ‘transformational deficiencies’ of idioms by positing a bifurcation between [unanalysable] and [analysable] expressions, with only the latter type permitting those processes” (\citealt[508]{Nunberg1994}).
+
+After these claims, analysability became popular in the community and was used to define some of the major classes of MWEs. The two predictions give a sense that analysability is an underlying, fundamental property, and that its use in classification implements a strategy of parsimony, since assigning an entry to a class automatically specifies all the predicted features. \cite[4]{Sag:2002}  retain only the second prediction: “due to their opaque semantics, non-decomposable idioms are not subject to syntactic variability, e.g. in the form of internal modification (\textit{\#kick the great bucket in the sky}) or \is{passive} passivization (*\textit{the breeze was shot}).”\footnote{\textit{Shoot the breeze} means ‘talk casually’.}
+
+However, \cite{Nunberg1994}  do not check the claims, either on available data or on original data. A general claim requires systematic verifications, which they mention as a perspective for future work: “testing this prediction systematically is a nontrivial project” (\citealt[531]{Nunberg1994}). Therefore, both claims remain hypotheses.
+
+When authors check the predicted syntactic features, they readily find out counter-examples to both predictions (\citealt{Abeille95}; \citealt{Stathi2007}). Here are three more that I picked from the lists of \ili{French} verbal idioms by \citet{gross1982}:
+
+\begin{exe}
+\ex []{\label{58}
+\textit{rater un éléphant dans un couloir}\\
+Lit. miss an elephant in a corridor
+\glt ‘be unable to hit the broad side of a barn;  have poor aim;  be unable to reach targets’}
+\end{exe}
+
+\noindent Example (\ref{58}) seems analysable as \textit{miss}(\textit{x}, \textit{easy-target}), but does not admit syntactic variations, not even omission of the prepositional complement.
+
+\begin{exe}
+\ex []{\label{59}
+\textit{trouver chaussure à son pied}\\
+Lit. find shoe to one’s foot
+\glt ‘find the perfect match for oneself’}
+\end{exe}
+
+
+\is{multiword expression!flexibility}
+\is{multiword expression!analyzability}
+
+\noindent Example (\ref{59}) seems analysable as something like \textit{find}(\textit{x}, \textit{partner}), but does not admit syntactic variations either. Conversely, (\ref{60}) is hardly semantically analysable:
+
+\begin{exe}
+\ex []{\label{60}
+\textit{mettre toutes les chances de son côté}\\
+Lit. put all the chances on one’s side
+\glt ‘not take any chances’}
+\end{exe}
+
+\noindent But it admits the passive form:\is{passive}
+
+\begin{exe}
+\ex []{\label{61}
+\textit{Toutes les chances sont mises de votre côté.}\\
+Lit. all the chances are put on your side
+\glt ‘You are not taking any chances.’}
+\end{exe}
+
+\cite[512]{Nunberg1994}  extend their claims in the case when an idiom is analysable: “the syntactic versatility of an idiom is a function of how the meanings of its parts are related to one another and to their literal meanings”. In other words, details of the semantic structure of analysable idioms would predict which syntactic operations are applicable.
+
+It is particularly difficult to give credit to this hypothesis. Its authors do not check it any more than the previous one; the alleged rules of prediction are unknown. Formalizing them would be a challenge that no one has taken up since. Instead, \citet{Riehemann:01} finds that which types of syntactic variation a given idiom can undergo is highly unpredictable.
+
+\cite[280]{Baldwin2010} adopt Nunberg, Sag \& Wasow's 1994 hypothesis as their own: “the exact form of syntactic variation [of verbal idioms] is predicted by the nature of their semantic decomposability”. But they do not provide any evidence to support it. Even worse, their formulation suggests that, instead of describing the syntactic variation of verbal idioms, one might infer it automatically from a description of their analysability. But recall that syntactic variation is \is{reproducible observation} more reproducibly observable than analysability: thus, the suggested proposal comes down to inferring several factual features from a property that poses problems of definition and observation (cf.\ \sectref{syntacticflexibility}). Such a process would hardly be effectual.
+
+Predicting features might seem a clever move. But it necessarily begins as a hypothesis, which needs to be checked to get any scientific value. So, predicting features does not allow for bypassing the verification step.
+\is{syntactic operation|)}
+\is{multiword expression!flexibility}
+\is{multiword expression!analyzability}
+
+\section{An adapted classification}
+\label{sec:6}
+
+\is{taxonomy|(}
+I propose in \figref{fig:1} a decision tree adapted from \citet[279]{Baldwin2010}, but which avoids the flaws discussed above, and in particular features that are too fuzzy or difficult to observe. It uses all the MWE-related \is{Lexicon-Grammar} LG work, including the studies on \il{English} English, Romance languages, \il{Greek} Greek, \il{Korean} Korean and other languages, cited in  \sectref{earlierworkonfeatures}, \sectref{clearcutfeatures}, \sectref{syntacticflexibility} and \sectref{sec:51}. Much of this work was conducted in parallel and cross-linguistic comparisons showed that, even though the details of formal criteria depend on the languages (\sectref{fuzzyfeaturediscussion}), the notions they define are similar. For example, the typology of \ili{French} support verbs by \citet{Gross1998} is transferred to the English FrameNet by \cite[37--38]{Ruppenhofer}  without any modification. The classification in \figref{fig:1} is in terms of notions defined by criteria mentioned in the text of this chapter, but the criteria are not repeated in the figure. Thus, it is formulated for English and easily adaptable to many other languages: to adapt it to French, substitute \textit{être} for \textit{be}.
+
+
+\begin{figure}[h]
+\centering
+%\includegraphics[width=\textwidth]{figures/laportefig1.png}
+\begin{tikzpicture}
+\footnotesize
+\tikzset{level 1/.style={sibling distance=-40pt}}
+\tikzset{level 2/.style={sibling distance=-30pt}}
+\tikzset{level distance=60pt}
+\Tree [ .MWE
+        [ .lexicalized
+            [ .{MWE without\\ support verb} 
+              [.{verbal idiom\\ \textit{take stock}} ]
+              [.{multiword\\noun\\ \textit{traffic lights}} ]
+              [.{multiword\\adverb\\ \textit{for instance}} ]
+              [.{prepositional phrase\\compatible with \textit{be} \\ \textit{on time}} ]
+              [.{multiword\\adjective\\ \textit{black and white}} ]
+           ]
+            [.{construction\\with support\\verb and noun\\ \textit{have an aim}} ]
+        ]
+        [.{non-lexicalized\\ \textit{salt and pepper}} ]
+ ]
+\end{tikzpicture}
+\caption{Classification of MWEs.}
+\label{fig:1}
+\end{figure}
+
+
+%Figure : Classification of MWEs. 
+
+\largerpage
+The top distinction is between lexicalized and non-lexicalized expressions. 
+\is{lexicalization}
+By non-lexicalized expressions, I mean those that are fully compositional but in which a statistical preference for an element is not explained by extra-linguistic facts. For example, the preference for \textit{sell a house} over \textit{sell a wall} is explained by cultural habits, so we don’t need to describe it as a linguistic property; therefore, \textit{sell a house} is not an MWE. In contrast, the preference for the \ili{French} phrases \textit{tondre la pelouse} ‘mow the lawn’ and \textit{couper l’herbe} ‘cut the grass’ over \textit{tondre l’herbe} ‘mow the grass’ and \textit{couper la pelouse} ‘cut the lawn’ is a purely linguistic fact. This suggests \textit{tondre la pelouse} and \textit{couper l’herbe} are MWEs, but they are not lexicalized, since the other two are in use. The term\textit{ black and white} ‘composed of shades of black or of a single colour’ is lexicalized. 
+\is{semantics!compositionality}
+If it were fully compositional, speakers would be able to interpret \textit{white and black} the same way as\textit{ black and white}, which they aren’t. The same holds for \textit{traffic lights}: if it were fully compositional, speakers would be able to interpret it as another type of light connected with traffic.
+
+The second distinction in \figref{fig:1} relies on the notion of support-verb construction. This is not an easy distinction, but the literature shows that trained linguists are able to make it on the basis of formal criteria that ensure sufficient \is{reproducible observation} reproducibility of observation: these criteria are outlined in \sectref{clearcutfeatures}. Support-verb constructions 
+\is{light verb construction}
+are a significant class because they are numerous both in texts and in a dictionary: 
+\is{Lexicon-Grammar}\is{dictionary}
+out of the 62,100 MWE entries of the French LG, 12,700 (20\%) are support-verb constructions \citep{Tolone2011}. Support-verb constructions have in common a crucial property which is a good reason to place them so close to the top of the classification: the construction with the verb, for example \textit{have a passion}, and the construction without the verb, which is usually a predicational noun, here \textit{passion}, are not adequately described by two distinct lexical entries. For example, the arguments of \textit{have a passion} are exactly the same as those of \textit{passion}, including the preposition of the complement (\textit{for}) and the restrictions on what may fill both slots (the subject contains a human noun; the complement may contain a human, concrete or abstract noun or an infinitival clause). Moreover, occurrences without the support verb are usually more frequent in texts than occurrences with it (\citealt{Laporte2008}).
+
+The third distinction in \figref{fig:1} is based on PoS.\footnote{The appropriate definition of each PoS in this context is based on its possible syntactic contexts in sentences (cf. \sectref{sec:51}, footnote 40).} It conflates adverbs with prepositions and conjunctions, with the view that a multiword preposition like \textit{in spite of} or a multiword conjunction like \textit{in case that} may also be analysed as a multiword adverb with a free prepositional or clausal slot.\footnote{Here, \textit{free} means that the content of the slot, that is the noun phrase or the embedded clause, is variable.} This lowest level of the tree includes an additional “PoS”, namely ``prepositional phrase compatible with \textit{be}'', such as \textit{on time} and \textit{on vacation}, in order to sort out partially the problem of assigning a PoS to idioms taking the form of prepositional phrases: are they adverbs or adjectives? The compatibility with \textit{be} provides a relatively sharp division in a large number of cases where PoS distinction is particularly uncertain (cf. (\ref{54})--(\ref{55}), \sectref{sec:51}). The multiword adjective category is meant for expressions that do not take the form of prepositional phrases, for example \textit{black and white} ‘composed of shades of black or of a single colour’ or \textit{safe and sound} ‘unharmed’. In \figref{fig:1}, the distinction between support-verb constructions or not is just above the decision about PoS. It could also be the other way round, which would make the support-verb-construction class a brother of the verbal-idiom class. This variant would give prominence to PoS, which are always key information, well-known classes and often clear-cut features.
+
+In \figref{fig:2}, I propose an alternative classification that may bewilder many researchers. But those that take seriously the notion of support-verb construction will probably find it more consistent than \figref{fig:1}. From \citet[34]{Gross1981}, \citet{Ranchhod1983} and \citet{Cattell1984}, the notion of support-verb construction includes constructions like \textit{be angry} or \textit{get loose}, where the support verb is \textit{be} or one of its variants \citep[123]{Meyers2007}. With this view, phrases like \textit{be angry} or \textit{be a genius} become support-verb constructions and therefore MWEs. Another consequence is that, in a support-verb construction, the core of the predicate may be an adjective or even a prepositional phrase (e.g. \textit{be on time}) instead of a noun. Few computational linguists are familiar with these two ideas. But analysing all these expressions as support-verb constructions is consistent. They undergo semantic and syntactic phenomena observed with other support verb constructions:
+\is{light verb construction}
+
+\renewcommand{\theenumi}{(\roman{enumi})}%
+\begin{enumerate}
+\item Syntactic operations \is{syntactic operation}
+produce constructs where the core of the predicate occurs without the verb, with the same meaning. For example, in the same way as \textit{have} disappears in the alternance between \textit{the habit the customer had} and \textit{the customer's habit}, the verb \textit{be} also disappears between \textit{a customer who was angry} and \textit{an angry customer}.
+
+\item Other verbs can replace \textit{be}, causing an aspectual or stylistic effect: compare \textit{The customer was angry} with \textit{The customer got angry}. This pair is parallel to \textit{The customer had a habit / The customer gained a habit}.
+
+\item There exist constructs with an additional causative or agentive subject and another verb, as in (\ref{37}) or in \textit{The team was confident / Football made the team confident}. Such pairs are parallel to \textit{The team had a goal / Football gave the team a goal}.
+\end{enumerate}
+
+
+\begin{figure}[h]
+\centering
+%\includegraphics[width=\textwidth]{figures/laportefig2.png}
+\begin{tikzpicture}
+\scriptsize 
+\tikzset{level 1/.style={sibling distance=-80pt}}
+\tikzset{level 2/.style={sibling distance=0pt}}
+\tikzset{level 3/.style={sibling distance=0pt}}
+\tikzset{level distance=60pt}
+\Tree [.MWE
+        [.lexicalized
+            [.{MWE without\\ support verb} 
+             [.{verbal\\idiom\\ \textit{take stock}} ]
+             [.{multiword\\noun\\ \textit{traffic lights}} ]
+             [.{multiword\\adverb\\ \textit{for instance}} ]
+            ]
+            [.{support-verb\\construction} 
+                [.{\textit{Vsup}\\is not\\copula}
+                  [.{with\\predicational\\noun\\ \textit{have an aim}} ] 
+                ] 
+                [.{\textit{Vsup}\\is\\copula} 
+                  [.{with\\predicational\\noun\\ \textit{be a genious}} ] 
+                  [.{with\\predicational\\adjective\\ \textit{be angry}} ] 
+                  [.{with\\prepositional\\phrase\\ \textit{be on time}} ] 
+		] 
+            ]
+        ]
+        [.{non-lexicalized\\ \textit{salt and pepper}} ]
+]
+\end{tikzpicture}
+\caption{Classification of MWEs where copula is considered a support verb.}
+\label{fig:2}
+\end{figure}
+
+
+\figref{fig:2} adopts this view and considers the copula (a linguistic term for \textit{be} or its equivalent introducing a predicate) as a part of a support-verb construction. Prepositional phrases compatible with \textit{be} shift to support-verb constructions. Since more expressions are considered MWEs than in \figref{fig:1} and support-verb constructions become more diverse, they are divided in subclasses too, taking into account the PoS of the core of the predicate.\footnote{The exact list of PoS under support-verb constructions and non-support-verb constructions depends on languages: in Arabic, Chinese or Korean, among others, predicational adjectives are used without a copula, and the class of copulative constructions with a predicational adjective is irrelevant for them.} The core of the predicate may be either a word (\textit{have an aim,  be a genius,  be angry}) or multiword (\textit{have a point of view, be a smooth operator, be safe and sound, be on time}). There are two new categories: copulative constructions with a predicational adjective, for example \textit{be angry, be safe and sound},\footnote{Non-predicational adjectives are those compulsorily attributive, for example \textit{prime} in \textit{This is John’s prime role}: *\textit{This is John’s role that is prime}. Another sense of \textit{prime} corresponds to a predicational adjective: \textit{21 is not prime}.} and with a predicational noun, for example \textit{be a genius, be a smooth operator}. 
+
+In \figref{fig:2}, the distinction between support-verb constructions or not is just above the decision about PoS. In addition, the PoS-based classification of support-verb constructions takes into account the PoS of the core of the predicate: noun (\textit{aim, point of view, genius, smooth operator}), adjective (\textit{angry, safe and sound}) or prepositional phrase (\textit{on time}). This is an essential element of the diversity of these constructions. We can shift the PoS level of the decision tree above the support-verb-construction level, but then the tree will classify all support-verb constructions as verbal MWEs, and it will be desirable to add a second PoS level below, to take into account the PoS of the core of the predicate. Thus, the decision tree will have one more level than \figref{fig:2} to define the same classes.
+\is{taxonomy|)}
+
+
+\section{Conclusion}
+
+Something is to be learned from the experience of the last 20 years in respect of choosing features for classifying MWEs. Current practice routinely uses fuzzy features, or features defined in an imprecise way. On many occasions, a cluster of loosely correlated features is considered as a single feature. The choice of features with such flaws is likely to lead to classifications less fruitful for computational use. For example, describing the analysability\slash decomposability of verbal idioms is much less feasible and useful than describing their syntactic variation.
+
+Selecting more appropriate features is not an easy task. It requires prioritizing good practices when studying MWEs. One of them consists in systematically assessing the reproducibility of observation of each feature, in order to obtain reliable repositories of lexical data. Another good practice is to check facts and predictions against the lexicon. It is understandable that some researchers try to avoid the patient examination of thousands of lexical entries for dozens of individual features, in the hope to reach the same results through other means. But it turns out that the laborious descriptive work they wish to elude is required not only to check hypotheses, but also to come across valid hypotheses: researchers that ignored large-coverage data constructed unverifiable hypotheses that won the attention of the community and resulted in loss of time.
+
+The LG approach implements these good practices in descriptive and analytical work. On the basis of the results of such work carried out on several languages in parallel, I outlined an enhanced classification of MWEs.
+
+\section*{Acknowledgements}
+
+Thanks to the anonymous reviewers, to the scientific editors and to Alexis Neme, for their comments, suggestions and questions that considerably enriched this paper. Only I am responsible for its content.
+
+\section*{Abbreviations}
+ 
+\begin{tabularx}{.51\textwidth}{lQ}
+\textsc{hpsg} & Head-driven Phrase Structure Grammar \\
+\textsc{lg} & Lexicon Grammar  \\
+\end{tabularx}
+\begin{tabularx}{.47\textwidth}{lQ}
+\textsc{nlp} & Natural Language Processing \\
+\textsc{p}o\textsc{s} & part of speech  \\
+\end{tabularx} 
+ 
+\sloppy
+\printbibliography[heading=subbibliography,notkeyword=this]
+%\nocite{*}
+
+\end{document}
